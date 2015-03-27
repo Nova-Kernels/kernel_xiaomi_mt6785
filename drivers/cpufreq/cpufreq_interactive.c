@@ -641,7 +641,7 @@ static int cpufreq_interactive_notifier(struct notifier_block *nb,
 	struct interactive_cpu *icpu = &per_cpu(interactive_cpu, freq->cpu);
 	unsigned long flags;
 
-	if (val != CPUFREQ_POSTCHANGE)
+	if (val == CPUFREQ_PRECHANGE)
 		return 0;
 
 	if (!down_read_trylock(&icpu->enable_sem))
