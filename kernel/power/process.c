@@ -187,6 +187,26 @@ int freeze_kernel_threads(void)
 	return error;
 }
 
+void thaw_fingerprintd(void)
+{
+	struct task_struct *p;
+
+	pm_freezing = false;
+	pm_nosig_freezing = false;
+
+	read_lock(&tasklist_lock);
+	for_each_process(p) {
+		if (!memcmp(p->comm, "mfp-daemon", 13)) {
+			__thaw_task(p);
+			break;
+		}
+	}
+	read_unlock(&tasklist_lock);
+
+	pm_freezing = true;
+	pm_nosig_freezing = true;
+}
+
 void thaw_processes(void)
 {
 	struct task_struct *g, *p;
