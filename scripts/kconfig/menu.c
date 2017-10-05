@@ -79,6 +79,10 @@ void menu_end_menu(void)
 	current_menu = current_menu->parent;
 }
 
+/*
+ * Rewrites 'm' to 'm' && MODULES, so that it evaluates to 'n' when running
+ * without modules
+ */
 static struct expr *menu_check_dep(struct expr *e)
 {
 	if (!e)
@@ -106,7 +110,7 @@ static struct expr *menu_check_dep(struct expr *e)
 
 void menu_add_dep(struct expr *dep)
 {
-	current_entry->dep = expr_alloc_and(current_entry->dep, menu_check_dep(dep));
+	current_entry->dep = expr_alloc_and(current_entry->dep, dep);
 }
 
 void menu_set_type(int type)
@@ -131,7 +135,7 @@ static struct property *menu_add_prop(enum prop_type type, char *prompt, struct 
 
 	prop->menu = current_entry;
 	prop->expr = expr;
-	prop->visible.expr = menu_check_dep(dep);
+	prop->visible.expr = dep;
 
 	if (prompt) {
 		if (isspace(*prompt)) {
@@ -316,7 +320,8 @@ void menu_finalize(struct menu *parent)
 			parentdep = parent->dep;
 
 		for (menu = parent->list; menu; menu = menu->next) {
-			basedep = expr_transform(menu->dep);
+			basedep = menu_check_dep(menu->dep);
+			basedep = expr_transform(basedep);
 			basedep = expr_alloc_and(expr_copy(parentdep), basedep);
 			basedep = expr_eliminate_dups(basedep);
 			menu->dep = basedep;
@@ -327,7 +332,8 @@ void menu_finalize(struct menu *parent)
 			for (; prop; prop = prop->next) {
 				if (prop->menu != menu)
 					continue;
-				dep = expr_transform(prop->visible.expr);
+				dep = menu_check_dep(prop->visible.expr);
+				dep = expr_transform(dep);
 				dep = expr_alloc_and(expr_copy(basedep), dep);
 				dep = expr_eliminate_dups(dep);
 				prop->visible.expr = dep;
