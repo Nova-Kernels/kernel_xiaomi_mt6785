@@ -351,7 +351,8 @@ extern const struct file_operations bpf_prog_fops;
 #undef BPF_PROG_TYPE
 #undef BPF_MAP_TYPE
 
-extern const struct bpf_verifier_ops bpf_offload_prog_ops;
+extern const struct bpf_verifier_ops tc_cls_act_analyzer_ops;
+extern const struct bpf_verifier_ops xdp_analyzer_ops;
 
 struct bpf_prog *bpf_prog_get(u32 ufd);
 struct bpf_prog *bpf_prog_get_type(u32 ufd, enum bpf_prog_type type);
