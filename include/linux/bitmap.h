@@ -66,8 +66,6 @@
  *  bitmap_allocate_region(bitmap, pos, order)  Allocate specified bit region
  *  bitmap_from_u32array(dst, nbits, buf, nwords)  *dst = *buf (nwords 32b words)
  *  bitmap_to_u32array(buf, nwords, src, nbits) *buf = *dst (nwords 32b words)
- *  bitmap_from_arr32(dst, buf, nbits)          Copy nbits from u32[] buf to dst
- *  bitmap_to_arr32(buf, src, nbits)            Copy nbits from buf to u32[] dst
  *
  */
 
@@ -85,12 +83,8 @@
  *  test_and_change_bit(bit, addr)      Change bit and return old value
  *  find_first_zero_bit(addr, nbits)    Position first zero bit in *addr
  *  find_first_bit(addr, nbits)         Position first set bit in *addr
- *  find_next_zero_bit(addr, nbits, bit)
- *                                      Position next zero bit in *addr >= bit
+ *  find_next_zero_bit(addr, nbits, bit)  Position next zero bit in *addr >= bit
  *  find_next_bit(addr, nbits, bit)     Position next set bit in *addr >= bit
- *  find_next_and_bit(addr1, addr2, nbits, bit)
- *                                      Same as find_next_bit, but in
- *                                      (*addr1 & *addr2)
  *
  */
 
