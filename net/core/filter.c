@@ -3366,7 +3366,7 @@ BPF_CALL_5(bpf_setsockopt, struct bpf_sock_ops_kern *, bpf_sock,
 
 static const struct bpf_func_proto bpf_setsockopt_proto = {
 	.func		= bpf_setsockopt,
-	.gpl_only	= true,
+	.gpl_only	= false,
 	.ret_type	= RET_INTEGER,
 	.arg1_type	= ARG_PTR_TO_CTX,
 	.arg2_type	= ARG_ANYTHING,
@@ -3375,50 +3375,46 @@ static const struct bpf_func_proto bpf_setsockopt_proto = {
 	.arg5_type	= ARG_CONST_SIZE,
 };
 
-const struct ipv6_bpf_stub *ipv6_bpf_stub __read_mostly;
-EXPORT_SYMBOL_GPL(ipv6_bpf_stub);
-
-BPF_CALL_3(bpf_bind, struct bpf_sock_addr_kern *, ctx, struct sockaddr *, addr,
-	   int, addr_len)
+BPF_CALL_5(bpf_getsockopt, struct bpf_sock_ops_kern *, bpf_sock,
+	   int, level, int, optname, char *, optval, int, optlen)
 {
+	struct sock *sk = bpf_sock->sk;
+	int ret = 0;
+
+	if (!sk_fullsock(sk))
+		goto err_clear;
+
 #ifdef CONFIG_INET
-	struct sock *sk = ctx->sk;
-	int err;
+	if (level == SOL_TCP && sk->sk_prot->getsockopt == tcp_getsockopt) {
+		if (optname == TCP_CONGESTION) {
+			struct inet_connection_sock *icsk = inet_csk(sk);
 
-	/* Binding to port can be expensive so it's prohibited in the helper.
-	 * Only binding to IP is supported.
-	 */
-	err = -EINVAL;
-	if (addr->sa_family == AF_INET) {
-		if (addr_len < sizeof(struct sockaddr_in))
-			return err;
-		if (((struct sockaddr_in *)addr)->sin_port != htons(0))
-			return err;
-		return __inet_bind(sk, addr, addr_len, true, false);
-#if IS_ENABLED(CONFIG_IPV6)
-	} else if (addr->sa_family == AF_INET6) {
-		if (addr_len < SIN6_LEN_RFC2133)
-			return err;
-		if (((struct sockaddr_in6 *)addr)->sin6_port != htons(0))
-			return err;
-		/* ipv6_bpf_stub cannot be NULL, since it's called from
-		 * bpf_cgroup_inet6_connect hook and ipv6 is already loaded
-		 */
-		return ipv6_bpf_stub->inet6_bind(sk, addr, addr_len, true, false);
-#endif /* CONFIG_IPV6 */
+			if (!icsk->icsk_ca_ops || optlen <= 1)
+				goto err_clear;
+			strncpy(optval, icsk->icsk_ca_ops->name, optlen);
+			optval[optlen - 1] = 0;
+		} else {
+			goto err_clear;
+		}
+	} else {
+		goto err_clear;
 	}
-#endif /* CONFIG_INET */
-
-	return -EAFNOSUPPORT;
+	return ret;
+#endif
+err_clear:
+	memset(optval, 0, optlen);
+	return -EINVAL;
 }
 
-static const struct bpf_func_proto bpf_bind_proto = {
-	.func		= bpf_bind,
+static const struct bpf_func_proto bpf_getsockopt_proto = {
+	.func		= bpf_getsockopt,
 	.gpl_only	= false,
 	.ret_type	= RET_INTEGER,
 	.arg1_type	= ARG_PTR_TO_CTX,
-	.arg2_type	= ARG_PTR_TO_MEM,
-	.arg3_type	= ARG_CONST_SIZE,
+	.arg2_type	= ARG_ANYTHING,
+	.arg3_type	= ARG_ANYTHING,
+	.arg4_type	= ARG_PTR_TO_UNINIT_MEM,
+	.arg5_type	= ARG_CONST_SIZE,
 };
 
 static const struct bpf_func_proto *
@@ -3629,6 +3625,8 @@ sock_ops_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 	switch (func_id) {
 	case BPF_FUNC_setsockopt:
 		return &bpf_setsockopt_proto;
+	case BPF_FUNC_getsockopt:
+		return &bpf_getsockopt_proto;
 	case BPF_FUNC_sock_map_update:
 		return &bpf_sock_map_update_proto;
 	default:
