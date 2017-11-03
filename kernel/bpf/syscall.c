@@ -1133,7 +1133,22 @@ struct bpf_prog *bpf_prog_inc_not_zero(struct bpf_prog *prog)
 }
 EXPORT_SYMBOL_GPL(bpf_prog_inc_not_zero);
 
-static struct bpf_prog *__bpf_prog_get(u32 ufd, enum bpf_prog_type *attach_type)
+static bool bpf_prog_can_attach(struct bpf_prog *prog,
+				enum bpf_prog_type *attach_type,
+				struct net_device *netdev)
+{
+	struct bpf_dev_offload *offload = prog->aux->offload;
+
+	if (prog->type != *attach_type)
+		return false;
+	if (offload && offload->netdev != netdev)
+		return false;
+
+	return true;
+}
+
+static struct bpf_prog *__bpf_prog_get(u32 ufd, enum bpf_prog_type *attach_type,
+				       struct net_device *netdev)
 {
 	struct fd f = fdget(ufd);
 	struct bpf_prog *prog;
@@ -1141,7 +1156,7 @@ static struct bpf_prog *__bpf_prog_get(u32 ufd, enum bpf_prog_type *attach_type)
 	prog = ____bpf_prog_get(f);
 	if (IS_ERR(prog))
 		return prog;
-	if (attach_type && (prog->type != *attach_type || prog->aux->offload)) {
+	if (attach_type && !bpf_prog_can_attach(prog, attach_type, netdev)) {
 		prog = ERR_PTR(-EINVAL);
 		goto out;
 	}
@@ -1154,12 +1169,12 @@ out:
 
 struct bpf_prog *bpf_prog_get(u32 ufd)
 {
-	return __bpf_prog_get(ufd, NULL);
+	return __bpf_prog_get(ufd, NULL, NULL);
 }
 
 struct bpf_prog *bpf_prog_get_type(u32 ufd, enum bpf_prog_type type)
 {
-	struct bpf_prog *prog = __bpf_prog_get(ufd, &type);
+	struct bpf_prog *prog = __bpf_prog_get(ufd, &type, NULL);
 
 	if (!IS_ERR(prog))
 		trace_bpf_prog_get_type(prog);
@@ -1167,75 +1182,14 @@ struct bpf_prog *bpf_prog_get_type(u32 ufd, enum bpf_prog_type type)
 }
 EXPORT_SYMBOL_GPL(bpf_prog_get_type);
 
-/* Initially all BPF programs could be loaded w/o specifying
- * expected_attach_type. Later for some of them specifying expected_attach_type
- * at load time became required so that program could be validated properly.
- * Programs of types that are allowed to be loaded both w/ and w/o (for
- * backward compatibility) expected_attach_type, should have the default attach
- * type assigned to expected_attach_type for the latter case, so that it can be
- * validated later at attach time.
- *
- * bpf_prog_load_fixup_attach_type() sets expected_attach_type in @attr if
- * prog type requires it but has some attach types that have to be backward
- * compatible.
- */
-static void bpf_prog_load_fixup_attach_type(union bpf_attr *attr)
+struct bpf_prog *bpf_prog_get_type_dev(u32 ufd, enum bpf_prog_type type,
+				       struct net_device *netdev)
 {
-	switch (attr->prog_type) {
-	case BPF_PROG_TYPE_CGROUP_SOCK:
-		/* Unfortunately BPF_ATTACH_TYPE_UNSPEC enumeration doesn't
-		 * exist so checking for non-zero is the way to go here.
-		 */
-		if (!attr->expected_attach_type)
-			attr->expected_attach_type =
-				BPF_CGROUP_INET_SOCK_CREATE;
-		break;
-	}
-}
+	struct bpf_prog *prog = __bpf_prog_get(ufd, &type, netdev);
 
-static int
-bpf_prog_load_check_attach_type(enum bpf_prog_type prog_type,
-				enum bpf_attach_type expected_attach_type)
-{
-	switch (prog_type) {
-	case BPF_PROG_TYPE_CGROUP_SOCK:
-		switch (expected_attach_type) {
-		case BPF_CGROUP_INET_SOCK_CREATE:
-		case BPF_CGROUP_INET4_POST_BIND:
-		case BPF_CGROUP_INET6_POST_BIND:
-			return 0;
-		default:
-			return -EINVAL;
-		}
-	case BPF_PROG_TYPE_CGROUP_SOCK_ADDR:
-		switch (expected_attach_type) {
-		case BPF_CGROUP_INET4_BIND:
-		case BPF_CGROUP_INET6_BIND:
-		case BPF_CGROUP_INET4_CONNECT:
-		case BPF_CGROUP_INET6_CONNECT:
-		case BPF_CGROUP_UDP4_SENDMSG:
-		case BPF_CGROUP_UDP6_SENDMSG:
-		case BPF_CGROUP_UDP4_RECVMSG:
-		case BPF_CGROUP_UDP6_RECVMSG:
-			return 0;
-		default:
-			return -EINVAL;
-		}
-	default:
-		return 0;
-	}
-}
-
-static int bpf_prog_attach_check_attach_type(const struct bpf_prog *prog,
-					     enum bpf_attach_type attach_type)
-{
-	switch (prog->type) {
-	case BPF_PROG_TYPE_CGROUP_SOCK:
-	case BPF_PROG_TYPE_CGROUP_SOCK_ADDR:
-		return attach_type == prog->expected_attach_type ? 0 : -EINVAL;
-	default:
-		return 0;
-	}
+	if (!IS_ERR(prog))
+		trace_bpf_prog_get_type(prog);
+	return prog;
 }
 
 /* last field in 'union bpf_attr' used by this command */
