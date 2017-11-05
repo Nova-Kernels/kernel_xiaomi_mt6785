@@ -132,7 +132,7 @@ enum bpf_prog_type {
 	BPF_PROG_TYPE_LWT_XMIT,
 	BPF_PROG_TYPE_SOCK_OPS,
 	BPF_PROG_TYPE_SK_SKB,
-	BPF_PROG_TYPE_CGROUP_SOCK_ADDR = 18,
+	BPF_PROG_TYPE_CGROUP_DEVICE,
 };
 
 enum bpf_attach_type {
@@ -142,16 +142,7 @@ enum bpf_attach_type {
 	BPF_CGROUP_SOCK_OPS,
 	BPF_SK_SKB_STREAM_PARSER,
 	BPF_SK_SKB_STREAM_VERDICT,
-	BPF_CGROUP_INET4_BIND = 8,
-	BPF_CGROUP_INET6_BIND = 9,
-	BPF_CGROUP_INET4_CONNECT,
-	BPF_CGROUP_INET6_CONNECT,
-	BPF_CGROUP_INET4_POST_BIND,
-	BPF_CGROUP_INET6_POST_BIND,
-	BPF_CGROUP_UDP4_SENDMSG,
-	BPF_CGROUP_UDP6_SENDMSG,
-	BPF_CGROUP_UDP4_RECVMSG = 19,
-	BPF_CGROUP_UDP6_RECVMSG = 20,
+	BPF_CGROUP_DEVICE,
 	__MAX_BPF_ATTACH_TYPE
 };
 
@@ -1135,6 +1126,19 @@ struct bpf_perf_event_value {
 	__u64 counter;
 	__u64 enabled;
 	__u64 running;
+};
+
+#define BPF_DEVCG_ACC_MKNOD	(1ULL << 0)
+#define BPF_DEVCG_ACC_READ	(1ULL << 1)
+#define BPF_DEVCG_ACC_WRITE	(1ULL << 2)
+
+#define BPF_DEVCG_DEV_BLOCK	(1ULL << 0)
+#define BPF_DEVCG_DEV_CHAR	(1ULL << 1)
+
+struct bpf_cgroup_dev_ctx {
+	__u32 access_type; /* (access << 16) | type */
+	__u32 major;
+	__u32 minor;
 };
 
 #endif /* _UAPI__LINUX_BPF_H__ */
