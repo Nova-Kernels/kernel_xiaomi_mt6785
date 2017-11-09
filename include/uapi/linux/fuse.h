@@ -113,6 +113,9 @@
  *  7.26
  *  - add FUSE_HANDLE_KILLPRIV
  *  - add FUSE_POSIX_ACL
+ *
+ *  7.27
+ *  - add FUSE_ABORT_ERROR
  */
 
 #ifndef _LINUX_FUSE_H
@@ -148,7 +151,7 @@
 #define FUSE_KERNEL_VERSION 7
 
 /** Minor version number of this interface */
-#define FUSE_KERNEL_MINOR_VERSION 26
+#define FUSE_KERNEL_MINOR_VERSION 27
 
 /** The node ID of the root inode */
 #define FUSE_ROOT_ID 1
@@ -247,6 +250,7 @@ struct fuse_file_lock {
  * FUSE_PARALLEL_DIROPS: allow parallel lookups and readdir
  * FUSE_HANDLE_KILLPRIV: fs handles killing suid/sgid/cap on write/chown/trunc
  * FUSE_POSIX_ACL: filesystem supports posix acls
+ * FUSE_ABORT_ERROR: reading the device after abort returns ECONNABORTED
  */
 #define FUSE_ASYNC_READ		(1 << 0)
 #define FUSE_POSIX_LOCKS	(1 << 1)
@@ -269,6 +273,7 @@ struct fuse_file_lock {
 #define FUSE_PARALLEL_DIROPS    (1 << 18)
 #define FUSE_HANDLE_KILLPRIV	(1 << 19)
 #define FUSE_POSIX_ACL		(1 << 20)
+#define FUSE_ABORT_ERROR	(1 << 21)
 #define FUSE_PASSTHROUGH	(1 << 31)
 
 /**
@@ -785,8 +790,8 @@ struct fuse_notify_retrieve_in {
 };
 
 /* Device ioctls: */
-#define FUSE_DEV_IOC_CLONE		_IOR(229, 0, uint32_t)
-#define FUSE_DEV_IOC_PASSTHROUGH_OPEN	_IOW(229, 1, struct fuse_passthrough_out)
+#define FUSE_DEV_IOC_CLONE	       _IOR(229, 0, uint32_t)
+#define FUSE_DEV_IOC_PASSTHROUGH_OPEN  _IOW(229, 1, struct fuse_passthrough_out)
 
 struct fuse_lseek_in {
 	uint64_t	fh;
