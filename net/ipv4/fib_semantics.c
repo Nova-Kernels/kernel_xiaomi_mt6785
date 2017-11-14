@@ -723,7 +723,7 @@ bool fib_metrics_match(struct fib_config *cfg, struct fib_info *fi)
 			bool ecn_ca = false;
 
 			nla_strlcpy(tmp, nla, sizeof(tmp));
-			val = tcp_ca_get_key_by_name(tmp, &ecn_ca);
+			val = tcp_ca_get_key_by_name(fi->fib_net, tmp, &ecn_ca);
 		} else {
 			if (nla_len(nla) != sizeof(u32))
 				return false;
@@ -1049,7 +1049,7 @@ fib_convert_metrics(struct fib_info *fi, const struct fib_config *cfg)
 			char tmp[TCP_CA_NAME_MAX];
 
 			nla_strlcpy(tmp, nla, sizeof(tmp));
-			val = tcp_ca_get_key_by_name(tmp, &ecn_ca);
+			val = tcp_ca_get_key_by_name(fi->fib_net, tmp, &ecn_ca);
 			if (val == TCP_CA_UNSPEC)
 				return -EINVAL;
 		} else {
