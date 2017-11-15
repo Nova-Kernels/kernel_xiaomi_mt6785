@@ -265,8 +265,8 @@ static inline void fast_imageblit(const struct fb_image *image, struct fb_info *
 		dst1 += p->fix.line_length;
 		s += spitch;
 	}
-}
-
+}	
+	
 /*
  * Optimized fast_imageblit for bpp == 16. ppw = 2, bit_mask = 3 folded
  * into the code, main loop unrolled.
@@ -424,8 +424,8 @@ void cfb_imageblit(struct fb_info *p, const struct fb_image *image)
 		} else {
 			fgcolor = image->fg_color;
 			bgcolor = image->bg_color;
-		}
-
+		}	
+		
 		if (!start_index && !pitch_index) {
 			if (bpp == 32)
 				fast_imageblit32(image, p, dst1, fgcolor,
@@ -446,10 +446,8 @@ void cfb_imageblit(struct fb_info *p, const struct fb_image *image)
 	} else
 		color_imageblit(image, p, dst1, start_index, pitch_index);
 }
-
 EXPORT_SYMBOL(cfb_imageblit);
 
 MODULE_AUTHOR("James Simmons <jsimmons@users.sf.net>");
 MODULE_DESCRIPTION("Generic software accelerated imaging drawing");
 MODULE_LICENSE("GPL");
-
