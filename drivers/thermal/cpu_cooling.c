@@ -869,63 +869,6 @@ of_cpufreq_cooling_register(struct device_node *np,
 EXPORT_SYMBOL_GPL(of_cpufreq_cooling_register);
 
 /**
- * cpufreq_power_cooling_register() - create cpufreq cooling device with power extensions
- * @policy:		cpufreq policy
- * @capacitance:	dynamic power coefficient for these cpus
- * @plat_static_func:	function to calculate the static power consumed by these
- *			cpus (optional)
- *
- * This interface function registers the cpufreq cooling device with
- * the name "thermal-cpufreq-%x".  This api can support multiple
- * instances of cpufreq cooling devices.  Using this function, the
- * cooling device will implement the power extensions by using a
- * simple cpu power model.  The cpus must have registered their OPPs
- * using the OPP library.
- *
- * An optional @plat_static_func may be provided to calculate the
- * static power consumed by these cpus.  If the platform's static
- * power consumption is unknown or negligible, make it NULL.
- *
- * Return: a valid struct thermal_cooling_device pointer on success,
- * on failure, it returns a corresponding ERR_PTR().
- */
-struct thermal_cooling_device *
-cpufreq_power_cooling_register(struct cpufreq_policy *policy, u32 capacitance,
-			       get_static_t plat_static_func)
-{
-	return __cpufreq_cooling_register(NULL, policy, capacitance,
-				plat_static_func);
-}
-EXPORT_SYMBOL(cpufreq_power_cooling_register);
-
-int cpufreq_platform_cooling_register(void)
-{
-	struct cpumask *clip_cpus;
-	struct device_node *cpu_node;
-	struct cpufreq_policy *policy;
-	int cpu;
-
-	for_each_cpu(cpu, cpu_online_mask) {
-		policy = cpufreq_cpu_get(cpu);
-		if (!policy) {
-			pr_err("no policy for cpu%d\n", cpu);
-			continue;
-		}
-
-		clip_cpus = policy->related_cpus;
-		cpu_node = of_cpu_device_node_get(cpumask_first(policy->cpus));
-		if (!cpu_node) {
-			pr_err("no cpu node\n");
-			continue;
-		}
-		__cpufreq_cooling_register(cpu_node, policy, 0, NULL);
-	}
-
-	return 0;
-
-}
-
-/**
  * of_cpufreq_power_cooling_register() - create cpufreq cooling device with power extensions
  * @policy: CPUFreq policy.
  *
