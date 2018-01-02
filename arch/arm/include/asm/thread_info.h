@@ -78,9 +78,6 @@ struct thread_info {
 	.cpu_excp = 0	/* aee */					\
 }
 
-#define init_thread_info	(init_thread_union.thread_info)
-#define init_stack		(init_thread_union.stack)
-
 /*
  * how to get the current stack pointer in C
  */

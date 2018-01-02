@@ -57,8 +57,6 @@ struct thread_info {
 	.cpu_excp = 0,	/* aee */					\
 }
 
-#define init_stack		(init_thread_union.stack)
-
 #define thread_saved_pc(tsk)	\
 	((unsigned long)(tsk->thread.cpu_context.pc))
 #define thread_saved_sp(tsk)	\
