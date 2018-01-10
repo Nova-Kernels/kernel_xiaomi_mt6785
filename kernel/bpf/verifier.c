@@ -191,25 +191,8 @@ void bpf_verifier_vlog(struct bpf_verifier_log *log,
  * bpf_verifier_log_write() is used to dump the verification trace to the log,
  * so the user can figure out what's wrong with the program
  */
-__printf(2, 3) void bpf_verifier_log_write(struct bpf_verifier_log *log,
-						  const char *fmt, ...)
-{
-	va_list args;
-
-	if (!bpf_verifier_log_needed(log))
-		return;
-
-	va_start(args, fmt);
-	bpf_verifier_vlog(log, fmt, args);
-	va_end(args);
-}
-EXPORT_SYMBOL_GPL(bpf_verifier_log_write);
-/* Historically bpf_verifier_log_write was called verbose, but the name was too
- * generic for symbol export. The function was renamed, but not the calls in
- * the verifier to avoid complicating backports. Hence the alias below.
- */
-static __printf(2, 3) void verbose(struct bpf_verifier_env *env,
-				   const char *fmt, ...)
+__printf(2, 3) void bpf_verifier_log_write(struct bpf_verifier_env *env,
+					   const char *fmt, ...)
 {
 	struct bpf_verifer_log *log = &env->log;
 	unsigned int n;
@@ -233,6 +216,14 @@ static __printf(2, 3) void verbose(struct bpf_verifier_env *env,
 	else
 		log->ubuf = NULL;
 }
+EXPORT_SYMBOL_GPL(bpf_verifier_log_write);
+/* Historically bpf_verifier_log_write was called verbose, but the name was too
+ * generic for symbol export. The function was renamed, but not the calls in
+ * the verifier to avoid complicating backports. Hence the alias below.
+ */
+static __printf(2, 3) void verbose(struct bpf_verifier_env *env,
+				   const char *fmt, ...)
+	__attribute__((alias("bpf_verifier_log_write")));
 
 static bool type_is_pkt_pointer(enum bpf_reg_type type)
 {
