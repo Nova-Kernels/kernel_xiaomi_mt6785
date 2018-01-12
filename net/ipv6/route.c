@@ -3601,7 +3601,9 @@ void rt6_sync_up(struct net_device *dev, unsigned int nh_flags)
 {
 	struct arg_netdev_event arg = {
 		.dev = dev,
-		.nh_flags = nh_flags,
+		{
+			.nh_flags = nh_flags,
+		},
 	};
 
 	if (nh_flags & RTNH_F_DEAD && netif_carrier_ok(dev))
@@ -3710,7 +3712,9 @@ void rt6_sync_down_dev(struct net_device *dev, unsigned long event)
 {
 	struct arg_netdev_event arg = {
 		.dev = dev,
-		.event = event,
+		{
+			.event = event,
+		},
 	};
 
 	fib6_clean_all(dev_net(dev), fib6_ifdown, &arg);
