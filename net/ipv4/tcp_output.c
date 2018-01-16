@@ -1710,7 +1710,7 @@ u32 tcp_tso_autosize(const struct sock *sk, unsigned int mss_now,
 {
 	u32 bytes, segs;
 
-	bytes = min(sk->sk_pacing_rate >> 10,
+	bytes = min(sk->sk_pacing_rate >> sk->sk_pacing_shift,
 		    sk->sk_gso_max_size - 1 - MAX_TCP_HEADER);
 
 	/* Goal is to send at least one packet per ms,
@@ -2233,7 +2233,7 @@ static bool tcp_small_queue_check(struct sock *sk, const struct sk_buff *skb,
 	//limit = min_t(u32, limit, sysctl_tcp_limit_output_bytes);
 	//limit <<= factor;
 	limit = max_t(u32, sysctl_tcp_limit_output_bytes,
-		      sk->sk_pacing_rate >> 10);
+		      sk->sk_pacing_rate >> sk->sk_pacing_shift);
 
 	if (refcount_read(&sk->sk_wmem_alloc) > limit) {
 		/* Always send the 1st or 2nd skb in write queue.
