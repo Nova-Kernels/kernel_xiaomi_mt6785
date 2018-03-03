@@ -2635,6 +2635,7 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
 
 	if (skb_is_gso(skb)) {
 		struct skb_shared_info *shinfo = skb_shinfo(skb);
+
 		/* SKB_GSO_TCPV4 needs to be changed into
 		 * SKB_GSO_TCPV6.
 		 */
@@ -2642,9 +2643,6 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
 			shinfo->gso_type &= ~SKB_GSO_TCPV4;
 			shinfo->gso_type |=  SKB_GSO_TCPV6;
 		}
-
-		/* Due to IPv6 header, MSS needs to be downgraded. */
-		skb_decrease_gso_size(shinfo, len_diff);
 
 		/* Header must be checked, and gso_segs recomputed. */
 		shinfo->gso_type |= SKB_GSO_DODGY;
@@ -2677,6 +2675,7 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
 
 	if (skb_is_gso(skb)) {
 		struct skb_shared_info *shinfo = skb_shinfo(skb);
+
 		/* SKB_GSO_TCPV6 needs to be changed into
 		 * SKB_GSO_TCPV4.
 		 */
@@ -2685,8 +2684,6 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
 			shinfo->gso_type |=  SKB_GSO_TCPV4;
 		}
 
-		/* Due to IPv4 header, MSS can be upgraded. */
-		skb_increase_gso_size(shinfo, len_diff);
 		/* Header must be checked, and gso_segs recomputed. */
 		shinfo->gso_type |= SKB_GSO_DODGY;
 		shinfo->gso_segs = 0;
@@ -2802,8 +2799,10 @@ static int bpf_skb_net_grow(struct sk_buff *skb, u32 len_diff)
 
 	if (skb_is_gso(skb)) {
 		struct skb_shared_info *shinfo = skb_shinfo(skb);
+
 		/* Due to header grow, MSS needs to be downgraded. */
-		skb_decrease_gso_size(shinfo,len_diff);
+		skb_decrease_gso_size(shinfo, len_diff);
+
 		/* Header must be checked, and gso_segs recomputed. */
 		shinfo->gso_type |= SKB_GSO_DODGY;
 		shinfo->gso_segs = 0;
@@ -2831,8 +2830,10 @@ static int bpf_skb_net_shrink(struct sk_buff *skb, u32 len_diff)
 
 	if (skb_is_gso(skb)) {
 		struct skb_shared_info *shinfo = skb_shinfo(skb);
+
 		/* Due to header shrink, MSS can be upgraded. */
-		skb_increase_gso_size(shinfo,len_diff);
+		skb_increase_gso_size(shinfo, len_diff);
+		
 		/* Header must be checked, and gso_segs recomputed. */
 		shinfo->gso_type |= SKB_GSO_DODGY;
 		shinfo->gso_segs = 0;
