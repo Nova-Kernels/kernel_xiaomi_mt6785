@@ -168,7 +168,6 @@ static int cbc_encrypt(struct skcipher_request *req)
 		neon_aes_cbc_encrypt(walk.dst.virt.addr, walk.src.virt.addr,
 				     ctx->enc, ctx->key.rounds, blocks,
 				     walk.iv);
-		kernel_neon_end();
 		err = skcipher_walk_done(&walk, walk.nbytes % AES_BLOCK_SIZE);
 	}
 	return err;
@@ -308,8 +307,9 @@ static int __xts_crypt(struct skcipher_request *req,
 		return err;
 
 	kernel_neon_begin();
-	neon_aes_ecb_encrypt(walk.iv, walk.iv, ctx->twkey, ctx->key.rounds, 1);
-	kernel_neon_end();
+
+	neon_aes_ecb_encrypt(walk.iv, walk.iv, ctx->twkey,
+			     ctx->key.rounds, 1);
 
 	while (walk.nbytes >= AES_BLOCK_SIZE) {
 		unsigned int blocks = walk.nbytes / AES_BLOCK_SIZE;
