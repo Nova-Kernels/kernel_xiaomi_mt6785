@@ -55,6 +55,7 @@
 #include <linux/uaccess.h>
 #include <asm/sections.h>
 
+#include <trace/events/initcall.h>
 #define CREATE_TRACE_POINTS
 #include <trace/events/printk.h>
 
@@ -3227,6 +3228,7 @@ EXPORT_SYMBOL(unregister_console);
  */
 void __init console_init(void)
 {
+	int ret;
 	initcall_t *call;
 
 	/* Setup the default TTY line discipline. */
@@ -3237,8 +3239,11 @@ void __init console_init(void)
 	 * inform about problems etc..
 	 */
 	call = __con_initcall_start;
+	trace_initcall_level("console");
 	while (call < __con_initcall_end) {
-		(*call)();
+		trace_initcall_start((*call));
+		ret = (*call)();
+		trace_initcall_finish((*call), ret);
 		call++;
 	}
 }
