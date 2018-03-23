@@ -168,10 +168,14 @@ struct bpf_call_arg_meta {
 
 static DEFINE_MUTEX(bpf_verifier_lock);
 
-void bpf_verifier_vlog(struct bpf_verifier_log *log,
-		       const char *fmt, va_list args)
+static void log_write(struct bpf_verifier_env *env, const char *fmt,
+		      va_list args)
 {
+	struct bpf_verifer_log *log = &env->log;
 	unsigned int n;
+
+	if (!log->level || !log->ubuf || bpf_verifier_log_full(log))
+		return;
 
 	n = vscnprintf(log->kbuf, BPF_VERIFIER_TMP_LOG_SIZE, fmt, args);
 
@@ -194,36 +198,22 @@ void bpf_verifier_vlog(struct bpf_verifier_log *log,
 __printf(2, 3) void bpf_verifier_log_write(struct bpf_verifier_env *env,
 					   const char *fmt, ...)
 {
-	struct bpf_verifer_log *log = &env->log;
-	unsigned int n;
 	va_list args;
 
-	if (!log->level || !log->ubuf || bpf_verifier_log_full(log))
-		return;
-
 	va_start(args, fmt);
-	n = vscnprintf(log->kbuf, BPF_VERIFIER_TMP_LOG_SIZE, fmt, args);
+	log_write(env, fmt, args);
 	va_end(args);
-
-	WARN_ONCE(n >= BPF_VERIFIER_TMP_LOG_SIZE - 1,
-		  "verifier log line truncated - local buffer too short\n");
-
-	n = min(log->len_total - log->len_used - 1, n);
-	log->kbuf[n] = '\0';
-
-	if (!copy_to_user(log->ubuf + log->len_used, log->kbuf, n + 1))
-		log->len_used += n;
-	else
-		log->ubuf = NULL;
 }
 EXPORT_SYMBOL_GPL(bpf_verifier_log_write);
-/* Historically bpf_verifier_log_write was called verbose, but the name was too
- * generic for symbol export. The function was renamed, but not the calls in
- * the verifier to avoid complicating backports. Hence the alias below.
- */
-static __printf(2, 3) void verbose(struct bpf_verifier_env *env,
-				   const char *fmt, ...)
-	__attribute__((alias("bpf_verifier_log_write")));
+
+__printf(2, 3) static void verbose(void *private_data, const char *fmt, ...)
+{
+	va_list args;
+
+	va_start(args, fmt);
+	log_write(private_data, fmt, args);
+	va_end(args);
+}
 
 static bool type_is_pkt_pointer(enum bpf_reg_type type)
 {
@@ -4946,10 +4936,11 @@ static int do_check(struct bpf_verifier_env *env)
 		if (env->log.level) {
 			const struct bpf_insn_cbs cbs = {
 				.cb_print	= verbose,
+				.private_data	= env,
 			};
 
 			verbose(env, "%d: ", env->insn_idx);
-			print_bpf_insn(&cbs, env, insn, env->allow_ptr_leaks);
+			print_bpf_insn(&cbs, insn, env->allow_ptr_leaks);
 		}
 
 		if (bpf_prog_is_dev_bound(env->prog->aux)) {
