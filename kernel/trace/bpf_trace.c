@@ -669,7 +669,8 @@ static const struct bpf_func_proto bpf_get_stackid_proto_tp = {
 	.arg3_type	= ARG_ANYTHING,
 };
 
-static const struct bpf_func_proto *tp_prog_func_proto(enum bpf_func_id func_id)
+static const struct bpf_func_proto *
+tp_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
 	switch (func_id) {
 	case BPF_FUNC_perf_event_output:
@@ -730,7 +731,8 @@ static const struct bpf_func_proto bpf_perf_prog_read_value_proto = {
          .arg3_type      = ARG_CONST_SIZE,
 };
 
-static const struct bpf_func_proto *pe_prog_func_proto(enum bpf_func_id func_id)
+static const struct bpf_func_proto *
+pe_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
 	switch (func_id) {
 	case BPF_FUNC_perf_event_output:
@@ -740,7 +742,7 @@ static const struct bpf_func_proto *pe_prog_func_proto(enum bpf_func_id func_id)
 	case BPF_FUNC_perf_prog_read_value:
 		return &bpf_perf_prog_read_value_proto;
 	default:
-		return tracing_func_proto(func_id);
+		return tracing_func_proto(func_id, prog);
 	}
 }
 
@@ -790,7 +792,8 @@ static const struct bpf_func_proto bpf_get_stackid_proto_raw_tp = {
 	.arg3_type	= ARG_ANYTHING,
 };
 
-static const struct bpf_func_proto *raw_tp_prog_func_proto(enum bpf_func_id func_id)
+static const struct bpf_func_proto *
+raw_tp_prog_func_proto(enum bpf_func_id func_id, const struct bpf_prog *prog)
 {
 	switch (func_id) {
 	case BPF_FUNC_perf_event_output:
@@ -798,12 +801,13 @@ static const struct bpf_func_proto *raw_tp_prog_func_proto(enum bpf_func_id func
 	case BPF_FUNC_get_stackid:
 		return &bpf_get_stackid_proto_raw_tp;
 	default:
-		return tracing_func_proto(func_id);
+		return tracing_func_proto(func_id, prog);
 	}
 }
 
 static bool raw_tp_prog_is_valid_access(int off, int size,
 					enum bpf_access_type type,
+					const struct bpf_prog *prog,
 					struct bpf_insn_access_aux *info)
 {
 	/* largest tracepoint in the kernel has 12 args */
