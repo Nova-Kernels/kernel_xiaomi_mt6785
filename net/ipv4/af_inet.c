@@ -461,22 +461,6 @@ int __inet_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
 	u32 tb_id = RT_TABLE_LOCAL;
 	int err;
 
-	/* If the socket has its own bind function then use it. (RAW) */
-	if (sk->sk_prot->bind) {
-		err = sk->sk_prot->bind(sk, uaddr, addr_len);
-		goto out;
-	}
-	err = -EINVAL;
-	if (addr_len < sizeof(struct sockaddr_in))
-		goto out;
-
-	/* BPF prog is run before any checks are done so that if the prog
-	 * changes context in a wrong way it will be caught.
-	 */
-	err = BPF_CGROUP_RUN_PROG_INET4_BIND(sk, uaddr);
-	if (err)
-		goto out;
-
 	if (addr->sin_family != AF_INET) {
 		/* Compatibility games : accept AF_UNSPEC (mapped to AF_INET)
 		 * only if s_addr is INADDR_ANY.
@@ -532,18 +516,12 @@ int __inet_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
 		inet->inet_saddr = 0;  /* Use device */
 
 	/* Make sure we are allowed to bind here. */
-	if (snum || !(inet->bind_address_no_port ||
-		      force_bind_address_no_port)) {
-		if (sk->sk_prot->get_port(sk, snum)) {
-			inet->inet_saddr = inet->inet_rcv_saddr = 0;
-			err = -EADDRINUSE;
-			goto out_release_sock;
-		}
-		err = BPF_CGROUP_RUN_PROG_INET4_POST_BIND(sk);
-		if (err) {
-			inet->inet_saddr = inet->inet_rcv_saddr = 0;
-			goto out_release_sock;
-		}
+	if ((snum || !(inet->bind_address_no_port ||
+		       force_bind_address_no_port)) &&
+	    sk->sk_prot->get_port(sk, snum)) {
+		inet->inet_saddr = inet->inet_rcv_saddr = 0;
+		err = -EADDRINUSE;
+		goto out_release_sock;
 	}
 
 	if (inet->inet_rcv_saddr)
