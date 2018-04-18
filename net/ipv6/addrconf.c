@@ -1007,7 +1007,6 @@ void inet6_ifa_finish_destroy(struct inet6_ifaddr *ifp)
 		pr_warn("Freeing alive inet6 address %p\n", ifp);
 		return;
 	}
-	ip6_rt_put(ifp->rt);
 
 	kfree_rcu(ifp, rcu);
 }
@@ -1172,8 +1171,8 @@ ipv6_add_addr(struct inet6_dev *idev, const struct in6_addr *addr,
 	inet6addr_notifier_call_chain(NETDEV_UP, ifa);
 out:
 	if (unlikely(err < 0)) {
-		if (rt)
-			ip6_rt_put(rt);
+		fib6_info_release(rt);
+
 		if (ifa) {
 			if (ifa->idev)
 				in6_dev_put(ifa->idev);
@@ -1262,7 +1261,7 @@ cleanup_prefix_route(struct inet6_ifaddr *ifp, unsigned long expires, bool del_r
 		else {
 			if (!(rt->rt6i_flags & RTF_EXPIRES))
 				fib6_set_expires(rt, expires);
-			ip6_rt_put(rt);
+			fib6_info_release(rt);
 		}
 	}
 }
@@ -2452,8 +2451,7 @@ static struct rt6_info *addrconf_get_prefix_route(const struct in6_addr *pfx,
 			continue;
 		if ((rt->rt6i_flags & noflags) != 0)
 			continue;
-		if (!dst_hold_safe(&rt->dst))
-			rt = NULL;
+		fib6_info_hold(rt);
 		break;
 	}
 out:
@@ -2775,7 +2773,7 @@ void addrconf_prefix_rcv(struct net_device *dev, u8 *opt, int len, bool sllao)
 						      dev, expires, flags, GFP_ATOMIC);
 			}
 		}
-		ip6_rt_put(rt);
+		fib6_info_release(rt);
 	}
 
 	/* Try to figure out our local address for this prefix */
@@ -3459,7 +3457,7 @@ static int fixup_permanent_addr(struct net *net,
 		ifp->rt = rt;
 		spin_unlock(&ifp->lock);
 
-		ip6_rt_put(prev);
+		fib6_info_release(prev);
 	}
 
 	if (!(ifp->flags & IFA_F_NOPREFIXROUTE)) {
@@ -5876,8 +5874,8 @@ static void __ipv6_ifa_notify(int event, struct inet6_ifaddr *ifp)
 				ip6_del_rt(net, rt);
 		}
 		if (ifp->rt) {
-			if (dst_hold_safe(&ifp->rt->dst))
-				ip6_del_rt(net, ifp->rt);
+			ip6_del_rt(net, ifp->rt);
+			ifp->rt = NULL;
 		}
 		rt_genid_bump_ipv6(net);
 		break;
