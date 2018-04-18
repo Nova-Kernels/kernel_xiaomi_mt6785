@@ -6,35 +6,50 @@
 #include <linux/types.h>
 
 #define BTF_MAGIC	0xeB9F
+#define BTF_MAGIC_SWAP	0x9FeB
 #define BTF_VERSION	1
+#define BTF_FLAGS_COMPR	0x01
 
 struct btf_header {
 	__u16	magic;
 	__u8	version;
 	__u8	flags;
-	__u32	hdr_len;
+
+	__u32	parent_label;
+	__u32	parent_name;
 
 	/* All offsets are in bytes relative to the end of this header */
+	__u32	label_off;	/* offset of label section	*/
+	__u32	object_off;	/* offset of data object section*/
+	__u32	func_off;	/* offset of function section	*/
 	__u32	type_off;	/* offset of type section	*/
-	__u32	type_len;	/* length of type section	*/
 	__u32	str_off;	/* offset of string section	*/
 	__u32	str_len;	/* length of string section	*/
 };
 
 /* Max # of type identifier */
-#define BTF_MAX_TYPE	0x000fffff
+#define BTF_MAX_TYPE	0x7fffffff
 /* Max offset into the string section */
-#define BTF_MAX_NAME_OFFSET	0x00ffffff
+#define BTF_MAX_NAME_OFFSET	0x7fffffff
 /* Max # of struct/union/enum members or func args */
 #define BTF_MAX_VLEN	0xffff
 
+/* The type id is referring to a parent BTF */
+#define BTF_TYPE_PARENT(id)	(((id) >> 31) & 0x1)
+#define BTF_TYPE_ID(id)		((id) & BTF_MAX_TYPE)
+
+/* String is in the ELF string section */
+#define BTF_STR_TBL_ELF_ID(ref)	(((ref) >> 31) & 0x1)
+#define BTF_STR_OFFSET(ref)	((ref) & BTF_MAX_NAME_OFFSET)
+
 struct btf_type {
-	__u32 name_off;
+	__u32 name;
 	/* "info" bits arrangement
 	 * bits  0-15: vlen (e.g. # of struct's members)
 	 * bits 16-23: unused
-	 * bits 24-27: kind (e.g. int, ptr, array...etc)
-	 * bits 28-31: unused
+	 * bits 24-28: kind (e.g. int, ptr, array...etc)
+	 * bits 29-30: unused
+	 * bits    31: root
 	 */
 	__u32 info;
 	/* "size" is used by INT, ENUM, STRUCT and UNION.
@@ -49,7 +64,8 @@ struct btf_type {
 	};
 };
 
-#define BTF_INFO_KIND(info)	(((info) >> 24) & 0x0f)
+#define BTF_INFO_KIND(info)	(((info) >> 24) & 0x1f)
+#define BTF_INFO_ISROOT(info)	(!!(((info) >> 24) & 0x80))
 #define BTF_INFO_VLEN(info)	((info) & 0xffff)
 
 #define BTF_KIND_UNKN		0	/* Unknown	*/
@@ -74,21 +90,22 @@ struct btf_type {
 /* BTF_KIND_INT is followed by a u32 and the following
  * is the 32 bits arrangement:
  */
-#define BTF_INT_ENCODING(VAL)	(((VAL) & 0x0f000000) >> 24)
+#define BTF_INT_ENCODING(VAL)	(((VAL) & 0xff000000) >> 24)
 #define BTF_INT_OFFSET(VAL)	(((VAL  & 0x00ff0000)) >> 16)
-#define BTF_INT_BITS(VAL)	((VAL)  & 0x000000ff)
+#define BTF_INT_BITS(VAL)	((VAL)  & 0x0000ffff)
 
 /* Attributes stored in the BTF_INT_ENCODING */
-#define BTF_INT_SIGNED	(1 << 0)
-#define BTF_INT_CHAR	(1 << 1)
-#define BTF_INT_BOOL	(1 << 2)
+#define BTF_INT_SIGNED	0x1
+#define BTF_INT_CHAR	0x2
+#define BTF_INT_BOOL	0x4
+#define BTF_INT_VARARGS	0x8
 
 /* BTF_KIND_ENUM is followed by multiple "struct btf_enum".
  * The exact number of btf_enum is stored in the vlen (of the
  * info in "struct btf_type").
  */
 struct btf_enum {
-	__u32	name_off;
+	__u32	name;
 	__s32	val;
 };
 
@@ -105,7 +122,7 @@ struct btf_array {
  * "struct btf_type").
  */
 struct btf_member {
-	__u32	name_off;
+	__u32	name;
 	__u32	type;
 	__u32	offset;	/* offset in bits */
 };
