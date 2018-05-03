@@ -695,14 +695,6 @@ union bpf_attr {
  *
  * 	Return
  * 		0 on success, or a negative error in case of failure.
- *
- * int bpf_bind(ctx, addr, addr_len)
- *     Bind socket to address. Only binding to IP is supported, no port can be
- *     set in addr.
- *     @ctx: pointer to context of type bpf_sock_addr
- *     @addr: pointer to struct sockaddr to bind socket to
- *     @addr_len: length of sockaddr structure
- *     Return: 0 on success or negative error code
  */
 #define __BPF_FUNC_MAPPER(FN)		\
 	FN(unspec),			\
