@@ -184,7 +184,7 @@ static enum fscache_checkaux ceph_fscache_inode_check_aux(
 
 	memset(&aux, 0, sizeof(aux));
 	aux.version = ci->i_version;
-	aux.mtime = inode->i_mtime;
+        aux.mtime = timespec64_to_timespec(inode->i_mtime);
 	aux.size = i_size_read(inode);
 
 	if (memcmp(data, &aux, sizeof(aux)) != 0)
