@@ -74,7 +74,6 @@ udf_disk_stamp_to_time(struct timespec *dest, struct timestamp src)
 	 * recorded with bogus sub-second values.
 	 */
 	dest->tv_nsec %= NSEC_PER_SEC;
-	return dest;
 }
 
 void
