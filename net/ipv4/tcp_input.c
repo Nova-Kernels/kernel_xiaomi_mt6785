@@ -903,6 +903,7 @@ void tcp_disable_fack(struct tcp_sock *tp)
 static void tcp_dsack_seen(struct tcp_sock *tp)
 {
 	tp->rx_opt.sack_ok |= TCP_DSACK_SEEN;
+	tp->dsack_dups++;
 }
 
 static void tcp_update_reordering(struct sock *sk, const int metric,
