@@ -10786,7 +10786,7 @@ force_balance:
 	/* Looks like there is an imbalance. Compute it */
 	env->src_grp_type = busiest->group_type;
 	calculate_imbalance(env, &sds);
-	return sds.busiest;
+	return env->imbalance ? sds.busiest : NULL;
 
 out_balanced:
 	env->imbalance = 0;
