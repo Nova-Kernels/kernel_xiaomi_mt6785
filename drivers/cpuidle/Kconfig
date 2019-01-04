@@ -48,6 +48,15 @@ config CPU_IDLE_NO_MTK
 	  But not all (MTK) projects use these driver.
 	  Set this option to avoid using MTK driver / gorvernor by default.
 
+config CPU_IDLE_GOV_TEO
+	bool "Timer events oriented (TEO) governor (for tickless systems)"
+	help
+	  This governor implements a simplified idle state selection method
+	  focused on timer events and does not do any interactivity boosting.
+
+	  Some workloads benefit from using it and it generally should be safe
+	  to use.  Say Y here if you are not happy with the alternatives.
+
 config DT_IDLE_STATES
 	bool
 
