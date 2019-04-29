@@ -7549,6 +7549,8 @@ static inline int find_best_target(struct task_struct *p, int *backup_cpu,
 	int cpu, i;
 	int backup_idle_min_cpu = -1;
 	int backup_active_min_cpu = -1;
+	struct task_struct *curr_tsk;
+
 
 	/*
 	 * In most cases, target_capacity tracks capacity_orig of the most
@@ -7931,6 +7933,13 @@ static inline int find_best_target(struct task_struct *p, int *backup_cpu,
 	 *   f) ACTIVE little core and use frequency core higher thane turning
 	 *      point: backup_active_min_cpu
 	 */
+	if (target_cpu != -1 && !idle_cpu(target_cpu) &&
+			best_idle_cpu != -1) {
+		curr_tsk = READ_ONCE(cpu_rq(target_cpu)->curr);
+		if (curr_tsk && schedtune_task_boost_rcu_locked(curr_tsk)) {
+			target_cpu = best_idle_cpu;
+		}
+	}
 
 	if (prefer_idle) {
 		if (best_idle_cpu == -1)
