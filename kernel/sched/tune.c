@@ -764,22 +764,50 @@ boost_write(struct cgroup_subsys_state *css, struct cftype *cft,
 }
 
 #ifdef CONFIG_STUNE_ASSIST
-static int boost_write_wrapper(struct cgroup_subsys_state *css,
-			       struct cftype *cft, s64 boost)
+#ifdef CONFIG_SCHED_WALT
+static int sched_boost_override_write_wrapper(struct cgroup_subsys_state *css,
+			struct cftype *cft, u64 override)
 {
-	if (task_is_booster(current))
+	if (!strcmp(current->comm, "init"))
 		return 0;
 
-	return boost_write(css, cft, boost);
+	sched_boost_override_write(css, NULL, override);
+
+	return 0;
+}
+
+static int sched_colocate_write_wrapper(struct cgroup_subsys_state *css,
+			struct cftype *cft, u64 colocate)
+{
+	if (!strcmp(current->comm, "init"))
+		return 0;
+
+	sched_colocate_write(css, NULL, colocate);
+
+	return 0;
+}
+#endif
+
+static int boost_write_wrapper(struct cgroup_subsys_state *css,
+			struct cftype *cft, s64 boost)
+{
+	if (!strcmp(current->comm, "init"))
+		return 0;
+
+	boost_write(css, NULL, boost);
+
+	return 0;
 }
 
 static int prefer_idle_write_wrapper(struct cgroup_subsys_state *css,
-				     struct cftype *cft, u64 prefer_idle)
+			struct cftype *cft, u64 prefer_idle)
 {
-	if (task_is_booster(current))
+	if (!strcmp(current->comm, "init"))
 		return 0;
 
-	return prefer_idle_write(css, cft, prefer_idle);
+	prefer_idle_write(css, NULL, prefer_idle);
+
+	return 0;
 }
 #endif
 
@@ -788,12 +816,12 @@ static struct cftype files[] = {
 	{
 		.name = "sched_boost_no_override",
 		.read_u64 = sched_boost_override_read,
-		.write_u64 = sched_boost_override_write,
+		.write_u64 = sched_boost_override_write_wrapper,
 	},
 	{
 		.name = "colocate",
 		.read_u64 = sched_colocate_read,
-		.write_u64 = sched_colocate_write,
+		.write_u64 = sched_colocate_write_wrapper,
 	},
 #endif
 	{
@@ -858,31 +886,31 @@ schedtune_boostgroup_init(struct schedtune *st)
 }
 
 #ifdef CONFIG_STUNE_ASSIST
-struct st_data {
-	char *name;
-	int boost;
-	bool prefer_idle;
-};
-
 static void write_default_values(struct cgroup_subsys_state *css)
 {
-	static struct st_data st_targets[] = {
-		{ "audio-app",	0, 0 },
-		{ "background",	0, 0 },
-		{ "foreground",	1, 0 },
-		{ "rt",		0, 0 },
-		{ "top-app",	5, 1 },
+	u8 i;
+	struct groups_data {
+		char *name;
+		int boost;
+		bool prefer_idle;
+		bool colocate;
+		bool no_override;
 	};
-	int i;
+	struct groups_data groups[3] = {
+		{ "top-app",	5, 1, 0, 1 },
+		{ "foreground", 1, 1, 0, 1 },
+		{ "background", 0, 0, 1, 0 }};
 
-	for (i = 0; i < ARRAY_SIZE(st_targets); i++) {
-		struct st_data tgt = st_targets[i];
-
-		if (!strcmp(css->cgroup->kn->name, tgt.name)) {
-			boost_write(css, NULL, tgt.boost);
-			prefer_idle_write(css, NULL, tgt.prefer_idle);
-			pr_info("stune_assist: setting values for %s: boost=%d prefer_idle=%d\n",
-				tgt.name, tgt.boost, tgt.prefer_idle);
+	for (i = 0; i < ARRAY_SIZE(groups); i++) {
+		if (!strcmp(css->cgroup->kn->name, groups[i].name)) {
+			pr_info("%s: %i - %i - %i - %i\n", groups[i].name,
+					groups[i].boost, groups[i].prefer_idle,
+					groups[i].colocate,
+					groups[i].no_override);
+			boost_write(css, NULL, groups[i].boost);
+			prefer_idle_write(css, NULL, groups[i].prefer_idle);
+			sched_colocate_write(css, NULL, groups[i].colocate);
+			sched_boost_override_write(css, NULL, groups[i].no_override);
 		}
 	}
 }
