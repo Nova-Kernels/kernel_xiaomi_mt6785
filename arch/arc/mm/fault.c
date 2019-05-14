@@ -155,6 +155,9 @@ retry:
 		}
 	}
 
+bad_area:
+	up_read(&mm->mmap_sem);
+
 	/*
 	 * Major/minor page fault accounting
 	 * (in case of retry we only land here once)
@@ -173,12 +176,8 @@ retry:
 		}
 
 		/* Normal return path: fault Handled Gracefully */
-		up_read(&mm->mmap_sem);
 		return;
 	}
-
-bad_area:
-	up_read(&mm->mmap_sem);
 
 	if (!user_mode(regs))
 		goto no_context;
