@@ -20,6 +20,8 @@
 
 #include <asm/page.h>
 
+#include "kstrtox.h"
+
 /**
  * DOC: bitmap introduction
  *
