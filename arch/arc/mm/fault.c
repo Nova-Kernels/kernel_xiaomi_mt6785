@@ -204,20 +204,6 @@ bad_area:
 		return;
 	}
 
-no_context:
-	/* Are we prepared to handle this kernel fault?
-	 *
-	 * (The kernel has valid exception-points in the source
-	 *  when it accesses user-memory. When it fails in one
-	 *  of those points, we find it in a table and do a jump
-	 *  to some fixup code that loads an appropriate error
-	 *  code)
-	 */
-	if (fixup_exception(regs))
-		return;
-
-	die("Oops", regs, address);
-
 out_of_memory:
 	up_read(&mm->mmap_sem);
 
@@ -240,4 +226,11 @@ do_sigbus:
 	info.si_code = BUS_ADRERR;
 	info.si_addr = (void __user *)address;
 	force_sig_info(SIGBUS, &info, tsk);
+	return;
+
+no_context:
+	if (fixup_exception(regs))
+		return;
+
+	die("Oops", regs, address);
 }
