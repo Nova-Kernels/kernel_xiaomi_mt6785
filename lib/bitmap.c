@@ -983,7 +983,6 @@ void bitmap_fold(unsigned long *dst, const unsigned long *orig,
 	for_each_set_bit(oldbit, orig, nbits)
 		set_bit(oldbit % sz, dst);
 }
-#endif /* CONFIG_NUMA */
 
 /*
  * Common code for bitmap_*_region() routines.
