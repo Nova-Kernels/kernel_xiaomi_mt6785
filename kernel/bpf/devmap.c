@@ -141,20 +141,9 @@ static struct bpf_map *dev_map_alloc(union bpf_attr *attr)
 	if (cost >= U32_MAX - PAGE_SIZE)
 		goto free_dtab;
 
-	dtab->map.memory.pages = round_up(cost, PAGE_SIZE) >> PAGE_SHIFT;
-
-	if (attr->map_type == BPF_MAP_TYPE_DEVMAP_HASH) {
-		dtab->n_buckets = roundup_pow_of_two(dtab->map.max_entries);
-
-		if (!dtab->n_buckets) { /* Overflow check */
-			err = -EINVAL;
-			goto free_dtab;
-		}
-		cost += sizeof(struct hlist_head) * dtab->n_buckets;
-	}
-
-	/* if map size is larger than memlock limit, reject it early */
-	err = bpf_map_precharge_memlock(dtab->map.memory.pages);
+	/* if map size is larger than memlock limit, reject it */
+	err = bpf_map_charge_init(&dtab->map.memory,
+				  round_up(cost, PAGE_SIZE) >> PAGE_SHIFT);
 	if (err)
 		goto free_dtab;
 
@@ -165,13 +154,13 @@ static struct bpf_map *dev_map_alloc(union bpf_attr *attr)
 						__alignof__(unsigned long),
 						GFP_KERNEL | __GFP_NOWARN);
 	if (!dtab->flush_needed)
-		goto free_dtab;
+		goto free_charge;
 
 	dtab->netdev_map = bpf_map_area_alloc(dtab->map.max_entries *
 					      sizeof(struct bpf_dtab_netdev *),
 					      dtab->map.numa_node);
 	if (!dtab->netdev_map)
-		goto free_dtab;
+		goto free_charge;
 
 	if (attr->map_type == BPF_MAP_TYPE_DEVMAP_HASH) {
 		dtab->dev_index_head = dev_map_create_hash(dtab->n_buckets);
@@ -186,8 +175,8 @@ static struct bpf_map *dev_map_alloc(union bpf_attr *attr)
 	spin_unlock(&dev_map_lock);
 
 	return &dtab->map;
-free_map_area:
-	bpf_map_area_free(dtab->netdev_map);
+free_charge:
+	bpf_map_charge_finish(&dtab->map.memory);
 free_dtab:
 	free_percpu(dtab->flush_needed);
 	kfree(dtab->dev_index_head);
