@@ -119,6 +119,12 @@ extern void sched_exec(void);
 
 extern void __put_task_struct(struct task_struct *t);
 
+static inline struct task_struct *get_task_struct(struct task_struct *t)
+{
+	refcount_inc(&t->usage);
+	return t;
+}
+
 static inline void put_task_struct(struct task_struct *t)
 {
 	if (atomic_dec_and_test(&t->usage))
