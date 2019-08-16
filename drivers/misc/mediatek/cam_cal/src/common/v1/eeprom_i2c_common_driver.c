@@ -27,6 +27,7 @@
 #include "cam_cal.h"
 #include "cam_cal_define.h"
 #include "cam_cal_list.h"
+#include "eeprom_platform_def.h"
 #include <linux/dma-mapping.h>
 #ifdef CONFIG_COMPAT
 /* 64 bit */
