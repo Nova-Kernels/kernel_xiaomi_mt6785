@@ -1214,7 +1214,7 @@ void pm_qos_update_request_timeout(struct pm_qos_request *req, s32 new_value,
 			req, PM_QOS_UPDATE_REQ);
 	}
 
-	schedule_delayed_work(&req->work, usecs_to_jiffies(timeout_us));
+	queue_delayed_work(system_power_efficient_wq, &req->work, usecs_to_jiffies(timeout_us));
 }
 
 /**
