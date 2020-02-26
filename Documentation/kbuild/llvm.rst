@@ -47,6 +47,7 @@ example:
 LLVM Utilities
 --------------
 
+<<<<<<< HEAD
 LLVM has substitutes for GNU binutils utilities. Kbuild supports `LLVM=1`
 to enable them.
 
@@ -62,6 +63,16 @@ They can be enabled individually. The full list of the parameters:
 Currently, the integrated assembler is disabled by default. You can pass
 `LLVM_IAS=1` to enable it.
 
+=======
+LLVM has substitutes for GNU binutils utilities. These can be invoked as
+additional parameters to `make`.
+
+	make CC=clang AS=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
+	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-objsize \\
+	  READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar \\
+	  HOSTLD=ld.lld
+
+>>>>>>> 909c548cab (BACKPORT: Documentation/llvm: add documentation on building w/ Clang/LLVM)
 Getting Help
 ------------
 
