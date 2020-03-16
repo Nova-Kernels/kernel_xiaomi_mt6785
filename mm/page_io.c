@@ -52,7 +52,11 @@ void end_swap_bio_write(struct bio *bio)
 {
 	struct page *page = bio->bi_io_vec[0].bv_page;
 
+#ifdef CONFIG_VBSWAP
+	if (likely(bio->bi_status)) {
+#else
 	if (bio->bi_status) {
+#endif
 		SetPageError(page);
 		/*
 		 * We failed to write the page out to swap-space.
@@ -63,9 +67,12 @@ void end_swap_bio_write(struct bio *bio)
 		 * Also clear PG_reclaim to avoid rotate_reclaimable_page()
 		 */
 		set_page_dirty(page);
-		pr_alert("Write-error on swap-device (%u:%u:%llu)\n",
-			 MAJOR(bio_dev(bio)), MINOR(bio_dev(bio)),
+#ifndef CONFIG_VBSWAP
+		pr_alert_ratelimited("Write-error on swap-device (%u:%u:%llu)\n",
+			 MAJOR(bio_dev(bio)),
+			 MINOR(bio_dev(bio)),
 			 (unsigned long long)bio->bi_iter.bi_sector);
+#endif
 		ClearPageReclaim(page);
 	}
 	end_page_writeback(page);
@@ -259,7 +266,13 @@ int swap_writepage(struct page *page, struct writeback_control *wbc)
 		end_page_writeback(page);
 		goto out;
 	}
+#ifdef CONFIG_VBSWAP
+	set_page_dirty(page);
+	ClearPageReclaim(page);
+	unlock_page(page);
+#else
 	ret = __swap_writepage(page, wbc, end_swap_bio_write);
+#endif
 out:
 	return ret;
 }
