@@ -48,6 +48,9 @@ LLVM Utilities
 --------------
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> c07dfd032a (BACKPORT: kbuild: support LLVM=1 to switch the default tools to Clang/LLVM)
 LLVM has substitutes for GNU binutils utilities. Kbuild supports `LLVM=1`
 to enable them.
 
