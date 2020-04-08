@@ -67,12 +67,18 @@ Currently, the integrated assembler is disabled by default. You can pass
 LLVM has substitutes for GNU binutils utilities. These can be invoked as
 additional parameters to `make`.
 
-	make CC=clang AS=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
+	make CC=clang LD=ld.lld AR=llvm-ar NM=llvm-nm STRIP=llvm-strip \\
 	  OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump OBJSIZE=llvm-size \\
 	  READELF=llvm-readelf HOSTCC=clang HOSTCXX=clang++ HOSTAR=llvm-ar \\
 	  HOSTLD=ld.lld
 
+<<<<<<< HEAD
 >>>>>>> 909c548cab (BACKPORT: Documentation/llvm: add documentation on building w/ Clang/LLVM)
+=======
+Currently, the integrated assembler is disabled by default. You can pass
+`LLVM_IAS=1` to enable it.
+
+>>>>>>> 68a49e52b1 (BACKPORT: kbuild: replace AS=clang with LLVM_IAS=1)
 Getting Help
 ------------
 
