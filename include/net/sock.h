@@ -2586,6 +2586,6 @@ extern __u32 sysctl_rmem_default;
 /* On 32bit arches, an skb frag is limited to 2^15 */
 #define SKB_FRAG_PAGE_ORDER	get_order(32768)
 
-int sock_bindtoindex(struct sock *sk, int ifindex);
+int sock_bindtoindex(struct sock *sk, int ifindex, bool lock_sk);
 
 #endif	/* _SOCK_H */
