@@ -10808,6 +10808,14 @@ static struct rq *find_busiest_queue(struct lb_env *env,
 			busiest_capacity = capacity;
 			busiest = rq;
 		}
+
+		/*
+		 * Don't try to pull utilization from a CPU with one
+		 * running task. Whatever its utilization, we will fail
+		 * detach the task.
+		 */
+		if (rq->nr_running <= 1)
+			continue;
 	}
 
 	return busiest;
