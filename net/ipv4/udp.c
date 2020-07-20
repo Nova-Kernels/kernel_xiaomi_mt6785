@@ -112,6 +112,7 @@
 #include <trace/events/udp.h>
 #include <linux/static_key.h>
 #include <net/udp.h>
+#include <linux/btf_ids.h>
 #include <trace/events/skb.h>
 #include <net/busy_poll.h>
 #include "udp_impl.h"
@@ -3099,7 +3100,7 @@ static void bpf_iter_fini_udp(void *priv_data)
 	bpf_iter_fini_seq_net(priv_data);
 }
 
-static const struct bpf_iter_reg udp_reg_info = {
+static struct bpf_iter_reg udp_reg_info = {
 	.target			= "udp",
 	.seq_ops		= &bpf_iter_udp_seq_ops,
 	.init_seq_private	= bpf_iter_init_udp,
@@ -3114,6 +3115,7 @@ static const struct bpf_iter_reg udp_reg_info = {
 
 static void __init bpf_iter_register(void)
 {
+	udp_reg_info.ctx_arg_info[0].btf_id = btf_sock_ids[BTF_SOCK_TYPE_UDP];
 	if (bpf_iter_reg_target(&udp_reg_info))
 		pr_warn("Warning: could not register bpf iterator udp\n");
 }
