@@ -36,8 +36,7 @@
 #include <linux/slab.h>
 #include <linux/amd-iommu.h>
 #include <linux/hashtable.h>
-#include <linux/frame.h>
-
+#include <linux/objtool.h>
 #include <asm/apic.h>
 #include <asm/perf_event.h>
 #include <asm/tlbflush.h>
