@@ -67,7 +67,7 @@ struct screen_monitor {
 };
 struct screen_monitor sm;
 #endif
-static atomic_t switch_mode = ATOMIC_INIT(-1);
+static atomic_t switch_mode = ATOMIC_INIT(10);
 static atomic_t temp_state = ATOMIC_INIT(0);
 static atomic_t lighter_event = ATOMIC_INIT(0);
 static atomic_t balance_mode = ATOMIC_INIT(0);
@@ -1194,12 +1194,14 @@ static ssize_t
 thermal_sconfig_store(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
 {
-       int val = -1;
+       int ret, val = -1;
 
-       val = simple_strtol(buf, NULL, 10);
+       ret = kstrtoint(buf, 10, &val);
 
        atomic_set(&switch_mode, val);
 
+       if (ret)
+                return ret;
        return len;
 }
 
@@ -1258,12 +1260,14 @@ static ssize_t
 thermal_temp_state_store(struct device *dev,
 				struct device_attribute *attr, const char *buf, size_t len)
 {
-       int val = -1;
+       int ret, val = -1;
 
-       val = simple_strtol(buf, NULL, 10);
+       ret = kstrtoint(buf, 10, &val);
 
        atomic_set(&temp_state, val);
 
+       if (ret)
+                return ret;
        return len;
 }
 
