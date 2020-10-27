@@ -43,7 +43,7 @@
 * 3.Private enumerations, structures and unions using typedef
 *****************************************************************************/
 enum _ex_mode {
-	MODE_GLOVE = 0,
+	MODE_GLOVE = 1,
 	MODE_COVER,
 	MODE_CHARGER,
 };
@@ -285,8 +285,8 @@ int fts_ex_mode_init(struct fts_ts_data *ts_data)
 {
 	int ret = 0;
 
-	ts_data->glove_mode = DISABLE;
-	ts_data->cover_mode = DISABLE;
+	ts_data->glove_mode = ENABLE;
+	ts_data->cover_mode = ENABLE;
 	ts_data->charger_mode = DISABLE;
 
 	ret = sysfs_create_group(&ts_data->dev->kobj, &fts_touch_mode_group);
