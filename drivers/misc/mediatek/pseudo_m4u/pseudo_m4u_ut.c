@@ -107,7 +107,7 @@ struct test_buffer_info *m4u_test_start(size_t size, int port)
 	buf_info->mva = (dma_addr_t)buffer_mva;
 	buf_info->size = mva_size;
 
-	pr_info("%s done mva:%pa, size:0x%zx, port:%s\n",
+	pr_debug("%s done mva:%pa, size:0x%zx, port:%s\n",
 		__func__, &buf_info->mva, buf_info->size,
 		iommu_get_port_name(port));
 	return buf_info;
@@ -124,7 +124,7 @@ int m4u_test_end(struct test_buffer_info *buf_info)
 	ion_free(buf_info->client, buf_info->handle);
 	ion_client_destroy(buf_info->client);
 	kfree(buf_info);
-	pr_info("%s done\n", __func__);
+	pr_debug("%s done\n", __func__);
 
 	return 0;
 }
@@ -168,7 +168,7 @@ static int m4u_test_probe(struct platform_device *pdev)
 	ret = m4u_test(12345, M4U_PORT_L21_APU_FAKE_DATA); //apu_data
 	ret = m4u_test(12345, M4U_PORT_L21_APU_FAKE_VLM); //apu_vlm
 #endif
-	pr_info("probe dev:0x%lx, name:%s\n",
+	pr_debug("probe dev:0x%lx, name:%s\n",
 		(unsigned long)&pdev->dev, dev_name(&pdev->dev));
 
 	return 0;
@@ -236,7 +236,7 @@ static struct platform_driver m4u_test_driver = {
 
 static int __init m4u_test_init(void)
 {
-	pr_info("%s()\n", __func__);
+	pr_debug("%s()\n", __func__);
 	if (platform_driver_register(&m4u_test_driver)) {
 		pr_notice("%s platform driver register failed.\n", __func__);
 		return -ENODEV;
