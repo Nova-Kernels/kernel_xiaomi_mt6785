@@ -59,7 +59,7 @@ void set_swpm_me_freq(unsigned int venc_freq,
 		return;
 
 	if (!me_swpm) {
-		pr_notice("%s: re-init me_swpm\n", __func__);
+		pr_debug("%s: re-init me_swpm\n", __func__);
 		init_me_swpm();
 	}
 
@@ -114,7 +114,7 @@ void set_swpm_disp_active(bool is_on)
 		return;
 
 	if (!me_swpm) {
-		pr_notice("%s: re-init me_swpm\n", __func__);
+		pr_debug("%s: re-init me_swpm\n", __func__);
 		init_me_swpm();
 	}
 
@@ -136,7 +136,7 @@ void set_swpm_disp_work(void)
 		return;
 
 	if (!me_swpm) {
-		pr_notice("%s: re-init me_swpm\n", __func__);
+		pr_debug("%s: re-init me_swpm\n", __func__);
 		init_me_swpm();
 	}
 
@@ -160,7 +160,7 @@ void set_swpm_venc_active(bool is_on)
 		return;
 
 	if (!me_swpm) {
-		pr_notice("%s: re-init me_swpm\n", __func__);
+		pr_debug("%s: re-init me_swpm\n", __func__);
 		init_me_swpm();
 	}
 
@@ -187,7 +187,7 @@ void set_swpm_vdec_active(bool is_on)
 		return;
 
 	if (!me_swpm) {
-		pr_notice("%s: re-init me_swpm\n", __func__);
+		pr_debug("%s: re-init me_swpm\n", __func__);
 		init_me_swpm();
 	}
 
@@ -210,7 +210,7 @@ void set_swpm_mdp_active(bool is_on)
 		return;
 
 	if (!me_swpm) {
-		pr_notice("%s: re-init me_swpm\n", __func__);
+		pr_debug("%s: re-init me_swpm\n", __func__);
 		init_me_swpm();
 	}
 
