@@ -86,7 +86,7 @@ u32 dre30_hist_sram_start;
 #define CMDQ_LOG_PMQOS(string, args...) \
 do {			\
 	if (cmdq_core_should_pmqos_log()) { \
-		pr_notice("[CMDQ][MDP]"string, ##args); \
+		pr_debug("[CMDQ][MDP]"string, ##args); \
 	} \
 } while (0)
 

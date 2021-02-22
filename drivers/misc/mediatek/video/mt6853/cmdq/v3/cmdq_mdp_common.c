@@ -72,7 +72,7 @@ struct plist_head qos_isp_module_request_list[MDP_TOTAL_THREAD];
 #define CMDQ_LOG_PMQOS(string, args...) \
 do {			\
 	if (cmdq_core_should_pmqos_log()) { \
-		pr_notice("[CMDQ][MDP]"string, ##args); \
+		pr_debug("[CMDQ][MDP]"string, ##args); \
 	} \
 } while (0)
 
