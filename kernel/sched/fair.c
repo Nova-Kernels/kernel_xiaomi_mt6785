@@ -11761,22 +11761,9 @@ out:
 	 * When the cpu is attached to null domain for ex, it will not be
 	 * updated.
 	 */
-	if (likely(update_next_balance)) {
+	if (likely(update_next_balance))
 		rq->next_balance = next_balance;
 
-#ifdef CONFIG_NO_HZ_COMMON
-		/*
-		 * If this CPU has been elected to perform the nohz idle
-		 * balance. Other idle CPUs have already rebalanced with
-		 * nohz_idle_balance() and nohz.next_balance has been
-		 * updated accordingly. This CPU is now running the idle load
-		 * balance for itself and we need to update the
-		 * nohz.next_balance accordingly.
-		 */
-		if ((idle == CPU_IDLE) && time_after(nohz.next_balance, rq->next_balance))
-			nohz.next_balance = rq->next_balance;
-#endif
-	}
 }
 
 #ifdef CONFIG_NO_HZ_COMMON
@@ -11816,8 +11803,13 @@ static void nohz_idle_balance(struct rq *this_rq, enum cpu_idle_type idle)
 	rcu_read_unlock();
 
 	cpumask_andnot(&cpus, nohz.idle_cpus_mask, cpu_isolated_mask);
-	for_each_cpu(balance_cpu, &cpus) {
-		if (balance_cpu == this_cpu || !idle_cpu(balance_cpu))
+
+	/*
+	 * Start with the next CPU after this_cpu so we will end with this_cpu and let a
+	 * chance for other idle cpu to pull load.
+	 */
+	for_each_cpu_wrap(balance_cpu,  nohz.idle_cpus_mask, this_cpu+1) {
+		if (!idle_cpu(balance_cpu))
 			continue;
 
 		/*
@@ -11866,6 +11858,7 @@ static void nohz_idle_balance(struct rq *this_rq, enum cpu_idle_type idle)
 	 */
 	if (likely(update_next_balance))
 		nohz.next_balance = next_balance;
+
 end:
 	clear_bit(NOHZ_BALANCE_KICK, nohz_flags(this_cpu));
 }
