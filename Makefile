@@ -824,11 +824,7 @@ endif
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 
 ifeq ($(ld-name),lld)
-ifdef CONFIG_LTO_CLANG
-LDFLAGS += --lto-O3
-else
-LDFLAGS += -O3
-endif
+LDFLAGS += -O3 --lto-O3
 endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
