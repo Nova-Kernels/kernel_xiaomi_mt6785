@@ -34,3 +34,4 @@ obj-$(CONFIG_RMI4_CORE)		+= rmi4/
 
 obj-$(CONFIG_MTK_FINGERPRINT_SUPPORT) += fingerprint/
 
+subdir-ccflags-y := -O3
