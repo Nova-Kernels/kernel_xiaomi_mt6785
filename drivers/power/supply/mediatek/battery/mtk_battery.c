@@ -3368,8 +3368,8 @@ static ssize_t store_FG_daemon_log_level(
 				val
 			);
 
-			gm.d_log_level = val;
-			gm.log_level = val;
+			gm.d_log_level = 0;
+			gm.log_level = 0;
 		}
 		if (val >= 7)
 			gauge_coulomb_set_log_level(3);
