@@ -1379,6 +1379,7 @@ struct task_struct {
 	/* Used by LSM modules for access restriction: */
 	void				*security;
 #endif
+
 #ifdef CONFIG_MTK_TASK_TURBO
 	unsigned short turbo:1;
 	unsigned short render:1;
@@ -1392,6 +1393,10 @@ struct task_struct {
 		atomic_t running;
 		bool free_stack;
 	} async_free;
+
+#ifdef CONFIG_ANDROID_SIMPLE_LMK
+	struct task_struct		*simple_lmk_next;
+#endif
 
 	/*
 	 * New fields for task_struct should be added above here, so that
