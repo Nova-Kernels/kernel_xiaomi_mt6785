@@ -1163,7 +1163,7 @@ static int userfaultfd_minor_test(void)
 	uint8_t expected_byte;
 	void *expected_page;
 	char c;
-	uint64_t req_features, features_out;
+	uint64_t features = UFFD_FEATURE_MINOR_HUGETLBFS;
 
 	if (!test_uffdio_minor)
 		return 0;
@@ -1171,18 +1171,10 @@ static int userfaultfd_minor_test(void)
 	printf("testing minor faults: ");
 	fflush(stdout);
 
-	if (test_type == TEST_HUGETLB)
-		req_features = UFFD_FEATURE_MINOR_HUGETLBFS;
-	else if (test_type == TEST_SHMEM)
-		req_features = UFFD_FEATURE_MINOR_SHMEM;
-	else
+	if (uffd_test_ctx_clear() || uffd_test_ctx_init_ext(&features))
 		return 1;
-
-	features_out = req_features;
-	if (uffd_test_ctx_clear() || uffd_test_ctx_init_ext(&features_out))
-		return 1;
-	/* If kernel reports required features aren't supported, skip test. */
-	if ((features_out & req_features) != req_features) {
+	/* If kernel reports the feature isn't supported, skip the test. */
+	if (!(features & UFFD_FEATURE_MINOR_HUGETLBFS)) {
 		printf("skipping test due to lack of feature support\n");
 		fflush(stdout);
 		return 0;
@@ -1192,7 +1184,7 @@ static int userfaultfd_minor_test(void)
 	uffdio_register.range.len = nr_pages * page_size;
 	uffdio_register.mode = UFFDIO_REGISTER_MODE_MINOR;
 	if (ioctl(uffd, UFFDIO_REGISTER, &uffdio_register)) {
-		perror("register failure");
+		fprintf(stderr, "register failure\n");
 		exit(1);
 	}
 
@@ -1445,7 +1437,6 @@ static void set_test_type(const char *type)
 		map_shared = true;
 		test_type = TEST_SHMEM;
 		uffd_test_ops = &shmem_uffd_test_ops;
-		test_uffdio_minor = true;
 	} else {
 		fprintf(stderr, "Unknown test type: %s\n", type), exit(1);
 	}
