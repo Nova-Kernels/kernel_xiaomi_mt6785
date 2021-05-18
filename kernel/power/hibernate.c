@@ -409,7 +409,6 @@ int hibernation_snapshot(int platform_mode)
 
 	resume_console();
 	dpm_complete(msg);
-
  Close:
 	platform_end(platform_mode);
 	return error;
@@ -701,7 +700,6 @@ int hibernate(void)
 		goto Unlock;
 	}
 
-	pr_info("hibernation entry\n");
 	pm_prepare_console();
 	error = __pm_notifier_call_chain(PM_HIBERNATION_PREPARE, -1, &nr_calls);
 	if (error) {
@@ -709,9 +707,7 @@ int hibernate(void)
 		goto Exit;
 	}
 
-	pr_info("Syncing filesystems ... \n");
 	sys_sync();
-	pr_info("done.\n");
 
 	error = freeze_processes();
 	if (error)
@@ -772,7 +768,6 @@ int hibernate(void)
 	atomic_inc(&snapshot_device_available);
  Unlock:
 	unlock_system_sleep();
-	pr_info("hibernation exit\n");
 
 	return error;
 }
