@@ -171,7 +171,7 @@ static void alarmtimer_enqueue(struct alarm_base *base, struct alarm *alarm)
 
 	if (__ratelimit(&ratelimit)) {
 		ratelimit.begin = jiffies;
-		pr_notice("%s, %lld\n", __func__, alarm->node.expires);
+		pr_debug("%s, %lld\n", __func__, alarm->node.expires);
 	}
 
 	timerqueue_add(&base->timerqueue, &alarm->node);
@@ -307,7 +307,7 @@ static int alarmtimer_suspend(struct device *dev)
 	now = ktime_add(now, min);
 
 	time = rtc_ktime_to_tm(now);
-	pr_notice_ratelimited("%s convert %lld to %04d/%02d/%02d %02d:%02d:%02d (now = %04d/%02d/%02d %02d:%02d:%02d)\n",
+	pr_debug_ratelimited("%s convert %lld to %04d/%02d/%02d %02d:%02d:%02d (now = %04d/%02d/%02d %02d:%02d:%02d)\n",
 			__func__, expires,
 			time.tm_year+1900, time.tm_mon+1, time.tm_mday,
 			time.tm_hour, time.tm_min, time.tm_sec,
