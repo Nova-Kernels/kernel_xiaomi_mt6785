@@ -81,6 +81,7 @@ static unsigned long long simple_strntoull(const char *startp, size_t max_chars,
  *
  * This function is obsolete. Please use kstrtoull instead.
  */
+noinline
 unsigned long long simple_strtoull(const char *cp, char **endp, unsigned int base)
 {
 	return simple_strntoull(cp, INT_MAX, endp, base);
