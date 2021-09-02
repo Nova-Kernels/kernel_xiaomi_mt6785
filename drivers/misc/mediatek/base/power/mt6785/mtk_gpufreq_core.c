@@ -922,6 +922,12 @@ unsigned int mt_gpufreq_get_min_power(void)
 			g_power_table[g_segment_min_opp_idx].gpufreq_power;
 }
 
+/* API : get immediate gpu temperature */
+int mt_gpufreq_get_immed_gpu_temp(void)
+{
+	return get_immediate_gpu_wrap();
+}
+
 /* API : get static leakage power */
 unsigned int mt_gpufreq_get_leakage_mw(void)
 {
