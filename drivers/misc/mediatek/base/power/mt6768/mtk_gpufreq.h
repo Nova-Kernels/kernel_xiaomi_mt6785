@@ -94,4 +94,9 @@ extern void mt_gpufreq_power_limit_notify_registerCB(gpufreq_power_limit_notify 
 typedef void (*gpufreq_input_boost_notify)(unsigned int);
 extern void mt_gpufreq_input_boost_notify_registerCB(gpufreq_input_boost_notify pCB);
 
+/**
+ * GED_SKI_SUPPORT
+ */
+extern int mt_gpufreq_get_immed_gpu_temp(void);
+
 #endif /* _MT_GPUFREQ_H_ */
