@@ -999,6 +999,10 @@ static ssize_t comp_algorithm_store(struct device *dev,
 	char compressor[ARRAY_SIZE(zram->compressor)];
 	size_t sz;
 
+#ifdef CONFIG_ZRAM_FIXED_COMP_ALGORITHM
+	return -EINVAL;
+#endif
+
 	strlcpy(compressor, buf, sizeof(compressor));
 	/* ignore trailing newline */
 	sz = strlen(compressor);
@@ -1739,6 +1743,9 @@ static ssize_t disksize_store(struct device *dev,
 		goto out_unlock;
 	}
 
+#ifdef CONFIG_ZRAM_FIXED_COMP_ALGORITHM
+	strlcpy(zram->compressor, default_compressor, sizeof(zram->compressor));
+#endif
 	comp = zcomp_create(zram->compressor);
 	if (IS_ERR(comp)) {
 		pr_err("Cannot initialise %s compressing backend\n",

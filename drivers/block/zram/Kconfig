@@ -31,6 +31,16 @@ config ZRAM_WRITEBACK
 
 	 See Documentation/blockdev/zram.txt for more information.
 
+config ZRAM_FIXED_COMP_ALGORITHM
+	bool "Make ZRAM compression algorithm immutable"
+	depends on ZRAM
+	default n
+	help
+	  With this feature, userspace will never be able to modify the default
+	  ZRAM compression.
+
+	  If unsure, say N.
+
 config ZRAM_MEMORY_TRACKING
 	bool "Track zRam block status"
 	depends on ZRAM && DEBUG_FS
