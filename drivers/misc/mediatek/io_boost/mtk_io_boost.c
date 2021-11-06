@@ -127,7 +127,7 @@ static int mtk_iobst_add_task_internal(int tid)
 
 	/* ignore "no such process" error since process may be deleted */
 	if (ret < 0 && (int)ret != -ESRCH)
-		pr_info("failed to write task, ret:%d\n", (int)ret);
+		pr_err("failed to write task, ret:%d\n", (int)ret);
 
 	return 0;
 }
@@ -140,14 +140,14 @@ static int mtk_iobst_add_task(void)
 	ret = mtk_iobst_open_task_file();
 
 	if (ret < 0) {
-		pr_info("failed to open task file, ret=%d\n", ret);
+		pr_err("failed to open task file, ret=%d\n", ret);
 		return ret;
 	}
 
 	while ((tid = mtk_iobst_get_next_tid()) != -1) {
 		ret = mtk_iobst_add_task_internal(tid);
 		if (ret)
-			pr_info("failed to add tid=%d, ret=%d\n", tid, ret);
+			pr_err("failed to add tid=%d, ret=%d\n", tid, ret);
 	}
 
 	mtk_iobst_close_task_file();
@@ -171,7 +171,7 @@ int mtk_iobst_register_tid(int tid)
 	spin_unlock_irq(&bst_lock);
 
 	if (ret)
-		pr_info("failed to register tid=%d\n", tid);
+		pr_err("failed to register tid=%d\n", tid);
 	else if (bst_init_done)
 		wake_up_interruptible(&bst_wq);
 
