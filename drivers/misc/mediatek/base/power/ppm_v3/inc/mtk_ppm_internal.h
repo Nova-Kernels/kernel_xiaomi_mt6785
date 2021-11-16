@@ -118,7 +118,7 @@ static const struct file_operations ppm_ ## name ## _proc_fops = {            \
 
 #define ppm_err			ppm_info
 #define ppm_warn		ppm_info
-#define ppm_info(fmt, args...)	pr_notice(TAG""fmt, ##args)
+#define ppm_info(fmt, args...)	pr_debug(TAG""fmt, ##args)
 #define ppm_dbg(type, fmt, args...)				\
 	do {							\
 		if (ppm_debug & ALL || ppm_debug & type)	\
