@@ -3971,16 +3971,16 @@ void hv_sw_mode(void)
 
 #if defined(CONFIG_ARCH_MT6735) || defined(CONFIG_ARCH_MT6735M) ||             \
 	defined(CONFIG_ARCH_MT6753)
-		pr_info("HWCID:0x%x\n", pmic_get_register_value(PMIC_HWCID));
-		pr_info("VCORE1_CON9:0x%x\n", upmu_get_reg_value(0x0612));
-		pr_info("DEW_DIO_EN:0x%x\n", upmu_get_reg_value(0x02d4));
-		pr_info("DEW_READ_TEST:0x%x\n", upmu_get_reg_value(0x02d6));
+		pr_debug("HWCID:0x%x\n", pmic_get_register_value(PMIC_HWCID));
+		pr_debug("VCORE1_CON9:0x%x\n", upmu_get_reg_value(0x0612));
+		pr_debug("DEW_DIO_EN:0x%x\n", upmu_get_reg_value(0x02d4));
+		pr_debug("DEW_READ_TEST:0x%x\n", upmu_get_reg_value(0x02d6));
 		pmic_config_interface(0x2d8, 0x1234, 0xffff, 0);
-		pr_info("DEW_WRITE_TEST:0x%x\n", upmu_get_reg_value(0x02d8));
-		pr_info("INT_STATUS0:0x%x\n", upmu_get_reg_value(0x02C4));
-		pr_info("INT_STATUS0:0x%x\n", upmu_get_reg_value(0x02C4));
+		pr_debug("DEW_WRITE_TEST:0x%x\n", upmu_get_reg_value(0x02d8));
+		pr_debug("INT_STATUS0:0x%x\n", upmu_get_reg_value(0x02C4));
+		pr_debug("INT_STATUS0:0x%x\n", upmu_get_reg_value(0x02C4));
 		pmic_config_interface(0x2d8, 0xabcd, 0xffff, 0);
-		pr_info("DEW_WRITE_TEST:0x%x\n", upmu_get_reg_value(0x02d8));
+		pr_debug("DEW_WRITE_TEST:0x%x\n", upmu_get_reg_value(0x02d8));
 
 		pwrap_dump_ap_register();
 #endif
@@ -5301,7 +5301,7 @@ static int mt_batteryNotify_probe(struct platform_device *dev)
 
 	battery_dir = proc_mkdir("mtk_battery_cmd", NULL);
 	if (!battery_dir) {
-		pr_info("[%s]:mkdir /proc/mtk_battery_cmd failed\n", __func__);
+		pr_err("[%s]:mkdir /proc/mtk_battery_cmd failed\n", __func__);
 	} else {
 #if 1
 		proc_create("battery_cmd", 0644, battery_dir,
@@ -5433,14 +5433,14 @@ static int battery_dts_probe(struct platform_device *dev)
 
 	chrdet_irq = platform_get_irq(dev, 0);
 	if (chrdet_irq <= 0)
-		pr_notice("******** don't support irq from dts ********\n");
+		pr_debug("******** don't support irq from dts ********\n");
 	else {
 		ret = request_threaded_irq(chrdet_irq, NULL,
 				ops_chrdet_int_handler,
 				IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
 				"ops_pmic_chrdet", dev);
 		if (ret) {
-			pr_notice("%s: request_threaded_irq err = %d\n",
+			pr_err("%s: request_threaded_irq err = %d\n",
 				__func__, ret);
 			return ret;
 		}
@@ -5564,7 +5564,7 @@ static int __init battery_init(void)
 {
 	int ret;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 #ifdef CONFIG_OF
 /*  */
@@ -5617,7 +5617,7 @@ static int __init battery_init(void)
 #endif
 	ret = register_pm_notifier(&battery_pm_notifier_block);
 	if (ret)
-		pr_info("[%s] failed to register PM notifier %d\n", __func__,
+		pr_err("[%s] failed to register PM notifier %d\n", __func__,
 			ret);
 
 	battery_log(BAT_LOG_CRTI,

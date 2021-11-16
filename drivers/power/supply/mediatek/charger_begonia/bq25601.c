@@ -126,7 +126,7 @@ unsigned int charging_value_to_parameter(const unsigned int
 	if (val < array_size)
 		return parameter[val];
 
-	pr_info("Can't find the parameter\n");
+	pr_err("Can't find the parameter\n");
 	return parameter[0];
 
 }
@@ -144,7 +144,7 @@ unsigned int charging_parameter_to_value(const unsigned int
 			return i;
 	}
 
-	pr_info("NO register value match\n");
+	pr_err("NO register value match\n");
 	/* TODO: ASSERT(0);    // not find the value */
 	return 0;
 }
@@ -171,7 +171,7 @@ static unsigned int bmt_find_closest_level(const unsigned int *pList,
 			}
 		}
 
-		pr_info("Can't find closest level\n");
+		pr_err("Can't find closest level\n");
 		return pList[0];
 		/* return CHARGE_CURRENT_0_00_MA; */
 	} else {
@@ -181,7 +181,7 @@ static unsigned int bmt_find_closest_level(const unsigned int *pList,
 				return pList[i];
 		}
 
-		pr_info("Can't find closest level\n");
+		pr_err("Can't find closest level\n");
 		return pList[number - 1];
 		/* return CHARGE_CURRENT_0_00_MA; */
 	}
@@ -300,7 +300,7 @@ unsigned int bq25601_read_byte(unsigned char cmd,
 		ret = i2c_transfer(new_client->adapter, msgs, xfers);
 
 		if (ret == -ENXIO) {
-			pr_info("skipping non-existent adapter %s\n",
+			pr_debug("skipping non-existent adapter %s\n",
 				new_client->adapter->name);
 			break;
 		}
@@ -340,7 +340,7 @@ unsigned int bq25601_write_byte(unsigned char cmd,
 		ret = i2c_transfer(new_client->adapter, msgs, xfers);
 
 		if (ret == -ENXIO) {
-			pr_info("skipping non-existent adapter %s\n",
+			pr_debug("skipping non-existent adapter %s\n",
 				new_client->adapter->name);
 			break;
 		}
@@ -399,7 +399,7 @@ unsigned int bq25601_config_interface(unsigned char RegNum,
 
 	/* Check */
 	/* bq25601_read_byte(RegNum, &bq25601_reg); */
-	/* pr_info("[%s] Check Reg[%x]=0x%x\n", __func__,*/
+	/* pr_debug("[%s] Check Reg[%x]=0x%x\n", __func__,*/
 	/* RegNum, bq25601_reg); */
 
 	return ret;
@@ -885,14 +885,14 @@ static int bq25601_dump_register(struct charger_device *chg_dev)
 	unsigned char i = 0;
 	unsigned int ret = 0;
 
-	pr_info("[bq25601] ");
+	pr_debug("[bq25601] ");
 	for (i = 0; i < bq25601_REG_NUM; i++) {
 		ret = bq25601_read_byte(i, &bq25601_reg[i]);
 		if (ret == 0) {
-			pr_info("[bq25601] i2c transfor error\n");
+			pr_err("[bq25601] i2c transfor error\n");
 			return 1;
 		}
-		pr_info("[0x%x]=0x%x ", i, bq25601_reg[i]);
+		pr_debug("[0x%x]=0x%x ", i, bq25601_reg[i]);
 	}
 	pr_debug("\n");
 	return 0;
@@ -916,7 +916,7 @@ static void bq25601_hw_component_detect(void)
 	else
 		g_bq25601_hw_exist = 1;
 
-	pr_info("[%s] exist=%d, Reg[0x0B]=0x%x\n", __func__,
+	pr_debug("[%s] exist=%d, Reg[0x0B]=0x%x\n", __func__,
 		g_bq25601_hw_exist, val);
 }
 
@@ -926,7 +926,7 @@ static int bq25601_enable_charging(struct charger_device *chg_dev,
 {
 	int status = 0;
 
-	pr_info("enable state : %d\n", en);
+	pr_debug("enable state : %d\n", en);
 	if (en) {
 		/* bq25601_config_interface(bq25601_CON3, 0x1, 0x1, 4); */
 		/* enable charging */
@@ -936,7 +936,7 @@ static int bq25601_enable_charging(struct charger_device *chg_dev,
 		/* bq25601_config_interface(bq25601_CON3, 0x0, 0x1, 4); */
 		/* enable charging */
 		bq25601_set_chg_config(en);
-		pr_info("[charging_enable] under test mode: disable charging\n");
+		pr_debug("[charging_enable] under test mode: disable charging\n");
 
 		/*bq25601_set_en_hiz(0x1);*/
 	}
@@ -975,15 +975,15 @@ static int bq25601_set_current(struct charger_device *chg_dev,
 	unsigned int array_size;
 	unsigned int register_value;
 
-	pr_info("&&&& charge_current_value = %d\n", current_value);
+	pr_debug("&&&& charge_current_value = %d\n", current_value);
 	current_value /= 10;
 	array_size = GETARRAYNUM(CS_VTH);
 	set_chr_current = bmt_find_closest_level(CS_VTH, array_size,
 			  current_value);
 	register_value = charging_parameter_to_value(CS_VTH, array_size,
 			 set_chr_current);
-	//pr_info("&&&& charge_register_value = %d\n",register_value);
-	pr_info("&&&& %s register_value = %d\n", __func__,
+	//pr_debug("&&&& charge_register_value = %d\n",register_value);
+	pr_debug("&&&& %s register_value = %d\n", __func__,
 		register_value);
 	bq25601_set_ichg(register_value);
 
@@ -1015,13 +1015,13 @@ static int bq25601_set_input_current(struct charger_device *chg_dev,
 	unsigned int register_value;
 
 	current_value /= 10;
-	pr_info("&&&& current_value = %d\n", current_value);
+	pr_debug("&&&& current_value = %d\n", current_value);
 	array_size = GETARRAYNUM(INPUT_CS_VTH);
 	set_chr_current = bmt_find_closest_level(INPUT_CS_VTH, array_size,
 			  current_value);
 	register_value = charging_parameter_to_value(INPUT_CS_VTH, array_size,
 			 set_chr_current);
-	pr_info("&&&& %s register_value = %d\n", __func__,
+	pr_debug("&&&& %s register_value = %d\n", __func__,
 		register_value);
 	bq25601_set_iinlim(register_value);
 
@@ -1041,7 +1041,7 @@ static int bq25601_set_cv_voltage(struct charger_device *chg_dev,
 	register_value = charging_parameter_to_value(VBAT_CV_VTH, array_size,
 			 set_cv_voltage);
 	bq25601_set_vreg(register_value);
-	pr_info("&&&& cv reg value = %d\n", register_value);
+	pr_debug("&&&& cv reg value = %d\n", register_value);
 
 	return status;
 }
@@ -1051,7 +1051,7 @@ static int bq25601_reset_watch_dog_timer(struct charger_device
 {
 	unsigned int status = true;
 
-	pr_info("charging_reset_watch_dog_timer\n");
+	pr_debug("charging_reset_watch_dog_timer\n");
 
 	bq25601_set_wdt_rst(0x1);	/* Kick watchdog */
 	bq25601_set_watchdog(0x3);	/* WDT 160s */
@@ -1071,7 +1071,7 @@ static int bq25601_set_vindpm_voltage(struct charger_device *chg_dev,
 	vindpm = bmt_find_closest_level(VINDPM_REG, array_size, vindpm);
 	vindpm = charging_parameter_to_value(VINDPM_REG, array_size, vindpm);
 
-	pr_info("%s vindpm =%d\r\n", __func__, vindpm);
+	pr_debug("%s vindpm =%d\r\n", __func__, vindpm);
 
 	//	charging_set_vindpm(vindpm);
 	/*bq25601_set_en_hiz(en);*/
@@ -1099,7 +1099,7 @@ static int bq25601_enable_otg(struct charger_device *chg_dev, bool en)
 {
 	int ret = 0;
 
-	pr_info("%s en = %d\n", __func__, en);
+	pr_debug("%s en = %d\n", __func__, en);
 	if (en) {
 		bq25601_set_chg_config(0);
 		bq25601_set_otg_config(1);
@@ -1173,7 +1173,7 @@ static unsigned int charging_hw_init(void)
 	bq25601_set_watchdog(0x3);	/* WDT 160s */
 	bq25601_set_en_timer(0x0);	/* Enable charge timer */
 	bq25601_set_int_mask(0x0);	/* Disable fault interrupt */
-	pr_info("%s: hw_init down!\n", __func__);
+	pr_debug("%s: hw_init down!\n", __func__);
 	return status;
 }
 
@@ -1183,27 +1183,27 @@ static int bq25601_parse_dt(struct bq25601_info *info,
 	struct device_node *np = dev->of_node;
 	//int bq25601_en_pin = 0;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	if (!np) {
-		pr_info("%s: no of node\n", __func__);
+		pr_err("%s: no of node\n", __func__);
 		return -ENODEV;
 	}
 
 	if (of_property_read_string(np, "charger_name",
 				    &info->chg_dev_name) < 0) {
 		info->chg_dev_name = "primary_chg";
-		pr_info("%s: no charger name\n", __func__);
+		pr_err("%s: no charger name\n", __func__);
 	}
 
 	if (of_property_read_string(np, "alias_name",
 				    &(info->chg_props.alias_name)) < 0) {
 		info->chg_props.alias_name = "bq25601";
-		pr_info("%s: no alias name\n", __func__);
+		pr_err("%s: no alias name\n", __func__);
 	}
 	/*
 	 * bq25601_en_pin = of_get_named_gpio(np,"gpio_bq25601_en",0);
 	 * if(bq25601_en_pin < 0){
-	 * pr_info("%s: no bq25601_en_pin\n", __func__);
+	 * pr_err("%s: no bq25601_en_pin\n", __func__);
 	 * return -ENODATA;
 	 * }
 	 * gpio_request(bq25601_en_pin,"bq25601_en_pin");
@@ -1225,7 +1225,7 @@ static int bq25601_do_event(struct charger_device *chg_dev, u32 event,
 	if (chg_dev == NULL)
 		return -EINVAL;
 
-	pr_info("%s: event = %d\n", __func__, event);
+	pr_debug("%s: event = %d\n", __func__, event);
 	switch (event) {
 	case EVENT_EOC:
 		charger_dev_notify(chg_dev, CHARGER_DEV_NOTIFY_EOC);
@@ -1281,7 +1281,7 @@ static int bq25601_driver_probe(struct i2c_client *client,
 	int ret = 0;
 	struct bq25601_info *info = NULL;
 
-	pr_info("[%s]\n", __func__);
+	pr_debug("[%s]\n", __func__);
 
 	info = devm_kzalloc(&client->dev, sizeof(struct bq25601_info),
 			    GFP_KERNEL);
@@ -1304,7 +1304,7 @@ static int bq25601_driver_probe(struct i2c_client *client,
 						&bq25601_chg_ops,
 						&info->chg_props);
 	if (IS_ERR_OR_NULL(info->chg_dev)) {
-		pr_info("%s: register charger device  failed\n", __func__);
+		pr_err("%s: register charger device  failed\n", __func__);
 		ret = PTR_ERR(info->chg_dev);
 		return ret;
 	}
@@ -1323,7 +1323,7 @@ unsigned char g_reg_value_bq25601;
 static ssize_t show_bq25601_access(struct device *dev,
 				   struct device_attribute *attr, char *buf)
 {
-	pr_info("[%s] 0x%x\n", __func__, g_reg_value_bq25601);
+	pr_debug("[%s] 0x%x\n", __func__, g_reg_value_bq25601);
 	return sprintf(buf, "%u\n", g_reg_value_bq25601);
 }
 
@@ -1336,10 +1336,10 @@ static ssize_t store_bq25601_access(struct device *dev,
 	unsigned int reg_value = 0;
 	unsigned int reg_address = 0;
 
-	pr_info("[%s]\n", __func__);
+	pr_debug("[%s]\n", __func__);
 
 	if (buf != NULL && size != 0) {
-		pr_info("[%s] buf is %s and size is %zu\n", __func__, buf,
+		pr_debug("[%s] buf is %s and size is %zu\n", __func__, buf,
 			size);
 
 		pvalue = (char *)buf;
@@ -1354,7 +1354,7 @@ static ssize_t store_bq25601_access(struct device *dev,
 		if (size > 3) {
 			val = strsep(&pvalue, " ");
 			ret = kstrtou32(val, 16, (unsigned int *)&reg_value);
-			pr_info(
+			pr_debug(
 			"[%s] write bq25601 reg 0x%x with value 0x%x !\n",
 			__func__,
 			(unsigned int) reg_address, reg_value);
@@ -1363,11 +1363,11 @@ static ssize_t store_bq25601_access(struct device *dev,
 		} else {
 			ret = bq25601_read_interface(reg_address,
 					     &g_reg_value_bq25601, 0xFF, 0x0);
-			pr_info(
+			pr_debug(
 			"[%s] read bq25601 reg 0x%x with value 0x%x !\n",
 			__func__,
 			(unsigned int) reg_address, g_reg_value_bq25601);
-			pr_info(
+			pr_debug(
 			"[%s] use \"cat bq25601_access\" to get value\n",
 			__func__);
 		}
@@ -1382,7 +1382,7 @@ static int bq25601_user_space_probe(struct platform_device *dev)
 {
 	int ret_device_file = 0;
 
-	pr_info("******** %s!! ********\n", __func__);
+	pr_debug("******** %s!! ********\n", __func__);
 
 	ret_device_file = device_create_file(&(dev->dev),
 					     &dev_attr_bq25601_access);
@@ -1431,17 +1431,17 @@ static int __init bq25601_init(void)
 
 	/* i2c registeration using DTS instead of boardinfo*/
 #ifdef CONFIG_OF
-	pr_info("[%s] init start with i2c DTS", __func__);
+	pr_debug("[%s] init start with i2c DTS", __func__);
 #else
-	pr_info("[%s] init start. ch=%d\n", __func__, bq25601_BUSNUM);
+	pr_debug("[%s] init start. ch=%d\n", __func__, bq25601_BUSNUM);
 	i2c_register_board_info(bq25601_BUSNUM, &i2c_bq25601, 1);
 #endif
 	if (i2c_add_driver(&bq25601_driver) != 0) {
-		pr_info(
+		pr_err(
 			"[%s] failed to register bq25601 i2c driver.\n",
 			__func__);
 	} else {
-		pr_info(
+		pr_debug(
 			"[%s] Success to register bq25601 i2c driver.\n",
 			__func__);
 	}
@@ -1449,13 +1449,13 @@ static int __init bq25601_init(void)
 	/* bq25601 user space access interface */
 	ret = platform_device_register(&bq25601_user_space_device);
 	if (ret) {
-		pr_info("****[%s] Unable to device register(%d)\n", __func__,
+		pr_err("****[%s] Unable to device register(%d)\n", __func__,
 			ret);
 		return ret;
 	}
 	ret = platform_driver_register(&bq25601_user_space_driver);
 	if (ret) {
-		pr_info("****[%s] Unable to register driver (%d)\n", __func__,
+		pr_err("****[%s] Unable to register driver (%d)\n", __func__,
 			ret);
 		return ret;
 	}

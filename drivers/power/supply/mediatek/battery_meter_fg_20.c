@@ -476,13 +476,13 @@ void fgauge_get_profile_id(void)
 
 	ret = IMM_GetOneChannelValue_Cali(BATTERY_ID_CHANNEL_NUM, &id_volt);
 	if (ret != 0)
-		bm_info("[%s]id_volt read fail\n", __func__);
+		bm_err("[%s]id_volt read fail\n", __func__);
 	else
-		bm_info("[%s]id_volt = %d\n", __func__, id_volt);
+		bm_debug("[%s]id_volt = %d\n", __func__, id_volt);
 
 	if ((sizeof(g_battery_id_voltage) / sizeof(signed int)) !=
 	    TOTAL_BATTERY_NUMBER) {
-		bm_info("[%s]error! voltage range incorrect!\n",
+		bm_err("[%s]error! voltage range incorrect!\n",
 		__func__);
 		return;
 	}
@@ -496,7 +496,7 @@ void fgauge_get_profile_id(void)
 		}
 	}
 
-	bm_info("[%s]Battery id (%d)\n", __func__, g_fg_battery_id);
+	bm_debug("[%s]Battery id (%d)\n", __func__, g_fg_battery_id);
 }
 #elif defined(MTK_GET_BATTERY_ID_BY_GPIO)
 void fgauge_get_profile_id(void)
@@ -1305,7 +1305,7 @@ signed int fgauge_get_Q_max(signed short temperature)
 			     10);
 	}
 
-	bm_trace("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
+	bm_debug("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
 
 	return ret_Q_max;
 }
@@ -1365,7 +1365,7 @@ signed int fgauge_get_Q_max_high_current(signed short temperature)
 			     10);
 	}
 
-	bm_trace("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
+	bm_debug("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
 
 	return ret_Q_max;
 }
@@ -1463,7 +1463,7 @@ signed int fgauge_get_Q_max(signed short temperature)
 			     10);
 	}
 
-	bm_trace("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
+	bm_debug("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
 
 	return ret_Q_max;
 }
@@ -1529,7 +1529,7 @@ signed int fgauge_get_Q_max_high_current(signed short temperature)
 			     10);
 	}
 
-	bm_trace("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
+	bm_debug("[%s] Q_max = %d\r\n", __func__, ret_Q_max);
 
 	return ret_Q_max;
 }
@@ -1719,7 +1719,7 @@ void fgauge_algo_run_get_init_data(void)
 #endif
 	charging_enable = KAL_TRUE;
 	battery_charging_control(CHARGING_CMD_ENABLE, &charging_enable);
-	bm_info("1.[%s](gFG_voltage_init %d, gFG_current_init %d, gFG_Is_Charging_init %d)\n",
+	bm_debug("1.[%s](gFG_voltage_init %d, gFG_current_init %d, gFG_Is_Charging_init %d)\n",
 		__func__, gFG_voltage_init,
 		gFG_current_init, gFG_Is_Charging_init);
 	mt_battery_set_init_vol(gFG_voltage_init);
@@ -1748,7 +1748,7 @@ void fgauge_algo_run_get_init_data(void)
 	gFG_Is_Charging_init = KAL_FALSE;
 	charging_enable = KAL_TRUE;
 	battery_charging_control(CHARGING_CMD_ENABLE, &charging_enable);
-	bm_info("1.[%s](gFG_voltage_init %d, gFG_current_init %d, gFG_Is_Charging_init %d)\n",
+	bm_debug("1.[%s](gFG_voltage_init %d, gFG_current_init %d, gFG_Is_Charging_init %d)\n",
 		__func__, gFG_voltage_init,
 		gFG_current_init, gFG_Is_Charging_init);
 }
@@ -2035,10 +2035,10 @@ signed int battery_meter_get_charging_current(void)
 		}
 	}
 
-	bm_trace("[g_Get_I_Charging:BAT_SENSE]\r\n");
+	bm_debug("[g_Get_I_Charging:BAT_SENSE]\r\n");
 	for (i = 0; i < repeat; i++)
-		bm_trace("%d,", ADC_BAT_SENSE_tmp[i]);
-	bm_trace("\r\n");
+		bm_debug("%d,", ADC_BAT_SENSE_tmp[i]);
+	bm_debug("\r\n");
 
 	/* sorting    I_SENSE */
 	for (i = 0; i < repeat; i++) {
@@ -2051,10 +2051,10 @@ signed int battery_meter_get_charging_current(void)
 		}
 	}
 
-	bm_trace("[g_Get_I_Charging:I_SENSE]\r\n");
+	bm_debug("[g_Get_I_Charging:I_SENSE]\r\n");
 	for (i = 0; i < repeat; i++)
-		bm_trace("%d,", ADC_I_SENSE_tmp[i]);
-	bm_trace("\r\n");
+		bm_debug("%d,", ADC_I_SENSE_tmp[i]);
+	bm_debug("\r\n");
 
 	ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[0];
 	ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[1];
@@ -2062,7 +2062,7 @@ signed int battery_meter_get_charging_current(void)
 	ADC_BAT_SENSE_sum -= ADC_BAT_SENSE_tmp[19];
 	ADC_BAT_SENSE = ADC_BAT_SENSE_sum / (repeat - 4);
 
-	bm_trace("[g_Get_I_Charging] ADC_BAT_SENSE=%d\r\n", ADC_BAT_SENSE);
+	bm_debug("[g_Get_I_Charging] ADC_BAT_SENSE=%d\r\n", ADC_BAT_SENSE);
 
 	ADC_I_SENSE_sum -= ADC_I_SENSE_tmp[0];
 	ADC_I_SENSE_sum -= ADC_I_SENSE_tmp[1];
@@ -2070,9 +2070,9 @@ signed int battery_meter_get_charging_current(void)
 	ADC_I_SENSE_sum -= ADC_I_SENSE_tmp[19];
 	ADC_I_SENSE = ADC_I_SENSE_sum / (repeat - 4);
 
-	bm_trace("[g_Get_I_Charging] ADC_I_SENSE(Before)=%d\r\n", ADC_I_SENSE);
+	bm_debug("[g_Get_I_Charging] ADC_I_SENSE(Before)=%d\r\n", ADC_I_SENSE);
 
-	bm_trace("[g_Get_I_Charging] ADC_I_SENSE(After)=%d\r\n", ADC_I_SENSE);
+	bm_debug("[g_Get_I_Charging] ADC_I_SENSE(After)=%d\r\n", ADC_I_SENSE);
 
 	if (ADC_I_SENSE > ADC_BAT_SENSE)
 		ICharging = (ADC_I_SENSE - ADC_BAT_SENSE + g_I_SENSE_offset) *
@@ -3395,7 +3395,7 @@ static ssize_t show_FG_daemon_log_level(struct device *dev,
 					struct device_attribute *attr,
 					char *buf)
 {
-	bm_trace("[FG] show FG_daemon_log_level : %d\n", gFG_daemon_log_level);
+	bm_debug("[FG] show FG_daemon_log_level : %d\n", gFG_daemon_log_level);
 	return sprintf(buf, "%d\n", gFG_daemon_log_level);
 }
 
@@ -3429,7 +3429,7 @@ static DEVICE_ATTR(FG_daemon_log_level, 0664, show_FG_daemon_log_level,
 static ssize_t show_FG_daemon_disable(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
-	bm_trace("[FG] show FG_daemon_log_level : %d\n", gDisableFG);
+	bm_debug("[FG] show FG_daemon_log_level : %d\n", gDisableFG);
 	return sprintf(buf, "%d\n", gDisableFG);
 }
 
@@ -3528,7 +3528,7 @@ static int battery_meter_probe(struct platform_device *dev)
 	char *temp_strptr;
 #endif
 
-	bm_info("[%s] probe\n", __func__);
+	bm_debug("[%s] probe\n", __func__);
 	/* select battery meter control method */
 	battery_meter_ctrl = bm_ctrl_cmd;
 #if defined(CONFIG_MTK_KERNEL_POWER_OFF_CHARGING)
@@ -3654,7 +3654,7 @@ static int battery_meter_suspend(struct platform_device *dev,
 {
 	/* -- hibernation path */
 	if (state.event == PM_EVENT_FREEZE) {
-		pr_notice("[%s] %p:%p\n", __func__, battery_meter_ctrl,
+		pr_debug("[%s] %p:%p\n", __func__, battery_meter_ctrl,
 			&bm_ctrl_cmd);
 		battery_meter_ctrl = bm_ctrl_cmd;
 	}
@@ -3666,7 +3666,7 @@ static int battery_meter_suspend(struct platform_device *dev,
 	if (reset_fg_bat_int == KAL_TRUE) {
 		battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_FG_CAR_ACT,
 				   &fg_bat_int_coulomb_pre);
-		bm_notice(
+		bm_debug(
 			"[%s]enable battery_meter_set_columb_interrupt %d\n",
 			__func__, batt_meter_cust_data.q_max_pos_25);
 		battery_meter_set_columb_interrupt(
@@ -3674,7 +3674,7 @@ static int battery_meter_suspend(struct platform_device *dev,
 		/*battery_meter_set_columb_interrupt(1); */
 		reset_fg_bat_int = KAL_FALSE;
 	} else {
-		bm_notice(
+		bm_debug(
 			"[%s]do not enable battery_meter_set_columb_interrupt %d\n",
 			__func__, batt_meter_cust_data.q_max_pos_25);
 		battery_meter_set_columb_interrupt(0x1ffff);
@@ -3716,7 +3716,7 @@ static int battery_meter_suspend(struct platform_device *dev,
 		battery_meter_reset_sleep_time();
 		battery_meter_ctrl(BATTERY_METER_CMD_GET_HW_OCV,
 				   &g_hw_ocv_before_sleep);
-		bm_info("[%s]sleep_total_time = %d, last_time = %d\n",
+		bm_debug("[%s]sleep_total_time = %d, last_time = %d\n",
 			__func__,
 			(int)g_sleep_total_time.tv_sec, last_time);
 	}
@@ -3743,7 +3743,7 @@ static int battery_meter_resume(struct platform_device *dev)
 		timespec_add(g_sleep_total_time,
 			     mt_battery_get_duration_time_act(SUSPEND_TIME));
 
-	bm_info("[%s] sleep time = %d, duration_time = %d, wake_up_smooth_time %d, g_spm_timer = %d\n",
+	bm_debug("[%s] sleep time = %d, duration_time = %d, wake_up_smooth_time %d, g_spm_timer = %d\n",
 		__func__, (int)g_sleep_total_time.tv_sec,
 		duration_time, wake_up_smooth_time, g_spm_timer);
 
@@ -3766,7 +3766,7 @@ static int battery_meter_resume(struct platform_device *dev)
 	}
 #endif
 
-	bm_info("* %s!! * suspend_time %d smooth_time %d g_spm_timer %d\n",
+	bm_debug("* %s!! * suspend_time %d smooth_time %d g_spm_timer %d\n",
 		__func__,
 		(int)g_sleep_total_time.tv_sec, wake_up_smooth_time,
 		g_spm_timer);
@@ -4413,7 +4413,7 @@ void bmd_ctrl_cmd_from_user(void *nl_data, struct fgd_nl_msg_t *ret_msg)
 
 		memcpy(&rtcvalue, &msg->fgd_data[0], sizeof(rtcvalue));
 		set_rtc_spare_fg_value(rtcvalue);
-		bm_notice("[fg_res] set rtc = %d\n", rtcvalue);
+		bm_debug("[fg_res] set rtc = %d\n", rtcvalue);
 	} break;
 
 	case FG_DAEMON_CMD_SET_POWEROFF: {
@@ -4425,7 +4425,7 @@ void bmd_ctrl_cmd_from_user(void *nl_data, struct fgd_nl_msg_t *ret_msg)
 	case FG_DAEMON_CMD_SET_INIT_FLAG: {
 		memcpy(&init_flag, &msg->fgd_data[0], sizeof(init_flag));
 
-		bm_notice("[fg_res] init_flag = %d\n", init_flag);
+		bm_debug("[fg_res] init_flag = %d\n", init_flag);
 	} break;
 
 	case FG_DAEMON_CMD_IS_KPOC: {
@@ -4565,7 +4565,7 @@ void bmd_ctrl_cmd_from_user(void *nl_data, struct fgd_nl_msg_t *ret_msg)
 
 		memcpy(&NVRAM_CAR_TUNE_VALUE, &msg->fgd_data[0],
 		       sizeof(NVRAM_CAR_TUNE_VALUE));
-		bm_notice("[fg_res] NVRAM_CAR_TUNE_VALUE = %d\n",
+		bm_debug("[fg_res] NVRAM_CAR_TUNE_VALUE = %d\n",
 			  NVRAM_CAR_TUNE_VALUE);
 		batt_meter_cust_data.car_tune_value = NVRAM_CAR_TUNE_VALUE;
 	} break;
@@ -4721,7 +4721,7 @@ int wakeup_fg_algo(int flow_state)
 	update_fg_dbg_tool_value();
 
 	if (gDisableFG) {
-		bm_notice("FG daemon is disabled\n");
+		bm_debug("FG daemon is disabled\n");
 		return -1;
 	}
 

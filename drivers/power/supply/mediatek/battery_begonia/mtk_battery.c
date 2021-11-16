@@ -189,13 +189,13 @@ int __attribute__ ((weak))
 
 void __attribute__ ((weak)) enable_bat_temp_det(bool en)
 {
-	pr_notice("[%s] not support!\n", __func__);
+	pr_err("[%s] not support!\n", __func__);
 }
 
 unsigned int __attribute__ ((weak)) mt6358_irq_get_virq(struct device *dev,
 							unsigned int hwirq)
 {
-	pr_notice_once("%s: API not ready!\n", __func__);
+	pr_err("%s: API not ready!\n", __func__);
 	return 0;
 }
 
@@ -413,7 +413,7 @@ static int bms_get_property(struct power_supply *psy,
 		}
 		break;
 	case POWER_SUPPLY_PROP_BATTERY_TYPE:
-		pr_info("gm.battery_id :%d.\n", gm.battery_id);
+		pr_debug("gm.battery_id :%d.\n", gm.battery_id);
 		switch (gm.battery_id) {
 		case 0:
 			val->strval = "g7_nvt";
@@ -687,7 +687,7 @@ void battery_update(struct battery_data *bat_data)
 		bm_err("battery_update set FULL! ui:%d chr:%d %d\n",
 			bat_data->BAT_CAPACITY, upmu_get_rgs_chrdet(), bat_data->BAT_STATUS);
 
-		bm_trace("battery_update status: ui:%d chr:%d status%d\n",
+		bm_debug("battery_update status: ui:%d chr:%d status%d\n",
 			bat_data->BAT_CAPACITY, upmu_get_rgs_chrdet(), bat_data->BAT_STATUS);
 	}
 #if defined(CONFIG_MTK_DISABLE_GAUGE)
@@ -1486,7 +1486,7 @@ int BattThermistorConverTemp(int Res)
 		TBatt_Value = (((Res - RES2) * TMP1) +
 			((RES1 - Res) * TMP2)) * 10 / (RES1 - RES2);
 	}
-	bm_trace(
+	bm_debug(
 		"[%s] %d %d %d %d %d %d\n",
 		__func__,
 		RES1, RES2, Res, TMP1,
@@ -1538,7 +1538,7 @@ unsigned int TempToBattVolt(int temp, int update)
 			(fg_meter_res_value + fg_r_value)) / 10000);
 	}
 
-	bm_notice("[%s] temp %d R_NTC %d V(%lld %lld) I %d CHG %d\n",
+	bm_debug("[%s] temp %d R_NTC %d V(%lld %lld) I %d CHG %d\n",
 		__func__,
 		temp, R_NTC, Vin, V_IR_comp, fg_current_temp, fg_current_state);
 
@@ -1603,7 +1603,7 @@ int BattVoltToTemp(int dwVolt, int volt_cali)
 		sBaTTMP = BattThermistorConverTemp((int)TRes -
 		gm.rbat.bif_ntc_r);
 
-	bm_notice(
+	bm_debug(
 		"[%s] %d %d %d %d\n",
 		__func__,
 		dwVolt, gm.rbat.rbat_pull_up_r,
@@ -1696,7 +1696,7 @@ int force_get_tbat_internal(bool update)
 #ifdef CONFIG_MTK_BIF_SUPPORT
 		/*	CHARGING_CMD_GET_BIF_TBAT need fix */
 #endif
-		bm_notice("[force_get_tbat] %d,%d,%d,%d,%d,%d r:%d %d %d\n",
+		bm_debug("[force_get_tbat] %d,%d,%d,%d,%d,%d r:%d %d %d\n",
 		bat_temperature_volt_temp, bat_temperature_volt,
 		fg_current_state, fg_current_temp,
 		fg_r_value, bat_temperature_val,
@@ -1745,7 +1745,7 @@ int force_get_tbat_internal(bool update)
 			pre_fg_r_value = fg_r_value;
 			pre_bat_temperature_val2 = bat_temperature_val;
 			pre_time = ctime;
-			bm_trace(
+			bm_debug(
 			"[force_get_tbat] current:%d,%d,%d,%d,%d,%d pre:%d,%d,%d,%d,%d,%d time:%d\n",
 			bat_temperature_volt_temp, bat_temperature_volt,
 			fg_current_state, fg_current_temp,
@@ -2135,7 +2135,7 @@ void fg_ocv_query_soc(int ocv)
 		FG_INTR_KERNEL_CMD, FG_KERNEL_CMD_REQ_ALGO_DATA,
 		ocv);
 
-	bm_trace("[%s] ocv:%d\n",
+	bm_debug("[%s] ocv:%d\n",
 		__func__, ocv);
 }
 
@@ -3162,7 +3162,7 @@ void exec_BAT_EC(int cmd, int param)
 static ssize_t show_FG_daemon_disable(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace("[FG] show FG disable : %d\n", gm.disableGM30);
+	bm_debug("[FG] show FG disable : %d\n", gm.disableGM30);
 	return sprintf(buf, "%d\n", gm.disableGM30);
 }
 
@@ -3184,7 +3184,7 @@ static DEVICE_ATTR(
 static ssize_t show_FG_meter_resistance(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace(
+	bm_debug(
 		"[FG] show com_fg_meter_resistance : %d\n",
 		fg_cust_data.com_fg_meter_resistance);
 	return sprintf(buf, "%d\n", fg_cust_data.com_fg_meter_resistance);
@@ -3228,7 +3228,7 @@ static DEVICE_ATTR(
 static ssize_t show_FG_nafg_disable(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace("[FG] show nafg disable : %d\n", gm.cmd_disable_nafg);
+	bm_debug("[FG] show nafg disable : %d\n", gm.cmd_disable_nafg);
 	return sprintf(buf, "%d\n", gm.cmd_disable_nafg);
 }
 
@@ -3277,7 +3277,7 @@ static DEVICE_ATTR(
 static ssize_t show_FG_ntc_disable_nafg(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace("[FG]%s: %d\n", __func__, gm.ntc_disable_nafg);
+	bm_debug("[FG]%s: %d\n", __func__, gm.ntc_disable_nafg);
 	return sprintf(buf, "%d\n", gm.ntc_disable_nafg);
 }
 
@@ -3331,7 +3331,7 @@ static DEVICE_ATTR(
 static ssize_t show_uisoc_update_type(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace("[FG] %s : %d\n",
+	bm_debug("[FG] %s : %d\n",
 		__func__,
 		fg_cust_data.uisoc_update_type);
 	return sprintf(buf, "%d\n", fg_cust_data.uisoc_update_type);
@@ -3442,7 +3442,7 @@ static DEVICE_ATTR(FG_daemon_log_level, 0664,
 static ssize_t show_shutdown_cond_enable(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace(
+	bm_debug(
 		"[FG] %s : %d\n",
 		__func__,
 		get_shutdown_cond_flag());
@@ -3486,7 +3486,7 @@ static DEVICE_ATTR(
 static ssize_t show_reset_battery_cycle(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace("[FG] %s : %d\n",
+	bm_debug("[FG] %s : %d\n",
 		__func__,
 		gm.is_reset_battery_cycle);
 	return sprintf(buf, "%d\n", gm.is_reset_battery_cycle);
@@ -3532,7 +3532,7 @@ static DEVICE_ATTR(
 static ssize_t show_reset_aging_factor(
 	struct device *dev, struct device_attribute *attr, char *buf)
 {
-	bm_trace("[FG] %s : %d\n",
+	bm_debug("[FG] %s : %d\n",
 		__func__,
 		gm.is_reset_aging_factor);
 	return sprintf(buf, "%d\n", gm.is_reset_aging_factor);
@@ -3790,7 +3790,7 @@ struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	int adc_out_datas[2] = { 1, 1 };
 
-	bm_notice("%s 32bit IOCTL, cmd=0x%08x\n",
+	bm_debug("%s 32bit IOCTL, cmd=0x%08x\n",
 		__func__, cmd);
 	if (!filp->f_op || !filp->f_op->unlocked_ioctl) {
 		bm_err("%s file has no f_op or no f_op->unlocked_ioctl.\n",
@@ -3810,7 +3810,7 @@ struct file *filp, unsigned int cmd, unsigned long arg)
 	case Set_META_BAT_CAR_TUNE_VALUE:
 	case Set_BAT_DISABLE_NAFG:
 	case Set_CARTUNE_TO_KERNEL: {
-		bm_notice(
+		bm_debug(
 			"%s send to unlocked_ioctl cmd=0x%08x\n",
 			__func__,
 			cmd);
@@ -3841,7 +3841,7 @@ static long adc_cali_ioctl(
 	int temp_car_tune;
 	int isdisNAFG = 0;
 
-	bm_notice("%s enter\n", __func__);
+	bm_debug("%s enter\n", __func__);
 	mutex_lock(&gm.fg_mutex);
 	user_data_addr = (int *)arg;
 	ret = copy_from_user(adc_in_data, user_data_addr, sizeof(adc_in_data));
@@ -3867,9 +3867,9 @@ static long adc_cali_ioctl(
 				*(adc_cali_slop + i) = 1000;
 		}
 		for (i = 0; i < 14; i++)
-			bm_notice("adc_cali_slop[%d] = %d\n", i,
+			bm_debug("adc_cali_slop[%d] = %d\n", i,
 				    *(adc_cali_slop + i));
-		bm_notice("**** unlocked_ioctl : SET_ADC_CALI_Slop Done!\n");
+		bm_debug("**** unlocked_ioctl : SET_ADC_CALI_Slop Done!\n");
 		break;
 
 	case SET_ADC_CALI_Offset:
@@ -3877,9 +3877,9 @@ static long adc_cali_ioctl(
 		ret = copy_from_user(adc_cali_offset, naram_data_addr, 36);
 		g_ADC_Cali = false;
 		for (i = 0; i < 14; i++)
-			bm_notice("adc_cali_offset[%d] = %d\n", i,
+			bm_debug("adc_cali_offset[%d] = %d\n", i,
 				    *(adc_cali_offset + i));
-		bm_notice("**** unlocked_ioctl : SET_ADC_CALI_Offset Done!\n");
+		bm_debug("**** unlocked_ioctl : SET_ADC_CALI_Offset Done!\n");
 		break;
 
 	case SET_ADC_CALI_Cal:
@@ -3892,9 +3892,9 @@ static long adc_cali_ioctl(
 			g_ADC_Cali = false;
 
 		for (i = 0; i < 1; i++)
-			bm_notice("adc_cali_cal[%d] = %d\n", i,
+			bm_debug("adc_cali_cal[%d] = %d\n", i,
 				    *(adc_cali_cal + i));
-		bm_notice("**** unlocked_ioctl : SET_ADC_CALI_Cal Done!\n");
+		bm_debug("**** unlocked_ioctl : SET_ADC_CALI_Cal Done!\n");
 		break;
 
 	case ADC_CHANNEL_READ:
@@ -3918,7 +3918,7 @@ static long adc_cali_ioctl(
 		} else if (adc_in_data[0] == 66)
 			adc_out_data[0] = (battery_get_bat_current()) / 10;
 		else {
-			bm_notice("unknown channel(%d,%d)\n",
+			bm_err("unknown channel(%d,%d)\n",
 				    adc_in_data[0], adc_in_data[1]);
 		}
 
@@ -3934,7 +3934,7 @@ static long adc_cali_ioctl(
 			adc_out_data[1] = 0;	/* success */
 
 		ret = copy_to_user(user_data_addr, adc_out_data, 8);
-		bm_notice(
+		bm_debug(
 			    "**** unlocked_ioctl : Channel %d * %d times = %d\n",
 			    adc_in_data[0], adc_in_data[1], adc_out_data[0]);
 		break;
@@ -3948,7 +3948,7 @@ static long adc_cali_ioctl(
 		else
 			battery_out_data[0] = 0;
 		ret = copy_to_user(user_data_addr, battery_out_data, 4);
-		bm_notice(
+		bm_debug(
 			"unlocked_ioctl : CAL:%d\n", battery_out_data[0]);
 		break;
 #if 0
@@ -3991,7 +3991,7 @@ static long adc_cali_ioctl(
 		else
 			charging_level_data[0] = CHARGE_CURRENT_450_00_MA;
 		wake_up_bat();
-		bm_notice("**** unlocked_ioctl : set_Charger_Current:%d\n",
+		bm_debug("**** unlocked_ioctl : set_Charger_Current:%d\n",
 			    charging_level_data[0]);
 		break;
 #endif
@@ -4004,7 +4004,7 @@ static long adc_cali_ioctl(
 			return -EFAULT;
 		}
 
-		bm_notice("**** unlocked_ioctl :Get_META_BAT_VOL Done!\n");
+		bm_debug("**** unlocked_ioctl :Get_META_BAT_VOL Done!\n");
 		break;
 	case Get_META_BAT_SOC:
 		adc_out_data[0] = battery_get_uisoc();
@@ -4015,7 +4015,7 @@ static long adc_cali_ioctl(
 			return -EFAULT;
 		}
 
-		bm_notice("**** unlocked_ioctl :Get_META_BAT_SOC Done!\n");
+		bm_debug("**** unlocked_ioctl :Get_META_BAT_SOC Done!\n");
 		break;
 
 	case Get_META_BAT_CAR_TUNE_VALUE:
@@ -4028,7 +4028,7 @@ static long adc_cali_ioctl(
 			return -EFAULT;
 		}
 
-		bm_notice("**** unlocked_ioctl :Get_META_BAT_CAR_TUNE_VALUE Done!\n");
+		bm_debug("**** unlocked_ioctl :Get_META_BAT_CAR_TUNE_VALUE Done!\n");
 		break;
 
 	case Set_META_BAT_CAR_TUNE_VALUE:
@@ -4157,13 +4157,13 @@ static int __init battery_probe(struct platform_device *dev)
 /********* adc_cdev **********/
 	ret = alloc_chrdev_region(&adc_cali_devno, 0, 1, ADC_CALI_DEVNAME);
 	if (ret)
-		bm_notice("Error: Can't Get Major number for adc_cali\n");
+		bm_err("Error: Can't Get Major number for adc_cali\n");
 	adc_cali_cdev = cdev_alloc();
 	adc_cali_cdev->owner = THIS_MODULE;
 	adc_cali_cdev->ops = &adc_cali_fops;
 	ret = cdev_add(adc_cali_cdev, adc_cali_devno, 1);
 	if (ret)
-		bm_notice("adc_cali Error: cdev_add\n");
+		bm_err("adc_cali Error: cdev_add\n");
 	adc_cali_major = MAJOR(adc_cali_devno);
 	adc_cali_class = class_create(THIS_MODULE, ADC_CALI_DEVNAME);
 	class_dev = (struct class_device *)device_create(adc_cali_class,

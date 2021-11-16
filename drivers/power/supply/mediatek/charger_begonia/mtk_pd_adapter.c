@@ -421,11 +421,11 @@ static int mtk_pd_adapter_probe(struct platform_device *pdev)
 	info->tcpc = tcpc_dev_get_by_name("type_c_port0");
 	if (info->tcpc == NULL) {
 		if (is_deferred == false) {
-			pr_info("%s: tcpc device not ready, defer\n", __func__);
+			pr_warn("%s: tcpc device not ready, defer\n", __func__);
 			is_deferred = true;
 			ret = -EPROBE_DEFER;
 		} else {
-			pr_info("%s: failed to get tcpc device\n", __func__);
+			pr_err("%s: failed to get tcpc device\n", __func__);
 			ret = -EINVAL;
 		}
 		goto err_get_tcpc_dev;
@@ -435,7 +435,7 @@ static int mtk_pd_adapter_probe(struct platform_device *pdev)
 	ret = register_tcp_dev_notifier(info->tcpc, &info->pd_nb,
 				TCP_NOTIFY_TYPE_USB | TCP_NOTIFY_TYPE_MISC);
 	if (ret < 0) {
-		pr_info("%s: register tcpc notifer fail\n", __func__);
+		pr_err("%s: register tcpc notifer fail\n", __func__);
 		ret = -EINVAL;
 		goto err_get_tcpc_dev;
 	}

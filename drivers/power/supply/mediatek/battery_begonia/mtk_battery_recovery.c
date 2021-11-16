@@ -966,13 +966,13 @@ void fgr_construct_battery_profile(int table_idx)
 			high_pseudo100,
 			temperature);
 
-		bm_trace(
+		bm_debug(
 			"[Profile_Table]pseudo1_en:[%d] lowT %d %d %d lowPs1 %d highPs1 %d batterypseudo1_h [%d]\n",
 			pdata->pseudo1_en, low_temp,
 			high_temp, temperature,
 			low_pseudo1, high_pseudo1,
 			batterypseudo1_h);
-		bm_trace(
+		bm_debug(
 			"[Profile_Table]pseudo100_en:[%d] %d lowT %d %d %d low100 %d %d [%d]\n",
 			pdata->pseudo100_en, pdata->pseudo100_en_dis,
 			low_temp, high_temp, temperature,
@@ -992,13 +992,13 @@ void fgr_construct_battery_profile(int table_idx)
 			high_temp, UNIT_TRANS_10 * high_qmax_h,
 			temperature);
 
-		bm_trace(
+		bm_debug(
 			"[Profile_Table]lowT %d %d %d lowQ %d %d qmax_t_0ma_h [%d]\n",
 			low_temp, high_temp, temperature,
 			UNIT_TRANS_10 * low_qmax,
 			UNIT_TRANS_10 * high_qmax,
 			qmax_t_0ma_h);
-		bm_trace(
+		bm_debug(
 			"[Profile_Table]lowT %d %d %d lowQh %d %d qmax_t_Nma_h [%d]\n",
 			low_temp, high_temp, temperature,
 			UNIT_TRANS_10 * low_qmax_h,
@@ -1010,7 +1010,7 @@ void fgr_construct_battery_profile(int table_idx)
 			high_temp, UNIT_TRANS_10 * high_shutdown_zcv,
 			temperature);
 
-		bm_trace(
+		bm_debug(
 			"[Profile_Table]lowT %d %d %d LowShutZCV %d HighShutZCV %d shutdown_hl_zcv [%d]\n",
 			low_temp, high_temp, temperature,
 			UNIT_TRANS_10 * low_shutdown_zcv,
@@ -1031,13 +1031,13 @@ void fgr_construct_battery_profile(int table_idx)
 			high_temp, UNIT_TRANS_10 * high_qmax_h,
 			temperature);
 
-		bm_trace(
+		bm_debug(
 			"[Profile_Table]lowT %d %d %d lowQ %d %d qmax_t_0ma_h [%d]\n",
 			low_temp, high_temp, temperature,
 			UNIT_TRANS_10 * low_qmax,
 			UNIT_TRANS_10 * high_qmax,
 			qmax_t_0ma_h_tb1);
-		bm_trace(
+		bm_debug(
 			"[Profile_Table]lowT %d %d %d lowQh %d %d qmax_t_Nma_h [%d]\n",
 			low_temp, high_temp, temperature,
 			UNIT_TRANS_10 * low_qmax_h,
@@ -1045,11 +1045,11 @@ void fgr_construct_battery_profile(int table_idx)
 			qmax_t_Nma_h_tb1);
 	}
 
-	bm_trace(
+	bm_debug(
 		"[Profile_Table]T_table %d T_table_c %d %d %d is_ascend %d %d\n",
 		T_table, T_table_c, pdata->pseudo1_en,
 		pdata->pseudo100_en, is_ascending, is_descending);
-	bm_trace(
+	bm_debug(
 		"[Profile_Table]Pseudo1_h %d %d, Qmax_T_0mA_H %d,%d qmax_t_0ma_h_tb1 %d %d\n",
 		batterypseudo1_h, batterypseudo100, qmax_t_0ma_h,
 		qmax_t_Nma_h, qmax_t_0ma_h_tb1, qmax_t_Nma_h_tb1);
@@ -1061,7 +1061,7 @@ void fg_construct_table_by_temp(bool update, int table_idx)
 
 	fg_temp = force_get_tbat(true);
 	if (fg_temp != last_temp || update == true) {
-		bm_trace(
+		bm_debug(
 			"[construct_table_by_temp] tempture from(%d)to(%d) Tb:%d",
 			last_temp, fg_temp, table_idx);
 		last_temp = fg_temp;

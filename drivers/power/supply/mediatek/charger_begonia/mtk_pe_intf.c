@@ -83,7 +83,7 @@ static int pe_set_mivr(struct charger_manager *pinfo, int uV)
 			ret = charger_dev_set_mivr(pinfo->chg2_dev,
 				uV + pinfo->data.slave_mivr_diff);
 			if (ret < 0)
-				pr_info("%s: chg2 failed, ret = %d\n", __func__,
+				pr_err("%s: chg2 failed, ret = %d\n", __func__,
 					ret);
 		}
 	}
@@ -366,7 +366,7 @@ int mtk_pe_check_charger(struct charger_manager *pinfo)
 	struct mtk_pe *pe = &pinfo->pe;
 
 	if (!pinfo->enable_hv_charging) {
-		pr_info("%s: hv charging is disabled\n", __func__);
+		pr_debug("%s: hv charging is disabled\n", __func__);
 		if (pe->is_connect) {
 			pe_leave(pinfo, true);
 			pe->to_check_chr_type = true;

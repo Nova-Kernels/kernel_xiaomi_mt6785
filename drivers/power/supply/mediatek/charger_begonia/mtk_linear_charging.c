@@ -195,7 +195,7 @@ static int mtk_linear_charging_do_charging(struct charger_manager *info,
 {
 	struct linear_charging_alg_data *algo_data = info->algorithm_data;
 
-	pr_info("%s en:%d %s\n", __func__, en, info->algorithm_name);
+	pr_debug("%s en:%d %s\n", __func__, en, info->algorithm_name);
 	if (en) {
 		algo_data->disable_charging = false;
 		algo_data->state = CHR_CC;
@@ -227,7 +227,7 @@ static bool charging_full_check(struct charger_manager *info)
 			full_check_count = 0;
 			chg_full_status = true;
 			charger_dev_do_event(info->chg1_dev, EVENT_EOC, 0);
-			pr_notice("battery full on ichg = %d uA\n",
+			pr_debug("battery full on ichg = %d uA\n",
 				chg_current);
 		}
 	}
@@ -290,7 +290,7 @@ static int mtk_linear_chr_cc(struct charger_manager *info)
 	if (vbat > algo_data->topoff_voltage) {
 		algo_data->state = CHR_TOPOFF;
 		get_monotonic_boottime(&algo_data->topoff_begin_time);
-		pr_notice("enter TOPOFF mode on vbat = %d uV\n", vbat);
+		pr_debug("enter TOPOFF mode on vbat = %d uV\n", vbat);
 	}
 
 	linear_chg_turn_on_charging(info);
@@ -328,7 +328,7 @@ static int mtk_linear_chr_topoff(struct charger_manager *info)
 
 		/* Disable charging */
 		charger_dev_enable(info->chg1_dev, false);
-		pr_notice("%s: disable charging\n", __func__);
+		pr_debug("%s: disable charging\n", __func__);
 	}
 
 	return 0;
@@ -391,7 +391,7 @@ static int mtk_linear_chr_full(struct charger_manager *info)
 		charger_dev_do_event(info->chg1_dev, EVENT_RECHARGE, 0);
 		info->enable_dynamic_cv = true;
 		get_monotonic_boottime(&algo_data->charging_begin_time);
-		pr_notice("battery recharging on vbat = %d uV\n", vbat);
+		pr_debug("battery recharging on vbat = %d uV\n", vbat);
 		info->polling_interval = CHARGING_INTERVAL;
 	}
 
@@ -409,7 +409,7 @@ static int mtk_linear_charging_run(struct charger_manager *info)
 	struct linear_charging_alg_data *algo_data = info->algorithm_data;
 	int ret = 0;
 
-	pr_info("%s [%d], timer=%d %d %d\n", __func__, algo_data->state,
+	pr_debug("%s [%d], timer=%d %d %d\n", __func__, algo_data->state,
 		algo_data->cc_charging_time, algo_data->topoff_charging_time,
 		algo_data->total_charging_time);
 
@@ -451,19 +451,19 @@ static int linear_charger_dev_event(struct notifier_block *nb,
 	switch (event) {
 	case CHARGER_DEV_NOTIFY_EOC:
 		charger_manager_notifier(info, CHARGER_NOTIFY_EOC);
-		pr_info("%s: end of charge\n", __func__);
+		pr_debug("%s: end of charge\n", __func__);
 		break;
 	case CHARGER_DEV_NOTIFY_RECHG:
 		charger_manager_notifier(info, CHARGER_NOTIFY_START_CHARGING);
-		pr_info("%s: recharge\n", __func__);
+		pr_debug("%s: recharge\n", __func__);
 		break;
 	case CHARGER_DEV_NOTIFY_SAFETY_TIMEOUT:
 		info->safety_timeout = true;
-		pr_info("%s: safety timer timeout\n", __func__);
+		pr_debug("%s: safety timer timeout\n", __func__);
 		break;
 	case CHARGER_DEV_NOTIFY_VBUS_OVP:
 		info->vbusov_stat = data->vbusov_stat;
-		pr_info("%s: vbus ovp = %d\n", __func__, info->vbusov_stat);
+		pr_debug("%s: vbus ovp = %d\n", __func__, info->vbusov_stat);
 		break;
 	default:
 		return NOTIFY_DONE;

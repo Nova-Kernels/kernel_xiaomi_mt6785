@@ -844,7 +844,7 @@ static int __init charger_class_init(void)
 {
 	charger_class = class_create(THIS_MODULE, "switching_charger");
 	if (IS_ERR(charger_class)) {
-		pr_notice("Unable to create charger class; errno = %ld\n",
+		pr_err("Unable to create charger class; errno = %ld\n",
 			PTR_ERR(charger_class));
 		return PTR_ERR(charger_class);
 	}

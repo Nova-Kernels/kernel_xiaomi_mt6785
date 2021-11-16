@@ -90,7 +90,7 @@ int MV_to_REG_12_value(signed int _reg)
 {
 	int ret = (_reg * 4096) / (VOLTAGE_FULL_RANGES * R_VAL_TEMP_3);
 
-	bm_trace("[%s] %d => %d\n", __func__, _reg, ret);
+	bm_debug("[%s] %d => %d\n", __func__, _reg, ret);
 	return ret;
 }
 
@@ -98,7 +98,7 @@ static int MV_to_REG_12_temp_value(signed int _reg)
 {
 	int ret = (_reg * 4096) / (VOLTAGE_FULL_RANGES * R_VAL_TEMP_2);
 
-	bm_trace("[%s] %d => %d\n", __func__, _reg, ret);
+	bm_debug("[%s] %d => %d\n", __func__, _reg, ret);
 	return ret;
 }
 
@@ -116,7 +116,7 @@ static signed int REG_to_MV_value(signed int _reg)
 #endif
 	ret = _reg64;
 
-	bm_trace("[%s] %lld => %d\n",
+	bm_debug("[%s] %lld => %d\n",
 		__func__, _reg64, ret);
 	return ret;
 }
@@ -141,7 +141,7 @@ static signed int MV_to_REG_value(signed int _mv)
 		return ret;
 	}
 
-	bm_trace("[%s] mv=%d,%lld => %d,\n", __func__, _mv, _reg64, ret);
+	bm_debug("[%s] mv=%d,%lld => %d,\n", __func__, _mv, _reg64, ret);
 	return ret;
 }
 
@@ -467,7 +467,7 @@ static signed int fg_get_current_iavg(
 		fg_iavg_ma = fg_iavg_reg * UNIT_FG_IAVG *
 			gauge_dev->fg_cust_data->car_tune_value;
 
-		bm_trace(
+		bm_debug(
 			"[%s] fg_iavg_ma %lld fg_iavg_reg %lld fg_iavg_reg_tmp %lld\n",
 			__func__, fg_iavg_ma, fg_iavg_reg, fg_iavg_reg_tmp);
 
@@ -478,7 +478,7 @@ static signed int fg_get_current_iavg(
 		fg_iavg_ma = div_s64(fg_iavg_ma, 1000000);
 #endif
 
-		bm_trace("[%s] fg_iavg_ma3 %lld\n",
+		bm_debug("[%s] fg_iavg_ma3 %lld\n",
 			__func__, fg_iavg_ma);
 
 		if (gauge_dev->fg_cust_data->r_fg_value != DEFAULT_R_FG) {
@@ -500,20 +500,20 @@ static signed int fg_get_current_iavg(
 		fg_iavg_ma = div_s64(fg_iavg_ma, 100);
 #endif
 
-		bm_trace("[%s] fg_iavg_ma4 %lld\n",
+		bm_debug("[%s] fg_iavg_ma4 %lld\n",
 			__func__, fg_iavg_ma);
 
 		if (sign_bit == 1)
 			fg_iavg_ma = 0 - fg_iavg_ma;
 
-		bm_trace(
+		bm_debug(
 			"[%s] fg_iavg_ma %lld fg_iavg_reg %lld r_fg_value %d 27_16 0x%x 15_00 0x%x\n",
 			__func__, fg_iavg_ma, fg_iavg_reg,
 			gauge_dev->fg_cust_data->r_fg_value,
 			fg_iavg_reg_27_16, fg_iavg_reg_15_00);
 		gauge_dev->fg_hw_info.current_avg = fg_iavg_ma;
 		gauge_dev->fg_hw_info.current_avg_sign = sign_bit;
-		bm_trace("[%s] PMIC_FG_IAVG_VLD == 1\n", __func__);
+		bm_debug("[%s] PMIC_FG_IAVG_VLD == 1\n", __func__);
 	} else {
 		read_fg_hw_info_current_1(gauge_dev);
 		gauge_dev->fg_hw_info.current_avg =
@@ -835,7 +835,7 @@ static int fgauge_read_current(
 		}
 
 	uvalue16 = pmic_get_register_value(PMIC_FG_CURRENT_OUT);
-	bm_trace("[%s] : FG_CURRENT = %x\r\n", __func__, uvalue16);
+	bm_debug("[%s] : FG_CURRENT = %x\r\n", __func__, uvalue16);
 
 	pmic_set_register_value(PMIC_FG_SW_CLEAR, 1);
 	pmic_set_register_value(PMIC_FG_SW_READ_PRE, 0);
@@ -878,26 +878,26 @@ static int fgauge_read_current(
 	dvalue = (unsigned int) Temp_Value;
 
 	if (*fg_is_charging == true)
-		bm_trace("[%s]curr(charging) = %d mA\r\n",
+		bm_debug("[%s]curr(charging) = %d mA\r\n",
 			 __func__, dvalue);
 	else
-		bm_trace("[%s]curr(discharging) = %d mA\r\n",
+		bm_debug("[%s]curr(discharging) = %d mA\r\n",
 			 __func__, dvalue);
 
 		/* Auto adjust value */
 		if (gauge_dev->fg_cust_data->r_fg_value != DEFAULT_R_FG) {
-			bm_trace(
+			bm_debug(
 			"[%s] Auto adjust value due to the Rfg is %d Ori curr=%d\n",
 			__func__, gauge_dev->fg_cust_data->r_fg_value, dvalue);
 
 			dvalue = (dvalue * DEFAULT_R_FG) /
 				gauge_dev->fg_cust_data->r_fg_value;
 
-			bm_trace("[%s] new current=%d\n",
+			bm_debug("[%s] new current=%d\n",
 				__func__, dvalue);
 		}
 
-		bm_trace("[%s] ori current=%d\n", __func__, dvalue);
+		bm_debug("[%s] ori current=%d\n", __func__, dvalue);
 
 		dvalue =
 		((dvalue * gauge_dev->fg_cust_data->car_tune_value) / 1000);
@@ -965,7 +965,7 @@ static int fgauge_get_average_current(
 		fg_iavg_ma = fg_iavg_reg * UNIT_FG_IAVG *
 			gauge_dev->fg_cust_data->car_tune_value;
 
-		bm_trace(
+		bm_debug(
 			"[fg_get_current_iavg] fg_iavg_ma %lld fg_iavg_reg %lld fg_iavg_reg_tmp %lld\n",
 			fg_iavg_ma, fg_iavg_reg, fg_iavg_reg_tmp);
 
@@ -992,14 +992,14 @@ static int fgauge_get_average_current(
 		fg_iavg_ma = div_s64(fg_iavg_ma, 100);
 #endif
 
-		bm_trace("[fg_get_current_iavg] fg_iavg_ma %lld\n",
+		bm_debug("[fg_get_current_iavg] fg_iavg_ma %lld\n",
 			fg_iavg_ma);
 
 
 		if (sign_bit == 1)
 			fg_iavg_ma = 0 - fg_iavg_ma;
 
-		bm_trace(
+		bm_debug(
 			"[fg_get_current_iavg] fg_iavg_ma %lld fg_iavg_reg %lld r_fg_value %d 27_16 0x%x 15_00 0x%x\n",
 			fg_iavg_ma, fg_iavg_reg,
 			gauge_dev->fg_cust_data->r_fg_value,
@@ -1007,7 +1007,7 @@ static int fgauge_get_average_current(
 
 		gauge_dev->fg_hw_info.current_avg = fg_iavg_ma;
 		gauge_dev->fg_hw_info.current_avg_sign = sign_bit;
-		bm_trace("[fg_get_current_iavg] PMIC_FG_IAVG_VLD == 1\n");
+		bm_debug("[fg_get_current_iavg] PMIC_FG_IAVG_VLD == 1\n");
 	} else {
 		read_fg_hw_info_current_1(gauge_dev);
 		gauge_dev->fg_hw_info.current_avg =
@@ -1079,13 +1079,13 @@ static int fgauge_get_coulomb(struct gauge_device *gauge_dev, int *data)
 
 	uvalue32_CAR_MSB = (temp_CAR_31_16 & 0x8000) >> 15;
 
-	bm_trace(
+	bm_debug(
 		"[fgauge_read_columb_internal] temp_CAR_15_0 = 0x%x temp_CAR_31_16 = 0x%x\n",
 		 temp_CAR_15_0, temp_CAR_31_16);
 
-	bm_trace("[fgauge_read_columb_internal] FG_CAR = 0x%x\r\n",
+	bm_debug("[fgauge_read_columb_internal] FG_CAR = 0x%x\r\n",
 		 uvalue32_CAR);
-	bm_trace(
+	bm_debug(
 		 "[fgauge_read_columb_internal] uvalue32_CAR_MSB = 0x%x\r\n",
 		 uvalue32_CAR_MSB);
 
@@ -1146,19 +1146,19 @@ static int fgauge_get_coulomb(struct gauge_device *gauge_dev, int *data)
 	else
 		dvalue_CAR = (signed int) Temp_Value;
 
-	bm_trace("[fgauge_read_columb_internal] dvalue_CAR = %d\r\n",
+	bm_debug("[fgauge_read_columb_internal] dvalue_CAR = %d\r\n",
 		 dvalue_CAR);
 
 /*Auto adjust value*/
 	if (gauge_dev->fg_cust_data->r_fg_value != DEFAULT_R_FG) {
-		bm_trace(
+		bm_debug(
 			 "[fgauge_read_columb_internal] Auto adjust value deu to the Rfg is %d\n Ori CAR=%d",
 			 gauge_dev->fg_cust_data->r_fg_value, dvalue_CAR);
 
 		dvalue_CAR = (dvalue_CAR * DEFAULT_R_FG) /
 			gauge_dev->fg_cust_data->r_fg_value;
 
-		bm_trace("[fgauge_read_columb_internal] new CAR=%d\n",
+		bm_debug("[fgauge_read_columb_internal] new CAR=%d\n",
 			 dvalue_CAR);
 	}
 
@@ -1179,7 +1179,7 @@ static int fgauge_reset_hw(struct gauge_device *gauge_dev)
 {
 	unsigned int ret = 0, check_car = 0;
 
-	bm_trace("[fgauge_hw_reset] : Start, only reset time and car\n");
+	bm_debug("[fgauge_hw_reset] : Start, only reset time and car\n");
 
 	ret = pmic_config_interface(
 		MT6359_FGADC_CON1, 0x0630, 0x0F00, 0x0);
@@ -1192,7 +1192,7 @@ static int fgauge_reset_hw(struct gauge_device *gauge_dev)
 
 	fgauge_get_coulomb(gauge_dev, &check_car);
 
-	bm_trace("[fgauge_hw_reset]:End car=%d,ret=%d\n", check_car, ret);
+	bm_debug("[fgauge_hw_reset]:End car=%d,ret=%d\n", check_car, ret);
 
 	return 0;
 }
@@ -1441,7 +1441,7 @@ int fgauge_set_coulomb_interrupt1_ht(
 	signed int value32_CAR;
 	long long car = car_value;
 
-	bm_trace("%s car=%d\n", __func__, car_value);
+	bm_debug("%s car=%d\n", __func__, car_value);
 	if (car == 0) {
 		gauge_enable_interrupt(FG_BAT1_INT_H_NO, 0);
 		return 0;
@@ -1468,7 +1468,7 @@ int fgauge_set_coulomb_interrupt1_ht(
 	uvalue32_CAR_MSB =
 		(pmic_get_register_value(PMIC_FG_CAR_31_16) & 0x8000) >> 15;
 
-	bm_trace(
+	bm_debug(
 		"[%s] FG_CAR = 0x%x:%d uvalue32_CAR_MSB:0x%x 0x%x 0x%x\r\n",
 		__func__, value32_CAR, value32_CAR, uvalue32_CAR_MSB,
 		temp_CAR_15_0,
@@ -1512,7 +1512,7 @@ int fgauge_set_coulomb_interrupt1_ht(
 
 	upperbound = value32_CAR;
 
-	bm_trace(
+	bm_debug(
 		"[%s] upper = 0x%x:%d diff_car=0x%llx:%lld\r\n",
 		 __func__, upperbound, upperbound, car, car);
 
@@ -1522,11 +1522,11 @@ int fgauge_set_coulomb_interrupt1_ht(
 	upperbound_15_00 = (upperbound & 0xffff);
 
 
-	bm_trace(
+	bm_debug(
 		"[%s] final upper = 0x%x:%d car=0x%llx:%lld\r\n",
 		 __func__, upperbound, upperbound, car, car);
 
-	bm_trace(
+	bm_debug(
 		"[%s] final upper 0x%x 0x%x 0x%x car=0x%llx\n",
 		 __func__,
 		upperbound, upperbound_31_16, upperbound_15_00, car);
@@ -1563,7 +1563,7 @@ int fgauge_set_coulomb_interrupt1_lt(
 	signed int value32_CAR;
 	long long car = car_value;
 
-	bm_trace("%s car=%d\n", __func__, car_value);
+	bm_debug("%s car=%d\n", __func__, car_value);
 	if (car == 0) {
 		pmic_enable_interrupt(FG_BAT1_INT_L_NO, 0, "GM30");
 		return 0;
@@ -1590,7 +1590,7 @@ int fgauge_set_coulomb_interrupt1_lt(
 	uvalue32_CAR_MSB =
 		(pmic_get_register_value(PMIC_FG_CAR_31_16) & 0x8000) >> 15;
 
-	bm_trace(
+	bm_debug(
 		"[%s] FG_CAR = 0x%x:%d uvalue32_CAR_MSB:0x%x 0x%x 0x%x\r\n",
 		__func__,
 		value32_CAR, value32_CAR, uvalue32_CAR_MSB,
@@ -1638,7 +1638,7 @@ int fgauge_set_coulomb_interrupt1_lt(
 
 	lowbound = value32_CAR;
 
-	bm_trace(
+	bm_debug(
 		"[%s]low=0x%x:%d diff_car=0x%llx:%lld\r\n",
 		 __func__, lowbound, lowbound, car, car);
 
@@ -1647,11 +1647,11 @@ int fgauge_set_coulomb_interrupt1_lt(
 	lowbound_31_16 = (lowbound & 0xffff0000) >> 16;
 	lowbound_15_00 = (lowbound & 0xffff);
 
-	bm_trace(
+	bm_debug(
 		"[%s]final low=0x%x:%d car=0x%llx:%lld\r\n",
 		 __func__, lowbound, lowbound, car, car);
 
-	bm_trace(
+	bm_debug(
 		"[%s] final low 0x%x 0x%x 0x%x car=0x%llx\n",
 		 __func__, lowbound, lowbound_31_16, lowbound_15_00, car);
 
@@ -1698,7 +1698,7 @@ static int fgauge_get_ptim_current(
 		/*unsigned int ret = 0;*/
 
 		uvalue16 = pmic_get_register_value(PMIC_FG_R_CURR);
-		bm_trace("[%s] : FG_CURRENT = %x\r\n",
+		bm_debug("[%s] : FG_CURRENT = %x\r\n",
 			 __func__, uvalue16);
 
 		/*calculate the real world data    */
@@ -1726,28 +1726,28 @@ static int fgauge_get_ptim_current(
 		dvalue = (unsigned int) Temp_Value;
 
 		if (*is_charging == true)
-			bm_trace(
+			bm_debug(
 			"[fgauge_read_IM_current]curr(charging)=%dmA\r\n",
 			dvalue);
 		else
-			bm_trace(
+			bm_debug(
 			"[fgauge_read_IM_current]curr(discharging)=%dmA\r\n",
 			dvalue);
 
 		/* Auto adjust value */
 		if (gauge_dev->fg_cust_data->r_fg_value != DEFAULT_R_FG) {
-			bm_trace(
+			bm_debug(
 			"[fgauge_read_IM_current] Auto adjust value due to the Rfg is %d\n Ori curr=%d, ",
 			gauge_dev->fg_cust_data->r_fg_value, dvalue);
 
 			dvalue = (dvalue * DEFAULT_R_FG) /
 				gauge_dev->fg_cust_data->r_fg_value;
 
-			bm_trace("[fgauge_read_IM_current] new current=%d\n",
+			bm_debug("[fgauge_read_IM_current] new current=%d\n",
 			dvalue);
 		}
 
-		bm_trace("[fgauge_read_IM_current] ori current=%d\n", dvalue);
+		bm_debug("[fgauge_read_IM_current] ori current=%d\n", dvalue);
 
 		dvalue = ((dvalue *
 			gauge_dev->fg_cust_data->car_tune_value) / 1000);
@@ -1791,17 +1791,17 @@ static int fgauge_get_zcv_current(
 
 	/* Auto adjust value */
 	if (gauge_dev->fg_cust_data->r_fg_value != DEFAULT_R_FG) {
-		bm_trace(
+		bm_debug(
 		"[fgauge_read_current] Auto adjust value due to the Rfg is %d\n Ori curr=%d",
 		gauge_dev->fg_cust_data->r_fg_value, dvalue);
 
 		dvalue = (dvalue * DEFAULT_R_FG) /
 		gauge_dev->fg_cust_data->r_fg_value;
 
-		bm_trace("[fgauge_read_current] new current=%d\n", dvalue);
+		bm_debug("[fgauge_read_current] new current=%d\n", dvalue);
 	}
 
-	bm_trace("[fgauge_read_current] ori current=%d\n", dvalue);
+	bm_debug("[fgauge_read_current] ori current=%d\n", dvalue);
 
 	dvalue = ((dvalue * gauge_dev->fg_cust_data->car_tune_value) / 1000);
 
@@ -2308,7 +2308,7 @@ int fgauge_get_time(struct gauge_device *gauge_dev, unsigned int *ptime)
 #endif
 	ret_time = time;
 
-	bm_trace(
+	bm_debug(
 		 "[%s] low:0x%x high:0x%x rtime:0x%llx 0x%x!\r\n",
 		 __func__, time_15_00, time_29_16, time, ret_time);
 
@@ -2529,7 +2529,7 @@ int fgauge_get_hw_status(
 	/* Iavg */
 	read_fg_hw_info_Iavg(gauge_dev, &is_iavg_valid);
 	if ((is_iavg_valid == 1) && (gauge_status->iavg_intr_flag == 0)) {
-		bm_trace("[read_fg_hw_info]set first fg_set_iavg_intr %d %d\n",
+		bm_debug("[read_fg_hw_info]set first fg_set_iavg_intr %d %d\n",
 			is_iavg_valid, gauge_status->iavg_intr_flag);
 		gauge_status->iavg_intr_flag = 1;
 		iavg_th = gauge_dev->fg_cust_data->diff_iavg_th;
@@ -2538,11 +2538,11 @@ int fgauge_get_hw_status(
 		gauge_status->iavg_intr_flag = 0;
 		gauge_enable_interrupt(FG_IAVG_H_NO, 0);
 		gauge_enable_interrupt(FG_IAVG_L_NO, 0);
-		bm_trace(
+		bm_debug(
 			"[read_fg_hw_info] doublecheck first fg_set_iavg_intr %d %d\n",
 			is_iavg_valid, gauge_status->iavg_intr_flag);
 	}
-	bm_trace("[read_fg_hw_info] thirdcheck first fg_set_iavg_intr %d %d\n",
+	bm_debug("[read_fg_hw_info] thirdcheck first fg_set_iavg_intr %d %d\n",
 		is_iavg_valid, gauge_status->iavg_intr_flag);
 
 	/* Ncar */
@@ -2939,7 +2939,7 @@ static int fgauge_set_rtc_ui_soc(
 	/* set spare3 0x7f */
 	set_rtc_spare_fg_value(new_spare3_reg);
 
-	bm_notice("[fg_set_rtc_ui_soc] rtc_ui_soc %d spare3_reg 0x%x new_spare3_reg 0x%x\n",
+	bm_debug("[fg_set_rtc_ui_soc] rtc_ui_soc %d spare3_reg 0x%x new_spare3_reg 0x%x\n",
 		rtc_ui_soc, spare3_reg, new_spare3_reg);
 
 	return 0;
@@ -2953,7 +2953,7 @@ static int fgauge_get_rtc_ui_soc(struct gauge_device *gauge_dev, int *ui_soc)
 	rtc_ui_soc = (spare3_reg & 0x7f);
 
 	*ui_soc = rtc_ui_soc;
-	bm_notice("[%s] rtc_ui_soc %d spare3_reg 0x%x\n",
+	bm_debug("[%s] rtc_ui_soc %d spare3_reg 0x%x\n",
 		__func__, rtc_ui_soc, spare3_reg);
 
 	return 0;
@@ -2965,7 +2965,7 @@ int fgauge_is_rtc_invalid(struct gauge_device *gauge_dev, int *invalid)
 	/* because it has been reset by fg_set_fg_reset_rtc_status() */
 
 	*invalid = rtc_invalid;
-	bm_notice("[fg_get_rtc_invalid] rtc_invalid %d\n", rtc_invalid);
+	bm_err("[fg_get_rtc_invalid] rtc_invalid %d\n", rtc_invalid);
 
 	return 0;
 }

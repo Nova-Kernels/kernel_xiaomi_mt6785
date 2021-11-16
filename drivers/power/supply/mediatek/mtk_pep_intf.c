@@ -358,7 +358,7 @@ int mtk_pep_check_charger(void)
 	int ret = 0;
 
 	if (!mtk_chr_is_hv_charging_enable()) {
-		pr_info("%s: hv charging is disabled\n", __func__);
+		pr_debug("%s: hv charging is disabled\n", __func__);
 		if (pep_is_connect) {
 			pep_leave(true);
 			pep_to_check_chr_type = true;
@@ -436,7 +436,7 @@ int mtk_pep_start_algorithm(void)
 	int ret = 0, chr_volt;
 
 	if (!mtk_chr_is_hv_charging_enable()) {
-		pr_info("%s: hv charging is disabled\n", __func__);
+		pr_debug("%s: hv charging is disabled\n", __func__);
 		if (pep_is_connect) {
 			pep_leave(true);
 			pep_to_check_chr_type = true;

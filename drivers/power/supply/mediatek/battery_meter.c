@@ -1190,7 +1190,7 @@ int force_get_tbat(enum kal_bool update)
 		pre_bat_temperature_val = bat_temperature_val;
 
 		if (bat_temperature_val > 55)
-			pr_notice("[%s] %d,%d,%d,%d,%d,%d\n",
+			pr_debug("[%s] %d,%d,%d,%d,%d,%d\n",
 				  __func__,
 				  bat_temperature_volt_temp,
 				  bat_temperature_volt, fg_current_state,
@@ -3179,7 +3179,7 @@ void fgauge_algo_run_init(void)
 unsigned char reset_fg_bat_int = KAL_TRUE;
 void fg_bat_int_handler(void)
 {
-	pr_notice("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	reset_fg_bat_int = KAL_TRUE;
 	wake_up_bat2();
 }

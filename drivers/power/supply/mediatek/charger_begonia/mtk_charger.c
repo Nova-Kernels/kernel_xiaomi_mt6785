@@ -279,7 +279,7 @@ int charger_manager_enable_high_voltage_charging(
 	else if (en && consumer->hv_charging_disabled == true)
 		consumer->hv_charging_disabled = false;
 	else {
-		pr_info("[%s] already set: %d %d\n", __func__,
+		pr_debug("[%s] already set: %d %d\n", __func__,
 			consumer->hv_charging_disabled, en);
 		return 0;
 	}
@@ -296,7 +296,7 @@ int charger_manager_enable_high_voltage_charging(
 	}
 	mutex_unlock(&consumer_mutex);
 
-	pr_info("%s: user: %s, en = %d\n", __func__, dev_name(consumer->dev),
+	pr_debug("%s: user: %s, en = %d\n", __func__, dev_name(consumer->dev),
 		info->enable_hv_charging);
 	_wake_up_charger(info);
 
@@ -337,7 +337,7 @@ int charger_manager_enable_power_path(struct charger_consumer *consumer,
 		return 0;
 	}
 
-	pr_info("%s: enable power path = %d\n", __func__, en);
+	pr_debug("%s: enable power path = %d\n", __func__, en);
 	return charger_dev_enable_powerpath(chg_dev, en);
 }
 
@@ -606,7 +606,7 @@ int charger_manager_enable_chg_type_det(struct charger_consumer *consumer,
 	struct charger_manager *info = consumer->cm;
 	struct charger_device *chg_dev;
 	int ret = 0;
-	pr_info("%s start\n", __func__);
+	pr_debug("%s start\n", __func__);
 	if (info != NULL) {
 		switch (info->data.bc12_charger) {
 		case MAIN_CHARGER:
@@ -690,13 +690,13 @@ int charger_manager_get_ibus(int *ibus)
 
 int charger_manager_set_input_suspend(int suspend)
 {
-	pr_info("%s suspend: %d.\n", __func__, suspend);
+	pr_debug("%s suspend: %d.\n", __func__, suspend);
 
 	if (pinfo == NULL)
 		return false;
 
 	if (pinfo->is_input_suspend == suspend) {
-		pr_info("%s same setting, return.\n", __func__);
+		pr_debug("%s same setting, return.\n", __func__);
 		return false;
 	}
 
@@ -771,7 +771,7 @@ void charger_manager_set_prop_system_temp_level(int temp_level)
 	if (pinfo->system_temp_level == 0)
 		thermal_icl_ua = -1;
 
-	pr_info("%s, system_temp_level:%d thermal_icl_ua:%d usb_type:%d\n", __func__,
+	pr_debug("%s, system_temp_level:%d thermal_icl_ua:%d usb_type:%d\n", __func__,
 			pinfo->system_temp_level, thermal_icl_ua, pinfo->usb_psy->desc->type);
 
 	_charger_manager_set_input_current_limit(pinfo, TOTAL_CHARGER, thermal_icl_ua);
@@ -969,7 +969,7 @@ void mtk_charger_get_atm_mode(struct charger_manager *info)
 	} else
 		info->atm_enabled = false;
 
-	pr_info("%s: atm_enabled = %d\n", __func__, info->atm_enabled);
+	pr_debug("%s: atm_enabled = %d\n", __func__, info->atm_enabled);
 }
 
 /* internal algorithm common function */
@@ -1049,7 +1049,7 @@ static int smblib_get_quick_charge_type(struct charger_manager *info)
 
 	power_supply_get_property(info->usb_psy,
 			POWER_SUPPLY_PROP_REAL_TYPE, &pval);
-	pr_info("Get real type:%d.\n", pval.intval);
+	pr_debug("Get real type:%d.\n", pval.intval);
 	while (adapter_cap[i].adap_type != 0) {
 		if (pval.intval == adapter_cap[i].adap_type) {
 			return adapter_cap[i].adap_cap;

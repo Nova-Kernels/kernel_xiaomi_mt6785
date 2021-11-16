@@ -116,7 +116,7 @@ unsigned int charging_value_to_parameter(const unsigned int *parameter,
 {
 	if (val < array_size)
 		return parameter[val];
-	pr_info("Can't find the parameter\n");
+	pr_err("Can't find the parameter\n");
 	return parameter[0];
 }
 
@@ -133,7 +133,7 @@ unsigned int charging_parameter_to_value(const unsigned int *parameter,
 			return i;
 	}
 
-	pr_info("NO register value match\n");
+	pr_err("NO register value match\n");
 
 	return 0;
 }
@@ -158,7 +158,7 @@ static unsigned int bmt_find_closest_level(const unsigned int *pList,
 				return pList[i];
 			}
 		}
-		pr_info("Can't find closest level\n");
+		pr_err("Can't find closest level\n");
 		return pList[0];
 		/* return 000; */
 	} else {
@@ -166,7 +166,7 @@ static unsigned int bmt_find_closest_level(const unsigned int *pList,
 			if (pList[i] <= level)
 				return pList[i];
 		}
-		pr_info("Can't find closest level\n");
+		pr_err("Can't find closest level\n");
 		return pList[number - 1];
 		/* return 000; */
 	}
@@ -597,7 +597,7 @@ static int hl7005_parse_dt(struct hl7005_info *info, struct device *dev)
 {
 	struct device_node *np = dev->of_node;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	if (!np) {
 		pr_err("%s: no of node\n", __func__);
@@ -625,7 +625,7 @@ static int hl7005_do_event(struct charger_device *chg_dev, unsigned int event,
 	if (chg_dev == NULL)
 		return -EINVAL;
 
-	pr_info("%s: event = %d\n", __func__, event);
+	pr_debug("%s: event = %d\n", __func__, event);
 
 	switch (event) {
 	case EVENT_EOC:
@@ -669,7 +669,7 @@ static int hl7005_set_cv_voltage(struct charger_device *chg_dev, u32 cv)
 
 	register_value =
 	charging_parameter_to_value(VBAT_CVTH, array_size, set_cv_voltage);
-	pr_info("charging_set_cv_voltage register_value=0x%x %d %d\n",
+	pr_debug("charging_set_cv_voltage register_value=0x%x %d %d\n",
 	 register_value, cv, set_cv_voltage);
 	hl7005_set_oreg(register_value);
 
@@ -940,9 +940,9 @@ static int __init hl7005_init(void)
 {
 
 	if (i2c_add_driver(&hl7005_driver) != 0)
-		pr_info("Failed to register hl7005 i2c driver.\n");
+		pr_err("Failed to register hl7005 i2c driver.\n");
 	else
-		pr_info("Success to register hl7005 i2c driver.\n");
+		pr_debug("Success to register hl7005 i2c driver.\n");
 
 	return 0;
 }

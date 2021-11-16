@@ -2494,7 +2494,7 @@ static void rt9471_shutdown(struct i2c_client *client)
 {
 	struct rt9471_chip *chip = i2c_get_clientdata(client);
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	if (chip)
 		rt9471_reset_register(chip);
 }

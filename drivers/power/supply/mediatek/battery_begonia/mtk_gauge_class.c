@@ -1049,7 +1049,7 @@ static int __init gauge_class_init(void)
 {
 	gauge_class = class_create(THIS_MODULE, "gauge");
 	if (IS_ERR(gauge_class)) {
-		pr_notice("Unable to create gauge class; errno = %ld\n",
+		pr_err("Unable to create gauge class; errno = %ld\n",
 			PTR_ERR(gauge_class));
 		return PTR_ERR(gauge_class);
 	}

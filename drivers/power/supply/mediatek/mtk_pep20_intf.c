@@ -385,7 +385,7 @@ int mtk_pep20_check_charger(void)
 	int ret = 0;
 
 	if (!mtk_chr_is_hv_charging_enable()) {
-		pr_info("%s: hv charging is disabled\n", __func__);
+		pr_debug("%s: hv charging is disabled\n", __func__);
 		if (pep20_is_connect) {
 			pep20_leave();
 			pep20_to_check_chr_type = true;
@@ -463,7 +463,7 @@ int mtk_pep20_start_algorithm(void)
 	u32 size;
 
 	if (!mtk_chr_is_hv_charging_enable()) {
-		pr_info("%s: hv charging is disabled\n", __func__);
+		pr_debug("%s: hv charging is disabled\n", __func__);
 		if (pep20_is_connect) {
 			pep20_leave();
 			pep20_to_check_chr_type = true;

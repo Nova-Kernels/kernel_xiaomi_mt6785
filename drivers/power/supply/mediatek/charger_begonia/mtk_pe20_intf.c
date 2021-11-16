@@ -129,7 +129,7 @@ static int pe20_set_mivr(struct charger_manager *pinfo, int uV)
 			ret = charger_dev_set_mivr(pinfo->chg2_dev,
 				uV + pinfo->data.slave_mivr_diff);
 			if (ret < 0)
-				pr_info("%s: chg2 failed, ret = %d\n", __func__,
+				pr_err("%s: chg2 failed, ret = %d\n", __func__,
 					ret);
 		}
 	}
@@ -358,7 +358,7 @@ static void mtk_pe20_check_cable_impedance(struct charger_manager *pinfo)
 	}
 	charger_dev_set_input_current(pinfo->chg1_dev, pe20->aicr_cable_imp);
 
-	pr_info("%s: set aicr:%dmA, vbat:%dmV, mivr_state:%d\n",
+	pr_debug("%s: set aicr:%dmA, vbat:%dmV, mivr_state:%d\n",
 		__func__, pe20->aicr_cable_imp / 1000,
 		pe20->vbat_orig / 1000, mivr_state);
 	return;
@@ -484,7 +484,7 @@ int mtk_pe20_check_charger(struct charger_manager *pinfo)
 	struct mtk_pe20 *pe20 = &pinfo->pe2;
 
 	if (!pinfo->enable_hv_charging) {
-		pr_info("%s: hv charging is disabled\n", __func__);
+		pr_debug("%s: hv charging is disabled\n", __func__);
 		if (pe20->is_connect) {
 			pe20_leave(pinfo);
 			pe20->to_check_chr_type = true;

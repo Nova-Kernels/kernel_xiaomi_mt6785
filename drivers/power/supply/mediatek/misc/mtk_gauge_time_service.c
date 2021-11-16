@@ -42,14 +42,14 @@ static struct timespec gtimer_suspend_time;
 #define ft_err(fmt, args...)   \
 do {									\
 	if (ftlog_level >= FTLOG_ERROR_LEVEL) {			\
-		pr_notice(fmt, ##args); \
+		pr_err(fmt, ##args); \
 	}								   \
 } while (0)
 
 #define ft_debug(fmt, args...)   \
 do {									\
 	if (ftlog_level >= FTLOG_DEBUG_LEVEL) {		\
-		pr_notice(fmt, ##args); \
+		pr_debug(fmt, ##args); \
 	}								   \
 } while (0)
 
@@ -213,14 +213,14 @@ static void gtimer_handler(void)
 
 	hrtimer_cancel(&gtimer_kthread_timer);
 
-	ft_info("%s\n", __func__);
+	ft_debug("%s\n", __func__);
 	for (pos = phead->next; pos != phead;) {
 		struct list_head *ptmp;
 
 		get_monotonic_boottime(&time);
 		ptr = container_of(pos, struct gtimer, list);
 
-		ft_info("%s name:%s %ld %ld %d %d\n",
+		ft_debug("%s name:%s %ld %ld %d %d\n",
 			__func__,
 		ptr->name, time.tv_sec,
 		ptr->endtime.tv_sec, ptr->interval,

@@ -46,7 +46,7 @@ int mtk_pdc_set_mivr(struct charger_manager *info, int uV)
 			ret = charger_dev_set_mivr(info->chg2_dev,
 				uV + info->data.slave_mivr_diff);
 			if (ret < 0)
-				pr_info("%s: chg2 failed, ret = %d\n", __func__,
+				pr_err("%s: chg2 failed, ret = %d\n", __func__,
 					ret);
 		}
 	}

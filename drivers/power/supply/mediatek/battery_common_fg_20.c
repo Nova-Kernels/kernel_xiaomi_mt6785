@@ -4803,7 +4803,7 @@ static int mt_batteryNotify_probe(struct platform_device *dev)
 	/* Create mtk_battery_cmd directory */
 	battery_dir = proc_mkdir("mtk_battery_cmd", NULL);
 	if (!battery_dir) {
-		pr_notice("[%s]: mkdir /proc/mtk_battery_cmd failed\n",
+		pr_err("[%s]: mkdir /proc/mtk_battery_cmd failed\n",
 					__func__);
 		goto _out;
 	}

@@ -858,20 +858,20 @@ static int mtk_dual_switch_charging_do_charging(struct charger_manager *info,
 {
 	struct dual_switch_charging_alg_data *swchgalg = info->algorithm_data;
 
-	pr_info("[%s] en:%d %s\n", __func__, en, info->algorithm_name);
+	pr_debug("[%s] en:%d %s\n", __func__, en, info->algorithm_name);
 	if (en) {
 		swchgalg->disable_charging = false;
 		swchgalg->state = CHR_CC;
 		charger_manager_notifier(info, CHARGER_NOTIFY_NORMAL);
 		mtk_pe40_set_is_enable(info, en);
-		pr_info("[%s] CHARGER_NOTIFY_NORMAL\n", __func__);
+		pr_debug("[%s] CHARGER_NOTIFY_NORMAL\n", __func__);
 	} else {
 		/* disable charging might change state, so call it first */
 		_disable_all_charging(info);
 		swchgalg->disable_charging = true;
 		swchgalg->state = CHR_ERROR;
 		charger_manager_notifier(info, CHARGER_NOTIFY_ERROR);
-		pr_info("[%s] CHARGER_NOTIFY_ERROR\n", __func__);
+		pr_err("[%s] CHARGER_NOTIFY_ERROR\n", __func__);
 	}
 
 	return 0;
@@ -949,7 +949,7 @@ static int mtk_dual_switch_chr_cc(struct charger_manager *info)
 		if (info->sw_jeita.pre_sm != TEMP_T2_TO_T3
 		    && info->sw_jeita.sm == TEMP_T2_TO_T3) {
 			/* set to CC state to reset chg2's ichg */
-			pr_info("back to normal temp, reset state\n");
+			pr_debug("back to normal temp, reset state\n");
 			swchgalg->state = CHR_CC;
 		}
 	}
@@ -1041,7 +1041,7 @@ static int mtk_dual_switch_charging_run(struct charger_manager *info)
 	union power_supply_propval val;
 	struct timespec time, time_now;
 
-	pr_info("%s [%d]\n", __func__, swchgalg->state);
+	pr_debug("%s [%d]\n", __func__, swchgalg->state);
 
 	power_supply_get_property(swchgalg->usb_psy,
 			POWER_SUPPLY_PROP_VOLTAGE_NOW, &val);
@@ -1058,10 +1058,10 @@ static int mtk_dual_switch_charging_run(struct charger_manager *info)
 		}
 	} else {
 		info->hvdcp_type = HVDCP_NULL;
-		pr_info("%s pdc is ready, set hvdcp_type null.\n", __func__);
+		pr_debug("%s pdc is ready, set hvdcp_type null.\n", __func__);
 	}
 
-	pr_info("get_hvdcp_type: %d , vbus = %d.\n", info->hvdcp_type, swchgalg->vbus_mv);
+	pr_debug("get_hvdcp_type: %d , vbus = %d.\n", info->hvdcp_type, swchgalg->vbus_mv);
 
 	if (mtk_pdc_check_charger(info) == false &&
 		mtk_is_TA_support_pd_pps(info) == false &&
@@ -1071,7 +1071,7 @@ static int mtk_dual_switch_charging_run(struct charger_manager *info)
 		mtk_pe20_check_charger(info);
 		if (mtk_pe20_get_is_connect(info) == false)
 			mtk_pe_check_charger(info);
-		pr_info("%s start check pe charger.\n", __func__);
+		pr_debug("%s start check pe charger.\n", __func__);
 	}
 
 	if (info->hvdcp_type == HVDCP_3) {
@@ -1091,7 +1091,7 @@ static int mtk_dual_switch_charging_run(struct charger_manager *info)
 
 			charger_dev_set_hvdcp_dpdm(info->chg2_dev);
 		}
-		pr_info("dpdm_status: %d . chg1 enabled: %d. \n", dpdm_status, chg1_enabled);
+		pr_debug("dpdm_status: %d . chg1 enabled: %d. \n", dpdm_status, chg1_enabled);
 	} else if (info->hvdcp_type == HVDCP) {
 		if (swchgalg->vbus_mv < HVDCP2P0_VOLATGE) {
 			/* Disable OVP */
@@ -1208,24 +1208,24 @@ int dual_charger_dev_event(struct notifier_block *nb, unsigned long event,
 	power_supply_get_property(swchgalg->charger_psy,
 			POWER_SUPPLY_PROP_ONLINE, &val);
 	charger_online = val.intval;
-	pr_info("%s: chg_online=%d.\n", charger_online);
+	pr_debug("%s: chg_online=%d.\n", charger_online);
 
 	switch (event) {
 	case CHARGER_DEV_NOTIFY_RECHG:
 		if(charger_online) {
 			charger_manager_notifier(info, CHARGER_NOTIFY_START_CHARGING);
-			pr_info("%s: recharge\n", __func__);
+			pr_debug("%s: recharge\n", __func__);
 		} else {
-			pr_info("%s: stop recharge\n", __func__);
+			pr_debug("%s: stop recharge\n", __func__);
 		}
 		break;
 	case CHARGER_DEV_NOTIFY_SAFETY_TIMEOUT:
 		info->safety_timeout = true;
-		pr_info("%s: safety timer timeout\n", __func__);
+		pr_debug("%s: safety timer timeout\n", __func__);
 		break;
 	case CHARGER_DEV_NOTIFY_VBUS_OVP:
 		info->vbusov_stat = data->vbusov_stat;
-		pr_info("%s: vbus ovp = %d\n", __func__, info->vbusov_stat);
+		pr_debug("%s: vbus ovp = %d\n", __func__, info->vbusov_stat);
 		break;
 	default:
 		return NOTIFY_DONE;
