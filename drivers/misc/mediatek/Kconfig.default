@@ -117,8 +117,6 @@ config ANDROID_DEFAULT_SETTING
 	select MAGIC_SYSRQ
 	select MD
 	select MEMBARRIER
-	select MEMCG
-	select MEMCG_SWAP
 	select MMU
 	select MODULES
 	select MODULE_UNLOAD
@@ -210,7 +208,6 @@ config ANDROID_DEFAULT_SETTING
 	select PREEMPT
 	select PROC_FS
 	select PROFILING
-	select PSI
 	select QFMT_V2
 	select QUOTA
 	select QUOTACTL
@@ -274,7 +271,6 @@ config MTK_ANDROID_DEFAULT_SETTING
 	select MTK_MIX_DEVICES
 	select NETFILTER_XT_MATCH_ESP
 	select PGTABLE_MAPPING if ZSMALLOC && (ARM || ARM64)
-	select PSI
 	select SPECULATIVE_PAGE_FAULT if (ARCH_SUPPORTS_SPECULATIVE_PAGE_FAULT && ARCH_HAS_PTE_SPECIAL && MMU && SMP)
 	help
 	  Select the MTK android config by default
