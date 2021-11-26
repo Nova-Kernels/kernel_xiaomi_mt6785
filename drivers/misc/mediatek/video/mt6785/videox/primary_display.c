@@ -8693,9 +8693,11 @@ int _set_lcm_cmd_by_cmdq(unsigned int *lcm_cmd, unsigned int *lcm_count,
 		mmprofile_log_ex(ddp_mmp_get_events()->primary_set_cmd,
 				 MMPROFILE_FLAG_PULSE, 1, 2);
 		cmdqRecReset(cmdq_handle_lcm_cmd);
+		_cmdq_insert_wait_frame_done_token_mira(cmdq_handle_lcm_cmd);
 		disp_lcm_set_lcm_cmd(pgc->plcm, cmdq_handle_lcm_cmd, lcm_cmd,
 				     lcm_count, lcm_value);
-		_cmdq_flush_config_handle_mira(cmdq_handle_lcm_cmd, 1);
+		/*Async flush by cmdq*/
+		_cmdq_flush_config_handle_mira(cmdq_handle_lcm_cmd, 0);
 		DISPCHECK("[CMD]%s ret=%d\n", __func__, ret);
 	} else {
 		mmprofile_log_ex(ddp_mmp_get_events()->primary_set_bl,
@@ -8757,8 +8759,8 @@ int primary_display_setlcm_cmd(unsigned int *lcm_cmd, unsigned int *lcm_count,
 	mmprofile_log_ex(ddp_mmp_get_events()->primary_set_cmd,
 			 MMPROFILE_FLAG_START, 0, 0);
 
-	_primary_path_switch_dst_lock();
-	_primary_path_lock(__func__);
+	_primary_path_switch_dst_unlock();
+	_primary_path_unlock(__func__);
 
 	if (pgc->state == DISP_SLEPT) {
 		DISPCHECK("Sleep State set backlight invalid\n");
