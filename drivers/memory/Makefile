@@ -17,7 +17,10 @@ obj-$(CONFIG_FSL_IFC)		+= fsl_ifc.o
 obj-$(CONFIG_MVEBU_DEVBUS)	+= mvebu-devbus.o
 obj-$(CONFIG_TEGRA20_MC)	+= tegra20-mc.o
 obj-$(CONFIG_JZ4780_NEMC)	+= jz4780-nemc.o
-obj-$(CONFIG_MTK_SMI)		+= mtk-smi.o mtk-smi-debug.o
+obj-$(CONFIG_MTK_SMI)		+= mtk-smi.o
+ifeq ($(CONFIG_MTK_SMI_DEBUG),y)
+obj-$(CONFIG_MTK_SMI)		+= mtk-smi-debug.o
+endif
 obj-$(CONFIG_DA8XX_DDRCTL)	+= da8xx-ddrctl.o
 
 obj-$(CONFIG_MEDIATEK_MC)	+= mediatek/
