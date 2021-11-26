@@ -22,6 +22,7 @@
 #include <linux/iommu.h>
 #include <linux/of_address.h>
 #include <linux/of_platform.h>
+#include <linux/pm_qos.h>
 #include <linux/pm_runtime.h>
 #include <linux/kthread.h>
 #include <linux/sched.h>
@@ -707,7 +708,19 @@ static void mtk_atomic_work(struct work_struct *work)
 	struct mtk_drm_private *private =
 		container_of(work, struct mtk_drm_private, commit.work);
 
+	struct pm_qos_request req = {
+		.type = PM_QOS_REQ_AFFINE_CORES,
+		.cpus_affine = ATOMIC_INIT(BIT(raw_smp_processor_id()))
+	};
+
+	/*
+	 * Optimistically assume the current task won't migrate to another CPU
+	 * and restrict the current CPU to shallow idle states so that it won't
+	 * take too long to resume after waiting for the prior commit to finish.
+	 */
+	pm_qos_add_request(&req, PM_QOS_CPU_DMA_LATENCY, 100);
 	mtk_atomic_complete(private, private->commit.state);
+	pm_qos_remove_request(&req);
 }
 
 static int mtk_atomic_check(struct drm_device *dev,
