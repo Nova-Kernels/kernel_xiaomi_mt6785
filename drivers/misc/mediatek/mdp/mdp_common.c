@@ -1080,6 +1080,7 @@ static s32 cmdq_mdp_copy_cmd_to_task(struct cmdqRecStruct *handle,
 	return cmdq_pkt_copy_cmd(handle, src, size, user_space);
 }
 
+#ifdef CONFIG_MTK_ENG_BUILD
 static void cmdq_mdp_store_debug(struct cmdqCommandStruct *desc,
 	struct cmdqRecStruct *handle)
 {
@@ -1106,6 +1107,7 @@ static void cmdq_mdp_store_debug(struct cmdqCommandStruct *desc,
 
 	CMDQ_MSG("user debug string:%s\n", handle->user_debug_str);
 }
+#endif
 
 #ifdef CMDQ_SECURE_PATH_SUPPORT
 #define CMDQ_ISP_MSG2(name) \
@@ -1525,8 +1527,9 @@ s32 cmdq_mdp_flush_async(struct cmdqCommandStruct *desc, bool user_space,
 
 	handle->engineFlag = desc->engineFlag & ~inorder_mask;
 	handle->pkt->priority = desc->priority;
+#ifdef CONFIG_MTK_ENG_BUILD
 	cmdq_mdp_store_debug(desc, handle);
-
+#endif
 	if (desc->engineFlag & inorder_mask)
 		handle->force_inorder = true;
 
