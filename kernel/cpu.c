@@ -1270,6 +1270,7 @@ int freeze_secondary_cpus(int primary)
 	for_each_online_cpu(cpu) {
 		if (cpu == primary)
 			continue;
+
 		trace_suspend_resume(TPS("CPU_OFF"), cpu, true);
 		error = _cpu_down(cpu, 1, CPUHP_OFFLINE);
 		trace_suspend_resume(TPS("CPU_OFF"), cpu, false);
@@ -1284,7 +1285,7 @@ int freeze_secondary_cpus(int primary)
 	if (!error)
 		BUG_ON(num_online_cpus() > 1);
 	else
-		pr_err("Non-boot CPUs are not disabled\n");
+		pr_debug("Non-boot CPUs are not disabled\n");
 
 	/*
 	 * Make sure the CPUs won't be enabled by someone else. We need to do
