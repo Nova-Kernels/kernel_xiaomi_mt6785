@@ -248,38 +248,6 @@ static void record_i2c_info(struct mt_i2c *i2c, int tmo)
 		i2c->rec_idx = 0;
 }
 
-static void dump_i2c_info(struct mt_i2c *i2c)
-{
-	int i;
-	int idx = i2c->rec_idx;
-	unsigned long long endtime;
-	unsigned long ns;
-
-	if (i2c->buffermode) /* no i2c history @ buffermode */
-		return;
-
-	dev_dbg(i2c->dev, "last transfer info:\n");
-
-	for (i = 0; i < I2C_RECORD_LEN; i++) {
-		if (idx == 0)
-			idx = I2C_RECORD_LEN;
-		idx--;
-		endtime = i2c->rec_info[idx].end_time;
-		ns = do_div(endtime, 1000000000);
-		dev_dbg(i2c->dev,
-			"[%02d] [%5lu.%06lu] SLAVE_ADDR=%x,INTR_STAT=%x,CONTROL=%x,FIFO_STAT=%x,DEBUGSTAT=%x, tmo=%d\n",
-			i,
-			(unsigned long)endtime,
-			ns/1000,
-			i2c->rec_info[idx].slave_addr,
-			i2c->rec_info[idx].intr_stat,
-			i2c->rec_info[idx].control,
-			i2c->rec_info[idx].fifo_stat,
-			i2c->rec_info[idx].debug_stat,
-			i2c->rec_info[idx].tmo
-		);
-	}
-}
 static int mt_i2c_clock_prepare(struct mt_i2c *i2c)
 {
 #if !defined(CONFIG_MT_I2C_FPGA_ENABLE)
@@ -431,7 +399,6 @@ static inline void mt_i2c_wait_done(struct mt_i2c *i2c, u16 ch_off)
 
 		if (start && !tmo) {
 			dev_dbg(i2c->dev, "wait transfer timeout.\n");
-			i2c_dump_info(i2c);
 		}
 	}
 }
@@ -623,213 +590,6 @@ static int i2c_set_speed(struct mt_i2c *i2c, unsigned int clk_src_in_hz)
 
 	return 0;
 }
-
-
-#ifdef I2C_DEBUG_FS
-void i2c_dump_info1(struct mt_i2c *i2c)
-{
-	if (i2c->ext_data.isEnable && i2c->ext_data.timing)
-		dev_dbg(i2c->dev, "I2C structure:\nspeed %d\n",
-			i2c->ext_data.timing);
-	else
-		dev_dbg(i2c->dev, "I2C structure:\nspeed %d\n",
-			i2c->speed_hz);
-	dev_dbg(i2c->dev, "I2C structure:\nOp %x\n", i2c->op);
-	dev_dbg(i2c->dev,
-		"I2C structure:\nData_size %x\nIrq_stat %x\nTrans_stop %d\n",
-		i2c->msg_len, i2c->irq_stat, i2c->trans_stop);
-	dev_dbg(i2c->dev, "base address %p\n", i2c->base);
-	dev_dbg(i2c->dev,
-		"I2C register:\nSLAVE_ADDR %x\nINTR_MASK %x\n",
-		(i2c_readw(i2c, OFFSET_SLAVE_ADDR)),
-		(i2c_readw(i2c, OFFSET_INTR_MASK)));
-	dev_dbg(i2c->dev,
-		"I2C register:\nINTR_STAT %x\nCONTROL %x\n",
-		(i2c_readw(i2c, OFFSET_INTR_STAT)),
-		(i2c_readw(i2c, OFFSET_CONTROL)));
-	dev_dbg(i2c->dev,
-		"I2C register:\nTRANSFER_LEN %x\nTRANSAC_LEN %x\n",
-		(i2c_readw(i2c, OFFSET_TRANSFER_LEN)),
-		(i2c_readw(i2c, OFFSET_TRANSAC_LEN)));
-	dev_dbg(i2c->dev,
-		"I2C register:\nDELAY_LEN %x\nTIMING %x\n",
-		(i2c_readw(i2c, OFFSET_DELAY_LEN)),
-		(i2c_readw(i2c, OFFSET_TIMING)));
-	dev_dbg(i2c->dev,
-		"I2C register:\nSTART %x\nFIFO_STAT %x\n",
-		(i2c_readw(i2c, OFFSET_START)),
-		(i2c_readw(i2c, OFFSET_FIFO_STAT)));
-	dev_dbg(i2c->dev,
-		"I2C register:\nIO_CONFIG %x\nHS %x\n",
-		(i2c_readw(i2c, OFFSET_IO_CONFIG)),
-		(i2c_readw(i2c, OFFSET_HS)));
-	dev_dbg(i2c->dev,
-		"I2C register:\nDEBUGSTAT %x\nEXT_CONF %x\nPATH_DIR %x\n",
-		(i2c_readw(i2c, OFFSET_DEBUGSTAT)),
-		(i2c_readw(i2c, OFFSET_EXT_CONF)),
-		(i2c_readw(i2c, OFFSET_PATH_DIR)));
-}
-
-void i2c_dump_info(struct mt_i2c *i2c)
-{
-	/* I2CFUC(); */
-	/* int val=0; */
-	pr_debug("%s: +++++++++++++++++++\n", __func__);
-	pr_debug("I2C structure:\n"
-	       I2CTAG "Clk=%ld,Id=%d,Op=0x%x,Irq_stat=0x%x,Total_len=0x%x\n"
-	       I2CTAG "Trans_len=0x%x,Trans_num=0x%x,Trans_auxlen=0x%x,\n"
-	       I2CTAG "speed=%d,Trans_stop=%u,cg_cnt=%d,hs_only=%d,\n"
-	       I2CTAG "ch_offset=0x%x,ch_offset_default=0x%x\n",
-	       i2c->main_clk, i2c->id, i2c->op, i2c->irq_stat, i2c->total_len,
-			i2c->msg_len, 1, i2c->msg_aux_len, i2c->speed_hz,
-			i2c->trans_stop, i2c->cg_cnt,
-			i2c->hs_only, i2c->ch_offset, i2c->ch_offset_default);
-
-	pr_debug("base addr:0x%p\n", i2c->base);
-	pr_debug("I2C register:\n"
-	       I2CTAG "SLAVE_ADDR=0x%x,INTR_MASK=0x%x,INTR_STAT=0x%x,\n"
-	       I2CTAG "CONTROL=0x%x,TRANSFER_LEN=0x%x,TRANSAC_LEN=0x%x,\n"
-	       I2CTAG "DELAY_LEN=0x%x,TIMING=0x%x,LTIMING=0x%x,START=0x%x\n"
-	       I2CTAG "FIFO_STAT=0x%x,IO_CONFIG=0x%x,HS=0x%x\n"
-	       I2CTAG "DCM_EN=0x%x,DEBUGSTAT=0x%x,EXT_CONF=0x%x\n"
-	       I2CTAG "TRANSFER_LEN_AUX=0x%x,OFFSET_DMA_FSM_DEBUG=0x%x\n"
-	       I2CTAG "OFFSET_MCU_INTR=0x%x\n",
-	       (i2c_readw(i2c, OFFSET_SLAVE_ADDR)),
-	       (i2c_readw(i2c, OFFSET_INTR_MASK)),
-	       (i2c_readw(i2c, OFFSET_INTR_STAT)),
-	       (i2c_readw(i2c, OFFSET_CONTROL)),
-	       (i2c_readw(i2c, OFFSET_TRANSFER_LEN)),
-	       (i2c_readw(i2c, OFFSET_TRANSAC_LEN)),
-	       (i2c_readw(i2c, OFFSET_DELAY_LEN)),
-	       (i2c_readw(i2c, OFFSET_TIMING)),
-	       (i2c_readw(i2c, OFFSET_LTIMING)),
-	       (i2c_readw(i2c, OFFSET_START)),
-	       (i2c_readw(i2c, OFFSET_FIFO_STAT)),
-	       (i2c_readw(i2c, OFFSET_IO_CONFIG)),
-	       (i2c_readw(i2c, OFFSET_HS)),
-	       (i2c_readw(i2c, OFFSET_DCM_EN)),
-	       (i2c_readw(i2c, OFFSET_DEBUGSTAT)),
-	       (i2c_readw(i2c, OFFSET_EXT_CONF)),
-	       (i2c_readw(i2c, OFFSET_TRANSFER_LEN_AUX)),
-	       (i2c_readw(i2c, OFFSET_DMA_FSM_DEBUG)),
-	       (i2c_readw(i2c, OFFSET_MCU_INTR)));
-
-	pr_debug("before enable DMA register(0x%lx):\n"
-	       I2CTAG "INT_FLAG=0x%x,INT_EN=0x%x,EN=0x%x,RST=0x%x,\n"
-	       I2CTAG "STOP=0x%x,FLUSH=0x%x,CON=0x%x,\n"
-	       I2CTAG "TX_MEM_ADDR=0x%x, RX_MEM_ADDR=0x%x\n"
-	       I2CTAG "TX_LEN=0x%x,RX_LEN=0x%x,INT_BUF_SIZE=0x%x,\n"
-	       I2CTAG "DEBUGSTA=0x%x,TX_MEM_ADDR2=0x%x, RX_MEM_ADDR2=0x%x\n",
-	       g_dma_regs[i2c->id].base,
-	       g_dma_regs[i2c->id].int_flag,
-	       g_dma_regs[i2c->id].int_en,
-	       g_dma_regs[i2c->id].en,
-	       g_dma_regs[i2c->id].rst,
-	       g_dma_regs[i2c->id].stop,
-	       g_dma_regs[i2c->id].flush,
-	       g_dma_regs[i2c->id].con,
-	       g_dma_regs[i2c->id].tx_mem_addr,
-	       g_dma_regs[i2c->id].rx_mem_addr,
-	       g_dma_regs[i2c->id].tx_len,
-	       g_dma_regs[i2c->id].rx_len,
-	       g_dma_regs[i2c->id].int_buf_size, g_dma_regs[i2c->id].debug_sta,
-	       g_dma_regs[i2c->id].tx_mem_addr2,
-	       g_dma_regs[i2c->id].rx_mem_addr2);
-	pr_debug("DMA register(0x%p):\n"
-	       I2CTAG "INT_FLAG=0x%x,INT_EN=0x%x,EN=0x%x,RST=0x%x,\n"
-	       I2CTAG "STOP=0x%x,FLUSH=0x%x,CON=0x%x,\n"
-	       I2CTAG "TX_MEM_ADDR=0x%x, RX_MEM_ADDR=0x%x,\n"
-	       I2CTAG "TX_LEN=0x%x,RX_LEN=x%x,INT_BUF_SIZE=0x%x,\n"
-	       I2CTAG "DEBUGSTA=0x%x,TX_MEM_ADDR2=0x%x, RX_MEM_ADDR2=0x%x\n",
-	       i2c->pdmabase,
-	       (i2c_readl_dma(i2c, OFFSET_INT_FLAG)),
-	       (i2c_readl_dma(i2c, OFFSET_INT_EN)),
-	       (i2c_readl_dma(i2c, OFFSET_EN)),
-	       (i2c_readl_dma(i2c, OFFSET_RST)),
-	       (i2c_readl_dma(i2c, OFFSET_STOP)),
-	       (i2c_readl_dma(i2c, OFFSET_FLUSH)),
-	       (i2c_readl_dma(i2c, OFFSET_CON)),
-	       (i2c_readl_dma(i2c, OFFSET_TX_MEM_ADDR)),
-	       (i2c_readl_dma(i2c, OFFSET_RX_MEM_ADDR)),
-	       (i2c_readl_dma(i2c, OFFSET_TX_LEN)),
-	       (i2c_readl_dma(i2c, OFFSET_RX_LEN)),
-	       (i2c_readl_dma(i2c, OFFSET_INT_BUF_SIZE)),
-	       (i2c_readl_dma(i2c, OFFSET_DEBUG_STA)),
-	       (i2c_readl_dma(i2c, OFFSET_TX_MEM_ADDR2)),
-	       (i2c_readl_dma(i2c, OFFSET_RX_MEM_ADDR2)));
-	pr_debug("%s: -----------------------\n", __func__);
-
-	dump_i2c_info(i2c);
-	if (i2c->ccu_offset) {
-		dev_dbg(i2c->dev, "I2C CCU register:\n"
-		I2CTAG "SLAVE_ADDR=0x%x,INTR_MASK=0x%x,\n"
-		I2CTAG "INTR_STAT=0x%x,CONTROL=0x%x,\n"
-		I2CTAG "TRANSFER_LEN=0x%x, TRANSAC_LEN=0x%x,DELAY_LEN=0x%x\n"
-		I2CTAG "TIMING=0x%x,LTIMING=0x%x,START=0x%x,FIFO_STAT=0x%x,\n"
-		I2CTAG "IO_CONFIG=0x%x,HS=0x%x,DCM_EN=0x%x,DEBUGSTAT=0x%x,\n"
-		I2CTAG "EXT_CONF=0x%x,TRANSFER_LEN_AUX=0x%x\n"
-		I2CTAG "OFFSET_DMA_FSM_DEBUG=0x%x,OFFSET_MCU_INTR=0x%x\n",
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_SLAVE_ADDR)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_INTR_MASK)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_INTR_STAT)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_CONTROL)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_TRANSFER_LEN)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_TRANSAC_LEN)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_DELAY_LEN)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_TIMING)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_LTIMING)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_START)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_FIFO_STAT)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_IO_CONFIG)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_HS)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_DCM_EN)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_DEBUGSTAT)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_EXT_CONF)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_TRANSFER_LEN_AUX)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_DMA_FSM_DEBUG)),
-		(raw_i2c_readw(i2c, i2c->ccu_offset, OFFSET_MCU_INTR)));
-	}
-}
-#else
-void i2c_dump_info(struct mt_i2c *i2c)
-{
-}
-#endif
-
-void i2c_gpio_dump_info(struct mt_i2c *i2c)
-{
-#ifndef CONFIG_MT_I2C_FPGA_ENABLE
-	if (i2c->gpiobase) {
-		dev_dbg(i2c->dev, "%s +++++++++++++++++++\n", __func__);
-		//gpio_dump_regs_range(i2c->scl_gpio_id, i2c->sda_gpio_id);
-		dev_dbg(i2c->dev, "I2C gpio structure:\n"
-		       I2CTAG "EH_CFG=0x%x,PU_CFG=0x%x,RSEL_CFG=0x%x\n",
-		       readl(i2c->gpiobase + i2c->offset_eh_cfg),
-		       readl(i2c->gpiobase + i2c->offset_pu_cfg),
-		       readl(i2c->gpiobase + i2c->offset_rsel_cfg));
-	} else
-		dev_dbg(i2c->dev, "i2c gpiobase is NULL\n");
-#endif
-}
-
-void dump_i2c_status(int id)
-{
-	if (id >= I2C_MAX_CHANNEL) {
-		pr_err("error %s, id = %d\n", __func__, id);
-		return;
-	}
-
-	if (!g_mt_i2c[id]) {
-		pr_err("error %s, g_mt_i2c[%d] == NULL\n", __func__, id);
-		return;
-	}
-
-	dump_cg_regs(g_mt_i2c[id]);
-	(void)mt_i2c_clock_enable(g_mt_i2c[id]);
-	i2c_dump_info(g_mt_i2c[id]);
-	mt_i2c_clock_disable(g_mt_i2c[id]);
-}
-EXPORT_SYMBOL(dump_i2c_status);
 
 static int mt_i2c_do_transfer(struct mt_i2c *i2c)
 {
@@ -1140,8 +900,6 @@ static int mt_i2c_do_transfer(struct mt_i2c *i2c)
 			"timeout:start=0x%x,ch_err=0x%x\n",
 			start_reg, i2c_readw(i2c, OFFSET_ERROR));
 
-		i2c_dump_info(i2c);
-		i2c_gpio_dump_info(i2c);
 		#if defined(CONFIG_MTK_GIC_EXT)
 		mt_irq_dump_status(i2c->irqnr);
 		#endif
@@ -1179,14 +937,6 @@ static int mt_i2c_do_transfer(struct mt_i2c *i2c)
 		/* clear fifo addr:bit2,multi-chn;bit0,normal */
 		i2c_writew(I2C_FIFO_ADDR_CLR_MCH | I2C_FIFO_ADDR_CLR,
 			i2c, OFFSET_FIFO_ADDR_CLR);
-
-		if (i2c->ext_data.isEnable ==  false ||
-			i2c->ext_data.isFilterMsg == false) {
-			i2c_dump_info(i2c);
-			i2c_gpio_dump_info(i2c);
-		} else
-			dev_dbg(i2c->dev, "addr:0x%x,ext_data skip more log\n",
-				i2c->addr);
 
 		if ((i2c->irq_stat & (I2C_HS_NACKERR | I2C_ACKERR)))
 			dev_err(i2c->dev, "addr:0x%x,ACK error\n", i2c->addr);
@@ -1608,7 +1358,6 @@ static irqreturn_t mt_i2c_irq(int irqno, void *dev_id)
 		if (i2c->irq_stat & (I2C_HS_NACKERR | I2C_ACKERR)) {
 			dev_err(i2c->dev, "addr:0x%x,irq_stat:0x%x,transfer ACK error\n",
 				i2c->addr, i2c->irq_stat);
-			i2c_dump_info(i2c);
 			mt_i2c_init_hw(i2c);
 		} else {
 			dev_dbg(i2c->dev, "addr:0x%x, other irq_stat:0x%x\n",
