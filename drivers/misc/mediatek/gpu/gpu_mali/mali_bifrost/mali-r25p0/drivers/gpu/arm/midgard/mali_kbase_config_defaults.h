@@ -99,29 +99,38 @@ enum {
 };
 
 /**
- * Default period for DVFS sampling
+ * Default period for DVFS sampling (can be overridden by platform header)
  */
+#ifndef DEFAULT_PM_DVFS_PERIOD
 #define DEFAULT_PM_DVFS_PERIOD 100 /* 100ms */
+#endif
 
 /**
  * Power Management poweroff tick granuality. This is in nanoseconds to
- * allow HR timer support.
+ * allow HR timer support (can be overridden by platform header).
  *
  * On each scheduling tick, the power manager core may decide to:
  * -# Power off one or more shader cores
  * -# Power off the entire GPU
  */
+#ifndef DEFAULT_PM_GPU_POWEROFF_TICK_NS
 #define DEFAULT_PM_GPU_POWEROFF_TICK_NS (400000) /* 400us */
+#endif
 
 /**
  * Power Manager number of ticks before shader cores are powered off
+ * (can be overridden by platform header).
  */
+#ifndef DEFAULT_PM_POWEROFF_TICK_SHADER
 #define DEFAULT_PM_POWEROFF_TICK_SHADER (2) /* 400-800us */
+#endif
 
 /**
- * Default scheduling tick granuality
+ * Default scheduling tick granuality (can be overridden by platform header)
  */
+#ifndef DEFAULT_JS_SCHEDULING_PERIOD_NS
 #define DEFAULT_JS_SCHEDULING_PERIOD_NS    (100000000u) /* 100ms */
+#endif
 
 /**
  * Default minimum number of scheduling ticks before jobs are soft-stopped.
