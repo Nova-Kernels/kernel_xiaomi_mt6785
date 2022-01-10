@@ -169,7 +169,6 @@ int freeze_kernel_threads(void)
 {
 	int error;
 
-
 	pm_nosig_freezing = true;
 	error = try_to_freeze_tasks(false);
 
@@ -212,7 +211,6 @@ void thaw_processes(void)
 	pm_nosig_freezing = false;
 
 	oom_killer_enable();
-
 
 	__usermodehelper_set_disable_depth(UMH_FREEZING);
 	thaw_workqueues();
