@@ -6318,7 +6318,7 @@ static int mtk_dsi_probe(struct platform_device *pdev)
 	irq_set_status_flags(irq_num, IRQ_TYPE_LEVEL_HIGH);
 	ret = devm_request_irq(
 		&pdev->dev, irq_num, dsi->driver_data->irq_handler,
-		IRQF_TRIGGER_NONE | IRQF_SHARED, dev_name(&pdev->dev), dsi);
+		IRQF_TRIGGER_NONE | IRQF_SHARED | IRQF_PERF_AFFINE, dev_name(&pdev->dev), dsi);
 	if (ret) {
 		DDPAEE("%s:%d, failed to request irq:%d ret:%d\n",
 				__func__, __LINE__,
