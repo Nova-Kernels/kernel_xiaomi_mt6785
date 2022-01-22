@@ -975,6 +975,9 @@ static int kbase_pm_shaders_update_state(struct kbase_device *kbdev)
 					backend->shaders_desired_mask;
 				kbase_pm_invoke(kbdev, KBASE_PM_CORE_SHADER,
 						backend->shaders_avail, ACTION_PWRON);
+				if (backend->pm_current_policy->handle_event)
+					backend->pm_current_policy->handle_event(kbdev,
+						KBASE_PM_POLICY_EVENT_POWER_ON);
 
 				backend->shaders_state = KBASE_SHADERS_PEND_ON_CORESTACK_ON;
 			}
@@ -1018,6 +1021,12 @@ static int kbase_pm_shaders_update_state(struct kbase_device *kbdev)
 				/* Wait for being disabled */
 				;
 			} else if (!backend->shaders_desired) {
+			        if (backend->pm_current_policy &&
+				    backend->pm_current_policy->handle_event)
+					backend->pm_current_policy->handle_event(
+						kbdev,
+						KBASE_PM_POLICY_EVENT_IDLE);
+
 				if (kbdev->pm.backend.protected_transition_override ||
 #ifdef CONFIG_MALI_ARBITER_SUPPORT
 						kbase_pm_is_suspending(kbdev) ||
@@ -1078,9 +1087,17 @@ static int kbase_pm_shaders_update_state(struct kbase_device *kbdev)
 			}
 
 			if (backend->shaders_desired) {
+			        if (backend->pm_current_policy->handle_event)
+					backend->pm_current_policy->handle_event(kbdev,
+						KBASE_PM_POLICY_EVENT_TIMER_HIT);
+
 				stt->remaining_ticks = 0;
 				backend->shaders_state = KBASE_SHADERS_ON_CORESTACK_ON_RECHECK;
 			} else if (stt->remaining_ticks == 0) {
+			        if (backend->pm_current_policy->handle_event)
+					backend->pm_current_policy->handle_event(kbdev,
+						KBASE_PM_POLICY_EVENT_TIMER_MISS);
+
 				backend->shaders_state = KBASE_SHADERS_WAIT_FINISHED_CORESTACK_ON;
 #ifdef CONFIG_MALI_ARBITER_SUPPORT
 			} else if (kbase_pm_is_suspending(kbdev) ||
@@ -1363,7 +1380,8 @@ int kbase_pm_state_machine_init(struct kbase_device *kbdev)
 	hrtimer_init(&stt->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	stt->timer.function = shader_tick_timer_callback;
 	stt->configured_interval = HR_TIMER_DELAY_NSEC(DEFAULT_PM_GPU_POWEROFF_TICK_NS);
-	stt->configured_ticks = DEFAULT_PM_POWEROFF_TICK_SHADER;
+	stt->default_ticks = DEFAULT_PM_POWEROFF_TICK_SHADER;
+	stt->configured_ticks = stt->default_ticks;
 
 	return 0;
 }

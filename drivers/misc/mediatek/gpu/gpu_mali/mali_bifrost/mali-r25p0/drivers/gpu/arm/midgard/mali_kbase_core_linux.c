@@ -2917,7 +2917,8 @@ static ssize_t set_pm_poweroff(struct device *dev,
 
 	stt = &kbdev->pm.backend.shader_tick_timer;
 	stt->configured_interval = HR_TIMER_DELAY_NSEC(gpu_poweroff_time);
-	stt->configured_ticks = poweroff_shader_ticks;
+	stt->default_ticks = poweroff_shader_ticks;
+	stt->configured_ticks = stt->default_ticks;
 
 	spin_unlock_irqrestore(&kbdev->hwaccess_lock, flags);
 
@@ -2955,7 +2956,7 @@ static ssize_t show_pm_poweroff(struct device *dev,
 	stt = &kbdev->pm.backend.shader_tick_timer;
 	ret = scnprintf(buf, PAGE_SIZE, "%llu %u 0\n",
 			ktime_to_ns(stt->configured_interval),
-			stt->configured_ticks);
+			stt->default_ticks);
 
 	spin_unlock_irqrestore(&kbdev->hwaccess_lock, flags);
 
