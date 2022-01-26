@@ -75,3 +75,4 @@ obj-y += misc/
 endif
 
 obj-$(CONFIG_THUNDERCHARGE_CONTROL) += thundercharge_control.o
+obj-$(CONFIG_FORCE_FAST_CHARGE)     += fastchg.o

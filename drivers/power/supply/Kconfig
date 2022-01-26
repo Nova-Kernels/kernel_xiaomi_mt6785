@@ -34,6 +34,13 @@ config THUNDERCHARGE_CONTROL
      help
        Say Y here to enable ability to adjust charger current.
 
+config FORCE_FAST_CHARGE
+	bool "Force AC charge mode at will"
+	default y
+	help
+	  A simple sysfs interface to force adapters that
+	  are detected as USB to charge as AC.
+
 config GENERIC_ADC_BATTERY
 	tristate "Generic battery support using IIO"
 	depends on IIO

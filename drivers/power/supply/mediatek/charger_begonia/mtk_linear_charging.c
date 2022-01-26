@@ -24,6 +24,10 @@
 #include <linux/thundercharge_control.h>
 #endif
 
+#ifdef CONFIG_FORCE_FAST_CHARGE
+#include <linux/fastchg.h>
+#endif
+
 #include "mtk_charger_intf.h"
 #include "mtk_linear_charging.h"
 
@@ -58,28 +62,39 @@ linear_chg_select_charging_current_limit(struct charger_manager *info)
                 if (mswitch) {
                         pdata->charging_current_limit =
                                         custom_usb_current;
+#endif
+
+#if !defined(CONFIG_THUNDERCHARGE_CONTROL) && defined(CONFIG_FORCE_FAST_CHARGE)
+                if (force_fast_charge) {
+                        pdata->charging_current_limit = 900000;
+#elif defined(CONFIG_THUNDERCHARGE_CONTROL) && defined(CONFIG_FORCE_FAST_CHARGE)
+                } else if (force_fast_charge) {
+                        pdata->charging_current_limit = 900000;
+#endif
+
+#if defined(CONFIG_THUNDERCHARGE_CONTROL) || defined(CONFIG_FORCE_FAST_CHARGE)
                 } else {
 #endif
-			if (IS_ENABLED(CONFIG_USBIF_COMPLIANCE)) {
-				if (info->usb_state == USB_SUSPEND)
-					pdata->charging_current_limit =
-						info->data.usb_charger_current_suspend;
-				else if (info->usb_state == USB_UNCONFIGURED)
-					pdata->charging_current_limit =
-					info->data.usb_charger_current_unconfigured;
-				else if (info->usb_state == USB_CONFIGURED)
-					pdata->charging_current_limit =
-					info->data.usb_charger_current_configured;
-				else
-					pdata->charging_current_limit =
-					info->data.usb_charger_current_unconfigured;
-			} else {
-				/* it can be larger */
-				pdata->charging_current_limit =
-						info->data.usb_charger_current;
-			}
-#ifdef CONFIG_THUNDERCHARGE_CONTROL
-		}
+                        if (IS_ENABLED(CONFIG_USBIF_COMPLIANCE)) {
+                                if (info->usb_state == USB_SUSPEND)
+                                        pdata->charging_current_limit =
+                                                info->data.usb_charger_current_suspend;
+                                else if (info->usb_state == USB_UNCONFIGURED)
+                                        pdata->charging_current_limit =
+                                        info->data.usb_charger_current_unconfigured;
+                                else if (info->usb_state == USB_CONFIGURED)
+                                        pdata->charging_current_limit =
+                                        info->data.usb_charger_current_configured;
+                                else
+                                        pdata->charging_current_limit =
+                                        info->data.usb_charger_current_unconfigured;
+                        } else {
+                                /* it can be larger */
+                                pdata->charging_current_limit =
+                                                        info->data.usb_charger_current;
+                        }
+#if defined(CONFIG_THUNDERCHARGE_CONTROL) || defined(CONFIG_FORCE_FAST_CHARGE)
+                }
 #endif
 	} else if (info->chr_type == NONSTANDARD_CHARGER) {
 #ifdef CONFIG_THUNDERCHARGE_CONTROL
