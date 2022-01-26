@@ -74,3 +74,4 @@ ifneq ($(CONFIG_MTK_GAUGE_VERSION),10)
 obj-y += misc/
 endif
 
+obj-$(CONFIG_THUNDERCHARGE_CONTROL) += thundercharge_control.o
