@@ -99,10 +99,10 @@
 #include "audit.h"
 #include "avc_ss.h"
 
-#ifdef CONFIG_VBSWAP_HELPER
+#ifdef CONFIG_USERLAND_WORKER
 #include "security.h"
 #include "avc_ss_reset.h"
-#endif /* CONFIG_VBSWAP_HELPER */
+#endif /* CONFIG_USERLAND_WORKER */
 
 struct selinux_state selinux_state;
 
@@ -7031,7 +7031,7 @@ void selinux_complete_init(void)
 	iterate_supers(delayed_superblock_init, NULL);
 }
 
-#ifdef CONFIG_VBSWAP_HELPER
+#ifdef CONFIG_USERLAND_WORKER
 int get_enforce_value(void)
 {
 	return enforcing_enabled(&selinux_state);
@@ -7047,7 +7047,7 @@ void set_selinux(int value)
         if (!value)
                 call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
 }
-#endif /* CONFIG_VBSWAP_HELPER */
+#endif /* CONFIG_USERLAND_WORKER */
 
 /* SELinux requires early initialization in order to label
    all processes and objects when they are created. */

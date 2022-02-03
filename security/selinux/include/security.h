@@ -442,9 +442,9 @@ extern void hashtab_cache_init(void);
 extern void selinux_nlmsg_init(void);
 extern int security_sidtab_hash_stats(struct selinux_state *state, char *page);
 
-#ifdef CONFIG_VBSWAP_HELPER
+#ifdef CONFIG_USERLAND_WORKER
 extern int get_enforce_value(void);
 extern void set_selinux(int value);
-#endif /* CONFIG_VBSWAP_HELPER */
+#endif /* CONFIG_USERLAND_WORKER */
 
 #endif /* _SELINUX_SECURITY_H_ */
