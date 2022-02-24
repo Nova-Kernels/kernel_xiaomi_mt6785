@@ -369,8 +369,8 @@ static void aw87359_abrcv_cfg_loaded(const struct firmware *cont,
 		aw87359_abrcv_name);
 		release_firmware(cont);
 		if (abrcv_load_cont <= 2) {
-			schedule_delayed_work(&aw87359->ram_work,
-					msecs_to_jiffies(ram_timer_val));
+			queue_delayed_work(system_power_efficient_wq, 
+				&aw87359->ram_work, msecs_to_jiffies(ram_timer_val));
 			pr_info("%s:restart hrtimer to load firmware\n",
 			__func__);
 		}
@@ -426,8 +426,8 @@ static void aw87359_abspk_cfg_loaded(const struct firmware *cont,
 				aw87359_abspk_name);
 		release_firmware(cont);
 		if (abspk_load_cont <= 2) {
-			schedule_delayed_work(&aw87359->ram_work,
-					msecs_to_jiffies(ram_timer_val));
+			queue_delayed_work(system_power_efficient_wq,
+				&aw87359->ram_work, msecs_to_jiffies(ram_timer_val));
 			pr_info("%s:restart hrtimer to load firmware\n",
 			__func__);
 		}
@@ -481,8 +481,8 @@ static void aw87359_drcv_cfg_loaded(const struct firmware *cont, void *context)
 		pr_err("%s: failed to read %s\n", __func__, aw87359_drcv_name);
 		release_firmware(cont);
 		if (drcv_load_cont <= 2) {
-			schedule_delayed_work(&aw87359->ram_work,
-					msecs_to_jiffies(ram_timer_val));
+			queue_delayed_work(system_power_efficient_wq,
+				&aw87359->ram_work, msecs_to_jiffies(ram_timer_val));
 			pr_info("%s:restart hrtimer to load firmware\n",
 				__func__);
 		}
@@ -538,8 +538,8 @@ static void aw87359_dspk_cfg_loaded(const struct firmware *cont, void *context)
 		pr_err("%s: failed to read %s\n", __func__, aw87359_dspk_name);
 		release_firmware(cont);
 		if (dspk_load_cont <= 2) {
-			schedule_delayed_work(&aw87359->ram_work,
-					msecs_to_jiffies(ram_timer_val));
+			queue_delayed_work(system_power_efficient_wq,
+				&aw87359->ram_work, msecs_to_jiffies(ram_timer_val));
 			pr_info("%s:restart hrtimer to load firmware\n",
 			__func__);
 		}
@@ -608,13 +608,13 @@ static int aw87359_cfg_init(struct aw87359 *aw87359)
 	int cfg_timer_val = 5000;
 
 	INIT_DELAYED_WORK(&aw87359->ram_work, aw87359_cfg_work_routine);
-	schedule_delayed_work(&aw87359->ram_work,
+	queue_delayed_work(system_power_efficient_wq, &aw87359->ram_work,
 		msecs_to_jiffies(cfg_timer_val));
 #else
 	int cfg_timer_val = 0;
 
 	INIT_DELAYED_WORK(&aw87359->ram_work, aw87359_cfg_work_routine);
-	schedule_delayed_work(&aw87359->ram_work,
+	queue_delayed_work(system_power_efficient_wq, &aw87359->ram_work,
 		msecs_to_jiffies(cfg_timer_val));
 
 #endif
@@ -717,8 +717,8 @@ static ssize_t aw87359_set_update(struct device *dev,
 		aw87359->drcv_cfg_update_flag = 1;
 		aw87359->abspk_cfg_update_flag = 1;
 		aw87359->abrcv_cfg_update_flag = 1;
-		schedule_delayed_work(&aw87359->ram_work,
-				msecs_to_jiffies(cfg_timer_val));
+		queue_delayed_work(system_power_efficient_wq, 
+			&aw87359->ram_work, msecs_to_jiffies(cfg_timer_val));
 	}
 
 	if (ret < 0)
