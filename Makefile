@@ -1,3 +1,4 @@
+
 # SPDX-License-Identifier: GPL-2.0
 VERSION = 4
 PATCHLEVEL = 14
@@ -815,7 +816,11 @@ endif
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
 
 ifeq ($(ld-name),lld)
+ifdef CONFIG_LTO_CLANG
+LDFLAGS += --lto-O3
+else
 LDFLAGS += -O3
+endif
 endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
