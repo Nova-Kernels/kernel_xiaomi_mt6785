@@ -60,10 +60,30 @@ static bool check_flag(char *cmd, const char *flag, const char *val)
 	return ret;
 }
 
+static void remove_flag(char *cmd, const char *flag)
+{
+	char *start_addr, *end_addr;
+
+	while ((start_addr = strstr(cmd, flag))) {
+		end_addr = strchr(start_addr, ' ');
+		if (end_addr)
+			memmove(start_addr, end_addr + 1, strlen(end_addr));
+		else
+			*(start_addr - 1) = '\0';
+	}
+}
+
 static void patch_begonia_cmdline(char *cmdline)
 {
-	if(!check_flag(cmdline, "androidboot.hwc=", "India"))
+	if(!check_flag(cmdline, "androidboot.hwc=", "India")) {
 		append_cmdline(cmdline, "androidboot.product.hardware.sku=begonia");
+	}
+
+	// Thank you Xiaomi, very cool
+	if(check_flag(cmdline, "androidboot.selinux=", "permissive")) {
+		remove_flag(cmdline, "androidboot.selinux=");
+		append_cmdline(cmdline, "androidboot.selinux=enforcing");
+	}
 }
 #endif
 
