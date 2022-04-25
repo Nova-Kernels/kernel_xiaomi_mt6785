@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  */
 
-#define DEBUG 1
+#define DEBUG 0
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
