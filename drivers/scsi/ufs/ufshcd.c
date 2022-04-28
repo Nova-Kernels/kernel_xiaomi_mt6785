@@ -1834,7 +1834,6 @@ unblock_reqs:
 int ufshcd_hold(struct ufs_hba *hba, bool async)
 {
 	int rc = 0;
-	bool flush_result;
 	unsigned long flags;
 	bool wq;
 	u64 s_time;
@@ -9213,8 +9212,8 @@ static int ufshcd_resume(struct ufs_hba *hba, enum ufs_pm_op pm_op)
 	int retry = 3;
 
 	/* MTK PATCH: Lock deepidle/SODI @enter UFS resume callback */
-	ufshcd_vops_deepidle_lock(hba, true);
 	enum ufs_dev_pwr_mode old_pwr_mode;
+	ufshcd_vops_deepidle_lock(hba, true);
 
 	hba->pm_op_in_progress = 1;
 	old_link_state = hba->uic_link_state;
