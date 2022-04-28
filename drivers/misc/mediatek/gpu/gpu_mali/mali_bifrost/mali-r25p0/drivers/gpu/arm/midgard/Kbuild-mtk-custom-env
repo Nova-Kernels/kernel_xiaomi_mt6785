@@ -1,4 +1,6 @@
+ifeq ($(CONFIG_MALI_BUILD_INFO),y)
 $(info mali MTK evironment, building r25p0 DDK)
+endif
 
 MTK_TOP = $(srctree)/drivers/misc/mediatek/
 
@@ -9,8 +11,10 @@ CONFIG_MALI_MIDGARD := y
 CONFIG_MALI_PLATFORM_THIRDPARTY := y
 CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := $(CONFIG_MTK_PLATFORM)
 
+ifeq ($(CONFIG_MALI_BUILD_INFO),y)
 $(info mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY := $(CONFIG_MALI_PLATFORM_THIRDPARTY))
 $(info mtk-Kbuild CONFIG_MALI_PLATFORM_THIRDPARTY_NAME := $(CONFIG_MALI_PLATFORM_THIRDPARTY_NAME))
+endif
 
 CONFIG_MALI_DEBUG := n
 
@@ -32,10 +36,14 @@ ccflags-$(CONFIG_MTK_GPU_COMMON_DVFS_SUPPORT) += -DENABLE_COMMON_DVFS
 
 ifneq (, $(findstring $(CONFIG_MTK_PLATFORM), "mt6785"))
 ccflags-y += -DMTK_GPU_BM_2
+ifeq ($(CONFIG_MALI_BUILD_INFO),y)
 $(info *GPU defined GPU BM QoS 2.0)
+endif
 endif
 
 ifneq (, $(findstring $(CONFIG_MTK_PLATFORM), "mt6771"))
 ccflags-y += -DENABLE_MTK_DEBUG
+ifeq ($(CONFIG_MALI_BUILD_INFO),y)
 $(info *GPU defined ENABLE_MTK_DEBUG)
+endif
 endif
