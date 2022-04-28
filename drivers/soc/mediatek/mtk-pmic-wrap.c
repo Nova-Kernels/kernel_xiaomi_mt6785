@@ -3245,21 +3245,6 @@ int pwrap_thread_kthread(void *x)
 	return 0;
 }
 
-static void pwrap_irq_thread_init(void)
-{
-	pwrap_init_wake_lock(&pwrapThread_lock, "pwrapThread_lock wakelock");
-
-	/* create pwrap irq thread handler*/
-	pwrap_thread_handle = kthread_create(pwrap_thread_kthread,
-					    (void *)NULL, "pwrap_thread");
-	if (IS_ERR(pwrap_thread_handle)) {
-		pwrap_thread_handle = NULL;
-		dev_notice(wrp->dev, "[PWRAP] kthread_create fails\n");
-	} else {
-		dev_notice(wrp->dev, "[PWRAP] kthread_create done\n");
-	}
-}
-
 static int pwrap_mt8168_init_soc_specific(struct pmic_wrapper *wrp)
 {
 	pwrap_writel(wrp, 0x3, PWRAP_TIMER_EN);
