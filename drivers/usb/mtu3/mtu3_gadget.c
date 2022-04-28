@@ -672,7 +672,6 @@ static int mtu3_gadget_start(struct usb_gadget *gadget,
 static void stop_activity(struct mtu3 *mtu)
 {
 	struct usb_gadget_driver *driver = mtu->gadget_driver;
-	int i;
 
 	dev_info(mtu->dev, "%s\n", __func__);
 
