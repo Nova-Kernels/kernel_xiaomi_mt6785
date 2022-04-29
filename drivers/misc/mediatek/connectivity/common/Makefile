@@ -113,10 +113,14 @@ endif
 ###############################################################################
 MODULE_NAME := wmt_drv
 ifeq ($(CONFIG_WLAN_DRV_BUILD_IN),y)
+ifeq ($(WLAN_BUILD_INFO),y)
 $(warning $(MODULE_NAME) build-in boot.img)
+endif
 obj-y += $(MODULE_NAME).o
 else
+ifeq ($(WLAN_BUILD_INFO),y)
 $(warning $(MODULE_NAME) is kernel module)
+endif
 obj-m += $(MODULE_NAME).o
 endif
 

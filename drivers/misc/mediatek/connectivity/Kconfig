@@ -447,3 +447,12 @@ config WLAN_DRV_BUILD_IN
 	  This will build the wlan driver and the corresponding componenets
 	  into the kernel.
 	  If unsure say n
+
+
+config WLAN_BUILD_INFO
+	bool "Print information during build process"
+	default n
+	help
+	  This will print out all the info during building.
+	  Not needed for user builds
+	  If unsure say y
