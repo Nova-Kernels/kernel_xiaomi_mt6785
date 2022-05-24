@@ -207,7 +207,7 @@ void BridgeDispatchTableStartOffsetsInit(void)
 #if defined(DEBUG_BRIDGE_KM)
 
 #if defined(INTEGRITY_OS)
-PVRSRV_ERROR PVRSRVPrintBridgeStats()
+PVRSRV_ERROR PVRSRVPrintBridgeStats(void)
 {
 	IMG_UINT32 ui32Index;
 	IMG_UINT32 ui32Remainder;

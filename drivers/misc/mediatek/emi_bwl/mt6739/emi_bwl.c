@@ -501,7 +501,7 @@ void __iomem *mt_emi_base_get(void)
 }
 EXPORT_SYMBOL(mt_emi_base_get);
 
-void __iomem *mt_chn_emi_base_get()
+void __iomem *mt_chn_emi_base_get(void)
 {
 	return CHA_EMI_BASE;
 }
