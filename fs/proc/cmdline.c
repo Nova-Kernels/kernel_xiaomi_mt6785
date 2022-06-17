@@ -80,9 +80,11 @@ static void patch_begonia_cmdline(char *cmdline)
 	}
 
 	// Thank you Xiaomi, very cool
-	if(check_flag(cmdline, "androidboot.selinux=", "permissive")) {
-		remove_flag(cmdline, "androidboot.selinux=");
-		append_cmdline(cmdline, "androidboot.selinux=enforcing");
+	if(check_flag(cmdline, "androidboot.forceenforcing=", "y")) {
+		if(check_flag(cmdline, "androidboot.selinux=", "permissive")) {
+			remove_flag(cmdline, "androidboot.selinux=");
+			append_cmdline(cmdline, "androidboot.selinux=enforcing");
+		}
 	}
 }
 #endif
