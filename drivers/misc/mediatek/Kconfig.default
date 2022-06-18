@@ -272,8 +272,6 @@ config MTK_ANDROID_DEFAULT_SETTING
 	bool "Select MTK android common setting by default"
 	select HW_RANDOM
 	select HW_RANDOM_MT67XX
-	select MTK_AEE_AED
-	select MTK_AEE_IPANIC if MTK_RAM_CONSOLE
 	select MTK_MIX_DEVICES
 	select NETFILTER_XT_MATCH_ESP
 	select PGTABLE_MAPPING if ZSMALLOC && (ARM || ARM64)
