@@ -348,6 +348,7 @@ static void vpu_err_msg(int core, const char *msg)
 		opp_keep_flag);
 }
 
+#if defined(CONFIG_MTK_AEE_FEATURE)
 #define vpu_err_hnd(hw_fail, core, req, key, fmt, args...) \
 	do { \
 		pr_debug(fmt, ##args); \
@@ -359,6 +360,19 @@ static void vpu_err_msg(int core, const char *msg)
 			"\nCRDISPATCH_KEY:" key "\n" fmt, ##args); \
 		} \
 	} while (0)
+#else
+#define vpu_err_hnd(hw_fail, core, req, key, fmt, args...) \
+        do { \
+                pr_info(fmt, ##args); \
+                vpu_err_msg(core, __func__); \
+                if (hw_fail) { \
+                        vpu_dmp_create_locked(core, req, fmt, ##args); \
+                        apu_get_power_info(); \
+                        pr_err("VPU", \
+                        "\nCRDISPATCH_KEY:" key "\n" fmt, ##args); \
+                } \
+        } while (0)
+#endif
 
 static void vpu_status(int core)
 {
