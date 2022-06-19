@@ -674,7 +674,7 @@ do {									\
  */
 
 #ifdef CONFIG_DISABLE_TRACE_PRINTK
-#define trace_printk pr_debug
+void trace_printk(const char *fmt, ...);
 #else
 #define trace_printk(fmt, ...)				\
 do {							\
