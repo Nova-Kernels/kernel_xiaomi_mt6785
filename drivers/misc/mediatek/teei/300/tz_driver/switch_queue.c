@@ -43,7 +43,9 @@
 #include <notify_queue.h>
 #include <teei_secure_api.h>
 
+/*
 #define IMSG_TAG "[tz_driver]"
+*/
 #include <imsg_log.h>
 
 struct completion teei_switch_comp;
