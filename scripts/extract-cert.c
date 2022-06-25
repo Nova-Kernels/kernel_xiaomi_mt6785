@@ -43,7 +43,7 @@ static void display_openssl_errors(int l)
 		return;
 	fprintf(stderr, "At main.c:%d:\n", l);
 
-	while ((e = ERR_get_error_line(&file, &line))) {
+	while ((e = ERR_peek_error_line(&file, &line))) {
 		ERR_error_string(e, buf);
 		fprintf(stderr, "- SSL %s: %s:%d\n", buf, file, line);
 	}
@@ -56,7 +56,7 @@ static void drain_openssl_errors(void)
 
 	if (ERR_peek_error() == 0)
 		return;
-	while (ERR_get_error_line(&file, &line)) {}
+	while (ERR_peek_error_line(&file, &line)) {}
 }
 
 #define ERR(cond, fmt, ...)				\

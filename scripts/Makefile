@@ -9,9 +9,10 @@
 # conmakehash:	 Create arrays for initializing the kernel console tables
 
 HOST_EXTRACFLAGS += -I$(srctree)/tools/include
-
+HOSTCFLAGS_extract-cert.o += -DOPENSSL_API_COMPAT=0x10100000L
 CRYPTO_LIBS = $(shell pkg-config --libs libcrypto 2> /dev/null || echo -lcrypto)
-CRYPTO_CFLAGS = $(shell pkg-config --cflags libcrypto 2> /dev/null)
+CRYPTO_CFLAGS = -DOPENSSL_API_COMPAT=0x10100000L
+#CRYPTO_CFLAGS = $(shell pkg-config --cflags libcrypto 2> /dev/null)
 
 hostprogs-$(CONFIG_KALLSYMS)     += kallsyms
 hostprogs-$(CONFIG_LOGO)         += pnmtologo
