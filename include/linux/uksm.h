@@ -16,8 +16,16 @@
 #include <linux/rmap.h>
 #include <linux/sched.h>
 
-extern unsigned long zero_pfn __read_mostly;
-extern unsigned long uksm_zero_pfn __read_mostly;
+static inline unsigned long get_zero_pfn(void){
+	extern unsigned long zero_pfn;
+	return zero_pfn;
+
+}
+static inline unsigned long get_uksm_zero_pfn(void)
+{
+	extern unsigned long uksm_zero_pfn;
+	return uksm_zero_pfn;
+}
 extern struct page *empty_uksm_zero_page;
 
 /* must be done before linked to mm */
@@ -60,13 +68,13 @@ struct vma_slot {
 
 static inline void uksm_unmap_zero_page(pte_t pte)
 {
-	if (pte_pfn(pte) == uksm_zero_pfn)
+	if (pte_pfn(pte) == get_uksm_zero_pfn())
 		__dec_zone_page_state(empty_uksm_zero_page, NR_UKSM_ZERO_PAGES);
 }
 
 static inline void uksm_map_zero_page(pte_t pte)
 {
-	if (pte_pfn(pte) == uksm_zero_pfn)
+	if (pte_pfn(pte) == get_uksm_zero_pfn())
 		__inc_zone_page_state(empty_uksm_zero_page, NR_UKSM_ZERO_PAGES);
 }
 
@@ -78,7 +86,7 @@ static inline void uksm_cow_page(struct vm_area_struct *vma, struct page *page)
 
 static inline void uksm_cow_pte(struct vm_area_struct *vma, pte_t pte)
 {
-	if (vma->uksm_vma_slot && pte_pfn(pte) == uksm_zero_pfn)
+	if (vma->uksm_vma_slot && pte_pfn(pte) == get_uksm_zero_pfn())
 		vma->uksm_vma_slot->pages_cowed++;
 }
 
@@ -106,7 +114,7 @@ static inline void uksm_vm_flags_mod(unsigned long *vm_flags_p)
  */
 static inline void uksm_bugon_zeropage(pte_t pte)
 {
-	BUG_ON(pte_pfn(pte) == uksm_zero_pfn);
+	BUG_ON(pte_pfn(pte) == get_uksm_zero_pfn());
 }
 #else
 static inline void uksm_vma_add_new(struct vm_area_struct *vma)

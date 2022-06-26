@@ -1635,8 +1635,8 @@ static int replace_page(struct vm_area_struct *vma, struct page *page,
 	entry = mk_pte(kpage, vma->vm_page_prot);
 
 	/* special treatment is needed for zero_page */
-	if ((page_to_pfn(kpage) == uksm_zero_pfn) ||
-				(page_to_pfn(kpage) == zero_pfn)) {
+	if ((page_to_pfn(kpage) == get_uksm_zero_pfn()) ||
+				(page_to_pfn(kpage) == get_zero_pfn())) {
 		entry = pte_mkspecial(entry);
 		dec_mm_counter(mm, MM_ANONPAGES);
 		inc_zone_page_state(page, NR_UKSM_ZERO_PAGES);
@@ -3342,8 +3342,8 @@ static struct rmap_item *get_next_rmap_item(struct vma_slot *slot, u32 *hash)
 		goto putpage;
 
 	/*check is zero_page pfn or uksm_zero_page*/
-	if ((page_to_pfn(page) == zero_pfn)
-			|| (page_to_pfn(page) == uksm_zero_pfn))
+	if ((page_to_pfn(page) == get_zero_pfn())
+			|| (page_to_pfn(page) == get_uksm_zero_pfn()))
 		goto putpage;
 
 	flush_anon_page(slot->vma, page, addr);
