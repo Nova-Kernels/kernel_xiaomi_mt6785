@@ -74,6 +74,11 @@
 #include <linux/oom.h>
 #include <linux/numa.h>
 #include <linux/sradix-tree.h>
+#if defined(CONFIG_UKSM_AUTO_MSM)
+#include <linux/msm_drm_notify.h>
+#elif defined(CONFIG_UKSM_AUTO_FB)
+#include <linux/fb.h>
+#endif
 
 #include <asm/tlbflush.h>
 #include "internal.h"
@@ -569,6 +574,10 @@ static unsigned long long uksm_sleep_times;
 #define UKSM_RUN_STOP	0
 #define UKSM_RUN_MERGE	1
 static unsigned int uksm_run = 1;
+#if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
+static unsigned int uksm_display_state = 1;
+static unsigned int uksm_display_status = 1;
+#endif
 
 static DECLARE_WAIT_QUEUE_HEAD(uksm_thread_wait);
 static DEFINE_MUTEX(uksm_thread_mutex);
@@ -4669,7 +4678,18 @@ rm_slot:
 
 static int ksmd_should_run(void)
 {
+#if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
+	if (uksm_display_state == 1) {
+		if (uksm_display_status == 1)
+			return uksm_run & UKSM_RUN_MERGE;
+		else
+			return 0 & UKSM_RUN_STOP;
+	} else {
+		return uksm_run & UKSM_RUN_MERGE;
+	}
+#else
 	return uksm_run & UKSM_RUN_MERGE;
+#endif
 }
 
 static int uksm_scan_thread(void *nothing)
@@ -4991,6 +5011,35 @@ static ssize_t run_store(struct kobject *kobj, struct kobj_attribute *attr,
 }
 UKSM_ATTR(run);
 
+#if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
+static ssize_t display_state_show(struct kobject *kobj, struct kobj_attribute *attr,
+			char *buf)
+{
+	return sprintf(buf, "%u\n", uksm_display_state);
+}
+
+static ssize_t display_state_store(struct kobject *kobj, struct kobj_attribute *attr,
+			 const char *buf, size_t count)
+{
+	unsigned long display_state;
+	int err;
+
+	err = kstrtoul(buf, 10, &display_state);
+	if (err || display_state > 1)
+		return -EINVAL;
+
+	if (display_state == 1)
+		display_state = 1;
+	else
+		display_state = 0;
+
+	uksm_display_state = display_state;
+
+	return count;
+}
+UKSM_ATTR(display_state);
+#endif
+
 static ssize_t abundant_threshold_show(struct kobject *kobj,
 				     struct kobj_attribute *attr, char *buf)
 {
@@ -5280,6 +5329,9 @@ static struct attribute *uksm_attrs[] = {
 	&abundant_threshold_attr.attr,
 	&cpu_ratios_attr.attr,
 	&eval_intervals_attr.attr,
+#if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
+	&display_state_attr.attr,
+#endif
 	NULL,
 };
 
@@ -5512,11 +5564,80 @@ struct page *ksm_might_need_to_copy(struct page *page,
 
 	return new_page;
 }
+#if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
+static inline int get_notifier_callback(struct notifier_block *self,
+				       unsigned long event, void *data)
+{
+#ifdef CONFIG_UKSM_AUTO_MSM
+	struct msm_drm_notifier *evdata = data;
+	int *blank;
+
+	if (event != MSM_DRM_EVENT_BLANK)
+		goto out;
+
+	if (!evdata || !evdata->data || evdata->id != MSM_DRM_PRIMARY_DISPLAY)
+		goto out;
+
+	blank = evdata->data;
+	switch (*blank) {
+	case MSM_DRM_BLANK_POWERDOWN:
+		if (uksm_display_status == 0)
+			break;
+		uksm_display_status = 0;
+		break;
+	case MSM_DRM_BLANK_UNBLANK:
+		if (uksm_display_status == 1)
+			break;
+		uksm_display_status = 1;
+		break;
+	}
+#elif defined(CONFIG_UKSM_AUTO_FB)
+	struct fb_event *evdata = data;
+	int *blank;
+
+	if (event != FB_EVENT_BLANK)
+		goto out;
+
+	blank = evdata->data;
+	switch (*blank) {
+	case FB_BLANK_POWERDOWN:
+		if (uksm_display_status == 0)
+			break;
+		uksm_display_status = 0;
+		break;
+	case FB_BLANK_UNBLANK:
+		if (uksm_display_status == 1)
+			break;
+		uksm_display_status = 1;
+		break;
+	}
+#endif
+
+out:
+	return NOTIFY_OK;
+}
+
+static struct notifier_block get_notifier_block = {
+	.notifier_call = get_notifier_callback,
+};
+#endif
 
 static int __init uksm_init(void)
 {
 	struct task_struct *uksm_thread;
 	int err;
+
+#ifdef CONFIG_UKSM_AUTO_MSM
+	err = msm_drm_register_client(&get_notifier_block);
+	if (err) {
+		msm_drm_unregister_client(&get_notifier_block);
+	}
+#elif defined(CONFIG_UKSM_AUTO_FB)
+	err = fb_register_client(&get_notifier_block);
+	if (err) {
+		fb_unregister_client(&get_notifier_block);
+	}
+#endif
 
 	uksm_sleep_jiffies = msecs_to_jiffies(100);
 	uksm_sleep_saved = uksm_sleep_jiffies;

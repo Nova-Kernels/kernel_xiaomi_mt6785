@@ -335,6 +335,20 @@ config UKSM
 	For more information, please goto its project page.
 	(github.com/dolohow/uksm)
 
+config UKSM_AUTO_MSM
+	bool "AUTO KSM using MSM_DRM"
+	depends on UKSM
+	default n
+	help
+		for checking display state using MSM_DRM
+
+config UKSM_AUTO_FB
+	bool "AUTO KSM using FB"
+	depends on UKSM
+	default n
+	help
+		for checking display state using FB
+
 config KSM_LEGACY
 	bool "Legacy KSM implementation"
 	depends on KSM
