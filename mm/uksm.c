@@ -576,7 +576,6 @@ static unsigned long long uksm_sleep_times;
 static unsigned int uksm_run = 1;
 #if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
 static unsigned int uksm_display_state = 1;
-static unsigned int uksm_display_status = 1;
 #endif
 
 static DECLARE_WAIT_QUEUE_HEAD(uksm_thread_wait);
@@ -4678,18 +4677,7 @@ rm_slot:
 
 static int ksmd_should_run(void)
 {
-#if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
-	if (uksm_display_state == 1) {
-		if (uksm_display_status == 1)
-			return uksm_run & UKSM_RUN_MERGE;
-		else
-			return 0 & UKSM_RUN_STOP;
-	} else {
-		return uksm_run & UKSM_RUN_MERGE;
-	}
-#else
 	return uksm_run & UKSM_RUN_MERGE;
-#endif
 }
 
 static int uksm_scan_thread(void *nothing)
@@ -5578,17 +5566,22 @@ static inline int get_notifier_callback(struct notifier_block *self,
 	if (!evdata || !evdata->data || evdata->id != MSM_DRM_PRIMARY_DISPLAY)
 		goto out;
 
+	if (uksm_display_state != 1)
+		goto out;
+
 	blank = evdata->data;
 	switch (*blank) {
 	case MSM_DRM_BLANK_POWERDOWN:
-		if (uksm_display_status == 0)
+		if (uksm_run == 0)
 			break;
-		uksm_display_status = 0;
+		uksm_run = 0;
+		pr_info("UKSM: update uksm_run to 0\n");
 		break;
 	case MSM_DRM_BLANK_UNBLANK:
-		if (uksm_display_status == 1)
+		if (uksm_run == 1)
 			break;
-		uksm_display_status = 1;
+		uksm_run = 1;
+		pr_info("UKSM: update uksm_run to 1\n");
 		break;
 	}
 #elif defined(CONFIG_UKSM_AUTO_FB)
@@ -5598,17 +5591,22 @@ static inline int get_notifier_callback(struct notifier_block *self,
 	if (event != FB_EVENT_BLANK)
 		goto out;
 
+	if (uksm_display_state != 1)
+		goto out;
+
 	blank = evdata->data;
 	switch (*blank) {
 	case FB_BLANK_POWERDOWN:
-		if (uksm_display_status == 0)
+		if (uksm_run == 0)
 			break;
-		uksm_display_status = 0;
+		uksm_run = 0;
+		pr_info("UKSM: update uksm_run to 0\n");
 		break;
 	case FB_BLANK_UNBLANK:
-		if (uksm_display_status == 1)
+		if (uksm_run == 1)
 			break;
-		uksm_display_status = 1;
+		uksm_run = 1;
+		pr_info("UKSM: update uksm_run to 1\n");
 		break;
 	}
 #endif
