@@ -528,7 +528,7 @@ static unsigned int uksm_sleep_saved;
 /* Max percentage of cpu utilization ksmd can take to scan in one batch */
 static unsigned int uksm_max_cpu_percentage;
 
-static int uksm_cpu_governor;
+static int uksm_cpu_governor = 1;
 
 static char *uksm_cpu_governor_str[4] = { "full", "medium", "low", "quiet" };
 
@@ -539,10 +539,10 @@ struct uksm_cpu_preset_s {
 };
 
 struct uksm_cpu_preset_s uksm_cpu_preset[4] = {
-	{ {20, 40, -2500, -10000}, {1000, 500, 200, 50}, 95},
-	{ {20, 30, -2500, -10000}, {1000, 500, 400, 100}, 50},
-	{ {10, 20, -5000, -10000}, {1500, 1000, 1000, 250}, 20},
-	{ {10, 20, 40, 75}, {2000, 1000, 1000, 1000}, 1},
+	{ {-5000, -7500, -9000, -10000}, {90000, 500, 200, 100}, 18},
+	{ {-5000, -6000, -7500, -10000}, {120000, 1000, 500, 250}, 12},
+	{ {-5000, -6000, -7500, -10000}, {180000, 2500, 1000, 500}, 7},
+	{ {-2500, -3500, -5000, -10000}, {300000, 4000, 2500, 1500}, 1},
 };
 
 /* The default value for uksm_ema_page_time if it's not initialized */
@@ -5639,7 +5639,7 @@ static int __init uksm_init(void)
 	}
 #endif
 
-	uksm_sleep_jiffies = msecs_to_jiffies(100);
+	uksm_sleep_jiffies = msecs_to_jiffies(200);
 	uksm_sleep_saved = uksm_sleep_jiffies;
 
 	slot_tree_init();
