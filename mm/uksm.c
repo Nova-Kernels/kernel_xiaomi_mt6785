@@ -575,7 +575,7 @@ static unsigned long long uksm_sleep_times;
 #define UKSM_RUN_MERGE	1
 static unsigned int uksm_run = 1;
 #if defined(CONFIG_UKSM_AUTO_MSM) || defined(CONFIG_UKSM_AUTO_FB)
-static unsigned int uksm_display_state = 1;
+static unsigned int uksm_display_state = 0;
 static unsigned int uksm_run_temp = 1;
 #endif
 
