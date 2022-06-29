@@ -5645,7 +5645,7 @@ static int __init uksm_init(void)
 	}
 #endif
 
-	uksm_sleep_jiffies = msecs_to_jiffies(200);
+	uksm_sleep_jiffies = msecs_to_jiffies(1000);
 	uksm_sleep_saved = uksm_sleep_jiffies;
 
 	slot_tree_init();
