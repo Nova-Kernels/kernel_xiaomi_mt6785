@@ -361,8 +361,8 @@ HOST_LFS_CFLAGS := $(shell getconf LFS_CFLAGS 2>/dev/null)
 HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
 HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
-HOSTCC       = gcc
-HOSTCXX      = g++
+HOSTCC       = ccache gcc
+HOSTCXX      = ccache g++
 HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 \
 		-fomit-frame-pointer -std=gnu89 $(HOST_LFS_CFLAGS)
 HOSTCXXFLAGS := -O2 $(HOST_LFS_CFLAGS)
@@ -370,16 +370,16 @@ HOSTLDFLAGS  := $(HOST_LFS_LDFLAGS)
 HOST_LOADLIBES := $(HOST_LFS_LIBS)
 
 # Make variables (CC, etc...)
-AS		= $(CROSS_COMPILE)as
-LD		= $(CROSS_COMPILE)ld
-LDGOLD		= $(CROSS_COMPILE)ld.gold
-CC		= $(CROSS_COMPILE)gcc
-CPP		= $(CC) -E
-AR		= $(CROSS_COMPILE)ar
-NM		= $(CROSS_COMPILE)nm
-STRIP		= $(CROSS_COMPILE)strip
-OBJCOPY		= $(CROSS_COMPILE)objcopy
-OBJDUMP		= $(CROSS_COMPILE)objdump
+AS		= ccache $(CROSS_COMPILE)as
+LD		= ccache $(CROSS_COMPILE)ld
+LDGOLD		= ccache $(CROSS_COMPILE)ld.gold
+CC		= ccache $(CROSS_COMPILE)gcc
+CPP		= ccache $(CC) -E
+AR		= ccache $(CROSS_COMPILE)ar
+NM		= ccache $(CROSS_COMPILE)nm
+STRIP		= ccache $(CROSS_COMPILE)strip
+OBJCOPY		= ccache $(CROSS_COMPILE)objcopy
+OBJDUMP		= ccache $(CROSS_COMPILE)objdump
 AWK		= awk
 GENKSYMS	= scripts/genksyms/genksyms
 INSTALLKERNEL  := installkernel
@@ -688,6 +688,7 @@ endif
 
 ifdef CONFIG_CC_WERROR
 KBUILD_CFLAGS  += -Werror
+endif
 
 ifeq ($(cc-name),clang)
 KBUILD_CFLAGS   += -mcpu=cortex-a55 -mtune=cortex-a55
