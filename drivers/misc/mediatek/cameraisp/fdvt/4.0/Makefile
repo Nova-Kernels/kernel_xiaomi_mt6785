@@ -1,6 +1,5 @@
 MTK_PLATFORM := $(subst ",,$(CONFIG_MTK_PLATFORM))
 
-$(info $(srctree))
 #ifdef CONFIG_MTK_M4U
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/m4u/$(MTK_PLATFORM)/
 #else
