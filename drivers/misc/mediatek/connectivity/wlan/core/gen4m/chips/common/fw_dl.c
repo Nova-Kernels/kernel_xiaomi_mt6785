@@ -2354,7 +2354,6 @@ uint32_t wlanDownloadPatch(IN struct ADAPTER *prAdapter)
 		DBGLOG(INIT, INFO, "No need to download patch\n");
 		return WLAN_STATUS_SUCCESS;
 	}
-#else
 #endif
 
 	/* Patch DL */
