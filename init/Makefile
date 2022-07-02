@@ -4,6 +4,8 @@
 #
 
 ccflags-y := -fno-function-sections -fno-data-sections
+ccflags-y += -mllvm -inline-threshold=15000
+ccflags-y += -mllvm -inlinehint-threshold=10000
 
 ifdef CONFIG_MTPROF
 ccflags-y += -Idrivers/misc/mediatek/mtprof/
