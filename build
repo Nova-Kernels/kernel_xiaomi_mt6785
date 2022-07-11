@@ -14,27 +14,7 @@ gcc="$(pwd)/../gcc"
 Any="$(pwd)/../AnyKernel3"
 Vortex="$(pwd)/../Vortex"
 
-# Upload to telegram
-UT=0
-if [ $UT = 1 ]; then
-    BOT_TOKEN=""
-    CHAT_ID=""
-fi
 
-msg() {
-    curl -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" \
-    -d chat_id="$CHAT_ID" \
-    -d "disable_web_page_preview=true" \
-    -d "parse_mode=html" \
-    -d text="$Text"
-}
-
-Upload() {
-    curl -F chat_id="$CHAT_ID" \
-    -F document=@"$FILE" \
-    -F parse_mode=markdown https://api.telegram.org/bot$BOT_TOKEN/sendDocument \
-    -F caption="$Caption"
-}
 
 # Make flashable zip
 MakeZip() {
@@ -56,10 +36,7 @@ MakeZip() {
 
 # Clone compiler
 Clone_GCC() {
-    if [ $UT = 1 ]; then
-        Text="Clone compiler"
-        msg
-    fi
+
     if [ ! -d $GCC64 ]; then
         git clone --depth=1 https://github.com/mvaisakh/gcc-arm64 -b gcc-master $GCC64
     else
@@ -86,10 +63,7 @@ Clone_GCC() {
 }
 
 Clone_TRB() {
-    if [ $UT = 1 ]; then
-        Text="Clone compiler"
-        msg
-    fi
+ 
     if [ ! -d $TRB ]; then
         git clone --depth=1 https://gitlab.com/varunhardgamer/trb_clang.git -b 14 $TRB
     else
@@ -104,10 +78,7 @@ Clone_TRB() {
 }
 
 Clone_Proton() {
-    if [ $UT = 1 ]; then
-        Text="Clone compiler"
-        msg
-    fi
+ 
     if [ ! -d $Proton ]; then
         git clone --depth=1 https://github.com/kdrag0n/proton-clang -b master $Proton
     else
@@ -122,10 +93,7 @@ Clone_Proton() {
 }
 
 Clone_Azure() {
-    if [ $UT = 1 ]; then
-        Text="Clone compiler"
-        msg
-    fi
+ 
     if [ ! -d $Azure ]; then
         git clone --depth=1 https://gitlab.com/Panchajanya1999/azure-clang.git -b main $Azure
     else
@@ -140,10 +108,7 @@ Clone_Azure() {
 }
 
 Clone_Vortex() {
-    if [ $UT = 1 ]; then
-        Text="Clone compiler"
-        msg
-    fi
+ 
     if [ ! -d $Vortex ]; then
         git clone --depth=1 https://github.com/vijaymalav564/vortex-clang.git -b master $Vortex
     else
@@ -157,10 +122,7 @@ Clone_Vortex() {
     Proton_Version="$($Azure/bin/clang --version | grep clang)"
 }
 Clone_Clang() {
-    if [ $UT = 1 ]; then
-        Text="Clone compiler"
-        msg
-    fi
+ 
     if [ ! -d $Clang ]; then
         git clone --depth=1 https://github.com/AndroidTanz/Google-Clang-14.0.2 -b 14 $Clang
     else
@@ -175,10 +137,7 @@ Clone_Clang() {
 }
 
 Clone_DTC() {
-    if [ $UT = 1 ]; then
-        Text="Clone compiler"
-        msg
-    fi
+ 
     if [ ! -d $DTC ]; then
         git clone --depth=1 https://github.com/TeraaBytee/DragonTC $DTC
     else
@@ -226,10 +185,7 @@ ZIP_KERNEL_VERSION="4.14.$(cat "$MainPath/Makefile" | grep "SUBLEVEL =" | sed 's
 # Start building
 Build_GCC() {
     Compiler=GCC
-    if [ $UT = 1 ]; then
-        Text="<b>Device</b>: <code>Redmi Note 8 Pro [BEGONIA]</code>%0A<b>Branch</b>: <code>$(git branch | grep '*' | awk '{ print $2 }')</code>%0A<b>Kernel name</b>: <code>$(cat "arch/arm64/configs/begonia_user_defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )</code>%0A<b>Kernel version</b>: <code>4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')</code>%0A<b>Build user</b>: <code>$KBUILD_BUILD_USER</code>%0A<b>Build host</b>: <code>$KBUILD_BUILD_HOST</code>%0A<b>Cross compile</b>:%0A<code>$GCC64_Version</code>%0A<b>Cross compile arm32</b>:%0A<code>$GCC_Version</code>%0A<b>Changelogs</b>:%0A<code>$(git log --oneline -5 --no-decorate)</code>"
-        msg
-    fi
+
     rm -rf out
     TIME=$(date +"%m%d%H%M")
     BUILD_START=$(date +"%s")
@@ -250,10 +206,7 @@ Build_GCC() {
 
 Build_TRB() {
     Compiler=TRB
-    if [ $UT = 1 ]; then
-        Text="<b>Device</b>: <code>Redmi Note 8 Pro [BEGONIA]</code>%0A<b>Branch</b>: <code>$(git branch | grep '*' | awk '{ print $2 }')</code>%0A<b>Kernel name</b>: <code>$(cat "arch/arm64/configs/begonia_user_defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )</code>%0A<b>Kernel version</b>: <code>4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')</code>%0A<b>Build user</b>: <code>$KBUILD_BUILD_USER</code>%0A<b>Build host</b>: <code>$KBUILD_BUILD_HOST</code>%0A<b>Compiler</b>:%0A<code>$TRB_Version</code>%0A<b>Changelogs</b>:%0A<code>$(git log --oneline -5 --no-decorate)</code>"
-        msg
-    fi
+
     rm -rf out
     TIME=$(date +"%m%d%H%M")
     BUILD_START=$(date +"%s")
@@ -275,9 +228,7 @@ Build_TRB() {
 
 Build_Proton() {
     Compiler=Proton
-    if [ $UT = 1 ]; then
-        Text="<b>Device</b>: <code>Redmi Note 8 Pro [BEGONIA]</code>%0A<b>Branch</b>: <code>$(git branch | grep '*' | awk '{ print $2 }')</code>%0A<b>Kernel name</b>: <code>$(cat "arch/arm64/configs/begonia_user_defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )</code>%0A<b>Kernel version</b>: <code>4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')</code>%0A<b>Build user</b>: <code>$KBUILD_BUILD_USER</code>%0A<b>Build host</b>: <code>$KBUILD_BUILD_HOST</code>%0A<b>Compiler</b>:%0A<code>$Proton_Version</code>%0A<b>Changelogs</b>:%0A<code>$(git log --oneline -5 --no-decorate)</code>"
-        msg
+
     fi
     rm -rf out
     TIME=$(date +"%m%d%H%M")
@@ -301,10 +252,7 @@ Build_Proton() {
 Build_Clang() {
     Compiler=Clang
 	MAKE="./makeparallel"
-    if [ $UT = 1 ]; then
-        Text="<b>Device</b>: <code>Redmi Note 8 Pro [BEGONIA]</code>%0A<b>Branch</b>: <code>$(git branch | grep '*' | awk '{ print $2 }')</code>%0A<b>Kernel name</b>: <code>$(cat "arch/arm64/configs/begonia_user_defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )</code>%0A<b>Kernel version</b>: <code>4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')</code>%0A<b>Build user</b>: <code>$KBUILD_BUILD_USER</code>%0A<b>Build host</b>: <code>$KBUILD_BUILD_HOST</code>%0A<b>Compiler</b>:%0A<code>$Clang_Version</code>%0A<b>Changelogs</b>:%0A<code>$(git log --oneline -5 --no-decorate)</code>"
-        msg
-    fi
+
     rm -rf out
     TIME=$(date +"%m%d%H%M")
     BUILD_START=$(date +"%s")
@@ -323,10 +271,7 @@ Build_Clang() {
 
 Build_Azure() {
     Compiler=Azure
-    if [ $UT = 1 ]; then
-        Text="<b>Device</b>: <code>Redmi Note 8 Pro [BEGONIA]</code>%0A<b>Branch</b>: <code>$(git branch | grep '*' | awk '{ print $2 }')</code>%0A<b>Kernel name</b>: <code>$(cat "arch/arm64/configs/begonia_user_defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )</code>%0A<b>Kernel version</b>: <code>4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')</code>%0A<b>Build user</b>: <code>$KBUILD_BUILD_USER</code>%0A<b>Build host</b>: <code>$KBUILD_BUILD_HOST</code>%0A<b>Compiler</b>:%0A<code>$Proton_Version</code>%0A<b>Changelogs</b>:%0A<code>$(git log --oneline -5 --no-decorate)</code>"
-        msg
-    fi
+
     rm -rf out
     TIME=$(date +"%m%d%H%M")
     BUILD_START=$(date +"%s")
@@ -349,10 +294,7 @@ Build_Azure() {
 
 Build_Vortex() {
     Compiler=Vortex
-    if [ $UT = 1 ]; then
-        Text="<b>Device</b>: <code>Redmi Note 8 Pro [BEGONIA]</code>%0A<b>Branch</b>: <code>$(git branch | grep '*' | awk '{ print $2 }')</code>%0A<b>Kernel name</b>: <code>$(cat "arch/arm64/configs/begonia_user_defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )</code>%0A<b>Kernel version</b>: <code>4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')</code>%0A<b>Build user</b>: <code>$KBUILD_BUILD_USER</code>%0A<b>Build host</b>: <code>$KBUILD_BUILD_HOST</code>%0A<b>Compiler</b>:%0A<code>$Proton_Version</code>%0A<b>Changelogs</b>:%0A<code>$(git log --oneline -5 --no-decorate)</code>"
-        msg
-    fi
+
     rm -rf out
     TIME=$(date +"%m%d%H%M")
     BUILD_START=$(date +"%s")
@@ -374,10 +316,7 @@ Build_Vortex() {
 }
 Build_DTC() {
     Compiler=DragonTC
-    if [ $UT = 1 ]; then
-        Text="<b>Device</b>: <code>Redmi Note 8 Pro [BEGONIA]</code>%0A<b>Branch</b>: <code>$(git branch | grep '*' | awk '{ print $2 }')</code>%0A<b>Kernel name</b>: <code>$(cat "arch/arm64/configs/begonia_user_defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )</code>%0A<b>Kernel version</b>: <code>4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')</code>%0A<b>Build user</b>: <code>$KBUILD_BUILD_USER</code>%0A<b>Build host</b>: <code>$KBUILD_BUILD_HOST</code>%0A<b>Compiler</b>:%0A<code>$DTC_Version</code>%0A<b>Changelogs</b>:%0A<code>$(git log --oneline -5 --no-decorate)</code>"
-        msg
-    fi
+
     rm -rf out
     TIME=$(date +"%m%d%H%M")
     BUILD_START=$(date +"%s")
@@ -401,25 +340,15 @@ End() {
         DIFF=$((BUILD_END - BUILD_START))
         MakeZip
         ZIP=$(echo *$Compiler*$TIME*.zip)
-        if [ $UT = 1 ]; then
-            TIME=$(echo "Build success in : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)")
-            FILE=$ZIP
-            Caption="$TIME @jptordil15"
-            Upload
-        else
-            echo "Build success in : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
-        fi
+
+        echo "Build success in : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
+       
     else
         BUILD_END=$(date +"%s")
         DIFF=$((BUILD_END - BUILD_START))
-        if [ $UT = 1 ]; then
-            TIME=$(echo "Build fail in : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)")
-            FILE="out/error.log"
-            Caption="$TIME Check this @jptordil15"
-            Upload
-        else
-            echo "Build fail in : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
-        fi
+
+        echo "Build fail in : $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)"
+
     fi
 }
 
@@ -427,63 +356,49 @@ Text="Start to build kernel"
 
 # Build choices
 GCC() {
-    if [ $UT = 1 ]; then
-        msg
-    fi
+
     Clone_GCC
     Build_GCC
     End
 }
 
 TRB() {
-    if [ $UT = 1 ]; then
-        msg
-    fi
+
     Clone_TRB
     Build_TRB
     End
 }
 
 Proton() {
-    if [ $UT = 1 ]; then
-        msg
-    fi
+ 
     Clone_Proton
     Build_Proton
     End
 }
 
 Clang() {
-    if [ $UT = 1 ]; then
-        msg
-    fi
+ 
     Clone_Clang
     Build_Clang
     End
 }
 
 DTC() {
-    if [ $UT = 1 ]; then
-        msg
-    fi
+ 
     Clone_DTC
     Build_DTC
     End
 }
 
 Azure() {
-    if [ $UT = 1 ]; then
-        msg
-    fi
+ 
     Clone_Azure
     Build_Azure
     End
 }
 
 Vortex() {
-    if [ $UT = 1 ]; then
-        msg
-    fi
+ 
     Clone_Vortex
     Build_Vortex
     End
