@@ -229,7 +229,6 @@ Build_TRB() {
 Build_Proton() {
     Compiler=Proton
 
-    fi
     rm -rf out
     TIME=$(date +"%m%d%H%M")
     BUILD_START=$(date +"%s")
