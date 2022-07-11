@@ -107,6 +107,7 @@ config ANDROID_SIMPLE_LMK_TIMEOUT_MSEC
 	  needed. After the specified timeout elapses, Simple LMK will stop
 	  waiting and make itself available to kill more processes.
 
+endif 
 endif # if ANDROID
 
 endmenu
