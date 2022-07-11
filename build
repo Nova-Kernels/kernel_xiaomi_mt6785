@@ -11,7 +11,7 @@ GCC64="$(pwd)/../GCC64"
 GCC="$(pwd)/../GCC"
 gcc64="$(pwd)/../gcc64"
 gcc="$(pwd)/../gcc"
-Any="$(pwd)/../AnyKernel3"
+Any="$(pwd)/../Any"
 Vortex="$(pwd)/../Vortex"
 
 
@@ -19,7 +19,7 @@ Vortex="$(pwd)/../Vortex"
 # Make flashable zip
 MakeZip() {
     if [ ! -d $Any ]; then
-        git clone https://github.com/blazerpaul/AnyKernel3 -b master $Any
+        git clone https://github.com/blazerpaul15/AnyKernel3 -b master $Any
         cd $Any
     else
         cd $Any
@@ -29,8 +29,8 @@ MakeZip() {
         git reset --hard origin/master
     fi
     cp -af $MainPath/out/arch/arm64/boot/Image.gz-dtb $Any
-    sed -i "s/kernel.string=.*/kernel.string=$KERNEL_NAME-$HeadCommit by Abdul7852/g" anykernel.sh
-    zip -r9 $MainPath/"[$Compiler][R-OSS]-$ZIP_KERNEL_VERSION-$KERNEL_NAME-$TIME.zip" * -x .git README.md *placeholder
+    sed -i "s/kernel.string=.*/kernel.string=$KERNEL_NAME by Abdul7852/g" anykernel.sh
+    zip -r9 $MainPath/"[$Compiler][R-OSS]-$ZIP_KERNEL_VERSION-$KERNEL_NAME.zip" * -x .git README.md *placeholder
     cd $MainPath
 }
 
