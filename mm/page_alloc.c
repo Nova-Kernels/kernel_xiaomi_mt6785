@@ -4263,12 +4263,6 @@ got_pg:
 	return page;
 }
 
-#ifdef CONFIG_ZONE_MOVABLE_CMA
-	/* No fast allocation gets into ZONE_MOVABLE */
-	if (ac->high_zoneidx == ZONE_MOVABLE)
-		ac->high_zoneidx -= 1;
-#endif
-
 static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
 		int preferred_nid, nodemask_t *nodemask,
 		struct alloc_context *ac, gfp_t *alloc_mask,
@@ -4278,6 +4272,12 @@ static inline bool prepare_alloc_pages(gfp_t gfp_mask, unsigned int order,
 	ac->zonelist = node_zonelist(preferred_nid, gfp_mask);
 	ac->nodemask = nodemask;
 	ac->migratetype = gfpflags_to_migratetype(gfp_mask);
+
+#ifdef CONFIG_ZONE_MOVABLE_CMA
+	/* No fast allocation gets into ZONE_MOVABLE */
+	if (ac->high_zoneidx == ZONE_MOVABLE)
+		ac->high_zoneidx -= 1;
+#endif
 
 	if (cpusets_enabled()) {
 		*alloc_mask |= __GFP_HARDWALL;
