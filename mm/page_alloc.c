@@ -4051,6 +4051,7 @@ retry_cpuset:
 		if (!used_vmpressure)
 			used_vmpressure = vmpressure_inc_users(order);
 		wake_all_kswapds(order, ac);
+	}
 
 	/*
 	 * The adjusted alloc_flags might result in immediate success, so try
