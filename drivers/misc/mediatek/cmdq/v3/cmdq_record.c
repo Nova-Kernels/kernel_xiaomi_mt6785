@@ -1474,8 +1474,6 @@ static s32 cmdq_get_event_op_id(enum cmdq_event event)
 
 	event_id = cmdq_core_get_event_value(event);
 	if (event_id < 0) {
-		CMDQ_ERR("Invalid event:%d ID:%d\n", (s32)event,
-			(s32)event_id);
 		return -EINVAL;
 	}
 
