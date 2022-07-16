@@ -30,7 +30,7 @@ MakeZip() {
     fi
     cp -af $MainPath/out/arch/arm64/boot/Image.gz-dtb $Any
     sed -i "s/kernel.string=.*/kernel.string=$KERNEL_NAME by Abdul7852/g" anykernel.sh
-    zip -r9 $MainPath/"[$Compiler][R-OSS]-$ZIP_KERNEL_VERSION-$KERNEL_NAME.zip" * -x .git README.md *placeholder
+    zip -r9 $MainPath/"[$Compiler]-[R-OSS]-$ZIP_KERNEL_VERSION-$KERNEL_NAME.zip" * -x .git README.md *placeholder
     cd $MainPath
 }
 
@@ -180,7 +180,7 @@ export KBUILD_BUILD_USER="Abdul7852"
 export KBUILD_BUILD_HOST="-Stable"
 Defconfig="begonia_user_defconfig"
 KERNEL_NAME=$(cat "$MainPath/arch/arm64/configs/$Defconfig" | grep "CONFIG_LOCALVERSION=" | sed 's/CONFIG_LOCALVERSION="-*//g' | sed 's/"*//g' )
-ZIP_KERNEL_VERSION="4.14.$(cat "$MainPath/Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')$(cat "$(pwd)/Makefile" | grep "EXTRAVERSION =" | sed 's/EXTRAVERSION = *//g')"
+ZIP_KERNEL_VERSION="4.14.$(cat "$MainPath/Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')"
 
 # Start building
 Build_GCC() {
