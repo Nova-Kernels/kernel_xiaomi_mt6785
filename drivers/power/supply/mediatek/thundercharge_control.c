@@ -22,9 +22,9 @@
 #include <linux/thundercharge_control.h>
 
 #define ENABLED             0
-#define AC_CURRENT          3500
-#define USB_CURRENT         900
-#define MAX_VBUS_CURRENT    3500
+#define AC_CURRENT          4000
+#define USB_CURRENT         3000
+#define MAX_VBUS_CURRENT    4000
 #define MULTIPLIER          1000
 #define THUNDERCHARGE       "thundercharge"
 
