@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
+ * Copyright Â© 2015, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
  *
  * Driver modified by 7Soldier, 2022
  *
@@ -22,9 +22,9 @@
 #include <linux/thundercharge_control.h>
 
 #define ENABLED             0
-#define AC_CURRENT          4000
-#define USB_CURRENT         3000
-#define MAX_VBUS_CURRENT    4000
+#define AC_CURRENT          3700
+#define USB_CURRENT         1500
+#define MAX_VBUS_CURRENT    3750
 #define MULTIPLIER          1000
 #define THUNDERCHARGE       "thundercharge"
 
