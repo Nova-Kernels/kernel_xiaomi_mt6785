@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
+ * Copyright Â© 2015, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
  *
  * Kernel header for MTK Linear Charger Control driver
  *
@@ -15,7 +15,7 @@
  */
 #ifndef __THUNDERCHARGE_CONTROL_H__
 #define __THUNDERCHARGE_CONTROL_H__
-#define DEFAULT_USB_CURRENT 3000
+#define DEFAULT_USB_CURRENT 1000
 extern int custom_ac_current;
 extern int custom_usb_current;
 extern int mswitch;
