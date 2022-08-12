@@ -628,6 +628,94 @@ char *string(char *buf, char *end, const char *s, struct printf_spec spec)
 }
 
 static noinline_for_stack
+char *pointer_string(char *buf, char *end, const void *ptr,
+		     struct printf_spec spec)
+{
+	spec.base = 16;
+	spec.flags |= SMALL;
+	if (spec.field_width == -1) {
+		spec.field_width = 2 * sizeof(ptr);
+		spec.flags |= ZEROPAD;
+	}
+
+	return number(buf, end, (unsigned long int)ptr, spec);
+}
+
+static DEFINE_STATIC_KEY_TRUE(not_filled_random_ptr_key);
+static siphash_key_t ptr_key __read_mostly;
+
+static void enable_ptr_key_workfn(struct work_struct *work)
+{
+	get_random_bytes(&ptr_key, sizeof(ptr_key));
+	/* Needs to run from preemptible context */
+	static_branch_disable(&not_filled_random_ptr_key);
+}
+
+static DECLARE_WORK(enable_ptr_key_work, enable_ptr_key_workfn);
+
+static int fill_random_ptr_key(struct notifier_block *nb,
+			       unsigned long action, void *data)
+{
+	/* This may be in an interrupt handler. */
+	queue_work(system_unbound_wq, &enable_ptr_key_work);
+	return 0;
+}
+
+static struct notifier_block random_ready = {
+	.notifier_call = fill_random_ptr_key
+};
+
+static int __init initialize_ptr_random(void)
+{
+	int ret = register_random_ready_notifier(&random_ready);
+
+	if (!ret) {
+		return 0;
+	} else if (ret == -EALREADY) {
+		/* This is in preemptible context */
+		enable_ptr_key_workfn(&enable_ptr_key_work);
+		return 0;
+	}
+
+	return ret;
+}
+early_initcall(initialize_ptr_random);
+
+/* Maps a pointer to a 32 bit unique identifier. */
+static char *ptr_to_id(char *buf, char *end, const void *ptr,
+		       struct printf_spec spec)
+{
+	unsigned long hashval;
+	const int default_width = 2 * sizeof(ptr);
+
+	if (static_branch_unlikely(&not_filled_random_ptr_key)) {
+		spec.field_width = default_width;
+		/* string length must be less than default_width */
+		return string(buf, end, "(ptrval)", spec);
+	}
+
+#ifdef CONFIG_64BIT
+	hashval = (unsigned long)siphash_1u64((u64)ptr, &ptr_key);
+	/*
+	 * Mask off the first 32 bits, this makes explicit that we have
+	 * modified the address (and 32 bits is plenty for a unique ID).
+	 */
+	hashval = hashval & 0xffffffff;
+#else
+	hashval = (unsigned long)siphash_1u32((u32)ptr, &ptr_key);
+#endif
+
+	spec.flags |= SMALL;
+	if (spec.field_width == -1) {
+		spec.field_width = default_width;
+		spec.flags |= ZEROPAD;
+	}
+	spec.base = 16;
+
+	return number(buf, end, hashval, spec);
+}
+
+static noinline_for_stack
 char *dentry_name(char *buf, char *end, const struct dentry *d, struct printf_spec spec,
 		  const char *fmt)
 {
@@ -1369,8 +1457,11 @@ char *uuid_string(char *buf, char *end, const u8 *addr,
 	return string(buf, end, uuid, spec);
 }
 
+int kptr_restrict __read_mostly;
+
 static noinline_for_stack
-char *netdev_bits(char *buf, char *end, const void *addr, const char *fmt)
+char *netdev_bits(char *buf, char *end, const void *addr,
+		  struct printf_spec spec,  const char *fmt)
 {
 	unsigned long long num;
 	int size;
@@ -1381,9 +1472,7 @@ char *netdev_bits(char *buf, char *end, const void *addr, const char *fmt)
 		size = sizeof(netdev_features_t);
 		break;
 	default:
-		num = (unsigned long)addr;
-		size = sizeof(unsigned long);
-		break;
+		return ptr_to_id(buf, end, addr, spec);
 	}
 
 	return special_hex_number(buf, end, num, size);
@@ -1614,8 +1703,6 @@ char *device_node_string(char *buf, char *end, struct device_node *dn,
 	return widen_string(buf, buf - buf_start, end, spec);
 }
 
-int kptr_restrict __read_mostly;
-
 /*
  * Show a '%p' thing.  A kernel extension is that the '%p' is followed
  * by an extra set of alphanumeric characters that are extended format
@@ -1727,6 +1814,8 @@ int kptr_restrict __read_mostly;
  * function pointers are really function descriptors, which contain a
  * pointer to the real address.
  */
+
+
 static noinline_for_stack
 char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 	      struct printf_spec spec)
@@ -1857,7 +1946,7 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		break;
 
 	case 'N':
-		return netdev_bits(buf, end, ptr, fmt);
+		return netdev_bits(buf, end, ptr, spec, fmt);
 	case 'a':
 		return address_val(buf, end, ptr, fmt);
 	case 'd':
@@ -1880,7 +1969,11 @@ char *pointer(const char *fmt, char *buf, char *end, void *ptr,
 		case 'F':
 			return device_node_string(buf, end, ptr, spec, fmt + 1);
 		}
+		break;
+	case 'x':
+		return pointer_string(buf, end, ptr, spec);
 	}
+	
 	spec.flags |= SMALL;
 	if (spec.field_width == -1) {
 		spec.field_width = default_width;
