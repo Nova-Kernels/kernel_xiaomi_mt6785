@@ -1,4 +1,5 @@
 obj-$(CONFIG_MTK_VIBRATOR) := vibrator_drv.o
+obj-$(CONFIG_THUNDERQUAKE_ENGINE_GPL) += thunderquake_engine.o
 ifeq (y, $(filter y, $(CONFIG_MACH_MT6885) $(CONFIG_MACH_MT6893)))
 obj-y += $(subst ",,mt6885)/
 else ifeq (y, $(filter y, $(CONFIG_MACH_MT6853) $(CONFIG_MACH_MT6833)))
