@@ -152,9 +152,6 @@ static void adsp_logger_init_handler(int id, void *data, unsigned int len)
 			*(ptr + 4), *(ptr + 5),
 			*(ptr + 6), *(ptr + 7));
 	}
-
-	/* send work to initialize logger*/
-	schedule_delayed_work(&pdata->log_ctrl->work, delay);
 }
 
 /*
