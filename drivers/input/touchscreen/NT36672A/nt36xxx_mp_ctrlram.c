@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 - 2018 Novatek, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * $Revision: 32206 $
  * $Date: 2018-08-10 19:23:04 +0800 (週五, 10 八月 2018) $
@@ -554,7 +554,7 @@ static int32_t nvt_polling_hand_shake_status(void)
 {
 	uint8_t buf[8] = {0};
 	int32_t i = 0;
-	const int32_t retry = 250;
+	const int32_t retry = 50;
 
 	for (i = 0; i < retry; i++) {
 		//---set xdata index to EVENT BUF ADDR---

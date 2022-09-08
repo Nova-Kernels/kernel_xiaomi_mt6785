@@ -53,8 +53,6 @@ config TOUCHSCREEN_MTK_FOCALTECH_TS
 	  To compile this dirver as a module, choose M here: the
 	  module will be called.
 
-source "drivers/input/touchscreen/mediatek/focaltech_touch/Kconfig"
-
 config TOUCHSCREEN_MTK_GT1151
 	bool "GT1151 for Mediatek package"
 	default n
@@ -90,8 +88,6 @@ config TOUCHSCREEN_MTK_NT36xxx
 	  module will be called.
 
 source "drivers/input/touchscreen/mediatek/NT36xxx/Kconfig"
-source "drivers/input/touchscreen/mediatek/focaltech_touch/Kconfig"
-source "drivers/input/touchscreen/mediatek/NT36xxx_HOSTDL_SPI/Kconfig"
 
 config TOUCHSCREEN_MTK_GT9XX_LM
 	bool "GT9XX_LM for Mediatek package"

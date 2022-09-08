@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 - 2018 Novatek, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * $Revision: 32206 $
  * $Date: 2018-08-10 19:23:04 +0800 (週五, 10 八月 2018) $
@@ -42,7 +42,7 @@
 #define NVT_DUMP_PARTITION_LEN  (1024)
 #define NVT_DUMP_PARTITION_PATH "/data/local/tmp"
 
-static struct timeval start, end;
+struct timeval start, end;
 const struct firmware *fw_entry = NULL;
 static size_t fw_need_write_size = 0;
 static uint8_t *fwbuf = NULL;

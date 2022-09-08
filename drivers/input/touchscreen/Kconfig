@@ -11,8 +11,8 @@ menuconfig INPUT_TOUCHSCREEN
 
 source "drivers/input/touchscreen/mediatek/Kconfig"
 source "drivers/input/touchscreen/xiaomi-spi-tp/Kconfig"
+source "drivers/input/touchscreen/xiaomi/Kconfig"
 source "drivers/input/touchscreen/NT36672A/Kconfig"
-source "drivers/input/touchscreen/NT36672A_G7/Kconfig"
 source "drivers/input/touchscreen/fts8719/Kconfig"
 
 if INPUT_TOUCHSCREEN
@@ -1266,7 +1266,5 @@ config I2C_STATUS_FOR_TOUCH
 	  If unsure, say N.
 
 source "drivers/input/touchscreen/GT9896/Kconfig"
-source "drivers/input/touchscreen/focaltech_touch/Kconfig"
-source "drivers/input/touchscreen/xiaomi/Kconfig"
 
 endif
