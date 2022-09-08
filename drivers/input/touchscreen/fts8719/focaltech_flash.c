@@ -3,7 +3,7 @@
  * FocalTech fts TouchScreen driver.
  *
  * Copyright (c) 2012-2019, Focaltech Ltd. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -39,7 +39,7 @@
 /*****************************************************************************
 * Static variables
 *****************************************************************************/
-#define FTS_FW_REQUEST_SUPPORT					  1
+#define FTS_FW_REQUEST_SUPPORT					  0
 /* Example: focaltech_ts_fw_tianma.bin */
 #define FTS_FW_NAME_PREX_WITH_REQUEST			   "focaltech_ts_fw_"
 #define FTS_READ_BOOT_ID_TIMEOUT					3
@@ -53,11 +53,6 @@
 /*****************************************************************************
 * Global variable or extern global variabls/functions
 *****************************************************************************/
-extern int fts_fwupg_init_ft8720M(struct fts_ts_data *ts_data);
-extern int fts_fw_recovery_ft8720M(void);
-extern int fts_enter_test_environment_ft8720M(bool test_state);
-extern int fts_upgrade_bin_ft8720M(char *fw_name, bool force);
-
 u8 fw_file[] = {
 #include FTS_UPGRADE_FW_FILE
 };
@@ -520,7 +515,7 @@ err_fw_download:
 	return ret;
 }
 
-static int fts_read_file(char *file_name, u8 **file_buf)
+int fts_read_file(char *file_name, u8 **file_buf)
 {
 	int ret = 0;
 	char file_path[FILE_NAME_LENGTH] = { 0 };
@@ -569,7 +564,7 @@ static int fts_read_file(char *file_name, u8 **file_buf)
 	return ret;
 }
 
-int fts_upgrade_bin_ft8719(char *fw_name, bool force)
+int fts_upgrade_bin(char *fw_name, bool force)
 {
 	int ret = 0;
 	u32 fw_file_len = 0;
@@ -611,20 +606,8 @@ err_bin:
 	return ret;
 }
 
-int fts_upgrade_bin(char *fw_name, bool force)
-{
-	int ret = 0;
 
-	if (fts_data->ic_type == IC_TYPE_FT8719)
-		ret = fts_upgrade_bin_ft8719(fw_name, force);
-	else
-		ret = fts_upgrade_bin_ft8720M(fw_name, force);
-
-	return ret;
-
-}
-
-int fts_enter_test_environment_ft8719(bool test_state)
+int fts_enter_test_environment(bool test_state)
 {
 	int ret = 0;
 	u8 detach_flag = 0;
@@ -663,19 +646,7 @@ int fts_enter_test_environment_ft8719(bool test_state)
 	return 0;
 }
 
-int fts_enter_test_environment(bool test_state)
-{
-	int ret = 0;
-
-	if (fts_data->ic_type == IC_TYPE_FT8719)
-		ret = fts_enter_test_environment_ft8719(test_state);
-	else
-		ret = fts_enter_test_environment_ft8720M(test_state);
-
-	return ret;
-}
-
-static int fts_fw_resume(void)
+int fts_fw_resume(void)
 {
 	int ret = 0;
 	struct fts_upgrade *upg = fwupgrade;
@@ -720,7 +691,7 @@ static int fts_fw_resume(void)
 	return 0;
 }
 
-int fts_fw_recovery_ft8719(void)
+int fts_fw_recovery(void)
 {
 	int ret = 0;
 	u8 boot_state = 0;
@@ -772,18 +743,6 @@ int fts_fw_recovery_ft8719(void)
 	fts_tp_state_recovery(upg->ts_data);
 
 	FTS_INFO("boot recovery pass");
-	return ret;
-}
-
-int fts_fw_recovery(void)
-{
-	int ret = 0;
-
-	if (fts_data->ic_type == IC_TYPE_FT8719)
-		ret = fts_fw_recovery_ft8719();
-	else
-		ret = fts_fw_recovery_ft8720M();
-
 	return ret;
 }
 
@@ -958,7 +917,7 @@ static void fts_fwupg_work(struct work_struct *work)
 	}
 }
 
-int fts_fwupg_init_ft8719(struct fts_ts_data *ts_data)
+int fts_fwupg_init(struct fts_ts_data *ts_data)
 {
 	FTS_INFO("fw upgrade init function");
 
@@ -983,19 +942,6 @@ int fts_fwupg_init_ft8719(struct fts_ts_data *ts_data)
 
 	return 0;
 }
-
-int fts_fwupg_init(struct fts_ts_data *ts_data)
-{
-	int ret = 0;
-
-	if (fts_data->ic_type == IC_TYPE_FT8719)
-		ret = fts_fwupg_init_ft8719(ts_data);
-	else
-		ret = fts_fwupg_init_ft8720M(ts_data);
-
-	return ret;
-}
-
 
 int fts_fwupg_exit(struct fts_ts_data *ts_data)
 {

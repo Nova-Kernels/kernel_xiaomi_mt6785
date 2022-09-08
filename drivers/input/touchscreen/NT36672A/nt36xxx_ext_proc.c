@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 - 2018 Novatek, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * $Revision: 32206 $
  * $Date: 2018-08-10 19:23:04 +0800 (週五, 10 八月 2018) $
@@ -50,19 +50,16 @@ static struct proc_dir_entry *NVT_proc_fw_version_entry;
 static struct proc_dir_entry *NVT_proc_baseline_entry;
 static struct proc_dir_entry *NVT_proc_raw_entry;
 static struct proc_dir_entry *NVT_proc_diff_entry;
-/*static struct proc_dir_entry *NVT_proc_xiaomi_config_info_entry;*/
+static struct proc_dir_entry *NVT_proc_xiaomi_config_info_entry;
 static struct proc_dir_entry *NVT_proc_xiaomi_lockdown_info_entry;
 static struct proc_dir_entry *NVT_proc_pocket_palm_switch_entry;
 
 
 
 // Xiaomi Config Info.
-/*
 static uint8_t nvt_xiaomi_conf_info_fw_ver = 0;
 static uint8_t nvt_xiaomi_conf_info_fae_id = 0;
 static uint64_t nvt_xiaomi_conf_info_reservation = 0;
-*/
-
 
 /*******************************************************
 Description:
@@ -529,7 +526,6 @@ static const struct file_operations nvt_diff_fops = {
 	.release = seq_release,
 };
 
-#if 0
 static int nvt_xiaomi_config_info_show(struct seq_file *m, void *v)
 {
 	seq_printf(m, "FW version/Config version, Debug version: 0x%02X\n", nvt_xiaomi_conf_info_fw_ver);
@@ -577,7 +573,6 @@ static const struct file_operations nvt_xiaomi_config_info_fops = {
 	.llseek = seq_lseek,
 	.release = single_release,
 };
-#endif
 
 static int nvt_xiaomi_lockdown_info_show(struct seq_file *m, void *v)
 {
@@ -828,7 +823,6 @@ int32_t nvt_extra_proc_init(void)
 		NVT_LOG("create proc/%s Succeeded!\n", NVT_DIFF);
 	}
 
-#if 0
 	NVT_proc_xiaomi_config_info_entry = proc_create(NVT_XIAOMI_CONFIG_INFO, 0444, NULL, &nvt_xiaomi_config_info_fops);
 	if (NVT_proc_xiaomi_config_info_entry == NULL) {
 		NVT_ERR("create proc/%s Failed!\n", NVT_XIAOMI_CONFIG_INFO);
@@ -836,7 +830,6 @@ int32_t nvt_extra_proc_init(void)
 	} else {
 		NVT_LOG("create proc/%s Succeeded!\n", NVT_XIAOMI_CONFIG_INFO);
 	}
-#endif
 
 	NVT_proc_xiaomi_lockdown_info_entry = proc_create(NVT_XIAOMI_LOCKDOWN_INFO, 0444, NULL, &nvt_xiaomi_lockdown_info_fops);
 	if (NVT_proc_xiaomi_lockdown_info_entry == NULL) {
@@ -890,13 +883,12 @@ void nvt_extra_proc_deinit(void)
 		NVT_proc_diff_entry = NULL;
 		NVT_LOG("Removed /proc/%s\n", NVT_DIFF);
 	}
-#if 0
+
 	if (NVT_proc_xiaomi_config_info_entry != NULL) {
 		remove_proc_entry(NVT_XIAOMI_CONFIG_INFO, NULL);
 		NVT_proc_xiaomi_config_info_entry = NULL;
 		NVT_LOG("Removed /proc/%s\n", NVT_XIAOMI_CONFIG_INFO);
 	}
-#endif
 
 	if (NVT_proc_xiaomi_lockdown_info_entry != NULL) {
 		remove_proc_entry(NVT_XIAOMI_LOCKDOWN_INFO, NULL);
