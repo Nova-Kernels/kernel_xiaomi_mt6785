@@ -2,7 +2,7 @@
 this file is only for attribution of begonia
 */
 #include "xiaomi-mt6785-common.dtsi"
-#include "novatek-nt36xxx-spi_g7.dtsi"
+#include "novatek-nt36xxx-spi.dtsi"
 #include "cust_mt6785_camera.dtsi"
 
 /******GOODIX, FPC FINGERPRINT start ******/
@@ -66,6 +66,16 @@ this file is only for attribution of begonia
 		status = "ok";
 		spi-max-frequency = <10000000>;  //10M
 	};
+};
+
+&ts_focal {
+	compatible = "focaltech,fts";
+	status = "ok";
+	spi-max-frequency = <4500000>; //4.5M
+	focaltech,reset-gpio = <&pio 2 0x00>;
+	focaltech,irq-gpio = <&pio 1 0x2002>;	//ONESHOT|FALLING
+	focaltech,max-touch-number = <10>;
+	focaltech,display-coords =  <0 0 1080 2340>;
 };
 
 &odm {

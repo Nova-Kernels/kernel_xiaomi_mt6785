@@ -3,7 +3,7 @@
  * FocalTech fts TouchScreen driver.
  *
  * Copyright (c) 2012-2019, Focaltech Ltd. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -37,7 +37,7 @@
 /*****************************************************************************
 * Macro definitions using #define
 *****************************************************************************/
-#define FTS_DRIVER_VERSION				  "Focaltech V3.2.3 20201030"
+#define FTS_DRIVER_VERSION				  "Focaltech V3.1 20190420"
 
 #define BYTE_OFF_0(x)		   (u8)((x) & 0xFF)
 #define BYTE_OFF_8(x)		   (u8)((x >> 8) & 0xFF)
@@ -55,10 +55,7 @@
 #define FTS_CHIP_IDC			((FTS_CHIP_TYPE & FLAGBIT(FLAG_IDC_BIT)) == FLAGBIT(FLAG_IDC_BIT))
 #define FTS_HID_SUPPORTTED	  ((FTS_CHIP_TYPE & FLAGBIT(FLAG_HID_BIT)) == FLAGBIT(FLAG_HID_BIT))
 
-#define FTS_CHIP_TYPE_MAPPING {\
-	{0x0D, 0x87, 0x19, 0x87, 0x19, 0x87, 0xA9, 0x87, 0xB9}, \
-	{0x1C, 0x87, 0x2B, 0x87, 0x20, 0x87, 0xA0, 0x00, 0x00}, \
-}
+#define FTS_CHIP_TYPE_MAPPING {{0x0D, 0x87, 0x19, 0x87, 0x19, 0x87, 0xA9, 0x87, 0xB9} }
 
 #define FILE_NAME_LENGTH					128
 #define ENABLE							  1

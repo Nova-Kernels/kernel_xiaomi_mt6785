@@ -3,7 +3,7 @@
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2012-2019, FocalTech Systems, Ltd., all rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -147,7 +147,7 @@
  * Report Pressure in multitouch
  * 1:enable(default),0:disable
 */
-#define FTS_REPORT_PRESSURE_EN				  0
+#define FTS_REPORT_PRESSURE_EN				  1
 
 /*
  * Gesture function enable
@@ -231,8 +231,8 @@
  * You should rename fw to "focaltech_ts_fw_tianma", and push it into
  * etc/firmware or by customers
  */
-#define FTS_MODULE_NAME						"xinli"
-#define FTS_MODULE2_NAME					   "xinli3th"
+#define FTS_MODULE_NAME						"BIEL"
+#define FTS_MODULE2_NAME					   ""
 #define FTS_MODULE3_NAME					   ""
 
 /*
@@ -240,7 +240,7 @@
  * define your own fw_file, the sample one to be replaced is invalid
  * NOTE: if FTS_GET_MODULE_NUM > 1, it's the fw corresponding with FTS_VENDOR_ID
  */
-#define FTS_UPGRADE_FW_FILE					"include/firmware/fw_sample.i"
+#define FTS_UPGRADE_FW_FILE					"include/firmware/focal_g7_01.i"
 
 /*
  * if FTS_GET_MODULE_NUM >= 2, fw corrsponding with FTS_VENDOR_ID2

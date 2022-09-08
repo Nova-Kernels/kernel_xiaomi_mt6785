@@ -3,7 +3,7 @@
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2012-2019, Focaltech Ltd. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -65,7 +65,6 @@
 #include <linux/dma-mapping.h>
 #include <linux/uaccess.h>
 #include "focaltech_common.h"
-#include <linux/power_supply.h>
 
 /*****************************************************************************
 * Private constant and macro definitions using #define
@@ -109,11 +108,6 @@
 #define FTX_MAX_COMPATIBLE_TYPE			 4
 #define FTX_MAX_COMMMAND_LENGTH			 16
 #define FTS_LOCKDOWN_SIZE				8
-
-enum _IC_TYPE {
-    IC_TYPE_FT8719 = 0x8719,
-    IC_TYPE_FT8720M = 0x8720,
-};
 
 /*****************************************************************************
 * Private enumerations, structures and unions using typedef
@@ -196,7 +190,6 @@ struct fts_ts_data {
 	int key_state;
 	int touch_point;
 	int point_num;
-	int ic_type;
 	struct regulator *vdd;
 	struct regulator *vcc_i2c;
 #if FTS_PINCTRL_EN
@@ -206,11 +199,7 @@ struct fts_ts_data {
 	struct pinctrl_state *pins_release;
 #endif
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
-	struct notifier_block drm_notif;
-#else
 	struct notifier_block fb_notif;
-#endif
 #elif defined(CONFIG_HAS_EARLYSUSPEND)
 	struct early_suspend early_suspend;
 #endif
@@ -218,15 +207,8 @@ struct fts_ts_data {
 	void *proc_test_data;
 #endif
 	int db_wakeup;
-#ifdef CONFIG_TOUCHSCREEN_XIAOMI_TOUCHFEATURE
-	u8 palm_sensor_switch;
-	bool palm_sensor_changed;
-#endif
 	u8 lockdown_info[FTS_LOCKDOWN_SIZE];
 	struct attribute_group *attrs;
-	struct notifier_block power_supply_notif;
-	struct work_struct power_supply_work;
-	struct power_supply *battery_psy;
 };
 
 /*****************************************************************************
@@ -296,7 +278,7 @@ void fts_prc_queue_work(struct fts_ts_data *ts_data);
 /* FW upgrade */
 int fts_fwupg_init(struct fts_ts_data *ts_data);
 int fts_fwupg_exit(struct fts_ts_data *ts_data);
-//int fts_fw_resume(void);
+int fts_fw_resume(void);
 int fts_fw_recovery(void);
 int fts_upgrade_bin(char *fw_name, bool force);
 int fts_enter_test_environment(bool test_state);

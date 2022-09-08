@@ -2,7 +2,7 @@
 # Focaltech Touchscreen driver configuration
 #
 
-config TOUCHSCREEN_FTS8719
+config TOUCHSCREEN_FTS
     bool "Focaltech Touchscreen"
     default n
     help

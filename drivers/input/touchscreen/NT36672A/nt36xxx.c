@@ -32,13 +32,11 @@
 #include <linux/double_click.h>
 
 #if defined(CONFIG_FB)
-#define _DRM_NOTIFY_H_
-#ifdef _DRM_NOTIFY_H_
-#include <drm/drm_notifier_mi.h>
-#else
+#ifdef CONFIG_DRM_MSM
+#include <linux/msm_drm_notify.h>
+#endif
 #include <linux/notifier.h>
 #include <linux/fb.h>
-#endif
 #elif defined(CONFIG_HAS_EARLYSUSPEND)
 #include <linux/earlysuspend.h>
 #endif
@@ -96,15 +94,13 @@ extern void nvt_mp_proc_deinit(void);
 
 struct nvt_ts_data *ts;
 
-static struct workqueue_struct *nvt_lockdown_wq;
-
 #if BOOT_UPDATE_FIRMWARE
 static struct workqueue_struct *nvt_fwu_wq;
 extern void Boot_Update_Firmware(struct work_struct *work);
 #endif
 
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
+#ifdef _MSM_DRM_NOTIFY_H_
 static int nvt_drm_notifier_callback(struct notifier_block *self, unsigned long event, void *data);
 #else
 static int nvt_fb_notifier_callback(struct notifier_block *self, unsigned long event, void *data);
@@ -2037,13 +2033,8 @@ static int nvt_reset_mode(int mode)
 		nvt_set_cur_value(mode, xiaomi_touch_interfaces.touch_mode[mode][SET_CUR_VALUE]);
 	} else if (mode == 0) {
 		for (i = 0; i < Touch_Mode_NUM; i++) {
-			if (i == Touch_Panel_Orientation) {
-				xiaomi_touch_interfaces.touch_mode[i][SET_CUR_VALUE] =
-				xiaomi_touch_interfaces.touch_mode[i][GET_CUR_VALUE];
-			} else {
-				xiaomi_touch_interfaces.touch_mode[i][SET_CUR_VALUE] =
-				xiaomi_touch_interfaces.touch_mode[i][GET_DEF_VALUE];
-			}
+			xiaomi_touch_interfaces.touch_mode[i][SET_CUR_VALUE] =
+			xiaomi_touch_interfaces.touch_mode[i][GET_DEF_VALUE];
 			nvt_set_cur_value(i, xiaomi_touch_interfaces.touch_mode[i][SET_CUR_VALUE]);
 		}
 	} else {
@@ -2056,8 +2047,8 @@ static int nvt_reset_mode(int mode)
 }
 #endif
 
-/*disable get_lockdown_info function
-extern int nvt_touch_get_lockdown_from_display(unsigned char *plockdowninfo);*/
+
+extern int nvt_touch_get_lockdown_from_display(unsigned char *plockdowninfo);
 
 #ifdef CONFIG_TOUCHSCREEN_NVT_DEBUG_FS
 
@@ -2187,71 +2178,6 @@ static void nvt_suspend_work(struct work_struct *work)
 	nvt_ts_suspend(&ts_core->client->dev);
 }
 */
-
-extern int get_lockdown_info_for_nvt(unsigned char* p_lockdown_info);
-
-static void get_lockdown_info(struct work_struct *work)
-{
-	int ret = 0;
-	/*disable get_lockdown_info function*/
-	ret = get_lockdown_info_for_nvt(ts->lockdown_info);
-	if (ret < 0) {
-		NVT_ERR("can't get lockdown info");
-	} else {
-		NVT_LOG("Lockdown:0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
-				ts->lockdown_info[0], ts->lockdown_info[1], ts->lockdown_info[2], ts->lockdown_info[3],
-				ts->lockdown_info[4], ts->lockdown_info[5], ts->lockdown_info[6], ts->lockdown_info[7]);
-	}
-}
-
-enum {
-	CHARGER_ON = 1,
-	CHARGER_OFF = 2,
-}nvt_charger_state;
-
-static void nvt_power_supply_work(struct work_struct *work)
-{
-	int ret;
-	struct nvt_ts_data *ts = container_of(work, struct nvt_ts_data, power_supply_work);
-	union power_supply_propval cur_chgr = {0,};
-	uint8_t buf[3] = {0};
-	if (!ts->battery_psy) {
-		NVT_ERR("battery psy is NULL, something error!!");
-		return;
-	}
-	ret = power_supply_get_property(ts->battery_psy, POWER_SUPPLY_PROP_STATUS, &cur_chgr);
-	if (ret < 0) {
-		NVT_ERR("get psy property failed!!, skip charger mode handler");
-		return;
-	}
-	buf[0] = EVENT_MAP_HOST_CMD;
-	switch (cur_chgr.intval) {
-	case CHARGER_ON:
-		buf[1] = 0x53;
-		break;
-	case CHARGER_OFF:
-		buf[1] = 0x51;
-		break;
-	default :
-		NVT_ERR("unsupport charger state %d", cur_chgr.intval);
-		break;
-	}
-	buf[2] = 0x00;
-	NVT_LOG("charger state %d buf[0]:0x%02x buf[1]:0x%02x buf[2]:0x%02x", cur_chgr.intval, buf[0], buf[1], buf[2]);
-	ret = CTP_SPI_WRITE(ts->client, buf, 3);
-
-}
-
-static int nvt_power_supply_event(struct notifier_block *nb, unsigned long event, void *ptr)
-{
-	struct nvt_ts_data *ts =
-	    container_of(nb, struct nvt_ts_data, power_supply_notif);
-
-	if (!ts)
-		return 0;
-	queue_work(ts->event_wq, &ts->power_supply_work);
-	return 0;
-}
 
 /*******************************************************
 Description:
@@ -2481,7 +2407,7 @@ static int32_t nvt_ts_probe(struct platform_device *pdev)
 			NVT_LOG("request irq %d succeed\n", ts->client->irq);
 		}
 	}
-	/*disable get_lockdown_info function
+
 	ret = nvt_touch_get_lockdown_from_display(ts->lockdown_info);
 	if (ret < 0) {
 		NVT_ERR("can't get lockdown info");
@@ -2489,7 +2415,7 @@ static int32_t nvt_ts_probe(struct platform_device *pdev)
 		NVT_LOG("Lockdown:0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x,0x%02x\n",
 				ts->lockdown_info[0], ts->lockdown_info[1], ts->lockdown_info[2], ts->lockdown_info[3],
 				ts->lockdown_info[4], ts->lockdown_info[5], ts->lockdown_info[6], ts->lockdown_info[7]);
-	}*/
+	}
 
 #if WAKEUP_GESTURE
 	device_init_wakeup(&ts->input_dev->dev, 1);
@@ -2504,15 +2430,6 @@ static int32_t nvt_ts_probe(struct platform_device *pdev)
 		ts->mp_name = ts->config_array[ts->panel_index].nvt_mp_name;
 	}
 
-	nvt_lockdown_wq = alloc_workqueue("nvt_lockdown_wq", WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
-	if (!nvt_lockdown_wq) {
-		NVT_ERR("nvt_fwu_wq create workqueue failed\n");
-		ret = -ENOMEM;
-		goto err_create_nvt_lockdown_wq_failed;
-	}
-	INIT_DELAYED_WORK(&ts->nvt_lockdown_work, get_lockdown_info);
-	// please make sure boot update start after display reset(RESX) sequence
-	queue_delayed_work(nvt_lockdown_wq, &ts->nvt_lockdown_work, msecs_to_jiffies(5000));
 
 #if BOOT_UPDATE_FIRMWARE
 	nvt_fwu_wq = alloc_workqueue("nvt_fwu_wq", WQ_UNBOUND | WQ_MEM_RECLAIM, 1);
@@ -2593,9 +2510,9 @@ static int32_t nvt_ts_probe(struct platform_device *pdev)
 	/*INIT_WORK(&ts->suspend_work, nvt_suspend_work);*/
 
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
+#ifdef _MSM_DRM_NOTIFY_H_
 	ts->drm_notif.notifier_call = nvt_drm_notifier_callback;
-	ret = drm_register_client(&ts->drm_notif);
+	ret = msm_drm_register_client(&ts->drm_notif);
 	if(ret) {
 		NVT_ERR("register drm_notifier failed. ret=%d\n", ret);
 		goto err_register_drm_notif_failed;
@@ -2618,20 +2535,6 @@ static int32_t nvt_ts_probe(struct platform_device *pdev)
 		goto err_register_early_suspend_failed;
 	}
 #endif
-
-	INIT_WORK(&ts->power_supply_work, nvt_power_supply_work);
-	ts->battery_psy = power_supply_get_by_name("battery");
-	if (!ts->battery_psy) {
-		mdelay(50);
-		ts->battery_psy = power_supply_get_by_name("battery");
-	}
-	if (!ts->battery_psy) {
-		NVT_ERR("get battery psy failed, don't register callback for charger mode");
-	} else {
-		ts->power_supply_notif.notifier_call = nvt_power_supply_event;
-		power_supply_reg_notifier(&ts->power_supply_notif);
-		NVT_ERR("register callback for charger mode successful");
-	}
 
 #ifdef CONFIG_TOUCHSCREEN_NVT_DEBUG_FS
 	ts->debugfs = debugfs_create_dir("tp_debug", NULL);
@@ -2657,8 +2560,8 @@ static int32_t nvt_ts_probe(struct platform_device *pdev)
 	return 0;
 
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
-	if (drm_unregister_client(&ts->drm_notif))
+#ifdef _MSM_DRM_NOTIFY_H_
+	if (msm_drm_unregister_client(&ts->drm_notif))
 		NVT_ERR("Error occurred while unregistering drm_notifier.\n");
 err_register_drm_notif_failed:
 #else
@@ -2700,7 +2603,6 @@ err_create_nvt_esd_check_wq_failed:
 	}
 err_create_nvt_fwu_wq_failed:
 #endif
-err_create_nvt_lockdown_wq_failed:
 #if WAKEUP_GESTURE
 	device_init_wakeup(&ts->input_dev->dev, 0);
 #endif
@@ -2747,8 +2649,8 @@ static int32_t nvt_ts_remove(struct platform_device *pdev)
 	NVT_LOG("Removing driver...\n");
 
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
-	if (drm_unregister_client(&ts->drm_notif))
+#ifdef _MSM_DRM_NOTIFY_H_
+	if (msm_drm_unregister_client(&ts->drm_notif))
 		NVT_ERR("Error occurred while unregistering drm_notifier.\n");
 #else
 	if (fb_unregister_client(&ts->fb_notif))
@@ -2823,8 +2725,8 @@ static void nvt_ts_shutdown(struct platform_device *pdev)
 	nvt_irq_enable(false);
 
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
-	if (drm_unregister_client(&ts->drm_notif))
+#ifdef _MSM_DRM_NOTIFY_H_
+	if (msm_drm_unregister_client(&ts->drm_notif))
 		NVT_ERR("Error occurred while unregistering drm_notifier.\n");
 #else
 	if (fb_unregister_client(&ts->fb_notif))
@@ -3029,44 +2931,32 @@ static int32_t nvt_ts_resume(struct device *dev)
 }
 
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
+#ifdef _MSM_DRM_NOTIFY_H_
 static int nvt_drm_notifier_callback(struct notifier_block *self, unsigned long event, void *data)
 {
-	struct drm_notifier_data *evdata = data;
-	int *blank = NULL;
-	struct nvt_ts_data *ts = container_of(self, struct nvt_ts_data, drm_notif);
+	struct msm_drm_notifier *evdata = data;
+	int *blank;
+	struct nvt_ts_data *ts =
+		container_of(self, struct nvt_ts_data, drm_notif);
 
-	if(!evdata || !evdata->data || !ts) {
-		NVT_ERR("null pointer\n");
+	if (!evdata || (evdata->id != 0))
 		return 0;
-	}
-	blank = evdata->data;
-	NVT_LOG("DRM event:%lu,blank:%d", event, *blank);
 
-	switch (event) {
-	case DRM_EARLY_EVENT_BLANK:
-		if(*blank == DRM_BLANK_POWERDOWN) {
-			NVT_LOG("event=%lu, *blank=%d\n", event, *blank);
-			flush_workqueue(ts->event_wq);
-			nvt_ts_suspend(&ts->client->dev);
-		} else {
-			NVT_LOG("DRM_EARLY_EVENT_BLANK: blank = %d, not care\n", *blank);
+	if (evdata->data && ts) {
+		blank = evdata->data;
+		if (event == MSM_DRM_EARLY_EVENT_BLANK) {
+			if (*blank == MSM_DRM_BLANK_POWERDOWN) {
+				NVT_LOG("event=%lu, *blank=%d\n", event, *blank);
+				nvt_ts_suspend(&ts->client->dev);
+			}
+		} else if (event == MSM_DRM_EVENT_BLANK) {
+			if (*blank == MSM_DRM_BLANK_UNBLANK) {
+				NVT_LOG("event=%lu, *blank=%d\n", event, *blank);
+				flush_workqueue(ts->event_wq);
+				queue_work(ts->event_wq, &ts->resume_work);
+			}
 		}
-		break;
-	case DRM_EVENT_BLANK:
-		if(*blank == DRM_BLANK_UNBLANK) {
-			NVT_LOG("event=%lu, *blank=%d\n", event, *blank);
-			flush_workqueue(ts->event_wq);
-			queue_work(ts->event_wq, &ts->resume_work);
-		} else {
-			NVT_LOG("DRM_EVENT_BLANK: blank = %d, not care\n", *blank);
-		}
-		break;
-	default:
-		NVT_LOG("event(%lu) do not need process\n", event);
-		break;
 	}
-
 	return 0;
 }
 #else
@@ -3159,7 +3049,7 @@ static int32_t __init nvt_driver_init(void)
 {
 	int32_t ret = 0;
 
-	NVT_LOG("j22 nvt start\n");
+	NVT_LOG("start\n");
 
 	//---add platform driver---
 	ret = platform_driver_register(&nvt_driver);
