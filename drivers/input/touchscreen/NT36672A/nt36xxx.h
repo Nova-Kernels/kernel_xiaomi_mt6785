@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 - 2018 Novatek, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * $Revision: 32206 $
  * $Date: 2018-08-10 19:23:04 +0800 (週五, 10 八月 2018) $
@@ -27,7 +27,6 @@
 #include <linux/platform_device.h>
 #include <linux/sysfs.h>
 #include <linux/workqueue.h>
-#include <linux/power_supply.h>
 
 
 #ifdef CONFIG_HAS_EARLYSUSPEND
@@ -135,12 +134,11 @@ struct nvt_ts_data {
 	struct spi_device *client;
 	struct platform_device *pdev;
 	struct input_dev *input_dev;
-	struct delayed_work nvt_lockdown_work;
 	struct delayed_work nvt_fwu_work;
 	uint16_t addr;
 	int8_t phys[32];
 #if defined(CONFIG_FB)
-#ifdef _DRM_NOTIFY_H_
+#ifdef _MSM_DRM_NOTIFY_H_
 	struct notifier_block drm_notif;
 #else
 	struct notifier_block fb_notif;
@@ -202,9 +200,6 @@ struct nvt_ts_data {
 	int ic_state;
 	bool palm_sensor_changed;
 	bool palm_sensor_switch;
-	struct notifier_block power_supply_notif;
-	struct work_struct power_supply_work;
-	struct power_supply *battery_psy;
 };
 
 struct nvt_mode_switch {

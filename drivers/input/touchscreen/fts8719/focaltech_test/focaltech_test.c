@@ -3,7 +3,7 @@
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2012-2019, FocalTech Systems, Ltd., all rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -39,7 +39,7 @@
 * Private constant and macro definitions using #define
 *****************************************************************************/
 #define FTS_XIAOMI_AFTERSALES_TEST		"tp_selftest"
-#define DEFAULT_INI_FILE_NAME			"FT8719_J22_TestINI.ini"
+#define DEFAULT_INI_FILE_NAME			"FT8719_G7_TestINI.ini"
 #define FTS_RESULT_INVALID 0
 #define FTS_RESULT_PASS 2
 #define FTS_RESULT_FAIL 1
@@ -58,7 +58,6 @@ extern int ft8719_short_test(struct fts_test *tdata, bool *test_result);
 
 struct test_funcs *test_func_list[] = {
 	&test_func_ft8719,
-	&test_func_ft8720,
 };
 
 /*****************************************************************************
@@ -2338,7 +2337,7 @@ static ssize_t fts_selftest_write(struct file *file, const char __user *buf, siz
 		retval = fts_short_test();
 	} else if (!strncmp("open", tmp, 4)) {
 		retval = fts_open_test();
-	} else if (!strncmp("i2c", tmp, 3)) {
+	} else if (!strncmp("spi", tmp, 3)) {
 		retval = fts_spi_test();
 	} else {
 		FTS_ERROR("[%s] cmd not support", tmp);

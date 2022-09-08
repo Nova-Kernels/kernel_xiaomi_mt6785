@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2010 - 2017 Novatek, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (C) 2019 XiaoMi, Inc.
  *
  * $Revision$
  * $Date$
@@ -20,14 +20,14 @@
 &pio {
 	ts_int_active: ts_int_active {
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO14__FUNC_GPIO14>;
+			pinmux = <PINMUX_GPIO1__FUNC_GPIO1>;
 			slew-rate = <0>;
 			bias-pull-down = <11>;
 		};
 	};
 	ts_reset_active: ts_reset_active {
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO15__FUNC_GPIO15>;
+			pinmux = <PINMUX_GPIO2__FUNC_GPIO2>;
 			slew-rate = <0>;
 			bias-pull-up = <11>;
 			output-high;
@@ -35,14 +35,14 @@
 	};
 	ts_int_suspend: ts_int_suspend {
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO14__FUNC_GPIO14>;
+			pinmux = <PINMUX_GPIO1__FUNC_GPIO1>;
 			slew-rate = <0>;
 			bias-disable;
 		};
 	};
 	ts_reset_suspend: ts_reset_suspend {
 		pins_cmd_dat {
-			pinmux = <PINMUX_GPIO15__FUNC_GPIO15>;
+			pinmux = <PINMUX_GPIO2__FUNC_GPIO2>;
 			slew-rate = <0>;
 			bias-disable;
 			output-low;
@@ -56,9 +56,9 @@
 		status = "ok";
 
 		spi-max-frequency = <5000000>;	//4800000,9600000,15000000,19200000 5M
-		novatek,reset-gpio = <&pio 15 0x00>;
-		novatek,irq-gpio = <&pio 14 0x2001>;
-		//novatek,reset-tddi = <&pio 44 0x00>;
+		novatek,reset-gpio = <&pio 2 0x00>;
+		novatek,irq-gpio = <&pio 1 0x2001>;
+		novatek,reset-tddi = <&pio 44 0x00>;
 		pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
 		pinctrl-0 = <&ts_int_active &ts_reset_active>;
 		pinctrl-1 = <&ts_int_suspend &ts_reset_suspend>;
