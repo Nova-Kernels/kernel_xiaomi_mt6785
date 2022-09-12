@@ -270,8 +270,8 @@ int kbase_device_init(struct kbase_device *kbdev)
 	}
 
 	kthread_init_worker(&kbdev->job_done_worker);
-	kbdev->job_done_worker_thread = kthread_run(kthread_worker_fn,
-		&kbdev->job_done_worker, "mali_jd_thread");
+	kbdev->job_done_worker_thread = kthread_run_perf_critical(cpu_perf_mask,
+		kthread_worker_fn, &kbdev->job_done_worker, "mali_jd_thread");
 	if (IS_ERR(kbdev->job_done_worker_thread)) {
 		return err;
 	}
