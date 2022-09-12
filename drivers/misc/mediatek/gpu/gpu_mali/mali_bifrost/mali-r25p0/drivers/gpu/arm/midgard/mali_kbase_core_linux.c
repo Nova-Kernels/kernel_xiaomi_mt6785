@@ -4719,7 +4719,7 @@ static struct platform_driver kbase_platform_driver = {
 module_platform_driver(kbase_platform_driver);
 #else
 
-static int __init kbase_driver_init(void)
+static int __kbase_driver_init(void *arg)
 {
 	int ret;
 
@@ -4734,6 +4734,17 @@ static int __init kbase_driver_init(void)
 
 	return ret;
 }
+
+static int __init kbase_driver_init(void)
+{
+	struct task_struct *kbase_driver_init_task =
+		kthread_run(__kbase_driver_init, NULL, "kbase_driver_init");
+	if (IS_ERR(kbase_driver_init_task))
+		return PTR_ERR(kbase_driver_init_task);
+	else
+		return 0;
+}
+
 
 static void __exit kbase_driver_exit(void)
 {
