@@ -277,7 +277,7 @@ int kbase_device_init(struct kbase_device *kbdev)
 	}
 
 	if (sched_setscheduler(kbdev->job_done_worker_thread,
-				SCHED_FIFO, &param)) {
+				SCHED_RR, &param)) {
 		dev_warn(kbdev->dev, "mali_jd_thread not set to RT prio");
 	} else {
 		dev_info(kbdev->dev, "mali_jd_thread set to RT prio: %i",
