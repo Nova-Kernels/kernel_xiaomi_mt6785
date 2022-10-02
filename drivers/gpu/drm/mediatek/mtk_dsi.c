@@ -1726,8 +1726,11 @@ static void mtk_dsi_enter_ulps(struct mtk_dsi *dsi)
 		}
 	}
 
-	/* reset related setting */
-	mtk_dsi_mask(dsi, DSI_INTEN, SLEEPIN_ULPS_DONE_INT_FLAG, 0);
+	mtk_dsi_reset_engine(dsi);
+	mtk_dsi_lane0_ulp_mode_enter(dsi);
+	mtk_dsi_clk_ulp_mode_enter(dsi);
+	/* set the lane number as 0 to pull down mipi */
+	writel(0, dsi->regs + DSI_TXRX_CTRL);
 
 	mtk_mipi_tx_pre_oe_config(dsi->phy, 0);
 	mtk_mipi_tx_sw_control_en(dsi->phy, 1);
