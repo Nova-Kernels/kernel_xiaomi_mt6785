@@ -44,6 +44,14 @@ config CPU_FREQ_TIMES
 
          If in doubt, say N.
 
+config CPU_FREQ_MTK
+	bool "MTK CPU frequency setting API"
+	default n
+	help
+	  Enables API for controlling MTK CPU frequencies.
+
+	  If in doubt, say N.  
+
 choice
 	prompt "Default CPUFreq governor"
 	default CPU_FREQ_DEFAULT_GOV_USERSPACE if ARM_SA1100_CPUFREQ || ARM_SA1110_CPUFREQ
