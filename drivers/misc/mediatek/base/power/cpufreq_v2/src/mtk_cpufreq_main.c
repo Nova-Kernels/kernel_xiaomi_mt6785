@@ -1358,6 +1358,9 @@ static struct platform_driver _mt_cpufreq_pdrv = {
 /*
  * Module driver
  */
+#ifdef CONFIG_CPU_FREQ_MTK
+extern void cpufreq_mtk_set_table(int cpu, struct cpufreq_frequency_table *ftbl);
+#endif
 static int __init _mt_cpufreq_tbl_init(void)
 {
 	unsigned int lv = _mt_cpufreq_get_cpu_level();
@@ -1390,6 +1393,9 @@ static int __init _mt_cpufreq_tbl_init(void)
 			p->opp_tbl = opp_tbl_info->opp_tbl;
 			p->nr_opp_tbl = opp_tbl_info->size;
 			p->freq_tbl_for_cpufreq = table;
+#ifdef CONFIG_CPU_FREQ_MTK
+			cpufreq_mtk_set_table(p->cpu_id, table);
+#endif
 		}
 	}
 	return 0;
