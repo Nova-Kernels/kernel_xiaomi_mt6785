@@ -459,8 +459,8 @@ static ssize_t udi_jtag_clock_proc_write(struct file *file,
 	char *buf = _copy_from_user_for_proc(buffer, count);
 	unsigned int i, numdigits, length;
 	unsigned int recv_buf[5];
-	unsigned char recv_char[2][UDI_FIFOSIZE * 2]; /* two char is one byte */
-	unsigned char recv_key_word[10];
+	unsigned char recv_char[2][(UDI_FIFOSIZE * 2) + 1]; /* two char is one byte */
+	unsigned char recv_key_word[11];
 
 	if (!buf)
 		return -EINVAL;
