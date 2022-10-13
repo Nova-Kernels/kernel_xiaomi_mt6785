@@ -189,8 +189,7 @@ static void vma_stop(struct proc_maps_private *priv)
 	up_read(&mm->mmap_sem);
 	mmput(mm);
 
-	sched_migrate_to_cpumask_end(to_cpumask(&priv->old_cpus_allowed),
-				     cpu_lp_mask);
+	priv->mm = NULL;
 }
 
 static struct vm_area_struct *
@@ -227,34 +226,31 @@ static void *m_start(struct seq_file *m, loff_t *ppos)
 	if (!mm || !mmget_not_zero(mm))
 		return NULL;
 
-	sched_migrate_to_cpumask_start(to_cpumask(&priv->old_cpus_allowed),
-				       cpu_lp_mask);
-
-	down_read(&mm->mmap_sem);
-	hold_task_mempolicy(priv);
-	priv->tail_vma = get_gate_vma(mm);
-
-	if (last_addr) {
-		vma = find_vma(mm, last_addr - 1);
-		if (vma && vma->vm_start <= last_addr)
+	if (pos) {
+		/* Skip to the requested VMA */
+		vma = find_vma(mm, last_addr);
+		if (!vma)
+			goto out;
+		while (pos && vma) {
 			vma = m_next_vma(priv, vma);
-		if (vma)
-			return vma;
-	}
-
-	m->version = 0;
-	if (pos < mm->map_count) {
-		for (vma = mm->mmap; pos; pos--) {
-			m->version = vma->vm_start;
-			vma = vma->vm_next;
+			pos--;
 		}
-		return vma;
+		if (!vma)
+			goto out;
+	} else {
+		/* Start from the beginning */
+		vma = find_vma(mm, 0);
+		if (!vma)
+			goto out;
 	}
 
-	/* we do not bother to update m->version in this case */
-	if (pos == mm->map_count && priv->tail_vma)
-		return priv->tail_vma;
+	/* Check if the VMA is still valid */
+	if (vma->vm_start > last_addr)
+		goto out;
 
+	return vma;
+
+out:
 	vma_stop(priv);
 	return NULL;
 }
