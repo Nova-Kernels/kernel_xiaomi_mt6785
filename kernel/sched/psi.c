@@ -1182,7 +1182,6 @@ unsigned int psi_trigger_poll(void **trigger_ptr, struct file *file,
 		pr_info("%s: t:%p triggered!\n",
 			__func__, t);
 		ret |= POLLPRI;
-	}
 
 	return ret;
 }
