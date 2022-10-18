@@ -46,18 +46,21 @@ static u64 kbase_job_write_affinity(struct kbase_device *kbdev,
 				int js)
 {
 	u64 affinity;
+	bool skip_affinity_check = false;
 
 	if ((core_req & (BASE_JD_REQ_FS | BASE_JD_REQ_CS | BASE_JD_REQ_T)) ==
 			BASE_JD_REQ_T) {
-		/* Tiler-only atom */
+		/* Tiler-only atom, affinity value can be programed as 0 */
 		/* If the hardware supports XAFFINITY then we'll only enable
 		 * the tiler (which is the default so this is a no-op),
 		 * otherwise enable shader core 0.
 		 */
-		if (!kbase_hw_has_feature(kbdev, BASE_HW_FEATURE_XAFFINITY))
+		if (!kbase_hw_has_feature(kbdev, BASE_HW_FEATURE_XAFFINITY)){
 			affinity = 1;
-		else
+		} else {
 			affinity = 0;
+			skip_affinity_check = true;
+		}
 	} else if ((core_req & (BASE_JD_REQ_COHERENT_GROUP |
 			BASE_JD_REQ_SPECIFIC_COHERENT_GROUP))) {
 		unsigned int num_core_groups = kbdev->gpu_props.num_core_groups;
@@ -80,7 +83,7 @@ static u64 kbase_job_write_affinity(struct kbase_device *kbdev,
 				kbdev->pm.debug_core_mask[js];
 	}
 
-	if (unlikely(!affinity)) {
+	if (unlikely(!affinity && !skip_affinity_check)) {
 #ifdef CONFIG_MALI_DEBUG
 		u64 shaders_ready =
 			kbase_pm_get_ready_cores(kbdev, KBASE_PM_CORE_SHADER);
