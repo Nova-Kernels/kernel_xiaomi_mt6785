@@ -98,6 +98,7 @@
 #include <linux/delay.h>
 #include <linux/log2.h>
 #include <linux/pm_qos.h>
+#include <linux/devfreq_boost.h>
 #include <mali_kbase_config.h>
 
 
@@ -1465,7 +1466,9 @@ static int kbase_api_tlstream_stats(struct kbase_context *kctx,
 #define KBASE_HANDLE_IOCTL_IN(cmd, function, type, arg)    \
 	do {                                                   \
 		type param;                                        \
-		int err;                                           \
+		int err;										   \
+		if(cmd == KBASE_IOCTL_JOB_SUBMIT)				   \
+			devfreq_boost_kick(DEVFREQ_CPU_LLCC_DDR_BW);   \
 		BUILD_BUG_ON(_IOC_DIR(cmd) != _IOC_WRITE);         \
 		BUILD_BUG_ON(sizeof(param) != _IOC_SIZE(cmd));     \
 		err = copy_from_user(&param, uarg, sizeof(param)); \
