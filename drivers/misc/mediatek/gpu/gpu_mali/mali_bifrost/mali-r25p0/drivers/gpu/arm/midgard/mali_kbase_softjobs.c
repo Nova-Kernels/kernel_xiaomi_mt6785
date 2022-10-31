@@ -977,7 +977,7 @@ static int kbase_jit_allocate_prepare(struct kbase_jd_atom *katom)
 
 	/* Copy the information for safe access and future storage */
 	info = kmalloc_array(count, sizeof(*info), GFP_KERNEL);
-	if (!info) {
+	if (unlikely(!info)) {
 		ret = -ENOMEM;
 		goto fail;
 	}
@@ -1151,7 +1151,7 @@ static int kbase_jit_allocate_process(struct kbase_jd_atom *katom)
 				}
 			}
 
-			if (!can_block) {
+			if (unlikely(!can_block)) {
 				/* Mark the failed allocation as well as the
 				 * other un-attempted allocations in the set,
 				 * so we know they are in use even if the
@@ -1269,14 +1269,14 @@ static int kbase_jit_free_prepare(struct kbase_jd_atom *katom)
 	int ret;
 
 	/* Sanity checks */
-	if (count > ARRAY_SIZE(kctx->jit_alloc)) {
+	if (unlikely(count > ARRAY_SIZE(kctx->jit_alloc))) {
 		ret = -EINVAL;
 		goto fail;
 	}
 
 	/* Copy the information for safe access and future storage */
 	ids = kmalloc_array(count, sizeof(*ids), GFP_KERNEL);
-	if (!ids) {
+	if (unlikely(!ids)) {
 		ret = -ENOMEM;
 		goto fail;
 	}
@@ -1428,12 +1428,12 @@ static int kbase_ext_res_prepare(struct kbase_jd_atom *katom)
 			(uintptr_t) katom->jc;
 
 	/* Fail the job if there is no info structure */
-	if (!user_ext_res) {
+	if (unlikely(!user_ext_res)) {
 		ret = -EINVAL;
 		goto fail;
 	}
 
-	if (copy_from_user(&count, &user_ext_res->count, sizeof(u64)) != 0) {
+	if (unlikely(copy_from_user(&count, &user_ext_res->count, sizeof(u64))) != 0) {
 		ret = -EINVAL;
 		goto fail;
 	}
@@ -1448,7 +1448,7 @@ static int kbase_ext_res_prepare(struct kbase_jd_atom *katom)
 	copy_size = sizeof(*ext_res);
 	copy_size += sizeof(struct base_external_resource) * (count - 1);
 	ext_res = kzalloc(copy_size, GFP_KERNEL);
-	if (!ext_res) {
+	if (unlikely(!ext_res)) {
 		ret = -ENOMEM;
 		goto fail;
 	}
@@ -1481,7 +1481,7 @@ static void kbase_ext_res_process(struct kbase_jd_atom *katom, bool map)
 	bool failed = false;
 
 	ext_res = katom->softjob_data;
-	if (!ext_res)
+	if (unlikely(!ext_res))
 		goto failed_jc;
 
 	kbase_gpu_vm_lock(katom->kctx);
@@ -1506,7 +1506,7 @@ static void kbase_ext_res_process(struct kbase_jd_atom *katom, bool map)
 	 * case of failure but will always report failure if _any_ unmap
 	 * request fails.
 	 */
-	if (failed)
+	if (unlikely(failed))
 		katom->event_code = BASE_JD_EVENT_JOB_INVALID;
 	else
 		katom->event_code = BASE_JD_EVENT_DONE;
