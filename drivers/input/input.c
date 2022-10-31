@@ -59,86 +59,16 @@ static DEFINE_MUTEX(input_mutex);
 
 static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
 
-#ifdef CONFIG_TOUCH_COUNT_DUMP
-static struct touch_event_info *touch_info;
-#endif
-
-#ifdef CONFIG_LAST_TOUCH_EVENTS
-static int input_device_is_touch(struct input_dev *input_dev)
-{
-	unsigned long mask = BIT_MASK(BTN_TOUCH);
-	return ((input_dev->keybit[BIT_WORD(BTN_TOUCH)] & mask) == mask) ? true:false;
-}
-
-static inline void touch_press_release_events_collect(struct input_dev *dev,
-		 unsigned int type, unsigned int code, int value)
-{
-#ifdef CONFIG_TOUCH_COUNT_DUMP
-	char ch[64] = {0x0,};
-#endif
-	struct touch_event *touch_event_buf;
-	struct touch_event_info *touch_events;
-
-	if (!dev->touch_events)
-		return;
-
-	touch_events = dev->touch_events;
-
-	pr_debug("type %d, code %d, value %d\n", type, code, value);
-
-	switch (code) {
-	case ABS_MT_SLOT:
-		if (value > TOUCH_MAX_FINGER)
-			value = 0;
-		touch_events->touch_slot = value;
-		break;
-
-	case ABS_MT_TRACKING_ID:
-		touch_event_buf = &touch_events->touch_event_buf[touch_events->touch_event_num];
-
-		if (value != -1 && !(touch_events->finger_bitmap & BIT(touch_events->touch_slot))) {
-			touch_event_buf->finger_num = touch_events->touch_slot;
-			touch_events->finger_bitmap |= BIT(touch_events->touch_slot);
-			touch_event_buf->touch_state = TOUCH_IS_PRESSED;
-			getnstimeofday(&touch_event_buf->touch_time_stamp);
-			touch_events->touch_event_num++;
-			touch_events->touch_is_pressed = true;
-		} else if (value == -1 && (touch_events->finger_bitmap & BIT(touch_events->touch_slot))) {
-			touch_event_buf->finger_num = touch_events->touch_slot;
-			touch_events->finger_bitmap &= ~BIT(touch_events->touch_slot);
-			touch_event_buf->touch_state = TOUCH_IS_RELEASED;
-			getnstimeofday(&touch_event_buf->touch_time_stamp);
-			touch_events->touch_event_num++;
-		}
-
-		if (touch_events->touch_event_num >= TOUCH_EVENT_MAX)
-			touch_events->touch_event_num = 0;
-
-		break;
-
-	case BTN_TOUCH:
-		if (value == 0) {
-			if (touch_events->touch_is_pressed) {
-				touch_events->touch_is_pressed = false;
-#ifdef CONFIG_TOUCH_COUNT_DUMP
-				touch_events->click_num++;
-				snprintf(ch, sizeof(ch), "%llu", touch_events->click_num);
-				update_hw_monitor_info("input", "clicknum", ch);
-#endif
-			}
-			touch_events->finger_bitmap = 0;
-		}
-		break;
-
-	}
-
-	return;
-}
-#endif
-
-#ifdef CONFIG_DRM_DFPS
-extern void mtk_drm_crtc_touch_notify(void);
-#endif
+static const unsigned int input_max_code[EV_CNT] = {
+	[EV_KEY] = KEY_MAX,
+	[EV_REL] = REL_MAX,
+	[EV_ABS] = ABS_MAX,
+	[EV_MSC] = MSC_MAX,
+	[EV_SW] = SW_MAX,
+	[EV_LED] = LED_MAX,
+	[EV_SND] = SND_MAX,
+	[EV_FF] = FF_MAX,
+};
 
 static inline int is_event_supported(unsigned int code,
 				     unsigned long *bm, unsigned int max)
@@ -2129,6 +2059,14 @@ EXPORT_SYMBOL(input_free_device);
  */
 void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
 {
+	if (type < EV_CNT && input_max_code[type] &&
+	    code > input_max_code[type]) {
+		pr_err("%s: invalid code %u for type %u\n", __func__, code,
+		       type);
+		dump_stack();
+		return;
+	}
+
 	switch (type) {
 	case EV_KEY:
 		__set_bit(code, dev->keybit);
