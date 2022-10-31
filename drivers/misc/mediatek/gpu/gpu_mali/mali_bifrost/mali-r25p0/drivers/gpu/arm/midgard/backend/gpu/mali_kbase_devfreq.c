@@ -559,17 +559,19 @@ static void kbase_devfreq_suspend_resume_worker(struct work_struct *work)
 void kbase_devfreq_enqueue_work(struct kbase_device *kbdev,
 				       enum kbase_devfreq_work_type work_type)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
 	unsigned long flags;
 
 	WARN_ON(work_type == DEVFREQ_WORK_NONE);
 	spin_lock_irqsave(&kbdev->hwaccess_lock, flags);
-	kbdev->devfreq_queue.req_type = work_type;
-	queue_work(kbdev->devfreq_queue.workq, &kbdev->devfreq_queue.work);
+	/* Skip enqueuing a work if workqueue has already been terminated. */
+	if (likely(kbdev->devfreq_queue.workq)) {
+		kbdev->devfreq_queue.req_type = work_type;
+		queue_work(kbdev->devfreq_queue.workq,
+			   &kbdev->devfreq_queue.work);
+	}
 	spin_unlock_irqrestore(&kbdev->hwaccess_lock, flags);
 	dev_dbg(kbdev->dev, "Enqueuing devfreq req: %s\n",
 		kbase_devfreq_req_type_name(work_type));
-#endif
 }
 
 static int kbase_devfreq_work_init(struct kbase_device *kbdev)
