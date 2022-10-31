@@ -4568,13 +4568,8 @@ static int kbase_device_resume(struct device *dev)
 #if defined(CONFIG_MALI_DEVFREQ) && \
 		(LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
 	dev_dbg(dev, "Callback %s\n", __func__);
-	if (kbdev->devfreq) {
-		mutex_lock(&kbdev->pm.lock);
-		if (kbdev->pm.active_count > 0)
-			kbase_devfreq_enqueue_work(kbdev, DEVFREQ_WORK_RESUME);
-		mutex_unlock(&kbdev->pm.lock);
-		flush_workqueue(kbdev->devfreq_queue.workq);
-	}
+	if (kbdev->devfreq)
+		kbase_devfreq_enqueue_work(kbdev, DEVFREQ_WORK_RESUME);
 #endif
 	return 0;
 }
