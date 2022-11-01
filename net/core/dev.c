@@ -3862,9 +3862,9 @@ static bool skb_flow_limit(struct sk_buff *skb, unsigned int qlen)
 static int parseDHCPReply(struct sk_buff *skb)
 {
 	const struct iphdr *iph = (const struct iphdr *)skb->data;
+	struct udphdr *uh = (struct udphdr *)(skb->data+(iph->ihl<<2));
 	if(iph->protocol != IPPROTO_UDP)
 		return 0;
-	struct udphdr *uh = (struct udphdr *)(skb->data+(iph->ihl<<2));
 	if(uh->source == 0x4300 && uh->dest == 0x4400)
 		return 1;
 	return 0;
