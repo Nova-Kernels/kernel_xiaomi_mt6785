@@ -908,8 +908,6 @@ update_sg_util(struct task_struct *p, int dst_cpu,
 		const struct cpumask *sg_mask, struct sg_state *sg_env)
 {
 	int cpu = cpumask_first(sg_mask);
-	struct sched_domain *sd;
-	const struct sched_group *sg;
 	const struct sched_group_energy *sge;
 	unsigned long new_util;
 	int idx, max_idx;
@@ -1731,10 +1729,10 @@ static void select_task_prefer_cpu_fair(struct task_struct *p, int *result)
 inline int
 task_match_on_dst_cpu(struct task_struct *p, int src_cpu, int target_cpu)
 {
+#ifdef CONFIG_MTK_SCHED_BOOST
 	struct task_struct *target_tsk;
 	struct rq *rq = cpu_rq(target_cpu);
-
-#ifdef CONFIG_MTK_SCHED_BOOST
+	
 	if (task_prefer_match(p, src_cpu))
 		return 0;
 
