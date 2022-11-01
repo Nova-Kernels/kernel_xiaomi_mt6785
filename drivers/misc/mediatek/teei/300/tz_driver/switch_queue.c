@@ -43,7 +43,6 @@
 #include <notify_queue.h>
 #include <teei_secure_api.h>
 
-#define IMSG_TAG "[tz_driver]"
 #include <imsg_log.h>
 
 struct completion teei_switch_comp;
@@ -159,7 +158,6 @@ static int handle_one_switch_task(struct task_entry_struct *entry)
 static int handle_all_switch_task(void)
 {
 	struct task_entry_struct *entry = NULL;
-	struct tz_driver_state *s = get_tz_drv_state();
 	int retVal = 0;
 
 	while (1) {

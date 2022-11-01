@@ -65,7 +65,7 @@
 #include <irq_register.h>
 #include <../teei_fp/fp_func.h>
 
-#if (CONFIG_MICROTRUST_TZ_DRIVER_MTK_BOOTPROF && CONFIG_MTPROF)
+#if (CONFIG_MICROTRUST_TZ_DRIVER_MTK_BOOTPROF || CONFIG_MTPROF)
 
 #if KERNEL_VERSION(4, 19, 0) <= LINUX_VERSION_CODE
 #define TEEI_BOOT_FOOTPRINT(str) bootprof_log_boot(str)
