@@ -461,7 +461,6 @@ static long ion_sys_cache_sync(struct ion_client *client,
 	unsigned long kernel_va = 0;
 	unsigned long kernel_size = 0;
 	struct sg_table *table;
-	struct ion_heap *heap = NULL;
 
 	/* Get kernel handle
 	 * For cache sync all cases, some users
@@ -580,7 +579,7 @@ static long ion_sys_cache_sync(struct ion_client *client,
 		m4u_mva_unmap_kernel((unsigned long)param->va,
 				     sync_size, sync_va);
 #else
-		m4u_mva_unmap_kernel((unsigned int)param->va,
+		m4u_mva_unmap_kernel((unsigned long)param->va,
 				     (unsigned int)sync_size, sync_va);
 #endif
 	} else if (ion_need_unmap_flag) {
