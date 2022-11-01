@@ -4544,7 +4544,6 @@ static noinline void __schedule_bug(struct task_struct *prev)
 {
 	/* Save this before calling printk(), since that will clobber it */
 	unsigned long preempt_disable_ip = get_preempt_disable_ip(current);
-	int i = 0;
 	if (oops_in_progress)
 		return;
 
