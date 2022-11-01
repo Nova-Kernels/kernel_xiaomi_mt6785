@@ -50,15 +50,11 @@
 #include <linux/syscalls.h>
 #include <linux/completion.h>
 #include <linux/uuid.h>
-<<<<<<< HEAD
-#include <crypto/chacha.h>
-
 #include <asm/processor.h>
-=======
->>>>>>> 77ae1033287e6a871673123531989718016c2782
 #include <linux/uaccess.h>
 #include <linux/siphash.h>
 #include <linux/uio.h>
+#include <crypto/chacha.h>
 #include <crypto/chacha20.h>
 #include <crypto/blake2s.h>
 #include <asm/processor.h>
@@ -92,44 +88,7 @@ static struct fasync_struct *fasync;
 static DEFINE_SPINLOCK(random_ready_chain_lock);
 static RAW_NOTIFIER_HEAD(random_ready_chain);
 
-<<<<<<< HEAD
-static DEFINE_SPINLOCK(random_ready_list_lock);
-static LIST_HEAD(random_ready_list);
-
-struct crng_state {
-	__u32		state[16];
-	unsigned long	init_time;
-	spinlock_t	lock;
-};
-
-struct crng_state primary_crng = {
-	.lock = __SPIN_LOCK_UNLOCKED(primary_crng.lock),
-};
-
-/*
- * crng_init =  0 --> Uninitialized
- *		1 --> Initialized
- *		2 --> Initialized from input_pool
- *
- * crng_init is protected by primary_crng->lock, and only increases
- * its value (from 0->1->2).
- */
-static int crng_init = 0;
-#define crng_ready() (likely(crng_init > 1))
-static int crng_init_cnt = 0;
-static unsigned long crng_global_init_time = 0;
-#define CRNG_INIT_CNT_THRESH (2*CHACHA_KEY_SIZE)
-static void _extract_crng(struct crng_state *crng, __u8 out[CHACHA_BLOCK_SIZE]);
-static void _crng_backtrack_protect(struct crng_state *crng,
-				    __u8 tmp[CHACHA_BLOCK_SIZE], int used);
-static void process_random_ready_list(void);
-static void _get_random_bytes(void *buf, int nbytes);
-
-static struct ratelimit_state unseeded_warning =
-	RATELIMIT_STATE_INIT("warn_unseeded_randomness", HZ, 3);
-=======
 /* Control how we warn userspace. */
->>>>>>> 77ae1033287e6a871673123531989718016c2782
 static struct ratelimit_state urandom_warning =
 	RATELIMIT_STATE_INIT_FLAGS("urandom_warning", HZ, 3, RATELIMIT_MSG_ON_RELEASE);
 static int ratelimit_disable __read_mostly =
@@ -191,214 +150,8 @@ int __cold register_random_ready_notifier(struct notifier_block *nb)
 	unsigned long flags;
 	int ret = -EALREADY;
 
-<<<<<<< HEAD
-	if (!spin_trylock_irqsave(&primary_crng.lock, flags))
-		return 0;
-	if (crng_init != 0) {
-		spin_unlock_irqrestore(&primary_crng.lock, flags);
-		return 0;
-	}
-	p = (unsigned char *) &primary_crng.state[4];
-	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
-		p[crng_init_cnt % CHACHA_KEY_SIZE] ^= *cp;
-		cp++; crng_init_cnt++; len--;
-	}
-	spin_unlock_irqrestore(&primary_crng.lock, flags);
-	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
-		invalidate_batched_entropy();
-		crng_init = 1;
-		wake_up_interruptible(&crng_init_wait);
-		pr_notice("random: fast init done\n");
-	}
-	return 1;
-}
-
-/*
- * crng_slow_load() is called by add_device_randomness, which has two
- * attributes.  (1) We can't trust the buffer passed to it is
- * guaranteed to be unpredictable (so it might not have any entropy at
- * all), and (2) it doesn't have the performance constraints of
- * crng_fast_load().
- *
- * So we do something more comprehensive which is guaranteed to touch
- * all of the primary_crng's state, and which uses a LFSR with a
- * period of 255 as part of the mixing algorithm.  Finally, we do
- * *not* advance crng_init_cnt since buffer we may get may be something
- * like a fixed DMI table (for example), which might very well be
- * unique to the machine, but is otherwise unvarying.
- */
-static int crng_slow_load(const char *cp, size_t len)
-{
-	unsigned long		flags;
-	static unsigned char	lfsr = 1;
-	unsigned char		tmp;
-	unsigned		i, max = CHACHA_KEY_SIZE;
-	const char *		src_buf = cp;
-	char *			dest_buf = (char *) &primary_crng.state[4];
-
-	if (!spin_trylock_irqsave(&primary_crng.lock, flags))
-		return 0;
-	if (crng_init != 0) {
-		spin_unlock_irqrestore(&primary_crng.lock, flags);
-		return 0;
-	}
-	if (len > max)
-		max = len;
-
-	for (i = 0; i < max ; i++) {
-		tmp = lfsr;
-		lfsr >>= 1;
-		if (tmp & 1)
-			lfsr ^= 0xE1;
-		tmp = dest_buf[i % CHACHA_KEY_SIZE];
-		dest_buf[i % CHACHA_KEY_SIZE] ^= src_buf[i % len] ^ lfsr;
-		lfsr += (tmp << 3) | (tmp >> 5);
-	}
-	spin_unlock_irqrestore(&primary_crng.lock, flags);
-	return 1;
-}
-
-static void crng_reseed(struct crng_state *crng, struct entropy_store *r)
-{
-	unsigned long	flags;
-	int		i, num;
-	union {
-		__u8	block[CHACHA_BLOCK_SIZE];
-		__u32	key[8];
-	} buf;
-
-	if (r) {
-		num = extract_entropy(r, &buf, 32, 16, 0);
-		if (num == 0)
-			return;
-	} else {
-		_extract_crng(&primary_crng, buf.block);
-		_crng_backtrack_protect(&primary_crng, buf.block,
-					CHACHA_KEY_SIZE);
-	}
-	spin_lock_irqsave(&crng->lock, flags);
-	for (i = 0; i < 8; i++) {
-		unsigned long	rv;
-		if (!arch_get_random_seed_long(&rv) &&
-		    !arch_get_random_long(&rv))
-			rv = random_get_entropy();
-		crng->state[i+4] ^= buf.key[i] ^ rv;
-	}
-	memzero_explicit(&buf, sizeof(buf));
-	WRITE_ONCE(crng->init_time, jiffies);
-	spin_unlock_irqrestore(&crng->lock, flags);
-	if (crng == &primary_crng && crng_init < 2) {
-		invalidate_batched_entropy();
-		numa_crng_init();
-		crng_init = 2;
-		process_random_ready_list();
-		wake_up_interruptible(&crng_init_wait);
-		pr_notice("random: crng init done\n");
-		if (unseeded_warning.missed) {
-			pr_notice("random: %d get_random_xx warning(s) missed "
-				  "due to ratelimiting\n",
-				  unseeded_warning.missed);
-			unseeded_warning.missed = 0;
-		}
-		if (urandom_warning.missed) {
-			pr_notice("random: %d urandom warning(s) missed "
-				  "due to ratelimiting\n",
-				  urandom_warning.missed);
-			urandom_warning.missed = 0;
-		}
-	}
-}
-
-static void _extract_crng(struct crng_state *crng,
-			  __u8 out[CHACHA_BLOCK_SIZE])
-{
-	unsigned long v, flags, init_time;
-
-	if (crng_ready()) {
-		init_time = READ_ONCE(crng->init_time);
-		if (time_after(READ_ONCE(crng_global_init_time), init_time) ||
-		    time_after(jiffies, init_time + CRNG_RESEED_INTERVAL))
-			crng_reseed(crng, crng == &primary_crng ?
-				    &input_pool : NULL);
-	}
-	spin_lock_irqsave(&crng->lock, flags);
-	if (arch_get_random_long(&v))
-		crng->state[14] ^= v;
-	chacha20_block(&crng->state[0], out);
-	if (crng->state[12] == 0)
-		crng->state[13]++;
-	spin_unlock_irqrestore(&crng->lock, flags);
-}
-
-static void extract_crng(__u8 out[CHACHA_BLOCK_SIZE])
-{
-	_extract_crng(select_crng(), out);
-}
-
-/*
- * Use the leftover bytes from the CRNG block output (if there is
- * enough) to mutate the CRNG key to provide backtracking protection.
- */
-static void _crng_backtrack_protect(struct crng_state *crng,
-				    __u8 tmp[CHACHA_BLOCK_SIZE], int used)
-{
-	unsigned long	flags;
-	__u32		*s, *d;
-	int		i;
-
-	used = round_up(used, sizeof(__u32));
-	if (used + CHACHA_KEY_SIZE > CHACHA_BLOCK_SIZE) {
-		extract_crng(tmp);
-		used = 0;
-	}
-	spin_lock_irqsave(&crng->lock, flags);
-	s = (__u32 *) &tmp[used];
-	d = &crng->state[4];
-	for (i=0; i < 8; i++)
-		*d++ ^= *s++;
-	spin_unlock_irqrestore(&crng->lock, flags);
-}
-
-static void crng_backtrack_protect(__u8 tmp[CHACHA_BLOCK_SIZE], int used)
-{
-	_crng_backtrack_protect(select_crng(), tmp, used);
-}
-
-static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
-{
-	ssize_t ret = 0, i = CHACHA_BLOCK_SIZE;
-	__u8 tmp[CHACHA_BLOCK_SIZE] __aligned(4);
-	int large_request = (nbytes > 256);
-
-	while (nbytes) {
-		if (large_request && need_resched()) {
-			if (signal_pending(current)) {
-				if (ret == 0)
-					ret = -ERESTARTSYS;
-				break;
-			}
-			schedule();
-		}
-
-		extract_crng(tmp);
-		i = min_t(int, nbytes, CHACHA_BLOCK_SIZE);
-		if (copy_to_user(buf, tmp, i)) {
-			ret = -EFAULT;
-			break;
-		}
-
-		nbytes -= i;
-		buf += i;
-		ret += i;
-	}
-	crng_backtrack_protect(tmp, i);
-
-	/* Wipe data just written to memory */
-	memzero_explicit(tmp, sizeof(tmp));
-=======
 	if (crng_ready())
 		return ret;
->>>>>>> 77ae1033287e6a871673123531989718016c2782
 
 	spin_lock_irqsave(&random_ready_chain_lock, flags);
 	if (!crng_ready())
