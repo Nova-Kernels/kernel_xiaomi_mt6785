@@ -19,7 +19,7 @@ Vortex="$(pwd)/../Vortex"
 # Make flashable zip
 MakeZip() {
     if [ ! -d $Any ]; then
-        git clone github.com/Wahid7852/Anykernel -b master $Any
+        git clone https://github.com/Wahid7852/Anykernel.git $Any
         cd $Any
     else
         cd $Any
