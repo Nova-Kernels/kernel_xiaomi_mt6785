@@ -30,7 +30,7 @@ MakeZip() {
     fi
     cp -af $MainPath/out/arch/arm64/boot/Image.gz-dtb $Any
     sed -i "s/kernel.string=.*/kernel.string=$KERNEL_NAME by Abdul7852/g" anykernel.sh
-    zip -r9 $MainPath/"[$Compiler]-[T-OSS]-$ZIP_KERNEL_VERSION-$KERNEL_NAME-A13.zip" * -x .git README.md *placeholder
+    zip -r9 $MainPath/"NOVA-[$Compiler]-$ZIP_KERNEL_VERSION-A13.zip" * -x .git README.md *placeholder
     cd $MainPath
 }
 
