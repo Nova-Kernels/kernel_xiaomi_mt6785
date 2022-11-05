@@ -104,7 +104,22 @@ Clone_Azure() {
         git branch main && git checkout main
         cd $MainPath
     fi
-    Proton_Version="$($Azure/bin/clang --version | grep clang)"
+    Clang_Version="$($Azure/bin/clang --version | grep clang)"
+}
+
+Clone_Neutron() {
+ 
+    if [ ! -d $Neutron ]; then
+        git clone --depth=1 https://gitlab.com/dakkshesh07/neutron-clang.git -b main $Neutron
+    else
+        cd $Neutron
+        git fetch origin main
+        git checkout FETCH_HEAD
+        git branch -D main
+        git branch main && git checkout main
+        cd $MainPath
+    fi
+    Clang_Version="$($Neutron/bin/clang --version | grep clang)"
 }
 
 Clone_Vortex() {
@@ -280,13 +295,32 @@ Build_Azure() {
     make  -j$(nproc --all)  O=out \
                             PATH="$Azure/bin:/usr/bin:$PATH" \
                             CC=clang \
-                            AS=llvm-as \
 							AR=llvm-ar\
                             NM=llvm-nm \
                             OBJCOPY=llvm-objcopy \
                             OBJDUMP=llvm-objdump \
                             STRIP=llvm-strip \
-                            LD=ld.lld \
+                            CROSS_COMPILE=aarch64-linux-gnu- \
+                            CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+}
+
+Build_Neutron() {
+    Compiler=Neutron
+
+    rm -rf out
+    TIME=$(date +"%m%d%H%M")
+    BUILD_START=$(date +"%s")
+
+    make  -j$(nproc --all)  O=out ARCH=arm64 SUBARCH=arm64 $Defconfig
+    exec 2> >(tee -a out/error.log >&2)
+    make  -j$(nproc --all)  O=out \
+                            PATH="$Neutron/bin:/usr/bin:$PATH" \
+                            CC=clang \
+							AR=llvm-ar\
+                            NM=llvm-nm \
+                            OBJCOPY=llvm-objcopy \
+                            OBJDUMP=llvm-objdump \
+                            STRIP=llvm-strip \
                             CROSS_COMPILE=aarch64-linux-gnu- \
                             CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 }
@@ -313,6 +347,7 @@ Build_Vortex() {
                             CROSS_COMPILE=aarch64-linux-gnu- \
                             CROSS_COMPILE_ARM32=arm-linux-gnueabi-
 }
+
 Build_DTC() {
     Compiler=DragonTC
 
@@ -393,6 +428,13 @@ Azure() {
  
     Clone_Azure
     Build_Azure
+    End
+}
+
+Neutron() {
+ 
+    Clone_Neutron
+    Build_Neutron
     End
 }
 
