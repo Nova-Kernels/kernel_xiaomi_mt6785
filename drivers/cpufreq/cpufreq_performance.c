@@ -19,7 +19,7 @@
 
 static void cpufreq_gov_performance_limits(struct cpufreq_policy *policy)
 {
-  if (active_mode() == 2 || active_mode() == 3 || active_mode() == 0) {
+  if (active_mode() == 3 || active_mode() == 0) {
 	pr_debug("setting to %u kHz\n", policy->max);
 	__cpufreq_driver_target(policy, policy->max, CPUFREQ_RELATION_H);
   } else {
