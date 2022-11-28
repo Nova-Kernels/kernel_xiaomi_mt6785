@@ -8,6 +8,6 @@ config SDCARD_FS
 config SDCARD_FS_FADV_NOACTIVE
 	bool "sdcardfs fadvise noactive support"
 	depends on FADV_NOACTIVE
-	default y
+	default n
 	help
 	  Sdcardfs supports fadvise noactive mode.
