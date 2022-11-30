@@ -48,7 +48,7 @@ scm_version()
 	   head=$(git rev-parse --verify HEAD 2>/dev/null); then
 
                 # Get commit, leave.
-		commit=$(git rev-parse --verify --short=12 HEAD)
+		commit=$(git rev-parse --verify --short=10 HEAD)
 		printf '%s' "//$commit"
 
 		# Is this git on svn?
