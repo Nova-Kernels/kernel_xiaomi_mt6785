@@ -21,7 +21,7 @@
 #include "fm_drv_init.h"
 
 #ifdef CONFIG_MTK_FMRADIO
-int __attribute__((weak)) mtk_wcn_fm_init()
+int __attribute__((weak)) mtk_wcn_fm_init(void)
 {
 	WMT_DETECT_PR_DBG("no impl. mtk_wcn_fm_init\n");
 	return 0;

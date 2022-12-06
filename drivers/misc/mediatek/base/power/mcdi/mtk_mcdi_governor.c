@@ -194,7 +194,7 @@ void set_mcdi_idle_state(int cpu, int state)
 	mcdi_prof_set_idle_state(cpu, state);
 }
 
-int get_cluster_off_token(cpu)
+int get_cluster_off_token(int cpu)
 {
 	unsigned long flags;
 	int cluster;

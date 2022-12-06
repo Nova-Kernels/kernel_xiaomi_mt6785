@@ -1,3 +1,5 @@
+EXTRA_CFLAGS += -Wno-int-conversion
+
 ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 
 ccflags-$(CONFIG_MTK_CMDQ_MBOX_EXT) += -I$(srctree)/drivers/misc/mediatek/cmdq/mailbox

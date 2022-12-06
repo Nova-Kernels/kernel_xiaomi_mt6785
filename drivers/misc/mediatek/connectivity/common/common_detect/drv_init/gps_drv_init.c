@@ -21,7 +21,7 @@
 #include "gps_drv_init.h"
 
 #ifdef CONFIG_MTK_COMBO_GPS
-int __attribute__((weak)) mtk_wcn_stpgps_drv_init()
+int __attribute__((weak)) mtk_wcn_stpgps_drv_init(void)
 {
 	WMT_DETECT_PR_DBG("no impl. mtk_wcn_stpgps_drv_init\n");
 	return 0;
