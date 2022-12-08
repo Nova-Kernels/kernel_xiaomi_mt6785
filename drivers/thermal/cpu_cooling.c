@@ -745,6 +745,33 @@ free_cdev:
 	return cdev;
 }
 
+int cpufreq_platform_cooling_register(void)
+{
+	struct cpumask *clip_cpus;
+	struct device_node *cpu_node;
+	struct cpufreq_policy *policy;
+	int cpu;
+
+	for_each_cpu(cpu, cpu_online_mask) {
+		policy = cpufreq_cpu_get(cpu);
+		if (!policy) {
+			pr_err("no policy for cpu%d\n", cpu);
+			continue;
+		}
+
+		clip_cpus = policy->related_cpus;
+		cpu_node = of_cpu_device_node_get(cpumask_first(policy->cpus));
+		if (!cpu_node) {
+			pr_err("no cpu node\n");
+			continue;
+		}
+		__cpufreq_cooling_register(cpu_node, policy, 0, NULL);
+	}
+
+	return 0;
+
+}
+
 /**
  * cpufreq_cooling_register - function to create cpufreq cooling device.
  * @policy: cpufreq policy
