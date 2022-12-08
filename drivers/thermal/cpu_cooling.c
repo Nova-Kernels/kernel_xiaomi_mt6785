@@ -765,7 +765,7 @@ int cpufreq_platform_cooling_register(void)
 			pr_err("no cpu node\n");
 			continue;
 		}
-		__cpufreq_cooling_register(cpu_node, policy, 0, NULL);
+		__cpufreq_cooling_register(cpu_node, policy, 0);
 	}
 
 	return 0;
