@@ -219,7 +219,7 @@ static void process_delayed_work(struct work_struct *work)
 	 * Terminate the IO with an error
 	 */
 	list_del(&msg->to_user);
-	pr_err("I/O error: sector %llu: no user-space daemon for %s target\n",
+	pr_err("I/O error: sector %lu: no user-space daemon for %s target\n",
 	       msg->bio->bi_iter.bi_sector,
 	       t->miscdev.name);
 	message_kill(msg, &t->message_pool);
