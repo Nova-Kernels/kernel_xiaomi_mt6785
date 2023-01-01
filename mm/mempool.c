@@ -151,7 +151,7 @@ static void *remove_element(mempool_t *pool)
 void mempool_exit(mempool_t *pool)
 {
 	while (pool->curr_nr) {
-		void *element = remove_element(pool, GFP_KERNEL);
+		void *element = remove_element(pool);
 		pool->free(element, pool->pool_data);
 	}
 	kfree(pool->elements);
