@@ -18,6 +18,8 @@
 #define CUST_VIBR_LIMIT
 #define CUST_VIBR_VOL
 
+#include <linux/platform_device.h>
+
 enum vib_strength {
 	VOL_1_2 = 0,
 	VOL_1_3,
