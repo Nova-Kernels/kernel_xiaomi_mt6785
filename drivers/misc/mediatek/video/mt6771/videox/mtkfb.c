@@ -2677,13 +2677,13 @@ static int mtkfb_probe(struct platform_device *pdev)
 	}
 
 	MSG_FUNC_LEAVE();
-	pr_info("disp driver(2) %s end\n", __func__);
+	pr_debug("disp driver(2) %s end\n", __func__);
 	return 0;
 
 cleanup:
 	mtkfb_free_resources(fbdev, init_state);
 
-	pr_info("disp driver(3) %s end\n", __func__);
+	pr_debug("disp driver(3) %s end\n", __func__);
 	return ret;
 }
 

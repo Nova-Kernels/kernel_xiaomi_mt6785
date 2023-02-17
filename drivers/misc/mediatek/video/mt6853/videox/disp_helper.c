@@ -247,7 +247,7 @@ int disp_helper_get_option(enum DISP_HELPER_OPT option)
 #ifdef CONFIG_CUSTOM_LCM_X
 			ret = kstrtoint(CONFIG_CUSTOM_LCM_X, 0, &x);
 			if (ret) {
-				pr_info("%s error to parse x: %s\n",
+				pr_debug("%s error to parse x: %s\n",
 					__func__, CONFIG_CUSTOM_LCM_X);
 				x = 0;
 			}
@@ -261,7 +261,7 @@ int disp_helper_get_option(enum DISP_HELPER_OPT option)
 #ifdef CONFIG_CUSTOM_LCM_Y
 			ret = kstrtoint(CONFIG_CUSTOM_LCM_Y, 0, &y);
 			if (ret) {
-				pr_info("%s error to parse x: %s\n",
+				pr_debug("%s error to parse x: %s\n",
 					__func__, CONFIG_CUSTOM_LCM_Y);
 				y = 0;
 			}

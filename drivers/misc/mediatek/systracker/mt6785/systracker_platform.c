@@ -47,7 +47,7 @@ static int read_timeout_handler(unsigned long addr,
 				__func__, __LINE__);
 		dump_dbg_info();
 	} else
-		pr_info("[DEVAPC] no violation is triggered\n");
+		pr_debug("[DEVAPC] no violation is triggered\n");
 #endif
 	aee_dump_backtrace(regs, NULL);
 
@@ -89,7 +89,7 @@ static void write_timeout_handler(struct pt_regs *regs, void *priv)
 				__func__, __LINE__);
 		dump_dbg_info();
 	} else
-		pr_info("[DEVAPC] no violation is triggered\n");
+		pr_debug("[DEVAPC] no violation is triggered\n");
 #endif
 	aee_dump_backtrace(regs, NULL);
 
@@ -243,7 +243,7 @@ static void systracker_platform_wp_test(void)
 {
 	unsigned int val;
 
-	pr_info("%s:%d: we use ptr = 0x%p\n", __func__, __LINE__, wp_ptr);
+	pr_debug("%s:%d: we use ptr = 0x%p\n", __func__, __LINE__, wp_ptr);
 
 	systracker_set_watchpoint_addr(0x10219000);
 	systracker_watchpoint_enable();
@@ -251,7 +251,7 @@ static void systracker_platform_wp_test(void)
 	/* touch it */
 	val = readl(wp_ptr);
 
-	pr_info("after we touched watchpoint %x\n", val);
+	pr_debug("after we touched watchpoint %x\n", val);
 }
 
 static void systracker_platform_read_timeout_test(void)

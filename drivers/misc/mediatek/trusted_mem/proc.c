@@ -45,7 +45,7 @@ static int tmem_open(struct inode *inode, struct file *file)
 	UNUSED(inode);
 	UNUSED(file);
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	return TMEM_OK;
 }
 
@@ -54,7 +54,7 @@ static int tmem_release(struct inode *inode, struct file *file)
 	UNUSED(inode);
 	UNUSED(file);
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	return TMEM_OK;
 }
 
@@ -70,7 +70,7 @@ static void trusted_mem_device_chunk_alloc(enum TRUSTED_MEM_TYPE mem_type)
 			mem_type, alignment, min_chunk_sz, &ref_count,
 			&g_common_mem_handle[mem_type], NULL, 0, 0);
 	else
-		pr_info("%d chunk is already allocated, handle:0x%x\n",
+		pr_debug("%d chunk is already allocated, handle:0x%x\n",
 			mem_type, g_common_mem_handle[mem_type]);
 
 	if (ret)
@@ -124,7 +124,7 @@ static void trusted_mem_device_ion_alloc_free(enum TRUSTED_MEM_TYPE mem_type)
 	struct ion_client *kern_ion_client;
 	struct ion_handle *kern_ion_handle;
 
-	pr_info("%d ion alloc sz: 0x%x\n", mem_type, min_chunk_sz);
+	pr_debug("%d ion alloc sz: 0x%x\n", mem_type, min_chunk_sz);
 
 	kern_ion_client = ion_client_create(g_ion_device, "cpa_ion_client");
 	if (INVALID(kern_ion_client)) {
@@ -151,7 +151,7 @@ static void trusted_mem_device_ion_alloc_free(enum TRUSTED_MEM_TYPE mem_type)
 		else if (IS_ZERO(tmem_core_get_regmgr_region_ref_cnt(mem_type)))
 			pr_err("%d region should be referenced!\n", mem_type);
 		else
-			pr_info("%s:%d %d ion alloc tested pass!\n", __func__,
+			pr_debug("%s:%d %d ion alloc tested pass!\n", __func__,
 				__LINE__, mem_type);
 	} else {
 		/* Expect allocation to be failed if device is not registered */
@@ -164,7 +164,7 @@ static void trusted_mem_device_ion_alloc_free(enum TRUSTED_MEM_TYPE mem_type)
 			pr_err("%d region should not be referenced!\n",
 			       mem_type);
 		else
-			pr_info("%s:%d %d ion alloc tested pass!\n", __func__,
+			pr_debug("%s:%d %d ion alloc tested pass!\n", __func__,
 				__LINE__, mem_type);
 	}
 
@@ -172,7 +172,7 @@ static void trusted_mem_device_ion_alloc_free(enum TRUSTED_MEM_TYPE mem_type)
 		ion_free(kern_ion_client, kern_ion_handle);
 	ion_client_destroy(kern_ion_client);
 #else
-	pr_info("%d ion interface is not supported!\n", mem_type);
+	pr_debug("%d ion interface is not supported!\n", mem_type);
 #endif
 }
 
@@ -190,39 +190,39 @@ static void trusted_mem_device_common_operations(u64 cmd, u64 param1,
 
 	switch (device_cmd) {
 	case TMEM_DEVICE_COMMON_OPERATION_SSMR_ALLOC:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_SSMR_ALLOC\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_SSMR_ALLOC\n");
 		tmem_core_ssmr_allocate(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_SSMR_RELEASE:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_SSMR_RELEASE\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_SSMR_RELEASE\n");
 		tmem_core_ssmr_release(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_SESSION_OPEN:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_SESSION_OPEN\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_SESSION_OPEN\n");
 		tmem_core_session_open(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_SESSION_CLOSE:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_SESSION_CLOSE\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_SESSION_CLOSE\n");
 		tmem_core_session_close(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_REGION_ON:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_REGION_ON\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_REGION_ON\n");
 		tmem_core_regmgr_online(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_REGION_OFF:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_REGION_OFF\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_REGION_OFF\n");
 		tmem_core_regmgr_offline(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_CHUNK_ALLOC:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_CHUNK_ALLOC\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_CHUNK_ALLOC\n");
 		trusted_mem_device_chunk_alloc(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_CHUNK_FREE:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_CHUNK_FREE\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_CHUNK_FREE\n");
 		trusted_mem_device_chunk_free(device_mem_type);
 		break;
 	case TMEM_DEVICE_COMMON_OPERATION_ION_ALLOC_FREE:
-		pr_info("TMEM_DEVICE_COMMON_OPERATION_ION_ALLOC_FREE\n");
+		pr_debug("TMEM_DEVICE_COMMON_OPERATION_ION_ALLOC_FREE\n");
 		trusted_mem_device_ion_alloc_free(device_mem_type);
 		break;
 	default:
@@ -241,7 +241,7 @@ static void trusted_mem_region_status_dump(void)
 	for (mem_idx = 0; mem_idx < TRUSTED_MEM_MAX; mem_idx++) {
 		is_region_on = tmem_core_is_regmgr_region_on(mem_idx);
 		is_dev_registered = tmem_core_is_device_registered(mem_idx);
-		pr_info("mem%d reg_state:%s registered:%s\n", mem_idx,
+		pr_debug("mem%d reg_state:%s registered:%s\n", mem_idx,
 			is_region_on ? "BUSY" : "IDLE",
 			is_dev_registered ? "YES" : "NO");
 	}
@@ -259,42 +259,42 @@ static void trusted_mem_manual_cmd_invoke(u64 cmd, u64 param1, u64 param2,
 
 	switch (cmd) {
 	case TMEM_REGION_STATUS_DUMP:
-		pr_info("TMEM_REGION_STATUS_DUMP\n");
+		pr_debug("TMEM_REGION_STATUS_DUMP\n");
 		trusted_mem_region_status_dump();
 		break;
 	case TMEM_SECMEM_SVP_DUMP_INFO:
-		pr_info("TMEM_SECMEM_SVP_DUMP_INFO\n");
+		pr_debug("TMEM_SECMEM_SVP_DUMP_INFO\n");
 #if defined(CONFIG_MTK_SECURE_MEM_SUPPORT)
 		secmem_svp_dump_info();
 #endif
 		break;
 	case TMEM_SECMEM_FR_DUMP_INFO:
-		pr_info("TMEM_SECMEM_FR_DUMP_INFO\n");
+		pr_debug("TMEM_SECMEM_FR_DUMP_INFO\n");
 #if defined(CONFIG_MTK_SECURE_MEM_SUPPORT)                                     \
 	&& defined(CONFIG_MTK_CAM_SECURITY_SUPPORT)
 		secmem_fr_dump_info();
 #endif
 		break;
 	case TMEM_SECMEM_WFD_DUMP_INFO:
-		pr_info("TMEM_SECMEM_WFD_DUMP_INFO\n");
+		pr_debug("TMEM_SECMEM_WFD_DUMP_INFO\n");
 #if defined(CONFIG_MTK_WFD_SMEM_SUPPORT)
 		wfd_smem_dump_info();
 #endif
 		break;
 	case TMEM_SECMEM_DYNAMIC_DEBUG_ENABLE:
-		pr_info("TMEM_SECMEM_DYNAMIC_DEBUG_ENABLE\n");
+		pr_debug("TMEM_SECMEM_DYNAMIC_DEBUG_ENABLE\n");
 #if defined(CONFIG_MTK_SECURE_MEM_SUPPORT)
 		secmem_dynamic_debug_control(true);
 #endif
 		break;
 	case TMEM_SECMEM_DYNAMIC_DEBUG_DISABLE:
-		pr_info("TMEM_SECMEM_DYNAMIC_DEBUG_DISABLE\n");
+		pr_debug("TMEM_SECMEM_DYNAMIC_DEBUG_DISABLE\n");
 #if defined(CONFIG_MTK_SECURE_MEM_SUPPORT)
 		secmem_dynamic_debug_control(false);
 #endif
 		break;
 	case TMEM_SECMEM_FORCE_HW_PROTECTION:
-		pr_info("TMEM_SECMEM_FORCE_HW_PROTECTION\n");
+		pr_debug("TMEM_SECMEM_FORCE_HW_PROTECTION\n");
 #if defined(CONFIG_MTK_SECURE_MEM_SUPPORT)
 		secmem_force_hw_protection();
 #endif
@@ -384,11 +384,11 @@ MODULE_PARM_DESC(ut_saturation_stress_pmem_min_chunk_size,
 
 static int __init trusted_mem_init(void)
 {
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 
 	trusted_mem_create_proc_entry();
 
-	pr_info("%s:%d (end)\n", __func__, __LINE__);
+	pr_debug("%s:%d (end)\n", __func__, __LINE__);
 	return TMEM_OK;
 }
 

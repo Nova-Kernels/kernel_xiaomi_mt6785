@@ -254,7 +254,7 @@ static void value2str(char *pbuf)
 		pTemp += write_len;
 		param_nb++;
 	}
-	pr_info("read %s  from panel\n", xy_writepoint);
+	pr_debug("read %s  from panel\n", xy_writepoint);
 }
 
 static void lcm_dsi_dispparam_xy_writepoint(enum panel_type panel_type)
@@ -338,84 +338,84 @@ int panel_disp_param_send_lock(enum panel_type panel_type,unsigned int param, se
 	unsigned int tmp;
 	send_cmd push_table;
 	push_table = p_func;
-	pr_info("[%s]panel_type = %d,param = 0x%x\n",__func__,panel_type,param);
+	pr_debug("[%s]panel_type = %d,param = 0x%x\n",__func__,panel_type,param);
 
 	tmp = param & 0x0000000F;
 
 	switch (tmp) {
 	case DISPPARAM_WARM:		/* warm */
 		if (sizeof(lcm_dsi_dispparam_warm_command[panel_type])) {
-			pr_info("warm\n");
+			pr_debug("warm\n");
 			push_table(NULL,lcm_dsi_dispparam_warm_command[panel_type],
 				sizeof(lcm_dsi_dispparam_warm_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_DEFAULT:		/* normal */
 		if (sizeof(lcm_dsi_dispparam_default_command[panel_type])) {
-			pr_info("default\n");
+			pr_debug("default\n");
 			push_table(NULL,lcm_dsi_dispparam_default_command[panel_type],
 				sizeof(lcm_dsi_dispparam_default_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_COLD:		/* cold */
 		if (sizeof(lcm_dsi_dispparam_cold_command[panel_type])) {
-			pr_info("cold\n");
+			pr_debug("cold\n");
 			push_table(NULL,lcm_dsi_dispparam_cold_command[panel_type],
 				sizeof(lcm_dsi_dispparam_cold_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE8:
 		if (sizeof(lcm_dsi_dispparam_papermode_command[panel_type])) {
-			pr_info("paper mode\n");
+			pr_debug("paper mode\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE1:
 		if (sizeof(lcm_dsi_dispparam_papermode1_command[panel_type])) {
-			pr_info("paper mode1\n");
+			pr_debug("paper mode1\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode1_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode1_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE2:
 		if (sizeof(lcm_dsi_dispparam_papermode2_command[panel_type])) {
-			pr_info("paper mode2\n");
+			pr_debug("paper mode2\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode2_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode2_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE3:
 		if (sizeof(lcm_dsi_dispparam_papermode3_command[panel_type])) {
-			pr_info("paper mode3\n");
+			pr_debug("paper mode3\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode3_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode3_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE4:
 		if (sizeof(lcm_dsi_dispparam_papermode4_command[panel_type])) {
-			pr_info("paper mode4\n");
+			pr_debug("paper mode4\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode4_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode4_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE5:
 		if (sizeof(lcm_dsi_dispparam_papermode5_command[panel_type])) {
-			pr_info("paper mode5\n");
+			pr_debug("paper mode5\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode5_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode5_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE6:
 		if (sizeof(lcm_dsi_dispparam_papermode6_command[panel_type])) {
-			pr_info("paper mode6\n");
+			pr_debug("paper mode6\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode6_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode6_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_PAPERMODE7:
 		if (sizeof(lcm_dsi_dispparam_papermode7_command[panel_type])) {
-			pr_info("paper mode7\n");
+			pr_debug("paper mode7\n");
 			push_table(NULL,lcm_dsi_dispparam_papermode7_command[panel_type],
 				sizeof(lcm_dsi_dispparam_papermode7_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
@@ -431,14 +431,14 @@ int panel_disp_param_send_lock(enum panel_type panel_type,unsigned int param, se
 	switch (tmp) {
 	case DISPPARAM_CE_ON:
 		if (sizeof(lcm_dsi_dispparam_ceon_command[panel_type])) {
-			pr_info("ce on\n");
+			pr_debug("ce on\n");
 			push_table(NULL,lcm_dsi_dispparam_ceon_command[panel_type],
 				sizeof(lcm_dsi_dispparam_ceon_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_CE_OFF:
 		if (sizeof(lcm_dsi_dispparam_cecabc_on_command[panel_type])) {
-			pr_info("ce&cabc on\n");
+			pr_debug("ce&cabc on\n");
 			push_table(NULL,lcm_dsi_dispparam_cecabc_on_command[panel_type],
 				sizeof(lcm_dsi_dispparam_cecabc_on_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
@@ -451,70 +451,70 @@ int panel_disp_param_send_lock(enum panel_type panel_type,unsigned int param, se
 	switch (tmp) {
 	case DISPPARAM_CABCUI_ON:
 		if (sizeof(lcm_dsi_dispparam_cabcguion_command[panel_type])) {
-			pr_info("cabc on\n");
+			pr_debug("cabc on\n");
 			push_table(NULL,lcm_dsi_dispparam_cabcguion_command[panel_type],
 				sizeof(lcm_dsi_dispparam_cabcguion_command[panel_type][100]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_CABCSTILL_ON:
 		if (sizeof(lcm_dsi_dispparam_cabcstillon_command[panel_type])) {
-			pr_info("cabc still on\n");
+			pr_debug("cabc still on\n");
 			push_table(NULL,lcm_dsi_dispparam_cabcstillon_command[panel_type],
 				sizeof(lcm_dsi_dispparam_cabcstillon_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_CABCMOVIE_ON:
 		if (sizeof(lcm_dsi_dispparam_cabcmovieon_command[panel_type])) {
-			pr_info("cabc movie on\n");
+			pr_debug("cabc movie on\n");
 			push_table(NULL,lcm_dsi_dispparam_cabcmovieon_command[panel_type],
 				sizeof(lcm_dsi_dispparam_cabcmovieon_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_CABC_OFF:
 		if (sizeof(lcm_dsi_dispparam_cabcoff_command[panel_type])) {
-			pr_info("cabc movie on\n");
+			pr_debug("cabc movie on\n");
 			push_table(NULL,lcm_dsi_dispparam_cabcoff_command[panel_type],
 				sizeof(lcm_dsi_dispparam_cabcoff_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_SKIN_CE_CABCUI_ON:
 		if (sizeof(lcm_dsi_dispparam_skin_ce_cabcguion_command[panel_type])) {
-			pr_info("cabc on\n");
+			pr_debug("cabc on\n");
 			push_table(NULL,lcm_dsi_dispparam_skin_ce_cabcguion_command[panel_type],
 				sizeof(lcm_dsi_dispparam_skin_ce_cabcguion_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_SKIN_CE_CABCSTILL_ON:
 		if (sizeof(lcm_dsi_dispparam_skin_ce_cabcstillon_command[panel_type])) {
-			pr_info("cabc still on\n");
+			pr_debug("cabc still on\n");
 			push_table(NULL,lcm_dsi_dispparam_skin_ce_cabcstillon_command[panel_type],
 				sizeof(lcm_dsi_dispparam_skin_ce_cabcstillon_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_SKIN_CE_CABCMOVIE_ON:
 		if (sizeof(lcm_dsi_dispparam_skin_ce_cabcmovieon_command[panel_type])) {
-			pr_info("cabc movie on\n");
+			pr_debug("cabc movie on\n");
 			push_table(NULL,lcm_dsi_dispparam_skin_ce_cabcmovieon_command[panel_type],
 				sizeof(lcm_dsi_dispparam_skin_ce_cabcmovieon_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_SKIN_CE_CABC_OFF:
 		if (sizeof(lcm_dsi_dispparam_skin_ce_cabcoff_command[panel_type])) {
-			pr_info("cabc movie on\n");
+			pr_debug("cabc movie on\n");
 			push_table(NULL,lcm_dsi_dispparam_skin_ce_cabcoff_command[panel_type],
 				sizeof(lcm_dsi_dispparam_skin_ce_cabcoff_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_DIMMING_OFF:
 		if (sizeof(lcm_dsi_dispparam_dimmingoff_command[panel_type])) {
-			pr_info("dimming on\n");
+			pr_debug("dimming on\n");
 			push_table(NULL,lcm_dsi_dispparam_dimmingoff_command[panel_type],
 				sizeof(lcm_dsi_dispparam_dimmingoff_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_DIMMING:
 		if (sizeof(lcm_dsi_dispparam_dimmingon_command[panel_type])) {
-			pr_info("smart contrast on\n");
+			pr_debug("smart contrast on\n");
 			push_table(NULL,lcm_dsi_dispparam_dimmingon_command[panel_type],
 				sizeof(lcm_dsi_dispparam_dimmingon_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
@@ -527,25 +527,25 @@ int panel_disp_param_send_lock(enum panel_type panel_type,unsigned int param, se
 	switch (tmp) {
 	case 0xA0000:
 		if (sizeof(lcm_dsi_dispparam_idleon_command[panel_type])) {
-			pr_info("idle on\n");
+			pr_debug("idle on\n");
 			push_table(NULL,lcm_dsi_dispparam_idleon_command[panel_type],
 				sizeof(lcm_dsi_dispparam_idleon_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_LCD_HBM_L1_ON:
-		pr_info("hbm l1 on\n");
+		pr_debug("hbm l1 on\n");
 		hbm_brightness_set(DISPPARAM_LCD_HBM_L1_ON);
 		break;
 	case DISPPARAM_LCD_HBM_L2_ON:
-		pr_info("hbm l2 on\n");
+		pr_debug("hbm l2 on\n");
 		hbm_brightness_set(DISPPARAM_LCD_HBM_L2_ON);
 		break;
 	case DISPPARAM_LCD_HBM_L3_ON:
-		pr_info("hbm l3 on\n");
+		pr_debug("hbm l3 on\n");
 		hbm_brightness_set(DISPPARAM_LCD_HBM_L3_ON);
 		break;
 	case DISPPARAM_LCD_HBM_OFF:
-		pr_info("hbm off\n");
+		pr_debug("hbm off\n");
 		hbm_brightness_set(DISPPARAM_LCD_HBM_OFF);
 		break;
 	case 0xF0000:
@@ -558,21 +558,21 @@ int panel_disp_param_send_lock(enum panel_type panel_type,unsigned int param, se
 	switch (tmp) {
 	case DISPPARAM_NORMALMODE1:
 		if (sizeof(lcm_dsi_dispparam_normal1_command[panel_type])) {
-			pr_info("normal1\n");
+			pr_debug("normal1\n");
 			push_table(NULL,lcm_dsi_dispparam_normal1_command[panel_type],
 				sizeof(lcm_dsi_dispparam_normal1_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_P3:
 		if (sizeof(lcm_dsi_dispparam_normal2_command[panel_type])) {
-			pr_info("normal2\n");
+			pr_debug("normal2\n");
 			push_table(NULL,lcm_dsi_dispparam_normal2_command[panel_type],
 				sizeof(lcm_dsi_dispparam_normal2_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}
 		break;
 	case DISPPARAM_SRGB:
 		if (sizeof(lcm_dsi_dispparam_srgb_command[panel_type])) {
-			pr_info("sRGB\n");
+			pr_debug("sRGB\n");
 			push_table(NULL,lcm_dsi_dispparam_srgb_command[panel_type],
 				sizeof(lcm_dsi_dispparam_srgb_command[panel_type]) / sizeof(struct LCM_setting_table), 1);
 		}

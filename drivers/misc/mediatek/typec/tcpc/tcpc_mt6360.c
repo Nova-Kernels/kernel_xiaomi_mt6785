@@ -2242,7 +2242,7 @@ static int mt6360_parse_dt(struct mt6360_chip *chip, struct device *dev,
 	struct resource *res;
 	int res_cnt, ret;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	np = of_find_node_by_name(NULL, "type_c_port0");
 	if (!np) {
@@ -2319,7 +2319,7 @@ static int mt6360_parse_dt(struct mt6360_chip *chip, struct device *dev,
 }
 
 /*
- * In some platform pr_info may spend too much time on printing debug message.
+ * In some platform pr_debug may spend too much time on printing debug message.
  * So we use this function to test the printk performance.
  * If your platform cannot not pass this check function, please config
  * PD_DBG_INFO, this will provide the threaded debug message for you.
@@ -2343,20 +2343,20 @@ static void check_printk_performance(void)
 	}
 	for (i = 0; i < 10; i++) {
 		t1 = local_clock();
-		pr_info("%d\n", i);
+		pr_debug("%d\n", i);
 		t2 = local_clock();
 		t2 -= t1;
 		nsrem = do_div(t2, 1000000000);
-		pr_info("pr_info : t2-t1 = %lu\n", (unsigned long)nsrem / 1000);
+		pr_debug("pr_debug : t2-t1 = %lu\n", (unsigned long)nsrem / 1000);
 	}
 #else
 	for (i = 0; i < 10; i++) {
 		t1 = local_clock();
-		pr_info("%d\n", i);
+		pr_debug("%d\n", i);
 		t2 = local_clock();
 		t2 -= t1;
 		nsrem = do_div(t2, 1000000000);
-		pr_info("t2-t1 = %lu\n", (unsigned long)nsrem /  1000);
+		pr_debug("t2-t1 = %lu\n", (unsigned long)nsrem /  1000);
 		PD_BUG_ON(nsrem > 100*1000);
 	}
 #endif /* CONFIG_PD_DBG_INFO */
@@ -2508,11 +2508,11 @@ static int mt6360_i2c_probe(struct i2c_client *client,
 	struct mt6360_chip *chip;
 	int ret, chip_id;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	ret = i2c_check_functionality(client->adapter,
 				      I2C_FUNC_SMBUS_I2C_BLOCK |
 				      I2C_FUNC_SMBUS_BYTE_DATA);
-	pr_info("%s I2C functionality : %s\n", __func__, ret ? "ok" : "fail");
+	pr_debug("%s I2C functionality : %s\n", __func__, ret ? "ok" : "fail");
 
 	chip_id = mt6360_check_revision(client);
 	if (chip_id < 0)
@@ -2740,9 +2740,9 @@ static int __init mt6360_init(void)
 {
 	struct device_node *np;
 
-	pr_info("%s (%s)\n", __func__, MT6360_DRV_VERSION);
+	pr_debug("%s (%s)\n", __func__, MT6360_DRV_VERSION);
 	np = of_find_node_by_name(NULL, "usb_type_c");
-	pr_info("%s usb_type_c node %s\n", __func__,
+	pr_debug("%s usb_type_c node %s\n", __func__,
 		np == NULL ? "not found" : "found");
 
 	return i2c_add_driver(&mt6360_driver);

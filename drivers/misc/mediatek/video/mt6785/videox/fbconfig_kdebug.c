@@ -270,7 +270,7 @@ static long fbconfig_ioctl(struct file *file, unsigned int cmd,
 	primary_display_idlemgr_kick(__func__, 1);
 #endif
 	if (primary_get_state() == DISP_SLEPT) {
-		pr_info("%s:display already slept!\n", __func__);
+		pr_debug("%s:display already slept!\n", __func__);
 		return -EFAULT;
 
 	}
@@ -1341,7 +1341,7 @@ void PanelMaster_Init(void)
 				&fbconfig_fops);
 
 	if (!ConfigPara_procfs) {
-		pr_info("[%s %d] failed to register fbconfig in proc/display_ddp\n",
+		pr_debug("[%s %d] failed to register fbconfig in proc/display_ddp\n",
 			__func__, __LINE__);
 		return;
 	}

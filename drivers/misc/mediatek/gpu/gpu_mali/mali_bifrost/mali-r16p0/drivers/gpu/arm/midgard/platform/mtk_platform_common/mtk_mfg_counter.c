@@ -450,7 +450,7 @@ static void _mtk_mfg_init_counter(void)
 	info.bitmask[3] = 0x19CF; /* L2 & MMU */
 	handle = kbase_gator_hwcnt_init(&info);
 	if (!handle) {
-		pr_info("[PMU]Error init hwcnt\n");
+		pr_debug("[PMU]Error init hwcnt\n");
 		return;
 	}
 
@@ -463,7 +463,7 @@ static void _mtk_mfg_init_counter(void)
 	number_of_hardware_counters = cnt - empty_hwc_cnt + MFG_MTK_COUNTER_SIZE;
 	mali_pmus = kcalloc(number_of_hardware_counters, sizeof(GPU_PMU), GFP_KERNEL);
 	if (!mali_pmus) {
-		pr_info("[PMU] fail to allocate mali_pmus\n");
+		pr_debug("[PMU] fail to allocate mali_pmus\n");
 		return;
 	}
 
@@ -660,7 +660,7 @@ static int mali_get_gpu_pmu_swapnreset(GPU_PMU *pmus, int pmu_size)
 
 	ret = PMU_OK;
 	if (!binited) {
-		pr_info("[PMU] not inited, call mtk_get_gpu_pmu_init first\n");
+		pr_debug("[PMU] not inited, call mtk_get_gpu_pmu_init first\n");
 		return PMU_NG;
 	}
 
@@ -694,7 +694,7 @@ static int mali_get_gpu_pmu_swapnreset(GPU_PMU *pmus, int pmu_size)
 static int mali_get_gpu_pmu_swapnreset_stop(void)
 {
 	if (!binited) {
-		pr_info("[PMU] not inited, call mtk_get_gpu_pmu_init first\n");
+		pr_debug("[PMU] not inited, call mtk_get_gpu_pmu_init first\n");
 		return PMU_NG;
 	}
 
@@ -710,7 +710,7 @@ static int mali_get_gpu_pmu_swapnreset_stop(void)
 int mali_get_gpu_pmu_deinit(void)
 {
 	if (!binited) {
-		pr_info("[PMU] not inited, call mtk_get_gpu_pmu_init first\n");
+		pr_debug("[PMU] not inited, call mtk_get_gpu_pmu_init first\n");
 		return PMU_NG;
 	}
 

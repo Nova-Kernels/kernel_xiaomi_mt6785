@@ -470,7 +470,7 @@ EXPORT_SYMBOL(KREE_TeeServiceCall);
 static int KREE_ServPuts(u32 op, u8 param[REE_SERVICE_BUFFER_SIZE])
 {
 	param[REE_SERVICE_BUFFER_SIZE - 1] = 0;
-	pr_info("%s", param);
+	pr_debug("%s", param);
 	return TZ_RESULT_SUCCESS;
 }
 

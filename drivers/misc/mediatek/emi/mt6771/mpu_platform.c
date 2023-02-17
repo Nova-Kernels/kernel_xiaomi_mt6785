@@ -65,7 +65,7 @@ int bypass_violation(unsigned int mpus, unsigned int *init_flag)
 	if (*init_flag)
 		return 0;
 
-	pr_info("[MPU] check bypass condition\n");
+	pr_debug("[MPU] check bypass condition\n");
 
 	infra_ao_base = ioremap(0x10001000, 0x1000);
 	ret = 1;

@@ -105,7 +105,7 @@ void mt6362_vmd1_pmic_setting_on(void)
 	struct mt6362_buck_manager_data *data = g_data;
 	int ret;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	if (!data) {
 		pr_notice("%s: data uninitialize, adjust probe order\n",
 			__func__);
@@ -151,7 +151,7 @@ void mt6362_vmd1_pmic_setting_on(void)
 				 MT6362_MASK_MD_SPMI_CFG, 0xff);
 	if (ret < 0)
 		dev_err(data->dev, "%s: recover spmi_p ctrl fail\n", __func__);
-	pr_info("%s: reset vosel done\n", __func__);
+	pr_debug("%s: reset vosel done\n", __func__);
 }
 
 static int mt6362_buck_manager_probe(struct platform_device *pdev)

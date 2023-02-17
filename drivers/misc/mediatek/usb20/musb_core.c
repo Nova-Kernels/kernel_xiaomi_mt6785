@@ -278,7 +278,7 @@ int musb_otg_send_event(struct usb_otg *otg, enum usb_otg_event event)
 	    module_name, kobject_get_path(&otg->phy->dev->kobj, GFP_KERNEL));
 	ret = kobject_uevent_env(&otg->phy->dev->kobj, KOBJ_CHANGE, envp);
 	if (ret < 0)
-		pr_info("uevent sending failed with ret = %d\n", ret);
+		pr_debug("uevent sending failed with ret = %d\n", ret);
 	return ret;
 }
 EXPORT_SYMBOL_GPL(musb_otg_send_event);
@@ -2528,7 +2528,7 @@ static int musb_init_controller
 	/* resolve CR ALPS01823375 */
 
 	status = musb_platform_init(musb);
-	/* pr_info("musb init controller after allocate\n"); */
+	/* pr_debug("musb init controller after allocate\n"); */
 #ifdef CONFIG_OF
 	musb->xceiv->io_priv = ctrlp;
 #endif
@@ -2729,7 +2729,7 @@ static int musb_probe(struct platform_device *pdev)
 	if (irq <= 0)
 		return -ENODEV;
 
-	pr_info("%s mac=0x%lx, phy=0x%lx, irq=%d\n"
+	pr_debug("%s mac=0x%lx, phy=0x%lx, irq=%d\n"
 		, __func__, (unsigned long)base, (unsigned long)pbase, irq);
 	status = musb_init_controller(dev, irq, base, pbase);
 
@@ -2981,7 +2981,7 @@ static int __init musb_init(void)
 	if (usb_disabled())
 		return 0;
 
-	pr_info("%s: version " MUSB_VERSION ", ?dma?, otg (peripheral+host)\n"
+	pr_debug("%s: version " MUSB_VERSION ", ?dma?, otg (peripheral+host)\n"
 		, musb_driver_name);
 	return platform_driver_register(&musb_driver);
 }

@@ -111,26 +111,26 @@ void mcdi_of_init(void **base)
 	node = of_find_compatible_node(NULL, NULL, mcdi_node_name);
 
 	if (!node)
-		pr_info("node '%s' not found!\n", mcdi_node_name);
+		pr_debug("node '%s' not found!\n", mcdi_node_name);
 
 	*base = of_iomap(node, 0);
 
 	if (!*base)
-		pr_info("mcdi sysram can not iomap!\n");
+		pr_debug("mcdi sysram can not iomap!\n");
 
 	mcupm_sram_is_ready = false;
 
 	mcdi_mcupm_base = of_iomap(node, 1);
 
 	if (!mcdi_mcupm_base)
-		pr_info("mcdi mcupm base can not iomap!\n");
+		pr_debug("mcdi mcupm base can not iomap!\n");
 
 	mcdi_mcupm_sram_base = of_iomap(node, 2);
 
 	if (!mcdi_mcupm_sram_base)
-		pr_info("mcdi mcupm sram base can not iomap!\n");
+		pr_debug("mcdi mcupm sram base can not iomap!\n");
 
-	pr_info("mcdi_mcupm_sram = %p\n", mcdi_mcupm_sram_base);
+	pr_debug("mcdi_mcupm_sram = %p\n", mcdi_mcupm_sram_base);
 
 	mcupm_sram_is_ready = true;
 }

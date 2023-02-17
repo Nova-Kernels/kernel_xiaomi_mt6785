@@ -73,13 +73,13 @@ int32_t kalBoostCpu(IN struct ADAPTER *prAdapter,
 	}
 
 	if (u4TarPerfLevel >= u4BoostCpuTh) {
-		pr_info("kalBoostCpu start\n");
+		pr_debug("kalBoostCpu start\n");
 		set_task_util_min_pct(prGlueInfo->u4TxThreadPid, 100);
 		set_task_util_min_pct(prGlueInfo->u4RxThreadPid, 100);
 		set_task_util_min_pct(prGlueInfo->u4HifThreadPid, 100);
 		kalSetRpsMap(prGlueInfo, CPU_BIG_CORE);
 	} else {
-		pr_info("kalBoostCpu stop\n");
+		pr_debug("kalBoostCpu stop\n");
 		set_task_util_min_pct(prGlueInfo->u4TxThreadPid, 0);
 		set_task_util_min_pct(prGlueInfo->u4RxThreadPid, 0);
 		set_task_util_min_pct(prGlueInfo->u4HifThreadPid, 0);
@@ -95,11 +95,11 @@ int32_t kalBoostCpu(IN struct ADAPTER *prAdapter,
 					   PM_QOS_DDR_OPP,
 					   DDR_OPP_0);
 		}
-		pr_info("Max Dram Freq start\n");
+		pr_debug("Max Dram Freq start\n");
 		pm_qos_update_request(&wifi_qos_request, DDR_OPP_0);
 
 	} else if (fgRequested == ENUM_CPU_BOOST_STATUS_START) {
-		pr_info("Max Dram Freq end\n");
+		pr_debug("Max Dram Freq end\n");
 		pm_qos_update_request(&wifi_qos_request, DDR_OPP_UNREQ);
 		pm_qos_remove_request(&wifi_qos_request);
 		fgRequested = ENUM_CPU_BOOST_STATUS_STOP;

@@ -35,7 +35,7 @@ static void dump_except(enum g_exception_enum except_type, char *except_str)
 {
 #ifdef CONFIG_MTK_AEE_AED
 	if (except_str == NULL) {
-		pr_info("%s: NULL string\n", __func__);
+		pr_debug("%s: NULL string\n", __func__);
 		return;
 	}
 	if (aee_mode != AEE_MODE_NOT_INIT) {
@@ -70,7 +70,7 @@ void gpu_assert(bool cond, enum g_exception_enum except_type,
 			except_str, args);
 		va_end(args);
 
-		pr_info("[GPU/DVFS] assert:%s", tmp_string);
+		pr_debug("[GPU/DVFS] assert:%s", tmp_string);
 		if (cx >= 0)
 			dump_except(except_type, tmp_string);
 	}

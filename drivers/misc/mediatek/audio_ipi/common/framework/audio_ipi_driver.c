@@ -77,7 +77,7 @@
 #endif
 
 #if 0
-#define ipi_dbg(x...) pr_info(x)
+#define ipi_dbg(x...) pr_debug(x)
 #else
 #define ipi_dbg(x...)
 #endif
@@ -174,7 +174,7 @@ inline uint32_t msg_len_of_type(const uint8_t data_type)
 		msg_len = IPI_MSG_HEADER_SIZE + IPI_MSG_DMA_INFO_SIZE;
 		break;
 	default:
-		pr_info("%d not support!!", data_type);
+		pr_debug("%d not support!!", data_type);
 		msg_len = IPI_MSG_HEADER_SIZE;
 	}
 
@@ -324,7 +324,7 @@ static int parsing_ipi_msg_from_user_space(
 					 dram_buf_virt,
 					 wb_dram->data_size);
 			if (retval) {
-				pr_info("copy_to_user dma err, id = 0x%x",
+				pr_debug("copy_to_user dma err, id = 0x%x",
 					ipi_msg.msg_id);
 				ipi_msg.scp_ret = 0;
 			}
@@ -340,7 +340,7 @@ static int parsing_ipi_msg_from_user_space(
 			      &ipi_msg,
 			      sizeof(struct ipi_msg_t));
 	if (retval) {
-		pr_info("copy_to_user err, id = 0x%x", ipi_msg.msg_id);
+		pr_debug("copy_to_user err, id = 0x%x", ipi_msg.msg_id);
 		retval = -EFAULT;
 	}
 
@@ -395,7 +395,7 @@ static int audio_ctrl_event_receive(
 		}
 		break;
 	default:
-		pr_info("event %lu err", event);
+		pr_debug("event %lu err", event);
 	}
 	return 0;
 }
@@ -418,24 +418,24 @@ static int audio_ipi_init_dsp_hifi3(const uint32_t dsp_id)
 	int ret = 0;
 
 	if (dsp_id >= NUM_OPENDSP_TYPE) {
-		pr_info("dsp_id(%u) invalid!!!", dsp_id);
+		pr_debug("dsp_id(%u) invalid!!!", dsp_id);
 		return -ENODEV;
 	}
 	if (!is_audio_use_adsp(dsp_id)) {
-		pr_info("dsp_id(%u) not for adsp!!!", dsp_id);
+		pr_debug("dsp_id(%u) not for adsp!!!", dsp_id);
 		return -ENODEV;
 	}
 
 	task = get_audio_controller_task(dsp_id);
 	if (task == TASK_SCENE_INVALID) {
-		pr_info("task(%d) invalid!!!", task);
+		pr_debug("task(%d) invalid!!!", task);
 		return -ENODEV;
 	}
 
 	/* check phone boot */
 	if (init_flag[dsp_id] == false) {
 		init_flag[dsp_id] = true;
-		pr_info("phone init");
+		pr_debug("phone init");
 		audio_ipi_dma_init_dsp(dsp_id);
 		return 0;
 	}
@@ -443,7 +443,7 @@ static int audio_ipi_init_dsp_hifi3(const uint32_t dsp_id)
 	adsp_register_feature(AUDIO_CONTROLLER_FEATURE_ID);
 
 	/* not first init => HAL reboot */
-	pr_info("audio hal reinit");
+	pr_debug("audio hal reinit");
 
 
 	/* TODO: do something before ADSP process hal reboot here */
@@ -506,7 +506,7 @@ static int audio_ctrl_event_receive_scp(
 		break;
 #endif
 	default:
-		pr_info("event %lu err", event);
+		pr_debug("event %lu err", event);
 	}
 	return 0;
 }
@@ -527,13 +527,13 @@ static int audio_ipi_init_dsp_cm4(void)
 	/* check phone boot */
 	if (init_flag == false) {
 		init_flag = true;
-		pr_info("phone init");
+		pr_debug("phone init");
 		audio_ipi_dma_init_dsp(AUDIO_OPENDSP_USE_CM4_A);
 		return 0;
 	}
 
 	/* not first init => HAL reboot */
-	pr_info("audio hal reinit");
+	pr_debug("audio hal reinit");
 
 	/* TODO: do something before SCP process hal reboot here */
 
@@ -616,7 +616,7 @@ static long audio_ipi_driver_ioctl(
 					      sizeof(g_audio_task_info));
 		}
 		if (retval) {
-			pr_info("task info copy_to_user err");
+			pr_debug("task info copy_to_user err");
 			retval = -EFAULT;
 		}
 		break;

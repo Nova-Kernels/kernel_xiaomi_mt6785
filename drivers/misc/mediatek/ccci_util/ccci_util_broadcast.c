@@ -234,7 +234,7 @@ int get_lock_rst_user_list(int md_id, char list_buff[], int size)
 	unsigned long flag;
 
 	if (list_buff == NULL) {
-		pr_info("ccci: NULL buffer for lock list\r\n");
+		pr_debug("ccci: NULL buffer for lock list\r\n");
 		return 0;
 	}
 
@@ -550,7 +550,7 @@ static long ccci_util_bc_ioctl(struct file *filp, unsigned int cmd,
 			md_id = 0;
 			buf[0] = 0;
 		}
-		pr_info("ccci: Lock reset user list: %s\r\n", buf);
+		pr_debug("ccci: Lock reset user list: %s\r\n", buf);
 		kfree(buf);
 
 		break;

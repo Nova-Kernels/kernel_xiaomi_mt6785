@@ -314,7 +314,7 @@ struct nandx_device_info *get_nandx_device_info(u8 *id, int num)
 	}
 
 	if (dev_info)
-		pr_info("[NAND]: %s\n", dev_info->name);
+		pr_debug("[NAND]: %s\n", dev_info->name);
 
 	NANDX_ASSERT(same_count == 1);
 
@@ -357,7 +357,7 @@ u8 get_nandx_interface_value(enum VENDOR_TYPE vtype, u8 timing_mode,
 	if (timing_len)
 		feature |= timing_mode << timing_start;
 
-	pr_info("change interface 0x%x\n", feature);
+	pr_debug("change interface 0x%x\n", feature);
 
 	return feature;
 }

@@ -740,7 +740,7 @@ void apu_profiling(struct profiling_timestamp *profile, const char *tag)
 
 	time = abs(profile->end - profile->begin),
 	nanosec = do_div(time, 1000000000);
-	pr_info("%s: %s take %lu (us)\n", __func__, tag,
+	pr_debug("%s: %s take %lu (us)\n", __func__, tag,
 		((unsigned long)nanosec / 1000));
 }
 EXPORT_SYMBOL(apu_profiling);

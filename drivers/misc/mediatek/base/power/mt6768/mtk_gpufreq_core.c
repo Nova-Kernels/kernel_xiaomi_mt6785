@@ -506,7 +506,7 @@ unsigned int mt_gpufreq_voltage_enable_set(unsigned int enable)
 	mutex_lock(&mt_gpufreq_lock);
 
 	if (g_DVFS_is_paused_by_ptpod && enable == 0) {
-		gpufreq_pr_info("@%s: DVFS is paused by PTPOD\n", __func__);
+		gpufreq_pr_debug("@%s: DVFS is paused by PTPOD\n", __func__);
 		mutex_unlock(&mt_gpufreq_lock);
 		return -1;
 	}
@@ -553,12 +553,12 @@ void mt_gpufreq_enable_by_ptpod(void)
 
 #if defined(CONFIG_ARM64) && \
 	defined(CONFIG_BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES)
-	gpufreq_pr_info("@%s: flavor name: %s\n",
+	gpufreq_pr_debug("@%s: flavor name: %s\n",
 				__func__,
 				CONFIG_BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES);
 	if ((strstr(CONFIG_BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES,
 		"k68v1_64_aging") != NULL)) {
-		gpufreq_pr_info("@%s: AGING flavor !!!\n", __func__);
+		gpufreq_pr_debug("@%s: AGING flavor !!!\n", __func__);
 		g_enable_aging_test = 1;
 	}
 #endif
@@ -2445,7 +2445,7 @@ static void __mt_gpufreq_update_max_limited_idx(void)
 		g_max_limited_idx = limited_idx;
 		g_limiter = limiter;
 
-		gpufreq_pr_info("@%s: g_max_limited_idx = %d, g_limiter = %d\n",
+		gpufreq_pr_debug("@%s: g_max_limited_idx = %d, g_limiter = %d\n",
 			__func__,
 			g_max_limited_idx,
 			g_limiter);
@@ -2745,12 +2745,12 @@ static int __mt_gpufreq_init_pmic(struct platform_device *pdev)
 
 	g_volt_enable_state = true;
 
-	gpufreq_pr_info("@%s: VGPU sfchg raising rate: %d us, VGPU sfchg falling rate: %d us, \t"
+	gpufreq_pr_debug("@%s: VGPU sfchg raising rate: %d us, VGPU sfchg falling rate: %d us, \t"
 			"VSRAM_GPU sfchg raising rate: %d us, VSRAM_GPU sfchg falling rate: %d us\n"
 			, __func__, g_vgpu_sfchg_rrate, g_vgpu_sfchg_frate,
 			g_vsram_sfchg_rrate, g_vsram_sfchg_frate);
 
-	gpufreq_pr_info("@%s: VGPU is enabled = %d (%d mV), VSRAM_GPU is enabled = %d (%d mV)\n",
+	gpufreq_pr_debug("@%s: VGPU is enabled = %d (%d mV), VSRAM_GPU is enabled = %d (%d mV)\n",
 			__func__, regulator_is_enabled(g_pmic->reg_vgpu),
 			(regulator_get_voltage(g_pmic->reg_vgpu) / 1000),
 			regulator_is_enabled(g_pmic->reg_vsram_gpu),
@@ -2815,7 +2815,7 @@ static int __mt_gpufreq_init_clk(struct platform_device *pdev)
 		return PTR_ERR(g_clk->mtcmos_mfg_core1);
 	}
 
-	gpufreq_pr_info("@%s: clk_mux is at 0x%p, clk_main_parent is at 0x%p, \t"
+	gpufreq_pr_debug("@%s: clk_mux is at 0x%p, clk_main_parent is at 0x%p, \t"
 			"clk_sub_parent is at 0x%p, subsys_mfg_cg is at 0x%p, mtcmos_mfg_async is at 0x%p, \t"
 			"mtcmos_mfg is at 0x%p, mtcmos_mfg_core0 is at 0x%p, mtcmos_mfg_core1 is at 0x%p\n",
 			__func__, g_clk->clk_mux, g_clk->clk_main_parent, g_clk->clk_sub_parent,
@@ -2958,15 +2958,15 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 
 	/* setup initial frequency */
 	__mt_gpufreq_set_initial();
-	gpufreq_pr_info("@%s: freq: %d KHz, vgpu: %d uV, vsram_gpu: %d uV\n",
+	gpufreq_pr_debug("@%s: freq: %d KHz, vgpu: %d uV, vsram_gpu: %d uV\n",
 		__func__, mt_get_ckgen_freq(5),
 		__mt_gpufreq_get_cur_volt() * 10,
 		__mt_gpufreq_get_cur_vsram_volt() * 10);
 
-	gpufreq_pr_info("@%s: g_cur_freq = %d, g_cur_volt = %d, g_cur_vsram_volt = %d\n",
+	gpufreq_pr_debug("@%s: g_cur_freq = %d, g_cur_volt = %d, g_cur_vsram_volt = %d\n",
 		__func__, g_cur_opp_freq, g_cur_opp_volt, g_cur_opp_vsram_volt);
 
-	gpufreq_pr_info("@%s: g_cur_opp_idx = %d\n",
+	gpufreq_pr_debug("@%s: g_cur_opp_idx = %d\n",
 		__func__, g_cur_opp_idx);
 
 	__mt_gpufreq_init_others();

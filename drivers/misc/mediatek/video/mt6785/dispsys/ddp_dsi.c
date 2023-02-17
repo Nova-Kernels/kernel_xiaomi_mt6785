@@ -4403,12 +4403,12 @@ long  led_i2c_reg_write(char *buf, unsigned long  count)
 	char *input = NULL;
 	unsigned char pbuf[3] = {0};
 
-	pr_info("[%s], count  = %ld, buf = %s ", __func__, count, buf);
+	pr_debug("[%s], count  = %ld, buf = %s ", __func__, count, buf);
 
 	if (count < 9 || buf == NULL) {
 		/* 01 01 01      -- read 0x01 register, len:1*/
 		/* 00 01 08 17 -- write 0x17 to 0x08 register,*/
-		pr_info("[%s], command is invalid, count  = %ld,buf = %s ", __func__, count, buf);
+		pr_debug("[%s], command is invalid, count  = %ld,buf = %s ", __func__, count, buf);
 		return retval;
 	}
 
@@ -5159,7 +5159,7 @@ static void _dsi_basic_irq_enable(enum DISP_MODULE_ENUM module, void *cmdq)
 	SET_VAL_MASK(value, mask, 1, FLD_INP_UNFINISH_INT_EN);
 	SET_VAL_MASK(value, mask, 1, FLD_BUFFER_UNDERRUN_INT_EN);
 	DISP_REG_MASK(cmdq, &DSI_REG[i]->DSI_INTEN, value, mask);
-	pr_info("%s line:%d", __func__, __LINE__);
+	pr_debug("%s line:%d", __func__, __LINE__);
 }
 
 /**

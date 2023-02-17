@@ -448,11 +448,11 @@ static u32 check_shm_version(u32 *share_mem)
 	switch (mdpm_version_check) {
 	case VERSION_INIT:
 		if (mt_mdpm_debug)
-			pr_info_ratelimited("mdpm share memory: MD not init\n");
+			pr_debug_ratelimited("mdpm share memory: MD not init\n");
 
 		break;
 	case VERSION_INVALID:
-		pr_info("dpm share memory: MD check version ERROR\n");
+		pr_debug("dpm share memory: MD check version ERROR\n");
 		WARN_ON_ONCE(1);
 		break;
 	case VERSION_VALID:
@@ -534,27 +534,27 @@ void init_md1_section_level(u32 *share_mem)
 	memcpy(&share_mem[SECTION_LEVEL_START], &mem[SECTION_LEVEL_START],
 		sizeof(u32) * (SECTION_LEVEL_END - SECTION_LEVEL_START + 1));
 
-	pr_info("AP2MD1 section, 2G: 0x%08x%08x(0x%08x%08x), 3G: 0x%08x%08x(0x%08x %08x)\n",
+	pr_debug("AP2MD1 section, 2G: 0x%08x%08x(0x%08x%08x), 3G: 0x%08x%08x(0x%08x %08x)\n",
 		mem[M_2G_SECTION_LEVEL], mem[M_2G_SECTION_1_LEVEL],
 		share_mem[M_2G_SECTION_LEVEL], share_mem[M_2G_SECTION_1_LEVEL],
 		mem[M_3G_SECTION_LEVEL], mem[M_3G_SECTION_1_LEVEL],
 		share_mem[M_3G_SECTION_LEVEL],
 		share_mem[M_3G_SECTION_1_LEVEL]);
-	pr_info("4G_CC0:0x%08x%08x(0x%08x%08x),4G_CC1:0x%08x%08x(0x%08x%08x)\n",
+	pr_debug("4G_CC0:0x%08x%08x(0x%08x%08x),4G_CC1:0x%08x%08x(0x%08x%08x)\n",
 		mem[M_4G_SECTION_LEVEL], mem[M_4G_SECTION_9_LEVEL],
 		share_mem[M_4G_SECTION_LEVEL], share_mem[M_4G_SECTION_9_LEVEL],
 		mem[M_4G_SECTION_LEVEL], mem[M_4G_SECTION_9_LEVEL],
 		share_mem[M_4G_SECTION_LEVEL],
 		share_mem[M_4G_SECTION_9_LEVEL]);
-	pr_info("3GTDD: 0x%08x%08x(0x%08x%08x)\n",
+	pr_debug("3GTDD: 0x%08x%08x(0x%08x%08x)\n",
 		mem[M_TDD_SECTION_LEVEL], mem[M_TDD_SECTION_1_LEVEL],
 		share_mem[M_TDD_SECTION_LEVEL],
 		share_mem[M_TDD_SECTION_1_LEVEL]);
-	pr_info("C2K: 0x%08x%08x(0x%08x%08x), addr: 0x%p\n",
+	pr_debug("C2K: 0x%08x%08x(0x%08x%08x), addr: 0x%p\n",
 		mem[M_C2K_SECTION_1_LEVEL], mem[M_C2K_SECTION_2_LEVEL],
 		share_mem[M_C2K_SECTION_1_LEVEL],
 		share_mem[M_C2K_SECTION_2_LEVEL], share_mem);
-	pr_info("NR_CC0:0x%08x%08x(0x%08x%08x),NR_CC1:0x%08x%08x(0x%08x%08x)\n",
+	pr_debug("NR_CC0:0x%08x%08x(0x%08x%08x),NR_CC1:0x%08x%08x(0x%08x%08x)\n",
 		mem[M_NR_SECTION_LEVEL], mem[M_NR_SECTION_1_LEVEL],
 		share_mem[M_NR_SECTION_LEVEL], share_mem[M_NR_SECTION_1_LEVEL],
 		mem[M_NR_SECTION_2_LEVEL], mem[M_NR_SECTION_3_LEVEL],
@@ -574,7 +574,7 @@ enum md_scenario get_md1_scenario(u32 share_reg,
 	scenario = (scenario < 0) ? S_STANDBY : scenario;
 
 	if (mt_mdpm_debug)
-		pr_info("MD1 scenario: %d(%s), reg: 0x%x\n",
+		pr_debug("MD1 scenario: %d(%s), reg: 0x%x\n",
 			scenario, mdpm_scen[scenario].scenario_name,
 			share_reg);
 
@@ -595,7 +595,7 @@ enum md_scenario get_md1_scenario_by_shm(u32 *share_mem)
 	scenario = (scenario < 0) ? S_STANDBY : scenario;
 
 	if (mt_mdpm_debug)
-		pr_info("MD1 scenario: %d(%s), scen_status: 0x%x\n",
+		pr_debug("MD1 scenario: %d(%s), scen_status: 0x%x\n",
 			scenario, mdpm_scen[scenario].scenario_name,
 			scen_status);
 
@@ -640,7 +640,7 @@ int get_md1_tx_power(enum md_scenario scenario, u32 *share_mem,
 #if 0
 	if (scenario == S_STANDBY) {
 		if (mt_mdpm_debug)
-			pr_info("MD1 is standby, dBm pw: 0\n");
+			pr_debug("MD1 is standby, dBm pw: 0\n");
 
 		return 0;
 	}
@@ -648,7 +648,7 @@ int get_md1_tx_power(enum md_scenario scenario, u32 *share_mem,
 
 	if (share_mem == NULL) {
 		if (mt_mdpm_debug)
-			pr_info("MD1 share_mem is NULL\n");
+			pr_debug("MD1 share_mem is NULL\n");
 
 		return 0;
 	}
@@ -687,7 +687,7 @@ int get_md1_tx_power(enum md_scenario scenario, u32 *share_mem,
 
 			if ((i + 1) % 10 == 0) {
 				usedBytes = 0;
-				pr_info("%s\n", log_buffer);
+				pr_debug("%s\n", log_buffer);
 			}
 		}
 
@@ -772,7 +772,7 @@ static int get_md1_tx_power_by_table(u32 *dbm_mem, u32 *old_dbm_mem,
 
 	if (cmp) {
 		if (mt_mdpm_debug == 2)
-			pr_info("%s dBm no TX power, reg: 0x%08x%08x(0x%08x%08x) return 0\n",
+			pr_debug("%s dBm no TX power, reg: 0x%08x%08x(0x%08x%08x) return 0\n",
 			tx_pwr->dbm_name,
 			dbm_mem[tx_pwr->shm_dbm_idx[0]],
 			dbm_mem[tx_pwr->shm_dbm_idx[1]],
@@ -805,7 +805,7 @@ static int get_md1_tx_power_by_table(u32 *dbm_mem, u32 *old_dbm_mem,
 			}
 
 			if (mt_mdpm_debug)
-				pr_info("%s dBm: reg:0x%08x%08x(0x%08x%08x),pa:%d,rf:%d,s:%d\n",
+				pr_debug("%s dBm: reg:0x%08x%08x(0x%08x%08x),pa:%d,rf:%d,s:%d\n",
 				tx_pwr->dbm_name,
 				dbm_mem[tx_pwr->shm_dbm_idx[0]],
 				dbm_mem[tx_pwr->shm_dbm_idx[1]],
@@ -916,20 +916,20 @@ void md_power_meter_ut(void)
 
 	ret = check_shm_version(fake_share_mem);
 	if (ret != VERSION_INIT) {
-		pr_info("[UT] check_shm_version error %d , should be %d\n",
+		pr_debug("[UT] check_shm_version error %d , should be %d\n",
 			ret, VERSION_INIT);
 	} else
-		pr_info("[UT] check_shm_version init OK\n");
+		pr_debug("[UT] check_shm_version init OK\n");
 
 	mdpm_shm_write(fake_share_mem, M_VERSION_CHECK, VERSION_VALID,
 		VERSION_CHECK_VALID_MASK, VERSION_CHECK_VALID_SHIFT);
 
 	ret = check_shm_version(fake_share_mem);
 	if (ret != VERSION_VALID) {
-		pr_info("[UT] check_shm_version error %d , should be %d\n",
+		pr_debug("[UT] check_shm_version error %d , should be %d\n",
 			ret, VERSION_VALID);
 	} else
-		pr_info("[UT] check_shm_version valid OK\n");
+		pr_debug("[UT] check_shm_version valid OK\n");
 
 	/* MD rfhw UT */
 	mdpm_shm_write(fake_share_mem, M_RF_HW, 1,
@@ -939,15 +939,15 @@ void md_power_meter_ut(void)
 		RF_HW_VALID_MASK, RF_HW_VALID_SHIFT);
 
 	if (get_rfhw(fake_share_mem) == 0x1)
-		pr_info("[UT] get_rfhw OK\n");
+		pr_debug("[UT] get_rfhw OK\n");
 	else
-		pr_info("[UT] get_rfhw ERROR\n");
+		pr_debug("[UT] get_rfhw ERROR\n");
 
 	/* Tx Power UT */
 	rfhw_sel = 0;
 	for (i = 0; i <= MAX_POWER; i++) {
 		if (mt_mdpm_debug)
-			pr_info("[UT] ====== POWERTYPE:%d ======\n", i);
+			pr_debug("[UT] ====== POWERTYPE:%d ======\n", i);
 
 		for (j = 0; j <= 39; j++) {
 			memset(fake_share_mem, 0, sizeof(u32) *
@@ -976,7 +976,7 @@ void md_power_meter_ut(void)
 					l = get_md1_scenario_internal
 						(fake_share_reg);
 					l = (l < 0) ? S_STANDBY : l;
-					pr_info("[UT] MD SCENARIO:%d(%s) 0x%x DBM SECTION:%d ======\n",
+					pr_debug("[UT] MD SCENARIO:%d(%s) 0x%x DBM SECTION:%d ======\n",
 					j, mdpm_scen[l].scenario_name,
 					fake_share_reg, k+1);
 				}
@@ -984,7 +984,7 @@ void md_power_meter_ut(void)
 				/* test if share_mem not change */
 				md_power = get_md1_power(i, true);
 				if (mt_mdpm_debug)
-					pr_info("[UT] md_power:0x%x\n",
+					pr_debug("[UT] md_power:0x%x\n",
 						md_power);
 
 				/* test section min value */
@@ -998,7 +998,7 @@ void md_power_meter_ut(void)
 
 				md_power = get_md1_power(i, true);
 				if (mt_mdpm_debug)
-					pr_info("[UT] md_power:0x%x\n",
+					pr_debug("[UT] md_power:0x%x\n",
 						md_power);
 
 				/* test section median value */
@@ -1012,7 +1012,7 @@ void md_power_meter_ut(void)
 
 				md_power = get_md1_power(i, true);
 				if (mt_mdpm_debug)
-					pr_info("[UT] md_power:0x%x\n",
+					pr_debug("[UT] md_power:0x%x\n",
 						md_power);
 
 				/* test section max value */
@@ -1026,7 +1026,7 @@ void md_power_meter_ut(void)
 
 				md_power = get_md1_power(i, true);
 				if (mt_mdpm_debug)
-					pr_info("[UT] md_power:0x%x\n",
+					pr_debug("[UT] md_power:0x%x\n",
 						md_power);
 			}
 		}

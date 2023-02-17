@@ -24,7 +24,7 @@
 #define MAX_SUBMIT (33*1000)
 /* #define DEBUG_ALGO */
 #ifdef DEBUG_ALGO
-#define AL_INFO pr_info
+#define AL_INFO pr_debug
 #else
 #define AL_INFO(...)
 #endif
@@ -141,7 +141,7 @@ int free_hist_(struct codec_history **head, struct codec_history *target)
 			temp->next = target->next;
 			kfree(target);
 		} else {
-			pr_info("VCODEC free history %p not found",
+			pr_debug("VCODEC free history %p not found",
 				target->handle);
 			return -1;
 		}
@@ -356,7 +356,7 @@ int update_hist_item(struct codec_job *job, struct codec_history *hist)
 	int prev_idx;
 
 	if (job->handle != hist->handle) {
-		pr_info("VCODEC dvfs job - history mismatch\n");
+		pr_debug("VCODEC dvfs job - history mismatch\n");
 		return -1;
 	}
 
@@ -474,7 +474,7 @@ int add_job_(struct codec_job *job, struct codec_job **head)
 	last_job = *head;
 	while (last_job->next != 0) {
 		if (last_job->handle == job->handle) {
-			pr_info("VCODEC dvfs multiple jobs from same instance");
+			pr_debug("VCODEC dvfs multiple jobs from same instance");
 			return -1;
 		}
 		last_job = last_job->next;
@@ -578,12 +578,12 @@ int est_freq(void *handle, struct codec_job **job, struct codec_history *head)
 
 	/* Error case, just run at max freq */
 	if (target_job == 0) {
-		pr_info("%s job not found!\n", __func__);
+		pr_debug("%s job not found!\n", __func__);
 		return DEFAULT_MHZ;
 	}
 
 	if (target_job != *job)
-		pr_info("%s target_job != job queue head\n", __func__);
+		pr_debug("%s target_job != job queue head\n", __func__);
 
 	est_res = est_next_job(cur_time, &end_time, &kcy, &min_mhz, target_job,
 				head);

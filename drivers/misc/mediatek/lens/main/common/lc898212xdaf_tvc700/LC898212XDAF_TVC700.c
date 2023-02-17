@@ -31,7 +31,7 @@
 #define AF_DEBUG
 #ifdef AF_DEBUG
 #define LOG_INF(format, args...)                                               \
-	pr_info(AF_DRVNAME " [%s] " format, __func__, ##args)
+	pr_debug(AF_DRVNAME " [%s] " format, __func__, ##args)
 #else
 #define LOG_INF(format, args...)
 #endif
@@ -388,7 +388,7 @@ static const struct INIDATAT Init_Table_TVC820[] = {
 
 #ifdef DEBUG_LOG
 #define AF_REGDUMP "REGDUMP"
-#define LOG_INF(format, args...) pr_info(AF_REGDUMP " " format, ##args)
+#define LOG_INF(format, args...) pr_debug(AF_REGDUMP " " format, ##args)
 #endif
 
 #define REG_ADDR_START 0x80 /* REG Start address */

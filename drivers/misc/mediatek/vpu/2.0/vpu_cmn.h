@@ -527,7 +527,7 @@ bool vpu_is_idle(int core);
 #else
 #define LOG_DBG(format, args...)
 #endif
-#define LOG_INF(format, args...)    pr_info(VPU_TAG " " format, ##args)
+#define LOG_INF(format, args...)    pr_debug(VPU_TAG " " format, ##args)
 #define LOG_WRN(format, args...)    pr_warn(VPU_TAG "[warn] " format, ##args)
 #define LOG_ERR(format, args...)    pr_error(VPU_TAG "[error] " format, ##args)
 

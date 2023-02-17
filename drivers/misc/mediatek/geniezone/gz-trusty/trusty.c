@@ -228,7 +228,7 @@ static void trusty_std_call_cpu_idle(struct trusty_state *s)
 
 	ret = wait_for_completion_timeout(&s->cpu_idle_completion, timeout);
 	if (!ret) {
-		pr_info("%s: time out wait cpu idle to clear, retry anyway\n",
+		pr_debug("%s: time out wait cpu idle to clear, retry anyway\n",
 			__func__);
 	}
 }
@@ -888,7 +888,7 @@ static int __init trusty_driver_init(void)
 
 err_nebula_driver:
 err_trusty_driver:
-	pr_info("Platform driver register failed\n");
+	pr_debug("Platform driver register failed\n");
 	return -ENODEV;
 }
 

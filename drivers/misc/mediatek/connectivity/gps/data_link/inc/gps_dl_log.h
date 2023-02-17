@@ -84,9 +84,9 @@ void gps_dl_log_info_show(void);
 	mod, __func__, __LINE__, ##__VA_ARGS__)
 #define __GDL_LOGW(mod, fmt, ...) pr_notice("GDL[W:%d] [%s:%d]: "fmt, \
 	mod, __func__, __LINE__, ##__VA_ARGS__)
-#define __GDL_LOGI(mod, fmt, ...) pr_info("GDL[I:%d] [%s:%d]: "fmt, \
+#define __GDL_LOGI(mod, fmt, ...) pr_debug("GDL[I:%d] [%s:%d]: "fmt, \
 	mod, __func__, __LINE__, ##__VA_ARGS__)
-#define __GDL_LOGD(mod, fmt, ...) pr_info("GDL[D:%d] [%s:%d]: "fmt, \
+#define __GDL_LOGD(mod, fmt, ...) pr_debug("GDL[D:%d] [%s:%d]: "fmt, \
 	mod, __func__, __LINE__, ##__VA_ARGS__)
 
 #define __GDL_LOGXE(mod, link_id, fmt, ...) pr_notice("GDL-%d[E:%d] [%s:%d]: "fmt, \
@@ -95,10 +95,10 @@ void gps_dl_log_info_show(void);
 #define __GDL_LOGXW(mod, link_id, fmt, ...) pr_notice("GDL-%d[W:%d] [%s:%d]: "fmt, \
 	link_id, mod, __func__, __LINE__, ##__VA_ARGS__)
 
-#define __GDL_LOGXI(mod, link_id, fmt, ...) pr_info("GDL-%d[I:%d] [%s:%d]: "fmt, \
+#define __GDL_LOGXI(mod, link_id, fmt, ...) pr_debug("GDL-%d[I:%d] [%s:%d]: "fmt, \
 	link_id, mod, __func__, __LINE__, ##__VA_ARGS__)
 
-#define __GDL_LOGXD(mod, link_id, fmt, ...) pr_info("GDL-%d[D:%d] [%s:%d]: "fmt, \
+#define __GDL_LOGXD(mod, link_id, fmt, ...) pr_debug("GDL-%d[D:%d] [%s:%d]: "fmt, \
 	link_id, mod, __func__, __LINE__, ##__VA_ARGS__)
 #endif /* GPS_DL_ON_XX */
 

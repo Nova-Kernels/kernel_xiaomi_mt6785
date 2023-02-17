@@ -1347,7 +1347,7 @@ void PanelMaster_Init(void)
 				&fbconfig_fops);
 
 	if (!ConfigPara_procfs) {
-		pr_info("[%s %d] failed to register fbconfig in proc/display_ddp\n",
+		pr_debug("[%s %d] failed to register fbconfig in proc/display_ddp\n",
 			__func__, __LINE__);
 		return;
 	}

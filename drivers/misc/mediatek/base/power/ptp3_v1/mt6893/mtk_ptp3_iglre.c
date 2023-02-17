@@ -72,7 +72,7 @@
 #define IGLRE_TAG	 "[xxxxIGLRE]"
 
 #define iglre_info(fmt, args...)	\
-	pr_info(IGLRE_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(IGLRE_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #define iglre_debug(fmt, args...) \
 	pr_debug(IGLRE_TAG"[DEBUG][%s():%d]" fmt, __func__, __LINE__, ##args)

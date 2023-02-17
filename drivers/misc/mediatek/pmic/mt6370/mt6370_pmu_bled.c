@@ -503,7 +503,7 @@ static inline int mt_parse_dt(struct device *dev)
 		pdata->bled_curr_scale = 0x0;
 	else
 		pdata->bled_curr_scale = tmp;
-	pr_info("bled_curr_scale = %d\n", pdata->bled_curr_scale);
+	pr_debug("bled_curr_scale = %d\n", pdata->bled_curr_scale);
 	if (of_property_read_u32(np, "mt,pwm_lpf_coef", &tmp) < 0)
 		pdata->pwm_lpf_coef = 0x0;
 	else
@@ -528,7 +528,7 @@ static int mt6370_pmu_bled_probe(struct platform_device *pdev)
 	bool use_dt = pdev->dev.of_node;
 	int ret = 0;
 
-	pr_info("%s: (%s)\n", __func__, MT6370_PMU_BLED_DRV_VERSION);
+	pr_debug("%s: (%s)\n", __func__, MT6370_PMU_BLED_DRV_VERSION);
 
 	bled_data = devm_kzalloc(&pdev->dev, sizeof(*bled_data), GFP_KERNEL);
 	if (!bled_data)

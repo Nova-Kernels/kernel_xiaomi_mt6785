@@ -70,7 +70,7 @@
 		if (DEVAPC_LOG_LEVEL & DEVAPC_LOG_DBG) { \
 			pr_debug(fmt, ##args); \
 		} else if (DEVAPC_LOG_LEVEL & DEVAPC_LOG_INFO) { \
-			pr_info(fmt, ##args); \
+			pr_debug(fmt, ##args); \
 		} \
 	} while (0)
 
@@ -82,7 +82,7 @@
 		if (DEVAPC_VIO_LEVEL & DEVAPC_LOG_DBG) { \
 			pr_debug(fmt, ##args); \
 		} else if (DEVAPC_VIO_LEVEL & DEVAPC_LOG_INFO) { \
-			pr_info(fmt, ##args); \
+			pr_debug(fmt, ##args); \
 		} else if (DEVAPC_VIO_LEVEL & DEVAPC_LOG_NOTICE) { \
 			pr_notice(fmt, ##args); \
 		} \

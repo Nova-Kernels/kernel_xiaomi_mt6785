@@ -3018,7 +3018,7 @@ static int __init musb_init(void)
 	if (usb_disabled())
 		return 0;
 
-	pr_info("%s: version " MUSB_VERSION ", ?dma?, otg (peripheral+host)\n", musb_driver_name);
+	pr_debug("%s: version " MUSB_VERSION ", ?dma?, otg (peripheral+host)\n", musb_driver_name);
 
 	/* USBIF */
 	prEntry = proc_create("mu3d_driver_init", 0644, NULL, &mu3d_proc_fops);
@@ -3052,7 +3052,7 @@ static int __init musb_init(void)
 	if (usb_disabled())
 		return 0;
 
-	pr_info("%s: version " MUSB_VERSION ", ?dma?, otg (peripheral+host)\n", musb_driver_name);
+	pr_debug("%s: version " MUSB_VERSION ", ?dma?, otg (peripheral+host)\n", musb_driver_name);
 	return platform_driver_register(&musb_driver_probe);
 }
 module_init(musb_init);

@@ -28,15 +28,15 @@ enum {
 #define REVISER_PREFIX "[reviser]"
 
 #define LOG_ERR(x, args...) \
-	pr_info(REVISER_PREFIX "[error] %s " x, __func__, ##args)
+	pr_debug(REVISER_PREFIX "[error] %s " x, __func__, ##args)
 #define LOG_WARN(x, args...) \
-	pr_info(REVISER_PREFIX "[warn] %s " x, __func__, ##args)
+	pr_debug(REVISER_PREFIX "[warn] %s " x, __func__, ##args)
 #define LOG_INFO(x, args...) \
-	pr_info(REVISER_PREFIX "%s " x, __func__, ##args)
+	pr_debug(REVISER_PREFIX "%s " x, __func__, ##args)
 #define LOG_DEBUG(x, args...) \
 	{ \
 		if (g_reviser_log_level >= REVISER_LOG_DEBUG) \
-			pr_info(REVISER_PREFIX "[debug] %s/%d "\
+			pr_debug(REVISER_PREFIX "[debug] %s/%d "\
 			x, __func__, __LINE__, ##args); \
 	}
 

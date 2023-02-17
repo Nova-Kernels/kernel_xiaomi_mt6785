@@ -187,7 +187,7 @@ u8 nanohub_bl_download(struct nanohub_data *data, u32 addr,
 	}
 
 	status = nanohub_bl_read_memory(data, addr, length, ptr);
-	pr_info(
+	pr_debug(
 	    "nanohub: nanohub_bl_read_memory: status=%02x, addr=%08x, length=%zd\n",
 	    status, addr, length);
 
@@ -235,7 +235,7 @@ u8 nanohub_bl_download(struct nanohub_data *data, u32 addr,
 	}
 
 	for (i = 0; status == CMD_ACK && i < pdata->num_flash_banks; i++) {
-		pr_info("nanohub: i=%d, erase=%d, erase_write=%d, write=%d\n",
+		pr_debug("nanohub: i=%d, erase=%d, erase_write=%d, write=%d\n",
 			i, erase_mask[i], erase_write_mask[i], write_mask[i]);
 		if (erase_mask[i]) {
 			status =

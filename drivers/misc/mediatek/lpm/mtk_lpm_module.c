@@ -81,14 +81,14 @@ int mtk_lpm_model_percpu_set(int cpu, struct mtk_lpm_module_reg *p)
 	drv = cpuidle_get_cpu_driver(dev);
 
 	if (!drv) {
-		pr_info("[name:mtk_lpm][P] - cpuidle drv is null (%s:%d)\n",
+		pr_debug("[name:mtk_lpm][P] - cpuidle drv is null (%s:%d)\n",
 					__func__, __LINE__);
 		return -EINVAL;
 	}
 
 	for (idx = 0; idx < drv->state_count; ++idx) {
 		if (!IS_MTK_LPM_MODS_VALID(idx)) {
-			pr_info("[name:mtk_lpm][P] - mod(%s) out of index (%d) (%s:%d)\n",
+			pr_debug("[name:mtk_lpm][P] - mod(%s) out of index (%d) (%s:%d)\n",
 					p->data.info.name, idx,
 					__func__, __LINE__);
 			break;
@@ -138,7 +138,7 @@ int mtk_lpm_module_register_blockcall(int cpu, void *p)
 	struct mtk_lpm_module_reg *reg = (struct mtk_lpm_module_reg *)p;
 
 	if (!reg || (reg->magic != MTK_LPM_MODULE_MAGIC)) {
-		pr_info("[name:mtk_lpm][P] - registry(%d) fail (%s:%d)\n",
+		pr_debug("[name:mtk_lpm][P] - registry(%d) fail (%s:%d)\n",
 			reg ? reg->type : -1, __func__, __LINE__);
 		return -EINVAL;
 	}
@@ -399,7 +399,7 @@ static int __init mtk_lpm_init(void)
 				mtk_lpm_system.suspend.flag |=
 						MTK_LP_REQ_NOSUSPEND;
 
-			pr_info("[name:mtk_lpm][P] - suspend-method:%s (%s:%d)\n",
+			pr_debug("[name:mtk_lpm][P] - suspend-method:%s (%s:%d)\n",
 						pMethod, __func__, __LINE__);
 		}
 		of_node_put(mtk_lpm);
@@ -410,11 +410,11 @@ static int __init mtk_lpm_init(void)
 	if (mtk_lpm_system.suspend.flag & MTK_LP_REQ_NOSUSPEND) {
 		mtk_lpm_lock = wakeup_source_register(NULL, "mtk_lpm_lock");
 		if (!mtk_lpm_lock) {
-			pr_info("[name:mtk_lpm][P] - initialize mtk_lpm_lock wakeup source fail\n");
+			pr_debug("[name:mtk_lpm][P] - initialize mtk_lpm_lock wakeup source fail\n");
 			return -1;
 		}
 		__pm_stay_awake(mtk_lpm_lock);
-		pr_info("[name:mtk_lpm][P] - device not support kernel suspend\n");
+		pr_debug("[name:mtk_lpm][P] - device not support kernel suspend\n");
 	}
 
 	if (!(mtk_lpm_system.suspend.flag &

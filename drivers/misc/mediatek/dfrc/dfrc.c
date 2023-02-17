@@ -212,7 +212,7 @@ long dfrc_reg_policy_locked(const struct DFRC_DRV_POLICY *policy)
 		pr_warn("reg_policy: policy api is invalid\n");
 		return -EINVAL;
 	} else if (g_num_fps_policy >= MAX_POLICY_NUMBER) {
-		pr_info("reg_policy: policy number is over threshold %d\n",
+		pr_debug("reg_policy: policy number is over threshold %d\n",
 				g_num_fps_policy);
 		return -EBUSY;
 	}
@@ -230,7 +230,7 @@ long dfrc_reg_policy_locked(const struct DFRC_DRV_POLICY *policy)
 		if (node == NULL) {
 			res = -ENOMEM;
 		} else {
-			pr_info("reg_fps_policy: reg policy[%llu]\n",
+			pr_debug("reg_fps_policy: reg policy[%llu]\n",
 					policy->sequence);
 			INIT_LIST_HEAD(&node->list);
 			INIT_LIST_HEAD(&node->list_statistics);
@@ -252,7 +252,7 @@ long dfrc_reg_policy_locked(const struct DFRC_DRV_POLICY *policy)
 					ps->num_policy);
 		}
 	} else {
-		pr_info("reg_fps_policy: the policy[%llu] is existed\n",
+		pr_debug("reg_fps_policy: the policy[%llu] is existed\n",
 				policy->sequence);
 	}
 
@@ -340,7 +340,7 @@ long dfrc_set_policy_locked(const struct DFRC_DRV_POLICY *policy)
 					policy->gl_context_id ||
 					node->policy.flag != policy->flag) {
 				change = true;
-				pr_info("set_policy: [%llu] fps:%d mode:%d t_pid:%d gl_id:%llu flag:%x\n",
+				pr_debug("set_policy: [%llu] fps:%d mode:%d t_pid:%d gl_id:%llu flag:%x\n",
 						policy->sequence,
 						policy->fps,
 						policy->mode,
@@ -444,7 +444,7 @@ long dfrc_unreg_policy(const unsigned long long sequence)
 		node = list_entry(iter, struct DFRC_DRV_POLICY_NODE, list);
 		if (node->policy.sequence == sequence) {
 			is_new = false;
-			pr_info("%s: unreg policy[%llu]\n",
+			pr_debug("%s: unreg policy[%llu]\n",
 					__func__, sequence);
 			g_num_fps_policy--;
 			list_del(&node->list);
@@ -1579,7 +1579,7 @@ static void dfrc_adjust_vsync_locked(
 #endif
 
 	if (change) {
-		pr_info("adjust vsync: [%d|%d|%d] -> [%d|%d|%d]\n",
+		pr_debug("adjust vsync: [%d|%d|%d] -> [%d|%d|%d]\n",
 				g_current_fps, g_current_sw_mode,
 				g_current_hw_mode, fps,
 				sw_mode, hw_mode);
@@ -1778,7 +1778,7 @@ static int dfrc_probe(struct platform_device *pdev)
 	int ret = 0;
 
 	if (primary_get_dpmgr_handle() == NULL) {
-		pr_info("Display does not start probe\n");
+		pr_debug("Display does not start probe\n");
 		return -EPROBE_DEFER;
 	}
 
@@ -1786,7 +1786,7 @@ static int dfrc_probe(struct platform_device *pdev)
 	if (ret)
 		pr_err("Can't Get Major number for FPS policy Device\n");
 	else
-		pr_info("Get FPS policy Device Major number (%d)\n",
+		pr_debug("Get FPS policy Device Major number (%d)\n",
 				dfrc_devno);
 	dfrc_cdev = cdev_alloc();
 	dfrc_cdev->owner = THIS_MODULE;
@@ -1827,7 +1827,7 @@ static int dfrc_probe(struct platform_device *pdev)
 		}
 #endif
 	} else {
-		pr_info("failed to create REFRESH_RANGE, use default value");
+		pr_debug("failed to create REFRESH_RANGE, use default value");
 		g_fps_info.range = &g_default_fps_info;
 	}
 
@@ -1894,7 +1894,7 @@ static int __init dfrc_init(void)
 {
 	int res = 0;
 
-	pr_info("start to initialize fps policy\n");
+	pr_debug("start to initialize fps policy\n");
 
 	pr_debug("register fps policy device\n");
 	if (platform_device_register(&dfrc_device)) {

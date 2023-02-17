@@ -113,7 +113,7 @@ void vpu_dmp_free_locked(int c)
 	if (c < 0 || c >= MTK_VPU_CORE)
 		return;
 
-	pr_info("%s:\n", __func__);
+	pr_debug("%s:\n", __func__);
 	d = vpu_dmp_get(c);
 	if (!d)
 		return;
@@ -216,7 +216,7 @@ static bool vpu_dmp_is_alive(int c)
 
 	pc = d->r_dbg[5];
 
-	pr_info("%s: vpu%d: debug info05: %x\n", __func__, c, pc);
+	pr_debug("%s: vpu%d: debug info05: %x\n", __func__, c, pc);
 	if (!pc)
 		return false;
 
@@ -225,7 +225,7 @@ static bool vpu_dmp_is_alive(int c)
 			return true;
 	}
 
-	pr_info("%s: all info registers are zeros\n", __func__);
+	pr_debug("%s: all info registers are zeros\n", __func__);
 
 	return false;
 }
@@ -279,23 +279,23 @@ int vpu_dmp_create_locked(int c, struct vpu_request *req,
 	int ret = 0;
 	va_list args;
 
-	pr_info("%s: vpu%d\n", __func__, c);
+	pr_debug("%s: vpu%d\n", __func__, c);
 
 	if (c < 0 || c >= MTK_VPU_CORE) {
-		pr_info("%s: vpu%d: %d\n", __func__, c, MTK_VPU_CORE);
+		pr_debug("%s: vpu%d: %d\n", __func__, c, MTK_VPU_CORE);
 		ret = -EINVAL;
 		goto out;
 	}
 
 	ret = vpu_dmp_alloc(c);
 	if (ret) {
-		pr_info("%s: vpu%d: vpu_dmp_alloc: %d\n", __func__, c, ret);
+		pr_debug("%s: vpu%d: vpu_dmp_alloc: %d\n", __func__, c, ret);
 		goto out;
 	}
 
 	d = vpu_dmp_get(c);
 	if (!d) {
-		pr_info("%s: vpu%d: vpu_dmp_get: %d\n", __func__, c, d);
+		pr_debug("%s: vpu%d: vpu_dmp_get: %d\n", __func__, c, d);
 		goto out;
 	}
 	d->time = sched_clock();
@@ -304,12 +304,12 @@ int vpu_dmp_create_locked(int c, struct vpu_request *req,
 	ret = vsnprintf(d->info, VPU_DMP_INFO_SZ, fmt, args);
 	va_end(args);
 	if (ret) {
-		pr_info("%s: vsnprintf: %d\n", __func__, ret);
+		pr_debug("%s: vsnprintf: %d\n", __func__, ret);
 		goto out;
 	}
 
 #define VPU_DMP_STATE(a) \
-	pr_info("%s: vpu%d: %s done. pc: 0x%x\n", \
+	pr_debug("%s: vpu%d: %s done. pc: 0x%x\n", \
 		__func__, c, #a, vpu_reg_read(c, DEBUG_INFO05))
 
 #define VPU_DMP_IO(a) do { \
@@ -590,7 +590,7 @@ static void vpu_dmp_init_map(int c)
 #define MAPIO(a, A) do { \
 		m_##a = (unsigned long)ioremap_wc(A, 0x1000); \
 		if (!m_##a) \
-			pr_info("%s: unable to map %xh\n", __func__, A); \
+			pr_debug("%s: unable to map %xh\n", __func__, A); \
 	} while (0)
 
 	MAPIO(infra_cfg, INFRA_CFG);

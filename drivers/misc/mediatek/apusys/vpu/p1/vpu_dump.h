@@ -76,7 +76,7 @@ void vpu_dmp_seq_core(struct seq_file *s, struct vpu_device *vd);
 void vpu_dmp_seq(struct seq_file *s);
 
 #define vpu_dmp_create(vd, req, fmt, args...) do { \
-		pr_info("%s: vpu_dmp_create\n", __func__); \
+		pr_debug("%s: vpu_dmp_create\n", __func__); \
 		vpu_cmd_lock_all(vd); \
 		if (!vpu_pwr_get_locked_nb(vd)) { \
 			if (!vpu_dev_boot(vd)) { \
@@ -88,7 +88,7 @@ void vpu_dmp_seq(struct seq_file *s);
 	} while (0)
 
 #define vpu_dmp_free(vd) do { \
-		pr_info("%s: vpu_dmp_free\n", __func__); \
+		pr_debug("%s: vpu_dmp_free\n", __func__); \
 		vpu_cmd_lock_all(vd); \
 		vpu_dmp_free_locked(vd); \
 		vpu_cmd_unlock_all(vd); \

@@ -109,7 +109,7 @@ int tee_clkmgr_register(const char *clkname, int id, void *e, void *d,
 
 	struct clkmgr_handle *h, *w;
 
-	pr_info("tkcoredrv: clkname=%s id=%d\n",
+	pr_debug("tkcoredrv: clkname=%s id=%d\n",
 		clkname, id);
 
 	if (argnum > 3) {

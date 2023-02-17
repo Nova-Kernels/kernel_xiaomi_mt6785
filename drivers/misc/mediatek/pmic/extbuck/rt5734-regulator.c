@@ -275,7 +275,7 @@ int rt5734_regulator_init(struct rt5734_chip *chip)
 				rt5734_desc_table[i].rdesc.name);
 		}
 	}
-	pr_info("%s Successfully\n", __func__);
+	pr_debug("%s Successfully\n", __func__);
 	return 0;
 }
 

@@ -206,27 +206,27 @@ int devmpu_print_violation(uint64_t vio_addr, uint32_t vio_id,
 	vio_axi_id = (vio_id >> 3) & 0x1FFF;
 	vio_port_id = vio_id & 0x7;
 
-	pr_info("Device MPU violation\n");
-	pr_info("current process is \"%s \" (pid: %i)\n",
+	pr_debug("Device MPU violation\n");
+	pr_debug("current process is \"%s \" (pid: %i)\n",
 			current->comm, current->pid);
-	pr_info("corrupted address is 0x%llx\n",
+	pr_debug("corrupted address is 0x%llx\n",
 			vio_addr);
-	pr_info("master ID: 0x%x, AXI ID: 0x%x, port ID: 0x%x\n",
+	pr_debug("master ID: 0x%x, AXI ID: 0x%x, port ID: 0x%x\n",
 			vio_id, vio_axi_id, vio_port_id);
-	pr_info("violation domain 0x%x\n",
+	pr_debug("violation domain 0x%x\n",
 			vio_domain);
 
 	if (vio_rw == 1)
-		pr_info("write violation\n");
+		pr_debug("write violation\n");
 	else if (vio_rw == 2)
-		pr_info("read violation\n");
+		pr_debug("read violation\n");
 	else
-		pr_info("strange read/write violation (%u)\n", vio_rw);
+		pr_debug("strange read/write violation (%u)\n", vio_rw);
 
 	if (!devmpu_rw_perm_get(vio_addr, &rd_perm, &wr_perm)) {
 		page = vio_addr - devmpu_ctx->prot_base;
 		page /= devmpu_ctx->page_size;
-		pr_info("Page#%x RD/WR : %08zx/%08zx (%lld)\n",
+		pr_debug("Page#%x RD/WR : %08zx/%08zx (%lld)\n",
 			page,
 			switchValue(rd_perm),
 			switchValue(wr_perm),
@@ -234,7 +234,7 @@ int devmpu_print_violation(uint64_t vio_addr, uint32_t vio_id,
 	}
 
 	if (!from_emimpu) {
-		pr_info("%s transaction\n",
+		pr_debug("%s transaction\n",
 				(vio.is_ns) ? "non-secure" : "secure");
 	}
 
@@ -263,13 +263,13 @@ static int devmpu_dump_perm(void)
 	pa = devmpu_ctx->prot_base;
 	pages = devmpu_ctx->prot_size / devmpu_ctx->page_size;
 
-	pr_info("Page# (bus-addr)  :  RD/WR permissions\n");
+	pr_debug("Page# (bus-addr)  :  RD/WR permissions\n");
 
 	for (i = 0; i < pages; ++i) {
 		if (i && i % 16 == 0) {
 			pa_dump = (uint64_t)(i - 16) * devmpu_ctx->page_size;
 			pa_dump += devmpu_ctx->prot_base;
-			pr_info("%04x (%02x_%08x):  %08x/%08x %08x/%08x %08x/%08x %08x/%08x\n",
+			pr_debug("%04x (%02x_%08x):  %08x/%08x %08x/%08x %08x/%08x %08x/%08x\n",
 				i - 16,
 				(uint32_t)(pa_dump >> 32),
 				(uint32_t)(pa_dump & 0xffffffff),
@@ -327,7 +327,7 @@ static int devmpu_check_violation(void)
 	prop_addr = prop_ary[1];
 	prop_size = prop_ary[3];
 
-	pr_info("Address 0x%x Size 0x%x\n", prop_addr, prop_size);
+	pr_debug("Address 0x%x Size 0x%x\n", prop_addr, prop_size);
 
 	/* Check if 2MB addr/size alignment */
 	if (prop_addr % devmpu_ctx->page_size) {
@@ -342,16 +342,16 @@ static int devmpu_check_violation(void)
 		return -EINVAL;
 	}
 
-	pr_info("Check 2MB address/size alignment correctly\n");
+	pr_debug("Check 2MB address/size alignment correctly\n");
 
 	/* Trigger DevMPU violation */
 	if (prop_addr && prop_size) {
-		pr_info("Check if DevMPU violation is at 0x%x\n", prop_addr);
+		pr_debug("Check if DevMPU violation is at 0x%x\n", prop_addr);
 		reg_base = ioremap((phys_addr_t)prop_addr, prop_size);
-		pr_info("Read from %p\n", reg_base);
+		pr_debug("Read from %p\n", reg_base);
 		prop_value = *(uint64_t *)reg_base;
-		pr_info("value 0x%llx\n", prop_value);
-		pr_info("Write to %p\n", reg_base);
+		pr_debug("value 0x%llx\n", prop_value);
+		pr_debug("Write to %p\n", reg_base);
 		*(uint64_t *)reg_base = prop_value;
 	}
 
@@ -413,7 +413,7 @@ static int devmpu_probe(struct platform_device *pdev)
 	struct device_node *dn = pdev->dev.of_node;
 	struct resource *res = NULL;
 
-	pr_info("Device MPU probe: %s\n", pdev->name);
+	pr_debug("Device MPU probe: %s\n", pdev->name);
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	if (!res) {
@@ -471,12 +471,12 @@ static int devmpu_probe(struct platform_device *pdev)
 	devmpu_ctx->virq = virq;
 	devmpu_ctx->max_ctx = (probe_cnt + 1);
 
-	pr_info("Create context [%d]\n", probe_cnt);
-	pr_info("reg_base=0x%pK\n", devmpu_ctx->reg_base);
-	pr_info("prot_base=0x%llx\n", devmpu_ctx->prot_base);
-	pr_info("prot_size=0x%llx\n", devmpu_ctx->prot_size);
-	pr_info("page_size=0x%x\n", devmpu_ctx->page_size);
-	pr_info("virq=0x%x\n", devmpu_ctx->virq);
+	pr_debug("Create context [%d]\n", probe_cnt);
+	pr_debug("reg_base=0x%pK\n", devmpu_ctx->reg_base);
+	pr_debug("prot_base=0x%llx\n", devmpu_ctx->prot_base);
+	pr_debug("prot_size=0x%llx\n", devmpu_ctx->prot_size);
+	pr_debug("page_size=0x%x\n", devmpu_ctx->page_size);
+	pr_debug("virq=0x%x\n", devmpu_ctx->virq);
 
 	probe_cnt++;
 

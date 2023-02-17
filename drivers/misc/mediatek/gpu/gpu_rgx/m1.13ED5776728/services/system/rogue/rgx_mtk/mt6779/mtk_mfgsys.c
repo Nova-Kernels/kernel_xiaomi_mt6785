@@ -1249,14 +1249,14 @@ PVRSRV_ERROR MTKMFGSystemInit(void)
 	g_mfgcfg_base = of_iomap(node, 0);
 
 	if (!g_gpu_base)
-		pr_info("@%s: g_gpu_base iomap failed", __func__);
+		pr_debug("@%s: g_gpu_base iomap failed", __func__);
 	else
-		pr_info("@%s: g_gpu_base: 0x%p", __func__, g_gpu_base);
+		pr_debug("@%s: g_gpu_base: 0x%p", __func__, g_gpu_base);
 
 	if (!g_mfgcfg_base)
-		pr_info("@%s: g_mfgcfg_base iomap failed", __func__);
+		pr_debug("@%s: g_mfgcfg_base iomap failed", __func__);
 	else
-		pr_info("@%s: g_mfgcfg_base: 0x%p", __func__, g_mfgcfg_base);
+		pr_debug("@%s: g_mfgcfg_base: 0x%p", __func__, g_mfgcfg_base);
 
 
 #ifndef MTK_GPU_DVFS

@@ -34,7 +34,7 @@ uint32_t TEE_update_gb_time_intee(KREE_SESSION_HANDLE session,
 	struct TZ_GB_SECURETIME_INFO secure_time;
 	DRM_UINT64 cur_counter;
 
-	pr_info("enter %s\n", __func__);
+	pr_debug("enter %s\n", __func__);
 	rtc = rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
 
 	if (rtc == NULL) {
@@ -60,8 +60,8 @@ uint32_t TEE_update_gb_time_intee(KREE_SESSION_HANDLE session,
 		goto err_read;
 	}
 	for (i = 0; i < sizeof(struct TZ_GB_SECURETIME_INFO); i++)
-		pr_info("%02x", ((char *)&secure_time)[i]);
-	pr_info("\n");
+		pr_debug("%02x", ((char *)&secure_time)[i]);
+	pr_debug("\n");
 
 	err = rtc_read_time(rtc, &tm);
 	if (err) {
@@ -121,7 +121,7 @@ uint32_t TEE_update_gb_time_infile(KREE_SESSION_HANDLE session,
 	struct file *file = NULL;
 	UINT64 u8Offset = 0;
 
-	pr_info("enter %s\n", __func__);
+	pr_debug("enter %s\n", __func__);
 	shm_p = kmalloc(sizeof(struct TZ_GB_SECURETIME_INFO), GFP_KERNEL);
 
 	paramTypes = TZ_ParamTypes3(TZPT_MEM_OUTPUT, TZPT_VALUE_INPUT,

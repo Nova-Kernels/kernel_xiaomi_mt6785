@@ -121,7 +121,7 @@ static unsigned long long drcc_pTime_us, drcc_cTime_us, drcc_diff_us;
  ************************************************/
 #define DRCC_TAG	 "[xxxx_drcc] "
 
-#define drcc_info(fmt, args...)		pr_info(DRCC_TAG fmt, ##args)
+#define drcc_info(fmt, args...)		pr_debug(DRCC_TAG fmt, ##args)
 #define drcc_debug(fmt, args...)	\
 	pr_debug(DRCC_TAG"(%d)" fmt, __LINE__, ##args)
 

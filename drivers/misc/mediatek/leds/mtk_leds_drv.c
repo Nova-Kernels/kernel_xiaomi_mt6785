@@ -473,7 +473,7 @@ static int mt65xx_leds_probe(struct platform_device *pdev)
 	struct cust_mt65xx_led *cust_led_list = mt_get_cust_led_list();
 
 	if (!cust_led_list) {
-		pr_info("[LED] get dts fail! Probe exit.\n");
+		pr_debug("[LED] get dts fail! Probe exit.\n");
 		ret = -1;
 		goto err_dts;
 	}
@@ -655,14 +655,14 @@ static int __init mt65xx_leds_init(void)
 #ifdef CONFIG_OF
 	ret = platform_device_register(&mt65xx_leds_device);
 	if (ret) {
-		pr_info("[LED]Fail to register platform dev,ret%d\n", ret);
+		pr_debug("[LED]Fail to register platform dev,ret%d\n", ret);
 		return ret;
 	}
 #endif
 	ret = platform_driver_register(&mt65xx_leds_driver);
 
 	if (ret) {
-		pr_info("[LED]Fail to register platform drv,ret%d\n", ret);
+		pr_debug("[LED]Fail to register platform drv,ret%d\n", ret);
 		/* platform_device_unregister(&mt65xx_leds_device); */
 		return ret;
 	}

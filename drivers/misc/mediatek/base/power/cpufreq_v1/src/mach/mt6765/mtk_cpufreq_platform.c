@@ -582,7 +582,7 @@ unsigned int _mt_cpufreq_get_cpu_level(void)
 #endif
 
 	turbo_flag = 0;
-	tag_pr_info("%d,%d,%d,%d,%d,%d,%d,%d\n",
+	tag_pr_debug("%d,%d,%d,%d,%d,%d,%d,%d\n",
 		lv, turbo_flag, val, val_ly,
 		UP_VPROC_ST, DOWN_VPROC_ST,
 		UP_VSRAM_ST, DOWN_VSRAM_ST);

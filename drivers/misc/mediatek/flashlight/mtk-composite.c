@@ -73,7 +73,7 @@ fl_async_bound(struct v4l2_async_notifier *notifier,
 	}
 
 	if (!found) {
-		pr_info("sub device (%s) not matched\n", subdev->name);
+		pr_debug("sub device (%s) not matched\n", subdev->name);
 		return -EINVAL;
 	}
 
@@ -90,7 +90,7 @@ static int fl_probe_complete(struct mtk_composite_v4l2_device *vpfe)
 
 	err = v4l2_device_register_subdev_nodes(&vpfe->v4l2_dev);
 	if (err) {
-		pr_info("Unable to v4l2_device_register_subdev_nodes\n");
+		pr_debug("Unable to v4l2_device_register_subdev_nodes\n");
 		goto probe_out;
 	}
 
@@ -99,7 +99,7 @@ static int fl_probe_complete(struct mtk_composite_v4l2_device *vpfe)
 			continue;
 
 #if defined(CONFIG_MEDIA_CONTROLLER)
-		pr_info("%s v4l2:%s\n", __func__, sd->entity.name);
+		pr_debug("%s v4l2:%s\n", __func__, sd->entity.name);
 #endif
 	}
 
@@ -131,7 +131,7 @@ mtk_get_pdata(struct platform_device *pdev,
 	unsigned int i;
 
 	if (!IS_ENABLED(CONFIG_OF) || !pdev->dev.of_node) {
-		pr_info("pdev->dev.of_node %p\n", pdev->dev.of_node);
+		pr_debug("pdev->dev.of_node %p\n", pdev->dev.of_node);
 		return pdev->dev.platform_data;
 	}
 
@@ -147,7 +147,7 @@ mtk_get_pdata(struct platform_device *pdev,
 
 		rem = of_graph_get_remote_port_parent(endpoint);
 		if (!rem) {
-			pr_info("Remote device at %s not found\n",
+			pr_debug("Remote device at %s not found\n",
 				endpoint->full_name);
 			goto done;
 		}
@@ -157,7 +157,7 @@ mtk_get_pdata(struct platform_device *pdev,
 				GFP_KERNEL);
 		if (!pdata[i]) {
 			of_node_put(rem);
-		pr_info("i %d, pdata %p\n", i, pdata[i]);
+		pr_debug("i %d, pdata %p\n", i, pdata[i]);
 			goto done;
 		}
 		pr_debug("rem %p, pdata[i] %p, name %s, full_name %s\n",
@@ -189,17 +189,17 @@ static int mtk_composite_probe(struct platform_device *dev)
 	struct mtk_composite_v4l2_device *pfdev;
 	int rc = 0;
 
-	pr_info("flash v4l2 probe\n");
+	pr_debug("flash v4l2 probe\n");
 	pfdev = devm_kzalloc(&dev->dev, sizeof(*pfdev), GFP_KERNEL);
 	if (!pfdev) {
-		pr_info("could not allocate memory\n");
+		pr_debug("could not allocate memory\n");
 		return -ENOMEM;
 	}
 
 	pfdev->vdev = video_device_alloc();
 	if (WARN_ON(!pfdev->vdev)) {
 		rc = -ENOMEM;
-		pr_info("failed to allocate video_device\n");
+		pr_debug("failed to allocate video_device\n");
 		goto vdec_end;
 	}
 
@@ -213,7 +213,7 @@ static int mtk_composite_probe(struct platform_device *dev)
 		GFP_KERNEL);
 	if (!pfdev->v4l2_dev.mdev) {
 		rc = -ENOMEM;
-		pr_info("failed to allocate  media_device\n");
+		pr_debug("failed to allocate  media_device\n");
 		goto mdev_end;
 	}
 	strlcpy(pfdev->v4l2_dev.mdev->model, "mtk_V4L2_misc_core",
@@ -224,7 +224,7 @@ static int mtk_composite_probe(struct platform_device *dev)
 
 	rc = media_device_register(pfdev->v4l2_dev.mdev);
 	if (WARN_ON(rc < 0)) {
-		pr_info("failed to register media_device");
+		pr_debug("failed to register media_device");
 		goto mdev_end;
 	}
 
@@ -233,7 +233,7 @@ static int mtk_composite_probe(struct platform_device *dev)
 	rc = media_entity_pads_init(&pfdev->vdev->entity, 0, NULL);
 
 	if (WARN_ON(rc < 0)) {
-		pr_info("media_entity_pads init failed\n");
+		pr_debug("media_entity_pads init failed\n");
 		goto mdev_end;
 	}
 	pfdev->vdev->entity.function = MEDIA_ENT_F_IO_V4L;
@@ -241,7 +241,7 @@ static int mtk_composite_probe(struct platform_device *dev)
 
 	rc = v4l2_device_register(&dev->dev, &pfdev->v4l2_dev);
 	if (rc) {
-		pr_info("Unable to register v4l2 device.\n");
+		pr_debug("Unable to register v4l2 device.\n");
 		goto mdev_end;
 	}
 	platform_set_drvdata(dev, pfdev);
@@ -253,7 +253,7 @@ static int mtk_composite_probe(struct platform_device *dev)
 		ARRAY_SIZE(pfdev->asd), GFP_KERNEL);
 	if (!pfdev->sd) {
 		rc = -ENOMEM;
-		pr_info("Unable to devm_kzalloc.\n");
+		pr_debug("Unable to devm_kzalloc.\n");
 		goto mdev_end;
 	}
 
@@ -263,7 +263,7 @@ static int mtk_composite_probe(struct platform_device *dev)
 
 	rc = v4l2_async_notifier_register(&pfdev->v4l2_dev, &pfdev->notifier);
 	if (rc) {
-		pr_info("Error registering async notifier\n");
+		pr_debug("Error registering async notifier\n");
 		rc = -EINVAL;
 		goto mdev_end;
 	}
@@ -334,14 +334,14 @@ static int __init mtk_composite_init(void)
 #ifndef CONFIG_OF
 	ret = platform_device_register(&mtk_composite_platform_device);
 	if (ret) {
-		pr_info("Failed to register platform device\n");
+		pr_debug("Failed to register platform device\n");
 		return ret;
 	}
 #endif
 
 	ret = platform_driver_register(&mtk_composite_platform_driver);
 	if (ret) {
-		pr_info("Failed to register platform driver\n");
+		pr_debug("Failed to register platform driver\n");
 		return ret;
 	}
 

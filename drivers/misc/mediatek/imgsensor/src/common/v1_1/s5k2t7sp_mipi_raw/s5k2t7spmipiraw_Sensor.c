@@ -2396,7 +2396,7 @@ static kal_uint32 get_sensor_temperature(void)
 	else
 		temperature_convert = -1;
 
-	/*pr_info("temp_c(%d), read_reg(%d), enable %d\n",
+	/*pr_debug("temp_c(%d), read_reg(%d), enable %d\n",
 	 *	temperature_convert, temperature, read_cmos_sensor_8(0x0138));
 	 */
 

@@ -2584,7 +2584,7 @@ static ssize_t gyro_store_cali_value(struct device_driver *ddri,
 			pr_err("bmg write calibration failed, err = %d\n",
 				    err);
 	} else {
-		pr_info("invalid format\n");
+		pr_debug("invalid format\n");
 	}
 	return count;
 }
@@ -2629,9 +2629,9 @@ static ssize_t gyro_store_firlen_value(struct device_driver *ddri,
 	int firlen;
 
 	if (kstrtos32(buf, 10, &firlen) != 0) {
-		pr_info("invallid format\n");
+		pr_debug("invallid format\n");
 	} else if (firlen > C_MAX_FIR_LENGTH) {
-		pr_info("exceeds maximum filter length\n");
+		pr_debug("exceeds maximum filter length\n");
 	} else {
 		atomic_set(&obj->gyro_firlen, firlen);
 		if (firlen == NULL) {
@@ -2665,7 +2665,7 @@ static ssize_t gyro_store_trace_value(struct device_driver *ddri,
 	if (kstrtos32(buf, 10, &trace) == 0)
 		atomic_set(&obj->gyro_trace, trace);
 	else
-		pr_info("invalid content: '%s'\n", buf);
+		pr_debug("invalid content: '%s'\n", buf);
 	return count;
 }
 
@@ -2974,7 +2974,7 @@ static int bmg_suspend(void)
 	int err = 0;
 
 	if (obj == NULL) {
-		pr_info("null pointer\n");
+		pr_debug("null pointer\n");
 		return -EINVAL;
 	}
 	atomic_set(&obj->suspend, 1);
@@ -3171,7 +3171,7 @@ int gyroscope_operate(void *self, uint32_t command, void *buff_in, int size_in,
 
 			err = bmg_set_datarate(NULL, sample_delay);
 			if (err < 0)
-				pr_info("set delay parameter error\n");
+				pr_debug("set delay parameter error\n");
 
 			if (value >= 40)
 				atomic_set(&priv->gyro_filter, 0);
@@ -3217,13 +3217,13 @@ int gyroscope_operate(void *self, uint32_t command, void *buff_in, int size_in,
 				     &gyroscope_data->values[1],
 				     &gyroscope_data->values[2]);
 			if (err)
-				pr_info("get data failed, err = %d\n", err);
+				pr_debug("get data failed, err = %d\n", err);
 			gyroscope_data->status = SENSOR_STATUS_ACCURACY_MEDIUM;
 			gyroscope_data->value_divide = DEGREE_TO_RAD;
 		}
 		break;
 	default:
-		pr_info("gyroscope operate function no this parameter %d\n",
+		pr_debug("gyroscope operate function no this parameter %d\n",
 			  command);
 		err = -1;
 		break;
@@ -3331,7 +3331,7 @@ static int bmi160_gyro_set_delay(u64 ns)
 
 	err = bmg_set_datarate(NULL, sample_delay);
 	if (err < 0)
-		pr_info("set data rate failed.\n");
+		pr_debug("set data rate failed.\n");
 	if (value >= 40)
 		atomic_set(&priv->filter, 0);
 	else {
@@ -3386,7 +3386,7 @@ static int bmi160_accel_factory_get_raw_data(int32_t data[3])
 	char strbuf[BMI160_BUFSIZE] = {0};
 
 	BMI160_ACC_ReadRawData(accelgyro_obj_data, strbuf);
-	pr_info("don't support bmi160_factory_get_raw_data!\n");
+	pr_debug("don't support bmi160_factory_get_raw_data!\n");
 	return 0;
 }
 static int bmi160_accel_factory_enable_calibration(void)

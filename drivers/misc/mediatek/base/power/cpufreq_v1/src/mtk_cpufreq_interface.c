@@ -288,7 +288,7 @@ static ssize_t cpufreq_freq_proc_write(struct file *file,
   #endif
 		} else {
 			p->dvfs_disable_by_procfs = false;
-			tag_pr_info(
+			tag_pr_debug(
 		"frequency %dKHz! is not found in CPU opp table\n", freq);
 			}
 #else

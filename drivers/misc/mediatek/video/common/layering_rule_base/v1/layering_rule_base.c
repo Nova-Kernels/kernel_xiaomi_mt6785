@@ -322,7 +322,7 @@ static int get_ovl_idx_by_phy_layer(int layer_map_tb, int phy_layer_idx)
 		ovl_mapping_tb >>= 1;
 	}
 #ifdef HRT_DEBUG_LEVEL2
-	pr_info("[DISP]%s, phy_layer_idx:%d, layer_map_tb:0x%x, layer_idx:%d ovl_idx:%d, ovl_mapping_tb:0x%x\n",
+	pr_debug("[DISP]%s, phy_layer_idx:%d, layer_map_tb:0x%x, layer_idx:%d ovl_idx:%d, ovl_mapping_tb:0x%x\n",
 		__func__, phy_layer_idx, layer_map_tb,
 		layer_idx, ovl_idx, ovl_mapping_tb);
 #endif
@@ -385,7 +385,7 @@ static void dump_disp_info(struct disp_layer_info *disp_info,
 	struct layer_config *layer_info;
 
 	if (debug_level < DISP_DEBUG_LEVEL_INFO) {
-		pr_info("[DISP]HRT hrt_num:%d/fps:%d/dal:%d/p:%d/r:%s/layer_tb:%d/bound_tb:%d/dc:%d\n",
+		pr_debug("[DISP]HRT hrt_num:%d/fps:%d/dal:%d/p:%d/r:%s/layer_tb:%d/bound_tb:%d/dc:%d\n",
 			HRT_GET_DVFS_LEVEL(disp_info->hrt_num),
 			l_rule_info->primary_fps,
 			l_rule_info->dal_enable,
@@ -407,7 +407,7 @@ static void dump_disp_info(struct disp_layer_info *disp_info,
 
 			for (j = 0 ; j < disp_info->layer_num[i] ; j++) {
 				layer_info = &disp_info->input_config[i][j];
-				pr_info("[DISP]L%d->%d/of(%d,%d)/swh(%d,%d)/dwh(%d,%d)/fmt:0x%x/ext:%d/caps:0x%x\n",
+				pr_debug("[DISP]L%d->%d/of(%d,%d)/swh(%d,%d)/dwh(%d,%d)/fmt:0x%x/ext:%d/caps:0x%x\n",
 					j, layer_info->ovl_id,
 					layer_info->dst_offset_x,
 					layer_info->dst_offset_y,
@@ -421,7 +421,7 @@ static void dump_disp_info(struct disp_layer_info *disp_info,
 			}
 		}
 	} else {
-		pr_info("[DISP]HRT hrt_num:%d/fps:%d/dal:%d/p:%d/r:%s/layer_tb:%d/bound_tb:%d/dc:%d\n",
+		pr_debug("[DISP]HRT hrt_num:%d/fps:%d/dal:%d/p:%d/r:%s/layer_tb:%d/bound_tb:%d/dc:%d\n",
 			HRT_GET_DVFS_LEVEL(disp_info->hrt_num),
 			l_rule_info->primary_fps,
 			l_rule_info->dal_enable,
@@ -434,7 +434,7 @@ static void dump_disp_info(struct disp_layer_info *disp_info,
 			if (disp_info->layer_num[i] <= 0)
 				continue;
 
-			pr_info("[DISP]HRT D%d/M%d/LN%d/hrt_num:%d/G(%d,%d)\n",
+			pr_debug("[DISP]HRT D%d/M%d/LN%d/hrt_num:%d/G(%d,%d)\n",
 				i, disp_info->disp_mode[i],
 				disp_info->layer_num[i], disp_info->hrt_num,
 				disp_info->gles_head[i],
@@ -442,7 +442,7 @@ static void dump_disp_info(struct disp_layer_info *disp_info,
 
 			for (j = 0 ; j < disp_info->layer_num[i] ; j++) {
 				layer_info = &disp_info->input_config[i][j];
-				pr_info("[DISP]L%d->%d/of(%d,%d)/swh(%d,%d)/dwh(%d,%d)/fmt:0x%x/ext:%d/caps:0x%x\n",
+				pr_debug("[DISP]L%d->%d/of(%d,%d)/swh(%d,%d)/dwh(%d,%d)/fmt:0x%x/ext:%d/caps:0x%x\n",
 					j, layer_info->ovl_id,
 					layer_info->dst_offset_x,
 					layer_info->dst_offset_y,
@@ -1285,7 +1285,7 @@ static int _calc_hrt_num(struct disp_layer_info *disp_info, int disp_index,
 	}
 
 #ifdef HRT_DEBUG_LEVEL1
-	pr_info("%s disp_index:%d, disp_index:%d, hrt_type:%d, sum_overlap_w:%d\n",
+	pr_debug("%s disp_index:%d, disp_index:%d, hrt_type:%d, sum_overlap_w:%d\n",
 		__func__, disp_index, disp_index, hrt_type, sum_overlap_w);
 #endif
 
@@ -1625,7 +1625,7 @@ int check_disp_info(struct disp_layer_info *disp_info)
 
 		if (disp_info->layer_num[disp_idx] > 0 &&
 			disp_info->input_config[disp_idx] == NULL) {
-			pr_info("[DISP][%s #%d]ERROR:[HRT]Has input layer, but input config is empty, disp_idx:%d, layer_num:%d\n",
+			pr_debug("[DISP][%s #%d]ERROR:[HRT]Has input layer, but input config is empty, disp_idx:%d, layer_num:%d\n",
 				__func__, __LINE__,
 				disp_idx, disp_info->layer_num[disp_idx]);
 			return -1;
@@ -1647,7 +1647,7 @@ int check_disp_info(struct disp_layer_info *disp_info)
 			(disp_info->gles_tail[disp_idx] <
 			disp_info->layer_num[disp_idx])))) {
 			dump_disp_info(disp_info, DISP_DEBUG_LEVEL_ERR);
-			pr_info("[DISP][%s #%d]ERROR:[HRT]gles layer invalid, disp_idx:%d, head:%d, tail:%d, layer_num:%d\n",
+			pr_debug("[DISP][%s #%d]ERROR:[HRT]gles layer invalid, disp_idx:%d, head:%d, tail:%d, layer_num:%d\n",
 				__func__, __LINE__,
 				disp_idx, disp_info->gles_head[disp_idx],
 				disp_info->gles_tail[disp_idx],
@@ -1676,7 +1676,7 @@ static int _copy_layer_info_from_disp(struct disp_layer_info *disp_info_user,
 		kzalloc(layer_size, GFP_KERNEL);
 
 	if (l_info->input_config[disp_idx] == NULL) {
-		pr_info("[DISP][HRT]:alloc input config 0 fail, layer_num:%d\n",
+		pr_debug("[DISP][HRT]:alloc input config 0 fail, layer_num:%d\n",
 			l_info->layer_num[disp_idx]);
 		return -EFAULT;
 	}
@@ -1689,7 +1689,7 @@ static int _copy_layer_info_from_disp(struct disp_layer_info *disp_info_user,
 		if (copy_from_user(l_info->input_config[disp_idx],
 				disp_info_user->input_config[disp_idx],
 				layer_size)) {
-			pr_info("[DISP][FB]: copy_from_user failed! line:%d\n",
+			pr_debug("[DISP][FB]: copy_from_user failed! line:%d\n",
 				__LINE__);
 			return -EFAULT;
 		}
@@ -1731,7 +1731,7 @@ static int _copy_layer_info_by_disp(struct disp_layer_info *disp_info_user,
 	} else {
 		if (copy_to_user(disp_info_user->input_config[disp_idx],
 				l_info->input_config[disp_idx], layer_size)) {
-			pr_info("[DISP][FB]: copy_to_user failed! line:%d\n",
+			pr_debug("[DISP][FB]: copy_to_user failed! line:%d\n",
 				__LINE__);
 			ret = -EFAULT;
 		}
@@ -1833,7 +1833,7 @@ int layering_rule_start(struct disp_layer_info *disp_info_user, int debug_mode)
 		if (l_rule_ops->resizing_rule)
 			ret = l_rule_ops->resizing_rule(&layering_info);
 		else
-			pr_info("[DISP][%s #%d]warn:RSZ feature on, but no resizing rule be implement.\n",
+			pr_debug("[DISP][%s #%d]warn:RSZ feature on, but no resizing rule be implement.\n",
 				__func__, __LINE__);
 	} else {
 		l_rule_info->scale_rate = HRT_SCALE_NONE;
@@ -2059,7 +2059,7 @@ static int load_hrt_test_data(struct disp_layer_info *disp_info)
 				disp_info->input_config[disp_id][layer_id];
 			tok = parse_hrt_data_value(tok, &layer_result);
 			if (layer_result != tmp_config.ovl_id) {
-				pr_info("[DISP][%s #%d]warn:Test case:%d, ovl_id incorrect, real is %d, expect is %d\n",
+				pr_debug("[DISP][%s #%d]warn:Test case:%d, ovl_id incorrect, real is %d, expect is %d\n",
 					__func__, __LINE__,
 					(int)test_case,
 					tmp_config.ovl_id,
@@ -2070,7 +2070,7 @@ static int load_hrt_test_data(struct disp_layer_info *disp_info)
 				goto end;
 			tok = parse_hrt_data_value(tok, &layer_result);
 			if (layer_result != tmp_config.ext_sel_layer) {
-				pr_info("[DISP][%s #%d]warn:Test case:%d, ext_sel_layer incorrect, real is %d, expect is %d\n",
+				pr_debug("[DISP][%s #%d]warn:Test case:%d, ext_sel_layer incorrect, real is %d, expect is %d\n",
 					__func__, __LINE__,
 					(int)test_case,
 					tmp_config.ext_sel_layer,
@@ -2088,7 +2088,7 @@ static int load_hrt_test_data(struct disp_layer_info *disp_info)
 				goto end;
 			tok = parse_hrt_data_value(tok, &gles_num);
 			if (gles_num != disp_info->gles_head[disp_id]) {
-				pr_info("[DISP][%s #%d]warn:Test case:%d, gles head incorrect, gles head is %d, expect is %d\n",
+				pr_debug("[DISP][%s #%d]warn:Test case:%d, gles head incorrect, gles head is %d, expect is %d\n",
 					__func__, __LINE__,
 					(int)test_case,
 					disp_info->gles_head[disp_id],
@@ -2100,7 +2100,7 @@ static int load_hrt_test_data(struct disp_layer_info *disp_info)
 				goto end;
 			tok = parse_hrt_data_value(tok, &gles_num);
 			if (gles_num != disp_info->gles_tail[disp_id]) {
-				pr_info("[DISP][%s #%d]warn:Test case:%d, gles tail incorrect, gles tail is %d, expect is %d\n",
+				pr_debug("[DISP][%s #%d]warn:Test case:%d, gles tail incorrect, gles tail is %d, expect is %d\n",
 					__func__, __LINE__,
 					(int)test_case,
 					disp_info->gles_tail[disp_id],
@@ -2112,7 +2112,7 @@ static int load_hrt_test_data(struct disp_layer_info *disp_info)
 
 			tok = parse_hrt_data_value(line_buf, &hrt_num);
 			if (hrt_num != HRT_GET_DVFS_LEVEL(disp_info->hrt_num))
-				pr_info("[DISP][%s #%d]warnTest case:%d, hrt num incorrect, hrt_num is %d, expect is %d\n",
+				pr_debug("[DISP][%s #%d]warnTest case:%d, hrt num incorrect, hrt_num is %d, expect is %d\n",
 					__func__, __LINE__,
 					(int)test_case,
 					HRT_GET_DVFS_LEVEL(disp_info->hrt_num),
@@ -2124,7 +2124,7 @@ static int load_hrt_test_data(struct disp_layer_info *disp_info)
 			tmp = HRT_GET_PATH_SCENARIO(disp_info->hrt_num);
 
 			if (hrt_num != (tmp & 0x1F)) {
-				pr_info("[DISP][%s #%d]warn:Test case:%d, hrt path incorrect, disp_path is %d, expect is %d\n",
+				pr_debug("[DISP][%s #%d]warn:Test case:%d, hrt path incorrect, disp_path is %d, expect is %d\n",
 					__func__, __LINE__,
 					(int)test_case,
 					tmp & 0x1F,
@@ -2140,7 +2140,7 @@ static int load_hrt_test_data(struct disp_layer_info *disp_info)
 
 			if (hrt_num !=
 				HRT_GET_SCALE_SCENARIO(disp_info->hrt_num)) {
-				pr_info("[DISP][%s #%d]warn:Test case:%d, hrt scale scenario incorrect, hrt scale is %d, expect is %d\n",
+				pr_debug("[DISP][%s #%d]warn:Test case:%d, hrt scale scenario incorrect, hrt scale is %d, expect is %d\n",
 					__func__, __LINE__,
 					(int)test_case,
 					tmp_hrt_num,

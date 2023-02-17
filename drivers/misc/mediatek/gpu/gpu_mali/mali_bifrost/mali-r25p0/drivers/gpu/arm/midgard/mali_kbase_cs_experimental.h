@@ -42,7 +42,7 @@
 static inline void mali_kbase_print_cs_experimental(void)
 {
 #if MALI_INCREMENTAL_RENDERING
-	pr_info("mali_kbase: INCREMENTAL_RENDERING (experimental) enabled");
+	pr_debug("mali_kbase: INCREMENTAL_RENDERING (experimental) enabled");
 #endif /* MALI_INCREMENTAL_RENDERING */
 }
 

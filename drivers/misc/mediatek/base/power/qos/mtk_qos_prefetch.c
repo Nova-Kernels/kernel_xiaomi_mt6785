@@ -318,7 +318,7 @@ int prefetch_notifier_call_chain(unsigned long val, void *v)
 	}
 
 	if (is_qos_prefetch_log_enabled()) {
-		pr_info("#@# %s(%d) val 0x%lx\n",
+		pr_debug("#@# %s(%d) val 0x%lx\n",
 				__func__, __LINE__, val);
 	}
 

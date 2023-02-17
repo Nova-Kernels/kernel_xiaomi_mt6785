@@ -378,11 +378,11 @@ void mt_print_scp_ipi_id(void)
 
 	switch (id) {
 	case IPI_SENSOR:
-		pr_info("[SCP] ipi(%d) id/type/action/event/reserve = %d/%d/%d/%d/%d\n",
+		pr_debug("[SCP] ipi(%d) id/type/action/event/reserve = %d/%d/%d/%d/%d\n",
 				*ipi_count, id, buf[0], buf[1], buf[2], buf[3]);
 		break;
 	default:
-		pr_info("[SCP] ipi id = %d\n", id);
+		pr_debug("[SCP] ipi id = %d\n", id);
 		break;
 	}
 }

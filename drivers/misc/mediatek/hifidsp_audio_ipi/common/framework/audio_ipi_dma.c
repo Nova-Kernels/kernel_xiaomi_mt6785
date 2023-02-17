@@ -72,7 +72,7 @@
 #endif
 
 #if 0
-#define ipi_dbg(x...) pr_info(x)
+#define ipi_dbg(x...) pr_debug(x)
 #else
 #define ipi_dbg(x...)
 #endif
@@ -291,7 +291,7 @@ int init_audio_ipi_dma(void)
 		g_dma = NULL;
 		goto IPI_DMA_INIT_EXIT;
 	}
-	pr_info("dma %p, phy %p/0x%lx, vir %p/0x%lx, sz 0x%x, checksum %u, offset %u",
+	pr_debug("dma %p, phy %p/0x%lx, vir %p/0x%lx, sz 0x%x, checksum %u, offset %u",
 		g_dma,
 		g_dma->base_phy.addr,
 		g_dma->base_phy.addr_val,
@@ -418,11 +418,11 @@ void *get_audio_ipi_dma_vir_addr(unsigned long phy_addr_val)
 int audio_ipi_dma_alloc(struct aud_ptr_t *phy_addr, const uint32_t size)
 {
 	if (g_dma == NULL) {
-		pr_info("g_dma: %p", g_dma);
+		pr_debug("g_dma: %p", g_dma);
 		return -ENODEV;
 	}
 	if (g_dma_pool == NULL) {
-		pr_info("g_dma_pool: %p", g_dma_pool);
+		pr_debug("g_dma_pool: %p", g_dma_pool);
 		return -ENOMEM;
 	}
 	if (phy_addr == NULL || size == 0) {
@@ -446,11 +446,11 @@ int audio_ipi_dma_alloc(struct aud_ptr_t *phy_addr, const uint32_t size)
 int audio_ipi_dma_free(struct aud_ptr_t *phy_addr, const uint32_t size)
 {
 	if (g_dma == NULL) {
-		pr_info("g_dma: %p", g_dma);
+		pr_debug("g_dma: %p", g_dma);
 		return -ENODEV;
 	}
 	if (g_dma_pool == NULL) {
-		pr_info("g_dma_pool: %p", g_dma_pool);
+		pr_debug("g_dma_pool: %p", g_dma_pool);
 		return -ENOMEM;
 	}
 	if (phy_addr == NULL || size == 0) {
@@ -491,15 +491,15 @@ int audio_ipi_dma_alloc_region(const uint8_t task,
 	int i = 0;
 
 	if (g_dma == NULL) {
-		pr_info("g_dma: %p", g_dma);
+		pr_debug("g_dma: %p", g_dma);
 		return -ENODEV;
 	}
 	if (g_dma_pool == NULL) {
-		pr_info("g_dma_pool: %p", g_dma_pool);
+		pr_debug("g_dma_pool: %p", g_dma_pool);
 		return -ENOMEM;
 	}
 	if (task >= TASK_SCENE_SIZE) {
-		pr_info("task: %d", task);
+		pr_debug("task: %d", task);
 		return -EOVERFLOW;
 	}
 
@@ -533,7 +533,7 @@ int audio_ipi_dma_alloc_region(const uint8_t task,
 		region->read_idx = 0;
 		region->write_idx = 0;
 
-		pr_info("task %d, region[%d] sz 0x%x, offset 0x%x",
+		pr_debug("task %d, region[%d] sz 0x%x, offset 0x%x",
 			task, i, size[i], region->offset);
 	}
 
@@ -572,15 +572,15 @@ int audio_ipi_dma_free_region(const uint8_t task)
 
 
 	if (g_dma == NULL) {
-		pr_info("g_dma: %p", g_dma);
+		pr_debug("g_dma: %p", g_dma);
 		return -ENODEV;
 	}
 	if (g_dma_pool == NULL) {
-		pr_info("g_dma_pool: %p", g_dma_pool);
+		pr_debug("g_dma_pool: %p", g_dma_pool);
 		return -ENOMEM;
 	}
 	if (task >= TASK_SCENE_SIZE) {
-		pr_info("task: %d", task);
+		pr_debug("task: %d", task);
 		return -EOVERFLOW;
 	}
 
@@ -607,7 +607,7 @@ int audio_ipi_dma_free_region(const uint8_t task)
 		phy_value = offset_to_phy_addr(region->offset);
 
 
-		pr_info("task %d, region[%d] sz 0x%x, offset 0x%x",
+		pr_debug("task %d, region[%d] sz 0x%x, offset 0x%x",
 			task, i, region->size, region->offset);
 
 		gen_pool_free(g_dma_pool,
@@ -887,16 +887,16 @@ int audio_ipi_dma_write_region(const uint8_t task,
 	int ret = 0;
 
 	if (task >= TASK_SCENE_SIZE) {
-		pr_info("task: %d", task);
+		pr_debug("task: %d", task);
 		return -EOVERFLOW;
 	}
 	if (!data_buf || !write_idx || !g_dma) {
-		pr_info("buf %p, idx %p, dma %p NULL!!",
+		pr_debug("buf %p, idx %p, dma %p NULL!!",
 			data_buf, write_idx, g_dma);
 		return -EFAULT;
 	}
 	if (data_size == 0) {
-		pr_info("task: %d, data_size = 0", task);
+		pr_debug("task: %d, data_size = 0", task);
 		return -ENODATA;
 	}
 
@@ -923,15 +923,15 @@ int audio_ipi_dma_read_region(const uint8_t task,
 	int ret = 0;
 
 	if (task >= TASK_SCENE_SIZE) {
-		pr_info("task: %d", task);
+		pr_debug("task: %d", task);
 		return -EOVERFLOW;
 	}
 	if (!data_buf || !g_dma) {
-		pr_info("buf %p, dma %p NULL!!", data_buf, g_dma);
+		pr_debug("buf %p, dma %p NULL!!", data_buf, g_dma);
 		return -EFAULT;
 	}
 	if (data_size == 0) {
-		pr_info("task: %d, data_size = 0", task);
+		pr_debug("task: %d, data_size = 0", task);
 		return -ENODATA;
 	}
 
@@ -962,15 +962,15 @@ int audio_ipi_dma_drop_region(const uint8_t task,
 	int ret = 0;
 
 	if (task >= TASK_SCENE_SIZE) {
-		pr_info("task: %d", task);
+		pr_debug("task: %d", task);
 		return -EOVERFLOW;
 	}
 	if (!g_dma) {
-		pr_info("dma %p NULL!!", g_dma);
+		pr_debug("dma %p NULL!!", g_dma);
 		return -EFAULT;
 	}
 	if (drop_size == 0) {
-		pr_info("task: %d, drop_size = 0", task);
+		pr_debug("task: %d, drop_size = 0", task);
 		return -ENODATA;
 	}
 
@@ -1003,7 +1003,7 @@ inline bool hal_dma_check_idx_msg_valid(
 	const uint32_t idx_msg)
 {
 	if (msg_queue == NULL) {
-		pr_info("msg_queue == NULL!! return");
+		pr_debug("msg_queue == NULL!! return");
 		return false;
 	}
 
@@ -1014,7 +1014,7 @@ inline bool hal_dma_check_idx_msg_valid(
 inline bool hal_dma_check_queue_empty(const struct hal_dma_queue_t *msg_queue)
 {
 	if (msg_queue == NULL) {
-		pr_info("msg_queue == NULL!! return");
+		pr_debug("msg_queue == NULL!! return");
 		return false;
 	}
 
@@ -1028,7 +1028,7 @@ inline bool hal_dma_check_queue_to_be_full(
 	uint32_t idx_w_to_be = 0;
 
 	if (msg_queue == NULL) {
-		pr_info("msg_queue == NULL!! return");
+		pr_debug("msg_queue == NULL!! return");
 		return false;
 	}
 
@@ -1044,7 +1044,7 @@ inline uint32_t hal_dma_get_num_msg_in_queue(
 	const struct hal_dma_queue_t *msg_queue)
 {
 	if (msg_queue == NULL) {
-		pr_info("msg_queue == NULL!! return");
+		pr_debug("msg_queue == NULL!! return");
 		return 0;
 	}
 
@@ -1059,7 +1059,7 @@ static void hal_dma_dump_msg_in_queue(struct hal_dma_queue_t *msg_queue)
 	struct ipi_msg_t *p_ipi_msg = NULL;
 	uint32_t idx_dump = msg_queue->idx_r;
 
-	pr_info("idx_r: %u, idx_w: %u, queue(%u/%u)",
+	pr_debug("idx_r: %u, idx_w: %u, queue(%u/%u)",
 		msg_queue->idx_r,
 		msg_queue->idx_w,
 		hal_dma_get_num_msg_in_queue(msg_queue),
@@ -1090,14 +1090,14 @@ static int hal_dma_push(
 #endif
 
 	if (msg_queue == NULL || p_ipi_msg == NULL || p_idx_msg == NULL) {
-		pr_info("NULL!! msg_queue: %p, p_ipi_msg: %p, p_idx_msg: %p",
+		pr_debug("NULL!! msg_queue: %p, p_ipi_msg: %p, p_idx_msg: %p",
 			msg_queue, p_ipi_msg, p_idx_msg);
 		return -EFAULT;
 	}
 
 	/* check queue full */
 	if (hal_dma_check_queue_to_be_full(msg_queue) == true) {
-		pr_info("task: %d, msg_id: 0x%x, queue overflow, idx_r: %u, idx_w: %u, drop it",
+		pr_debug("task: %d, msg_id: 0x%x, queue overflow, idx_r: %u, idx_w: %u, drop it",
 			p_ipi_msg->task_scene, p_ipi_msg->msg_id,
 			msg_queue->idx_r, msg_queue->idx_w);
 		hal_dma_dump_msg_in_queue(msg_queue);
@@ -1106,7 +1106,7 @@ static int hal_dma_push(
 	}
 
 	if (hal_dma_check_idx_msg_valid(msg_queue, msg_queue->idx_w) == false) {
-		pr_info("idx_w %u is invalid!! return", msg_queue->idx_w);
+		pr_debug("idx_w %u is invalid!! return", msg_queue->idx_w);
 		return -1;
 	}
 
@@ -1127,7 +1127,7 @@ static int hal_dma_push(
 
 #if 0
 	for (i = 0; i < p_ipi_msg->dma_info.data_size; i++)
-		pr_info("%d", msg_queue->tmp_buf_d2k[i]);
+		pr_debug("%d", msg_queue->tmp_buf_d2k[i]);
 #endif
 
 	if (retval != 0)
@@ -1168,13 +1168,13 @@ static int hal_dma_pop(struct hal_dma_queue_t *msg_queue)
 	struct ipi_msg_t *p_ipi_msg = NULL;
 
 	if (msg_queue == NULL) {
-		pr_info("NULL!! msg_queue: %p", msg_queue);
+		pr_debug("NULL!! msg_queue: %p", msg_queue);
 		return -EFAULT;
 	}
 
 	/* check queue empty */
 	if (hal_dma_check_queue_empty(msg_queue) == true) {
-		pr_info("queue is empty, idx_r: %u, idx_w: %u",
+		pr_debug("queue is empty, idx_r: %u, idx_w: %u",
 			msg_queue->idx_r,
 			msg_queue->idx_w);
 		return -1;
@@ -1207,7 +1207,7 @@ static int hal_dma_front(
 	uint32_t data_size = 0;
 
 	if (msg_queue == NULL || pp_ipi_msg == NULL || p_idx_msg == NULL) {
-		pr_info("NULL!! msg_queue: %p, pp_ipi_msg: %p, p_idx_msg: %p",
+		pr_debug("NULL!! msg_queue: %p, pp_ipi_msg: %p, p_idx_msg: %p",
 			msg_queue, pp_ipi_msg, p_idx_msg);
 		return -EFAULT;
 	}
@@ -1217,14 +1217,14 @@ static int hal_dma_front(
 
 	/* check queue empty */
 	if (hal_dma_check_queue_empty(msg_queue) == true) {
-		pr_info("queue empty, idx_r: %u, idx_w: %u",
+		pr_debug("queue empty, idx_r: %u, idx_w: %u",
 			msg_queue->idx_r, msg_queue->idx_w);
 		return -ENOMEM;
 	}
 
 	/* front */
 	if (hal_dma_check_idx_msg_valid(msg_queue, msg_queue->idx_r) == false) {
-		pr_info("idx_r %u is invalid!! return",
+		pr_debug("idx_r %u is invalid!! return",
 			msg_queue->idx_r);
 		return -1;
 	}
@@ -1256,7 +1256,7 @@ static int hal_dma_init_msg_queue(struct hal_dma_queue_t *msg_queue)
 	int i = 0;
 
 	if (msg_queue == NULL) {
-		pr_info("NULL!! msg_queue: %p", msg_queue);
+		pr_debug("NULL!! msg_queue: %p", msg_queue);
 		return -EFAULT;
 	}
 
@@ -1288,7 +1288,7 @@ static int hal_dma_init_msg_queue(struct hal_dma_queue_t *msg_queue)
 static int hal_dma_deinit_msg_queue(struct hal_dma_queue_t *msg_queue)
 {
 	if (msg_queue == NULL) {
-		pr_info("NULL!! msg_queue: %p", msg_queue);
+		pr_debug("NULL!! msg_queue: %p", msg_queue);
 		return -EFAULT;
 	}
 
@@ -1347,7 +1347,7 @@ static int hal_dma_get_queue_msg(
 				break;
 			}
 			if (retval == -ERESTARTSYS) {
-				pr_info("-ERESTARTSYS, #%u, sleep ms: %u",
+				pr_debug("-ERESTARTSYS, #%u, sleep ms: %u",
 					try_cnt, k_restart_sleep_ms);
 				retval = -EINTR;
 				msleep(k_restart_sleep_ms);
@@ -1378,7 +1378,7 @@ int audio_ipi_dma_msg_to_hal(struct ipi_msg_t *p_ipi_msg)
 
 
 	if (p_ipi_msg == NULL || msg_queue == NULL) {
-		pr_info("NULL!! return");
+		pr_debug("NULL!! return");
 		return -EFAULT;
 	}
 
@@ -1400,7 +1400,7 @@ int audio_ipi_dma_msg_to_hal(struct ipi_msg_t *p_ipi_msg)
 			      &idx_msg);
 	spin_unlock_irqrestore(&msg_queue->queue_lock, flags);
 	if (retval != 0) {
-		pr_info("push fail!!");
+		pr_debug("push fail!!");
 		return retval;
 	}
 
@@ -1424,7 +1424,7 @@ size_t audio_ipi_dma_msg_read(void __user *buf, size_t count)
 	int retval = 0;
 
 	if (buf == NULL || count == 0 || msg_queue == NULL) {
-		pr_info("arg!! %p %zu %p, return", buf, count, msg_queue);
+		pr_debug("arg!! %p %zu %p, return", buf, count, msg_queue);
 		msleep(500);
 		return 0;
 	}
@@ -1433,7 +1433,7 @@ size_t audio_ipi_dma_msg_read(void __user *buf, size_t count)
 	/* wait until element pushed */
 	retval = hal_dma_get_queue_msg(msg_queue, &p_ipi_msg, &idx_msg);
 	if (retval != 0) {
-		pr_info("hal_dma_get_queue_msg retval %d", retval);
+		pr_debug("hal_dma_get_queue_msg retval %d", retval);
 		msleep(100);
 		return 0;
 	}
@@ -1458,7 +1458,7 @@ size_t audio_ipi_dma_msg_read(void __user *buf, size_t count)
 				 msg_queue->tmp_buf_k2h,
 				 copy_size);
 		if (retval != 0)
-			pr_info("hal_dma_get_queue_msg retval %d", retval);
+			pr_debug("hal_dma_get_queue_msg retval %d", retval);
 	}
 
 

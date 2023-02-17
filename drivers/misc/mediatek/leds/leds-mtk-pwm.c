@@ -104,7 +104,7 @@ static int call_notifier(int event, struct mtk_led_data *led_dat)
 
 	err = mtk_leds_call_notifier(event, &led_dat->conf);
 	if (err)
-		pr_info("notifier_call_chain error\n");
+		pr_debug("notifier_call_chain error\n");
 	return err;
 }
 
@@ -133,13 +133,13 @@ static void led_debug_log(struct mtk_led_data *s_led,
 	s_led->debug.count++;
 
 	if (ret < 0 || ret >= 4096) {
-		pr_info("print log error!");
+		pr_debug("print log error!");
 		s_led->debug.count = 5;
 	}
 
 	if (level == 0 || s_led->debug.count >= 5 ||
 		(s_led->debug.current_t - s_led->debug.last_t) > 1000000000) {
-		pr_info("%s", s_led->debug.buffer);
+		pr_debug("%s", s_led->debug.buffer);
 		s_led->debug.count = 0;
 		s_led->debug.buffer[strlen("[Light] Set directly ") +
 			strlen(s_led->conf.cdev.name)] = '\0';
@@ -311,7 +311,7 @@ int setMaxBrightness(char *name, int percent, bool enable)
 
 	max_l = (1 << led_dat->conf.trans_bits) - 1;
 	limit_l = (percent * max_l) / 100;
-	pr_info("before: name: %s, percent : %d, limit_l : %d, enable: %d",
+	pr_debug("before: name: %s, percent : %d, limit_l : %d, enable: %d",
 		leds_info->leds[index]->name, percent, limit_l, enable);
 	if (enable) {
 		led_dat->conf.max_level = limit_l;
@@ -327,7 +327,7 @@ int setMaxBrightness(char *name, int percent, bool enable)
 	if (led_dat->conf.cdev.brightness != 0)
 		led_level_pwm_set(led_dat, cur_l);
 
-	pr_info("after: name: %s, cur_l : %d, max_level : %d",
+	pr_debug("after: name: %s, cur_l : %d, max_level : %d",
 		led_dat->conf.cdev.name, cur_l, led_dat->conf.max_level);
 	return 0;
 
@@ -350,7 +350,7 @@ static int led_data_init(struct device *dev, struct mtk_led_data *s_led)
 		pr_notice("led class register fail!");
 		return ret;
 	}
-	pr_info("%s devm_led_classdev_register ok! ", s_led->conf.cdev.name);
+	pr_debug("%s devm_led_classdev_register ok! ", s_led->conf.cdev.name);
 
 	INIT_WORK(&s_led->work, mtk_led_work);
 	ret = snprintf(s_led->debug.buffer + strlen(s_led->debug.buffer),
@@ -358,7 +358,7 @@ static int led_data_init(struct device *dev, struct mtk_led_data *s_led)
 		"[Light] Set %s directly ", s_led->conf.cdev.name);
 
 	if (ret < 0 || ret >= 4096)
-		pr_info("print log init error!");
+		pr_debug("print log init error!");
 
 	return 0;
 }
@@ -390,7 +390,7 @@ static int led_pwm_config_add(struct device *dev,
 	if (!s_led->info.config.pwm_period_ns && (pargs.period > 0))
 		s_led->info.config.pwm_period_ns = pargs.period;
 
-	pr_info("set led pwm OK! info.config.pwm_period_ns = %d!",
+	pr_debug("set led pwm OK! info.config.pwm_period_ns = %d!",
 		s_led->info.config.pwm_period_ns);
 	return ret;
 
@@ -420,42 +420,42 @@ static int mtk_leds_parse_dt(struct device *dev,
 		ret = of_property_read_string(child, "label",
 			&(s_led->conf.cdev.name));
 		if (ret) {
-			pr_info("Fail to read label property");
+			pr_debug("Fail to read label property");
 			goto out_led_dt;
 		}
 		ret = of_property_read_string(child, "pwm-names",
 			&(s_led->info.config.name));
 		if (ret) {
-			pr_info("Fail to read pwm-names property");
+			pr_debug("Fail to read pwm-names property");
 			goto out_led_dt;
 		}
 		ret = of_property_read_string(child, "default-trigger",
 			&(s_led->info.config.default_trigger));
 		if (ret) {
-			pr_info("Fail to read default-trigger property");
+			pr_debug("Fail to read default-trigger property");
 			s_led->info.config.default_trigger = NULL;
 		}
 		ret = of_property_read_u8(child, "active-low",
 			&(s_led->info.config.active_low));
 		if (ret)
-			pr_info("Fail to read active-low property\n");
+			pr_debug("Fail to read active-low property\n");
 		ret = of_property_read_u32(child,
 			"led-bits", &(s_led->conf.led_bits));
 		if (ret) {
-			pr_info("No led-bits, use default value 8");
+			pr_debug("No led-bits, use default value 8");
 			s_led->conf.led_bits = 8;
 		}
 		ret = of_property_read_u32(child,
 			"max-brightness", &(s_led->info.config.max_brightness));
 		if (ret) {
-			pr_info("No max-brightness, use default value 255");
+			pr_debug("No max-brightness, use default value 255");
 			s_led->info.config.max_brightness =
 				(1 << s_led->conf.led_bits) - 1;
 		}
 		ret = of_property_read_u32(child,
 			"trans-bits", &(s_led->conf.trans_bits));
 		if (ret) {
-			pr_info("No trans-bits, use default value 10");
+			pr_debug("No trans-bits, use default value 10");
 			s_led->conf.trans_bits = 10;
 		}
 		s_led->conf.max_level = (1 << s_led->conf.trans_bits) - 1;
@@ -468,7 +468,7 @@ static int mtk_leds_parse_dt(struct device *dev,
 			else
 				level = s_led->conf.level = 0;
 		}
-		pr_info("parse %s(%d) leds dt: %s, %s, %d, %d, %d\n",
+		pr_debug("parse %s(%d) leds dt: %s, %s, %d, %d, %d\n",
 			s_led->conf.cdev.name, num, s_led->info.config.name,
 			s_led->info.config.default_trigger,
 			s_led->info.config.active_low,
@@ -488,7 +488,7 @@ static int mtk_leds_parse_dt(struct device *dev,
 		num++;
 	}
 	m_leds->nums = num;
-	pr_info("load dts ok!");
+	pr_debug("load dts ok!");
 	return ret;
 out_led_dt:
 	pr_notice("Error load dts node!\n");
@@ -508,10 +508,10 @@ static int mtk_leds_probe(struct platform_device *pdev)
 	struct mtk_leds_info *m_leds;
 	int ret, nums;
 
-	pr_info("probe begain +++");
+	pr_debug("probe begain +++");
 
 	nums = of_get_child_count(dev->of_node);
-	pr_info("Load dts node nums: %d", nums);
+	pr_debug("Load dts node nums: %d", nums);
 	m_leds = devm_kzalloc(dev, (sizeof(struct mtk_leds_info) +
 		(sizeof(struct mtk_led_data) * (nums))), GFP_KERNEL);
 	if (!m_leds)
@@ -534,7 +534,7 @@ static int mtk_leds_probe(struct platform_device *pdev)
 		goto err;
 	}
 
-	pr_info("probe end ---");
+	pr_debug("probe end ---");
 	return 0;
  err:
 	pr_notice("Failed to probe!\n");
@@ -567,7 +567,7 @@ static void mtk_leds_shutdown(struct platform_device *pdev)
 	int i;
 	struct mtk_leds_info *m_leds = dev_get_platdata(&pdev->dev);
 
-	pr_info("Turn off backlight\n");
+	pr_debug("Turn off backlight\n");
 
 	for (i = 0; m_leds && i < m_leds->nums; i++) {
 		if (!&(m_leds->leds[i]))
@@ -608,11 +608,11 @@ static int __init mtk_leds_init(void)
 {
 	int ret;
 
-	pr_info("Leds init\n");
+	pr_debug("Leds init\n");
 	ret = platform_driver_register(&mtk_pwm_leds_driver);
 
 	if (ret) {
-		pr_info("driver register error: %d\n", ret);
+		pr_debug("driver register error: %d\n", ret);
 		return ret;
 	}
 

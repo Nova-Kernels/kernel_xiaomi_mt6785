@@ -19,7 +19,7 @@
 #include <linux/version.h>
 
 #define RTFLED_INFO(format, args...)	\
-	pr_info("%s:%s() line-%d: " format,	\
+	pr_debug("%s:%s() line-%d: " format,	\
 		ALIAS_NAME, __func__, __LINE__, ## args)
 #define RTFLED_WARN(format, args...)	\
 	pr_warn("%s:%s() line-%d: " format, \

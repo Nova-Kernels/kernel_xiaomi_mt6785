@@ -249,7 +249,7 @@ static int __init mt_pwrap_init(void)
 {
 	struct device_node *node, *pwrap_node;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	node = of_find_compatible_node(NULL, NULL, "mediatek,pwraph");
 	pwrap_node = of_parse_phandle(node, "mediatek,pwrap-regmap", 0);
 	if (pwrap_node) {

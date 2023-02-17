@@ -53,13 +53,13 @@ static int trigger_vio_test(struct dapc_driver *drv, int round)
 	int i, num, flag_ke;
 
 	if (round <= 0) {
-		pr_info("invalid round %d\n", round);
+		pr_debug("invalid round %d\n", round);
 		return -EINVAL;
 	}
 
 	test_virt = ioremap(test_base, 4096);
 	if (!test_virt) {
-		pr_info("ioremap test base(0x%lx) virt failed\n",
+		pr_debug("ioremap test base(0x%lx) virt failed\n",
 			(unsigned long)test_base);
 		return -ENOMEM;
 	}
@@ -73,7 +73,7 @@ static int trigger_vio_test(struct dapc_driver *drv, int round)
 		num &= 0xF;
 		/* mdla_core0 0x8 */
 		iowrite32(num, (unsigned int *)(test_virt + 0x8));
-		pr_info("write 0x%x to (0x%lx), read: 0x%x\n",
+		pr_debug("write 0x%x to (0x%lx), read: 0x%x\n",
 			num, (unsigned long)(test_base + 0x8),
 			readl((unsigned int *)(test_virt + 0x8)));
 
@@ -81,7 +81,7 @@ static int trigger_vio_test(struct dapc_driver *drv, int round)
 		num &= 0xF;
 		/* mdla_core1 0xC */
 		iowrite32(num, (unsigned int *)(test_virt + 0xC));
-		pr_info("write 0x%x to (0x%lx), read: 0x%x\n",
+		pr_debug("write 0x%x to (0x%lx), read: 0x%x\n",
 			num, (unsigned long)(test_base + 0xC),
 			readl((unsigned int *)(test_virt + 0xC)));
 	}
@@ -117,7 +117,7 @@ static ssize_t apusys_devapc_read(struct file *file, char __user *buf,
 
 	ret = copy_to_user(buf, output, len);
 	if (ret) {
-		pr_info("Fail to copy %s, ret %d\n", output, ret);
+		pr_debug("Fail to copy %s, ret %d\n", output, ret);
 		return -EFAULT;
 	}
 
@@ -144,7 +144,7 @@ static ssize_t apusys_devapc_write(struct file *file, const char __user *buf,
 	len = min(size, 31UL);
 
 	if (copy_from_user(input, buf, len)) {
-		pr_info("Fail to copy from user\n");
+		pr_debug("Fail to copy from user\n");
 		return -EFAULT;
 	}
 
@@ -153,13 +153,13 @@ static ssize_t apusys_devapc_write(struct file *file, const char __user *buf,
 
 	cmd_str = strsep(&tmp_str, " ");
 	if (!cmd_str) {
-		pr_info("Fail to get cmd\n");
+		pr_debug("Fail to get cmd\n");
 		return -EINVAL;
 	}
 
 	param_str = strsep(&tmp_str, " ");
 	if (!param_str) {
-		pr_info("Fail to get param\n");
+		pr_debug("Fail to get param\n");
 		return -EINVAL;
 	}
 
@@ -173,20 +173,20 @@ static ssize_t apusys_devapc_write(struct file *file, const char __user *buf,
 			drv->enable_ke = 0;
 			drv->enable_aee = 0;
 			drv->enable_irq = 1;
-			pr_info("APUSYS devapc debugging mode\n");
+			pr_debug("APUSYS devapc debugging mode\n");
 		} else {
 			drv->enable_ke = 1;
 			drv->enable_aee = 1;
 			drv->enable_irq = 1;
-			pr_info("APUSYS devapc violation mode\n");
+			pr_debug("APUSYS devapc violation mode\n");
 		}
 	} else if (!strncmp(cmd_str, "enable_KE", sizeof("enable_KE"))) {
 		drv->enable_ke = param & 0x1;
-		pr_info("APUSYS devapc %s KE\n",
+		pr_debug("APUSYS devapc %s KE\n",
 			drv->enable_ke ? "enable" : "disable");
 	} else if (!strncmp(cmd_str, "enable_AEE", sizeof("enable_AEE"))) {
 		drv->enable_aee = param & 0x1;
-		pr_info("APUSYS devapc %s AEE\n",
+		pr_debug("APUSYS devapc %s AEE\n",
 			drv->enable_aee ? "enable" : "disable");
 	} else if (!strncmp(cmd_str, "enable_IRQ", sizeof("enable_IRQ"))) {
 		drv->enable_irq = param & 0x1;
@@ -194,17 +194,17 @@ static ssize_t apusys_devapc_write(struct file *file, const char __user *buf,
 			enable_irq(drv->irq);
 		else
 			disable_irq(drv->irq);
-		pr_info("APUSYS devapc %s IRQ\n",
+		pr_debug("APUSYS devapc %s IRQ\n",
 			drv->enable_irq ? "enable" : "disable");
 	} else if (!strncmp(cmd_str, "restart", sizeof("restart"))) {
 		apusys_devapc_start(NULL);
-		pr_info("APUSYS devapc restarted\n");
+		pr_debug("APUSYS devapc restarted\n");
 	} else if (!strncmp(cmd_str, "trigger_vio", sizeof("trigger_vio"))) {
-		pr_info("APUSYS devapc trigger vio test %d +\n", param);
+		pr_debug("APUSYS devapc trigger vio test %d +\n", param);
 		trigger_vio_test(drv, param);
-		pr_info("APUSYS devapc trigger vio test %d -\n", param);
+		pr_debug("APUSYS devapc trigger vio test %d -\n", param);
 	} else {
-		pr_info("Unknown cmd %s\n", cmd_str);
+		pr_debug("Unknown cmd %s\n", cmd_str);
 		return -EINVAL;
 	}
 
@@ -228,7 +228,7 @@ static int apusys_devapc_debug_init(struct dapc_driver *drv)
 	droot = debugfs_create_dir("apusys_devapc", NULL);
 	if (IS_ERR_OR_NULL(droot)) {
 		ret = PTR_ERR(droot);
-		pr_info("%s: unable to create debugfs folder: %d\n",
+		pr_debug("%s: unable to create debugfs folder: %d\n",
 			__func__, ret);
 		return ret;
 	}
@@ -265,7 +265,7 @@ static void slv_irq(unsigned int slv, bool enable)
 	struct dapc_config *cfg = d->cfg;
 
 	if (slv > cfg->slv_cnt) {
-		pr_info("%s: slv: %d is out of index, max: %d\n",
+		pr_debug("%s: slv: %d is out of index, max: %d\n",
 			slv, cfg->slv_cnt);
 		return;
 	}
@@ -316,7 +316,7 @@ static uint32_t check_vio_status(unsigned int slv)
 	struct dapc_config *cfg = d->cfg;
 
 	if (slv > cfg->slv_cnt) {
-		pr_info("%s: slv: %d is out of index, max: %d\n",
+		pr_debug("%s: slv: %d is out of index, max: %d\n",
 			slv, cfg->slv_cnt);
 		return -EINVAL;
 	}
@@ -335,7 +335,7 @@ static void clear_vio_status(unsigned int slv)
 	struct dapc_config *cfg = d->cfg;
 
 	if (slv > cfg->slv_cnt) {
-		pr_info("%s: slv: %d is out of index, max: %d\n",
+		pr_debug("%s: slv: %d is out of index, max: %d\n",
 			slv, cfg->slv_cnt);
 		return;
 	}
@@ -368,7 +368,7 @@ static int shift_vio_dbg(int shift_bit)
 		dapc_reg_r(d, sel), dapc_reg_r(d, con));
 
 	if ((dapc_reg_r(d, con) & mask) != mask) {
-		pr_info("%s: shift bit %d failed\n", shift_bit);
+		pr_debug("%s: shift bit %d failed\n", shift_bit);
 		return -EFAULT;
 	}
 
@@ -389,7 +389,7 @@ static void apusys_devapc_dbg(const char *prefix)
 	if (!dapc_drv->debug_log)
 		return;
 
-	pr_info("%s: %s: VIO_MASK0~3: 0x%x, 0x%x, 0x%x, 0x%x, VIO_STA0~3: 0x%x, 0x%x, 0x%x, 0x%x\n",
+	pr_debug("%s: %s: VIO_MASK0~3: 0x%x, 0x%x, 0x%x, 0x%x, VIO_STA0~3: 0x%x, 0x%x, 0x%x, 0x%x\n",
 		__func__,
 		prefix,
 		dapc_reg_r(d, cfg->vio_mask(0)),
@@ -427,17 +427,17 @@ static irqreturn_t apusys_devapc_isr(int irq_number, void *data)
 		return IRQ_NONE;
 
 	if (!d || IS_ERR_OR_NULL(d->reg)) {
-		pr_info("%s: driver abort\n", __func__);
+		pr_debug("%s: driver abort\n", __func__);
 		return IRQ_NONE;
 	}
 
 	if (irq_number != d->irq) {
-		pr_info("%s: get unknown irq %d\n", __func__, irq_number);
+		pr_debug("%s: get unknown irq %d\n", __func__, irq_number);
 		return IRQ_NONE;
 	}
 
 	if (!d->irq) {
-		pr_info("%s: Disable vio irq handler\n", __func__);
+		pr_debug("%s: Disable vio irq handler\n", __func__);
 		return IRQ_NONE;
 	}
 
@@ -450,7 +450,7 @@ static irqreturn_t apusys_devapc_isr(int irq_number, void *data)
 		if (shift_vio_dbg(i))
 			continue;
 
-		pr_info("%s: VIO_SHIFT_STA=0x%x, VIO_SHIFT_SEL=0x%x, VIO_SHIFT_CON=0x%x,\n",
+		pr_debug("%s: VIO_SHIFT_STA=0x%x, VIO_SHIFT_SEL=0x%x, VIO_SHIFT_CON=0x%x,\n",
 			__func__,
 			dapc_reg_r(d, cfg->vio_shift_sta),
 			dapc_reg_r(d, cfg->vio_shift_sel),
@@ -459,7 +459,7 @@ static irqreturn_t apusys_devapc_isr(int irq_number, void *data)
 		cfg->excp_info(d, &ex);
 
 		/* violation information */
-		pr_info("%s: Violation(%s%s): transaction ID:0x%x, Addr:0x%x, HighAddr: %x, Domain: 0x%x\n",
+		pr_debug("%s: Violation(%s%s): transaction ID:0x%x, Addr:0x%x, HighAddr: %x, Domain: 0x%x\n",
 			__func__,
 			(ex.read_vio) ? "R" : "",
 			(ex.write_vio) ? " W" : "",
@@ -475,7 +475,7 @@ static irqreturn_t apusys_devapc_isr(int irq_number, void *data)
 			continue;
 
 		clear_vio_status(i);
-		pr_info("%s: vio_sta device: %d, slave: %s\n",
+		pr_debug("%s: vio_sta device: %d, slave: %s\n",
 			__func__, i, slv[i].name);
 		do_kernel_exception(d, i, &ex);
 	}

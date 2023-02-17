@@ -83,7 +83,7 @@ int __init rtc_debug_init(void)
 
 	mtk_rtc_dir = debugfs_create_dir("mtk_rtc", NULL);
 	if (!mtk_rtc_dir) {
-		pr_info("create /sys/kernel/debug/mtk_rtc_dir failed\n");
+		pr_debug("create /sys/kernel/debug/mtk_rtc_dir failed\n");
 		return -ENOMEM;
 	}
 
@@ -91,7 +91,7 @@ int __init rtc_debug_init(void)
 				mtk_rtc_dir, NULL,
 				&mtk_rtc_debug_ops);
 	if (!mtk_rtc_file) {
-		pr_info("create /sys/kernel/debug/mtk_rtc/mtk_rtc failed\n");
+		pr_debug("create /sys/kernel/debug/mtk_rtc/mtk_rtc failed\n");
 		return -ENOMEM;
 	}
 

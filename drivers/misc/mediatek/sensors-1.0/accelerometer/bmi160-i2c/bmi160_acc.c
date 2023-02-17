@@ -2052,7 +2052,7 @@ static int bmi160_acc_suspend(void)
 
 	return err;
 #else
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	return 0;
 #endif
 }
@@ -2072,7 +2072,7 @@ static int bmi160_acc_resume(void)
 	atomic_set(&obj->suspend, 0);
 	return 0;
 #else
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	return 0;
 #endif
 }

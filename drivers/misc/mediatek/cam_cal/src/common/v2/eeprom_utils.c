@@ -33,7 +33,7 @@ void EEPROM_PROFILE(struct timeval *ptv, char *tag)
 	time_interval =
 	    (tv.tv_sec - ptv->tv_sec) * 1000000 + (tv.tv_usec - ptv->tv_usec);
 
-	pr_info("[%s]Profile = %lu us\n", tag, time_interval);
+	pr_debug("[%s]Profile = %lu us\n", tag, time_interval);
 }
 
 #else

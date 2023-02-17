@@ -357,7 +357,7 @@ static int apu_tags_init_procfs(void)
 
 	proot = proc_mkdir(APU_TAGS_PROC_FS_NAME, NULL);
 	if (!proot) {
-		pr_info("%s: unable to create\n", __func__);
+		pr_debug("%s: unable to create\n", __func__);
 		return -ENOMEM;
 	}
 	proc_create("info", 0440, proot, &apu_tags_info_fops);
@@ -390,7 +390,7 @@ static int apu_tags_alloc_procfs(struct apu_tags *at)
 	at->proc = proc_create_data(at->name, APU_TAG_PROC_MDOE,
 		proot, &apu_tags_proc_fops, at);
 	if (!at->proc) {
-		pr_info("%s: unable to create %s\n", __func__, at->name);
+		pr_debug("%s: unable to create %s\n", __func__, at->name);
 		ret = -ENOMEM;
 	}
 out:

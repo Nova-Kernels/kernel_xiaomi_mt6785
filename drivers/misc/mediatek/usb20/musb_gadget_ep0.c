@@ -218,7 +218,7 @@ static inline void musb_try_b_hnp_enable(struct musb *musb)
 	devctl = musb_readb(mbase, MUSB_DEVCTL);
 	u8 opstate = musb_readb(mbase, MUSB_OPSTATE);
 
-	pr_info("HNP: Setting HR Done - DEVCTL: 0x%x, OPSTATE: 0x%x\n"
+	pr_debug("HNP: Setting HR Done - DEVCTL: 0x%x, OPSTATE: 0x%x\n"
 			, devctl, opstate);
 #endif
 }

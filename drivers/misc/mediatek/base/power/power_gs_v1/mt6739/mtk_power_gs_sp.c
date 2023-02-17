@@ -22,6 +22,6 @@ void mt_power_gs_sp_dump(void)
 {
 	mt_power_gs_pmic_manual_dump();
 #if 0
-	pr_info("0x1023028C = 0x%08x\n", _golden_read_reg(0x1023028C));
+	pr_debug("0x1023028C = 0x%08x\n", _golden_read_reg(0x1023028C));
 #endif
 }

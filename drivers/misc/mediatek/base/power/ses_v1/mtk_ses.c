@@ -111,7 +111,7 @@
 
 #ifdef CPU_SES_DEBUG
 #define ses_debug(fmt, args...)	\
-	pr_info(CPU_SES_TAG"[%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(CPU_SES_TAG"[%s():%d]" fmt, __func__, __LINE__, ##args)
 #else
 #define ses_debug(fmt, args...)
 #endif

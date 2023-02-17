@@ -1116,7 +1116,7 @@ static void __init mlog_init_debugfs(void)
 #elif defined(CONFIG_SYSFS)
 	/* No DEBUGFS, choose SYSFS as backup */
 	if (sysfs_create_group(mm_kobj, &mlog_attr_group))
-		pr_info("Failed to create sysfs interface\n");
+		pr_debug("Failed to create sysfs interface\n");
 #endif
 }
 

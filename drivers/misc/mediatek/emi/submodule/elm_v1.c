@@ -69,7 +69,7 @@ static irqreturn_t elm_isr(int irq, void *dev_id)
 	unsigned long flags;
 	int emi_dcm_status;
 
-	pr_info("[ELM] latency violation\n");
+	pr_debug("[ELM] latency violation\n");
 
 	spin_lock_irqsave(&elm_lock, flags);
 	save_debug_reg();
@@ -116,18 +116,18 @@ void elm_init(struct platform_driver *emi_ctrl, struct platform_device *pdev)
 	unsigned int elm_irq;
 	int ret;
 
-	pr_info("[ELM] initialize EMI ELM\n");
+	pr_debug("[ELM] initialize EMI ELM\n");
 
 	mt_elm_init(mt_cen_emi_base_get());
 
 	if (node) {
 		elm_irq = irq_of_parse_and_map(node, ELM_IRQ_INDEX);
-		pr_info("[ELM] get ELM IRQ: %d\n", elm_irq);
+		pr_debug("[ELM] get ELM IRQ: %d\n", elm_irq);
 
 		ret = request_irq(elm_irq, (irq_handler_t)elm_isr,
 			IRQF_TRIGGER_NONE, "elm", emi_ctrl);
 		if (ret != 0) {
-			pr_info("[ELM] fail to request IRQ (%d)\n", ret);
+			pr_debug("[ELM] fail to request IRQ (%d)\n", ret);
 			return;
 		}
 
@@ -136,7 +136,7 @@ void elm_init(struct platform_driver *emi_ctrl, struct platform_device *pdev)
 
 	ret = driver_create_file(&emi_ctrl->driver, &driver_attr_elm_ctrl);
 	if (ret)
-		pr_info("[ELM] fail to create elm_ctrl\n");
+		pr_debug("[ELM] fail to create elm_ctrl\n");
 }
 
 void suspend_elm(void)

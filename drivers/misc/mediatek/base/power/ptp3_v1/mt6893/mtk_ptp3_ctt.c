@@ -72,7 +72,7 @@
 #define CTT_TAG	 "[xxxxCTT]"
 
 #define ctt_info(fmt, args...)	\
-	pr_info(CTT_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(CTT_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #define ctt_debug(fmt, args...) \
 	pr_debug(CTT_TAG"[DEBUG][%s():%d]" fmt, __func__, __LINE__, ##args)

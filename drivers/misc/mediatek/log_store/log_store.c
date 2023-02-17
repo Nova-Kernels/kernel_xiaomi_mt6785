@@ -535,10 +535,10 @@ static int __init log_store_early_init(void)
 	struct mem_desc_ls sram_ls = { 0 };
 
 	if (of_scan_flat_dt(dt_get_log_store, &sram_ls))
-		pr_info("log_store: get ok, sram addr:0x%x, size:0x%x\n",
+		pr_debug("log_store: get ok, sram addr:0x%x, size:0x%x\n",
 				sram_ls.addr, sram_ls.size);
 	else
-		pr_info("log_store: get fail\n");
+		pr_debug("log_store: get fail\n");
 
 	sram_header = ioremap_wc(sram_ls.addr,
 		CONFIG_MTK_DRAM_LOG_STORE_SIZE);

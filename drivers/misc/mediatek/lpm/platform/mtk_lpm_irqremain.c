@@ -218,11 +218,11 @@ int __init mtk_lpm_irqremain_parsing(struct device_node *parent)
 			irqtype = irq_get_trigger_type(irqnum);
 
 			if (!(irqtype & IRQ_TYPE_EDGE_BOTH))
-				pr_info("[name:mtk_lpm][P] - %pOF irq(%d) type = 0x%x ?\n",
+				pr_debug("[name:mtk_lpm][P] - %pOF irq(%d) type = 0x%x ?\n",
 						tar_np, irqidx, irqtype);
 			if (irq_do) {
 				irq_set_irq_type(irqnum, irqtype);
-				pr_info("[name:mtk_lpm][P] - %pOF set irq(%d) as type = 0x%x\n",
+				pr_debug("[name:mtk_lpm][P] - %pOF set irq(%d) as type = 0x%x\n",
 						tar_np, irqidx, irqtype);
 			}
 
@@ -240,7 +240,7 @@ int __init mtk_lpm_irqremain_parsing(struct device_node *parent)
 					list_add(&irqnode->list,
 						 &mtk_irqremain);
 
-					pr_info("[name:mtk_lpm][P] - irq_%u, wakeup-src=0x%x (%pOF) (%s:%d)\n",
+					pr_debug("[name:mtk_lpm][P] - irq_%u, wakeup-src=0x%x (%pOF) (%s:%d)\n",
 						irqnode->irq,
 						irqnode->wakeup_src,
 						tar_np,
@@ -249,7 +249,7 @@ int __init mtk_lpm_irqremain_parsing(struct device_node *parent)
 					remain_count++;
 				}
 			} else
-				pr_info("[name:mtk_lpm][P] - invalid irq, erro=%d (%s:%d)\n",
+				pr_debug("[name:mtk_lpm][P] - invalid irq, erro=%d (%s:%d)\n",
 						irqnum, __func__, __LINE__);
 
 		} while (1);

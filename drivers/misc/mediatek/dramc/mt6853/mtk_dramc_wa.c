@@ -38,7 +38,7 @@ static struct mt_gpt_timers gpt_timers;
  */
 static irqreturn_t dramc_apxgpt3_irq_handler(int irq, void *dev_id)
 {
-	/* pr_info("%s\n", __func__); */
+	/* pr_debug("%s\n", __func__); */
 
 	/* 1. Stop and clear GPT  */
 	mt_reg_sync_writel(GPT3_STOP_CLEAR, GPT3_CON);
@@ -73,7 +73,7 @@ static int dramc_apxgpt3_init(void)
 		apxgpt_of_match[0].compatible);
 
 	if (!node) {
-		pr_info("%s: node not found\n", __func__);
+		pr_debug("%s: node not found\n", __func__);
 		return -1;
 	}
 
@@ -83,7 +83,7 @@ static int dramc_apxgpt3_init(void)
 	/* Setup IO addresses */
 	gpt_timers.tmr_regs = of_iomap(node, 0);
 
-	pr_info("%s: base=0x%lx, irq=%d\n", __func__,
+	pr_debug("%s: base=0x%lx, irq=%d\n", __func__,
 		(unsigned long)gpt_timers.tmr_regs, gpt_timers.tmr_irq);
 
 	/* 1. Stop and clear GPT */
@@ -108,12 +108,12 @@ static int dramc_apxgpt3_init(void)
 			IRQF_TIMER | IRQF_IRQPOLL | IRQF_PERCPU,
 				"dramc_apxgpt3", NULL);
 	if (ret) {
-		pr_info("%s: apxgpt3 request irq Failed ret =%d\n",
+		pr_debug("%s: apxgpt3 request irq Failed ret =%d\n",
 			__func__, ret);
 		return ret;
 	}
 
-	/* pr_info("%s: enable apxgpt3 one-shot", __func__);  */
+	/* pr_debug("%s: enable apxgpt3 one-shot", __func__);  */
 	/* 7. Start GPT one-shot  */
 	/* mt_reg_sync_writel(GPT3_ONE_SHOT_EN, GPT3_CON);  */
 	return 0;

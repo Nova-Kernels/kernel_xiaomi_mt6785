@@ -23,7 +23,7 @@
 void record_md_vosel(void)
 {
 	g_vmodem_vosel = pmic_get_register_value(PMIC_RG_BUCK_VMODEM_VOSEL);
-	pr_info("[%s] vmodem_vosel = 0x%x\n", __func__, g_vmodem_vosel);
+	pr_debug("[%s] vmodem_vosel = 0x%x\n", __func__, g_vmodem_vosel);
 }
 
 /* [Export API] */
@@ -37,7 +37,7 @@ void vmd1_pmic_setting_on(void)
 		pr_notice("[%s] vmodem vosel has not recorded!\n", __func__);
 		g_vmodem_vosel =
 			pmic_get_register_value(PMIC_RG_BUCK_VMODEM_VOSEL);
-		pr_info("[%s] vmodem_vosel = 0x%x\n",
+		pr_debug("[%s] vmodem_vosel = 0x%x\n",
 			__func__, g_vmodem_vosel);
 	}
 	if (pmic_get_register_value(PMIC_DA_VMODEM_VOSEL) != g_vmodem_vosel)
@@ -60,7 +60,7 @@ void pmic_enable_smart_reset(unsigned char smart_en,
 		pmic_get_register_value(PMIC_JUST_SMART_RST));
 	pmic_set_register_value(PMIC_RG_SMART_RST_MODE, smart_en);
 	pmic_set_register_value(PMIC_RG_SMART_RST_SDN_EN, smart_sdn_en);
-	pr_info("[%s] smart_en:%d, smart_sdn_en:%d\n",
+	pr_debug("[%s] smart_en:%d, smart_sdn_en:%d\n",
 		__func__, smart_en, smart_sdn_en);
 }
 
@@ -90,7 +90,7 @@ static unsigned int pmic_scp_set_regulator(struct mtk_regulator mt_reg,
 			  , (n_voltages * uV_step + min_uV));
 		return voltage;
 	}
-	pr_info("SSHUB_%s Expected %svolt step = %d\n",
+	pr_debug("SSHUB_%s Expected %svolt step = %d\n",
 		mt_reg.desc.name, is_sleep_vol?"sleep ":"", set_step);
 	pmic_set_register_value(vosel_reg, set_step);
 	udelay(220);
@@ -101,7 +101,7 @@ static unsigned int pmic_scp_set_regulator(struct mtk_regulator mt_reg,
 			  , (get_step * uV_step + min_uV));
 		return voltage;
 	}
-	pr_info("Set SSHUB_%s %sVoltage to %duV pass\n",
+	pr_debug("Set SSHUB_%s %sVoltage to %duV pass\n",
 		mt_reg.desc.name, is_sleep_vol?"sleep ":"", voltage);
 	return 0;
 }

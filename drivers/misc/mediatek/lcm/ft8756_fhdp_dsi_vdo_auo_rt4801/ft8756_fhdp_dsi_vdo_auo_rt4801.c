@@ -181,7 +181,7 @@ static int _lcm_i2c_write_bytes(unsigned char addr, unsigned char value)
 	write_data[1] = value;
 	ret = i2c_master_send(client, write_data, 2);
 	if (ret < 0)
-		pr_info("[LCM][ERROR] %s: addr:0x%x,reg:0x%x,val:0x%x\n",
+		pr_debug("[LCM][ERROR] %s: addr:0x%x,reg:0x%x,val:0x%x\n",
 			__func__, client->addr, addr, value);
 
 	return ret;

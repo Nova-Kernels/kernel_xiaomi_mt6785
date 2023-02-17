@@ -180,7 +180,7 @@ static int mt6370_enable(void)
 	if (mt6370_decouple_mode == FLASHLIGHT_SCENARIO_COUPLE &&
 			mt6370_en_ch1 != MT6370_DISABLE &&
 			mt6370_en_ch2 != MT6370_DISABLE) {
-		pr_info("dual flash mode\n");
+		pr_debug("dual flash mode\n");
 		if (mode == FLASHLIGHT_MODE_TORCH)
 			ret |= flashlight_set_mode(
 				flashlight_dev_ch1, FLASHLIGHT_MODE_DUAL_TORCH);
@@ -216,14 +216,14 @@ static int mt6370_disable_ch1(void)
 	pr_debug("disable_ch1.\n");
 
 	if (!flashlight_dev_ch1) {
-		pr_info("Failed to disable since no flashlight device.\n");
+		pr_debug("Failed to disable since no flashlight device.\n");
 		return -1;
 	}
 
 	ret |= flashlight_set_mode(flashlight_dev_ch1, FLASHLIGHT_MODE_OFF);
 
 	if (ret < 0)
-		pr_info("Failed to disable.\n");
+		pr_debug("Failed to disable.\n");
 
 	return ret;
 }
@@ -235,14 +235,14 @@ static int mt6370_disable_ch2(void)
 	pr_debug("disable_ch2.\n");
 
 	if (!flashlight_dev_ch2) {
-		pr_info("Failed to disable since no flashlight device.\n");
+		pr_debug("Failed to disable since no flashlight device.\n");
 		return -1;
 	}
 
 	ret |= flashlight_set_mode(flashlight_dev_ch2, FLASHLIGHT_MODE_OFF);
 
 	if (ret < 0)
-		pr_info("Failed to disable.\n");
+		pr_debug("Failed to disable.\n");
 
 	return ret;
 }
@@ -254,7 +254,7 @@ static int mt6370_disable_all(void)
 	pr_debug("disable_ch1.\n");
 
 	if (!flashlight_dev_ch1) {
-		pr_info("Failed to disable since no flashlight device.\n");
+		pr_debug("Failed to disable since no flashlight device.\n");
 		return -1;
 	}
 
@@ -262,7 +262,7 @@ static int mt6370_disable_all(void)
 				   FLASHLIGHT_MODE_DUAL_OFF);
 
 	if (ret < 0)
-		pr_info("Failed to disable.\n");
+		pr_debug("Failed to disable.\n");
 
 	return ret;
 }
@@ -278,7 +278,7 @@ static int mt6370_disable(int channel)
 	else if (channel == MT6370_CHANNEL_ALL)
 		ret = mt6370_disable_all();
 	else {
-		pr_info("Error channel\n");
+		pr_debug("Error channel\n");
 		return -1;
 	}
 
@@ -354,14 +354,14 @@ static int mt6370_set_scenario(int scenario)
 	mutex_lock(&mt6370_mutex);
 	if (scenario & FLASHLIGHT_SCENARIO_CAMERA_MASK) {
 		if (!is_decrease_voltage) {
-			pr_info("Decrease voltage level.\n");
+			pr_debug("Decrease voltage level.\n");
 			charger_manager_enable_high_voltage_charging(
 					flashlight_charger_consumer, false);
 			is_decrease_voltage = 1;
 		}
 	} else {
 		if (is_decrease_voltage) {
-			pr_info("Increase voltage level.\n");
+			pr_debug("Increase voltage level.\n");
 			charger_manager_enable_high_voltage_charging(
 					flashlight_charger_consumer, true);
 			is_decrease_voltage = 0;
@@ -620,7 +620,7 @@ static int mt6370_ioctl(unsigned int cmd, unsigned long arg)
 		break;
 
 	default:
-		pr_info("No such command and arg(%d): (%d, %d)\n",
+		pr_debug("No such command and arg(%d): (%d, %d)\n",
 				channel, _IOC_NR(cmd), (int)fl_arg->arg);
 		return -ENOTTY;
 	}
@@ -647,7 +647,7 @@ static int mt6370_release(void)
 	/* If camera NE, we need to enable pe by ourselves*/
 	if (fd_use_count == 0 && is_decrease_voltage) {
 #ifdef CONFIG_MTK_CHARGER
-		pr_info("Increase voltage level.\n");
+		pr_debug("Increase voltage level.\n");
 		charger_manager_enable_high_voltage_charging(
 				flashlight_charger_consumer, true);
 #endif
@@ -741,13 +741,13 @@ static int mt6370_parse_dt(struct device *dev,
 
 	pdata->channel_num = of_get_child_count(np);
 	if (!pdata->channel_num) {
-		pr_info("Parse no dt, node.\n");
+		pr_debug("Parse no dt, node.\n");
 		return 0;
 	}
-	pr_info("Channel number(%d).\n", pdata->channel_num);
+	pr_debug("Channel number(%d).\n", pdata->channel_num);
 
 	if (of_property_read_u32(np, "decouple", &decouple))
-		pr_info("Parse no dt, decouple.\n");
+		pr_debug("Parse no dt, decouple.\n");
 
 	pdata->dev_id = devm_kzalloc(dev,
 			pdata->channel_num *
@@ -768,7 +768,7 @@ static int mt6370_parse_dt(struct device *dev,
 		pdata->dev_id[i].channel = i;
 		pdata->dev_id[i].decouple = decouple;
 
-		pr_info("Parse dt (type,ct,part,name,channel,decouple)=(%d,%d,%d,%s,%d,%d).\n",
+		pr_debug("Parse dt (type,ct,part,name,channel,decouple)=(%d,%d,%d,%s,%d,%d).\n",
 				pdata->dev_id[i].type, pdata->dev_id[i].ct,
 				pdata->dev_id[i].part, pdata->dev_id[i].name,
 				pdata->dev_id[i].channel,

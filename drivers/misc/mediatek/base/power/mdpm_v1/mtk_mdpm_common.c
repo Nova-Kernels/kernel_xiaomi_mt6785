@@ -53,7 +53,7 @@ void init_md_section_level(enum pbm_kicker kicker)
 	share_mem =
 		(u32 *)get_smem_start_addr(MD_SYS1, SMEM_USER_RAW_DBM, NULL);
 	if (share_mem == NULL) {
-		pr_info_ratelimited("can't get dbm share memory\n");
+		pr_debug_ratelimited("can't get dbm share memory\n");
 		return;
 	}
 #else
@@ -105,7 +105,7 @@ int get_md1_power(unsigned int power_category, bool need_update)
 #else
 	share_mem = (u32 *)get_smem_start_addr(MD_SYS1, 0, NULL);
 	if (share_mem == NULL) {
-		pr_info_ratelimited("can't get dbm share memory\n");
+		pr_debug_ratelimited("can't get dbm share memory\n");
 		return MAX_MD1_POWER;
 	}
 #endif
@@ -113,7 +113,7 @@ int get_md1_power(unsigned int power_category, bool need_update)
 	g_dbm_power[power_category] = dbm_power;
 
 	if (mt_mdpm_debug)
-		pr_info("[md1_power] scenario_power=%d dbm_power=%d total=%d\n",
+		pr_debug("[md1_power] scenario_power=%d dbm_power=%d total=%d\n",
 			scenario_power, dbm_power, scenario_power + dbm_power);
 
 	return scenario_power + dbm_power;

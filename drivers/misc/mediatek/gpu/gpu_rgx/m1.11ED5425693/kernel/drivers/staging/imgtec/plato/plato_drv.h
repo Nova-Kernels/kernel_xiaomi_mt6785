@@ -68,7 +68,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 		dev_warn(dev, fmt, ##__VA_ARGS__)
 	#define plato_dev_error(dev, fmt, ...) \
 		dev_err(dev, fmt, ##__VA_ARGS__)
-	#define PLATO_DRM_CHECKPOINT            pr_info("line %d\n", __LINE__)
+	#define PLATO_DRM_CHECKPOINT            pr_debug("line %d\n", __LINE__)
 #else
 	#define plato_dev_info(dev, fmt, ...)
 	#define plato_dev_warn(dev, fmt, ...)

@@ -173,7 +173,7 @@ int adsp_core0_suspend(void)
 		switch_adsp_power(false);
 		set_adsp_state(pdata, ADSP_SUSPEND);
 	}
-	pr_info("%s(), done elapse %lld us", __func__,
+	pr_debug("%s(), done elapse %lld us", __func__,
 		ktime_us_delta(ktime_get(), start));
 	return 0;
 ERROR:
@@ -208,7 +208,7 @@ int adsp_core0_resume(void)
 			return -ETIME;
 		}
 	}
-	pr_info("%s(), done elapse %lld us", __func__,
+	pr_debug("%s(), done elapse %lld us", __func__,
 		ktime_us_delta(ktime_get(), start));
 	return 0;
 }
@@ -282,12 +282,12 @@ static int adsp_user_event_notify(struct notifier_block *nb,
 		ret = kobject_uevent(&dev->kobj, KOBJ_ONLINE);
 		break;
 	default:
-		pr_info("%s, ignore event %lu", __func__, event);
+		pr_debug("%s, ignore event %lu", __func__, event);
 		break;
 	}
 
 	if (ret)
-		pr_info("%s, uevnet(%lu) fail, ret %d", __func__, event, ret);
+		pr_debug("%s, uevnet(%lu) fail, ret %d", __func__, event, ret);
 
 	return NOTIFY_OK;
 }
@@ -305,7 +305,7 @@ static int adsp_common_drv_probe(struct platform_device *pdev)
 	/* indicate if adsp images is loaded successfully */
 	of_property_read_u32(dev->of_node, "load", &adsp_load);
 	if (!adsp_load)
-		pr_info("%s adsp disable\n", __func__);
+		pr_debug("%s adsp disable\n", __func__);
 
 	adsp_common.infracfg_ao = of_iomap(dev->of_node, 0);
 	if (IS_ERR(adsp_common.infracfg_ao))
@@ -323,7 +323,7 @@ static int adsp_common_drv_probe(struct platform_device *pdev)
 
 	ret = adsp_mem_device_probe(pdev);
 	if (ret) {
-		pr_info("%s(), memory probe fail, %d\n", __func__, ret);
+		pr_debug("%s(), memory probe fail, %d\n", __func__, ret);
 		goto ERROR;
 	}
 
@@ -339,7 +339,7 @@ static int adsp_common_drv_probe(struct platform_device *pdev)
 
 	register_syscore_ops(&adsp_syscore_ops);
 
-	pr_info("%s, success\n", __func__);
+	pr_debug("%s, success\n", __func__);
 ERROR:
 	return ret;
 }
@@ -421,7 +421,7 @@ static int adsp_core_drv_probe(struct platform_device *pdev)
 	/* add to adsp_core list */
 	adsp_cores[desc->id] = pdata;
 
-	pr_info("%s, id:%d success\n", __func__, pdata->id);
+	pr_debug("%s, id:%d success\n", __func__, pdata->id);
 	return 0;
 ERROR:
 	pr_err("%s id:%d fail, ret = %d", __func__, pdata->id, ret);
@@ -444,7 +444,7 @@ static int adsp_ap_suspend(struct device *dev)
 		if (pdata->state == ADSP_RUNNING) {
 			ret = flush_suspend_work(pdata->id);
 
-			pr_info("%s, flush_suspend_work ret %d, cid %d",
+			pr_debug("%s, flush_suspend_work ret %d, cid %d",
 				__func__, ret, cid);
 		}
 	}
@@ -452,7 +452,7 @@ static int adsp_ap_suspend(struct device *dev)
 #ifdef CONFIG_MTK_TIMER_TIMESYNC
 	if (is_adsp_system_running()) {
 		timesync_to_adsp(adsp_cores[ADSP_A_ID], APTIME_FREEZE);
-		pr_info("%s, time sync freeze", __func__);
+		pr_debug("%s, time sync freeze", __func__);
 	}
 #endif
 	return 0;
@@ -463,7 +463,7 @@ static int adsp_ap_resume(struct device *dev)
 #ifdef CONFIG_MTK_TIMER_TIMESYNC
 	if (is_adsp_system_running()) {
 		timesync_to_adsp(adsp_cores[ADSP_A_ID], APTIME_UNFREEZE);
-		pr_info("%s, time sync unfreeze", __func__);
+		pr_debug("%s, time sync unfreeze", __func__);
 	}
 #endif
 	return 0;

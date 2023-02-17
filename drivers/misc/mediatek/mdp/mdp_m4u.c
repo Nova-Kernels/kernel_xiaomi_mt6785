@@ -131,7 +131,7 @@ void mdp_ion_cache_flush(struct ion_handle *handle)
 
 	if (ion_kernel_ioctl(g_mdp_ion_client, ION_CMD_SYSTEM,
 		(unsigned long)&sys_data))
-		pr_info("ion cache flush failed!\n");
+		pr_debug("ion cache flush failed!\n");
 	ion_unmap_kernel(g_mdp_ion_client, handle);
 #endif
 }

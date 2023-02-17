@@ -115,7 +115,7 @@ static void process_dbg_cmd(char *cmd)
 {
 	char *tok;
 
-	pr_info("[hdmitx] %s\n", cmd);
+	pr_debug("[hdmitx] %s\n", cmd);
 
 	while ((tok = strsep(&cmd, " ")) != NULL)
 		process_dbg_opt(tok);

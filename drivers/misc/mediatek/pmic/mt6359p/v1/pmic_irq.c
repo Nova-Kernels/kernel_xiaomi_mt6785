@@ -137,10 +137,10 @@ void pmic_register_interrupt_callback(enum PMIC_IRQ_ENUM intNo,
 	struct legacy_pmic_callback *pmic_cb = &pmic_cbs[intNo];
 
 	if (intNo == INT_ENUM_MAX) {
-		pr_info(PMICTAG "[%s] disable intNo=%d\n", __func__, intNo);
+		pr_debug(PMICTAG "[%s] disable intNo=%d\n", __func__, intNo);
 		return;
 	}
-	pr_info("[%s] intNo=%d, callback=%pf\n",
+	pr_debug("[%s] intNo=%d, callback=%pf\n",
 		__func__, intNo, EINT_FUNC_PTR);
 	pmic_cb->callback = EINT_FUNC_PTR;
 }

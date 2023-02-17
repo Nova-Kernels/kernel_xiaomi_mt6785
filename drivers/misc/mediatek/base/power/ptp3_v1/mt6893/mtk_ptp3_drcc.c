@@ -74,9 +74,9 @@
 #define DRCC_TAG	 "[DRCC]"
 
 #define drcc_err(fmt, args...)	\
-	pr_info(DRCC_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(DRCC_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
 #define drcc_msg(fmt, args...)	\
-	pr_info(DRCC_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(DRCC_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #ifdef DRCC_DEBUG
 #define drcc_debug(fmt, args...) \

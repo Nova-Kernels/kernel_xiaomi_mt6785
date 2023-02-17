@@ -54,7 +54,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define MTKPVR_TAG "[GPU/PVR]"
 #define MTK_LOGE(fmt, args...) pr_err(MTKPVR_TAG"[ERROR]"fmt, ##args)
 #define MTK_LOGW(fmt, args...) pr_debug(MTKPVR_TAG"[WARNING]"fmt, ##args)
-#define MTK_LOGI(fmt, args...) pr_info(MTKPVR_TAG"[INFO]"fmt, ##args)
+#define MTK_LOGI(fmt, args...) pr_debug(MTKPVR_TAG"[INFO]"fmt, ##args)
 #define MTK_LOGD(fmt, args...) pr_debug(MTKPVR_TAG"[DEBUG]"fmt, ##args)
 
 /*!< System specific poll/timeout details */

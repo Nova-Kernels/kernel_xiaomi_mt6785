@@ -51,7 +51,7 @@ static const struct of_device_id mrdump_key_of_ids[] = {
 __weak void pmic_enable_smart_reset(unsigned char smart_en,
 			       unsigned char smart_sdn_en)
 {
-		pr_info("weak func: %s", __func__);
+		pr_debug("weak func: %s", __func__);
 }
 
 static int __init mrdump_key_probe(struct platform_device *pdev)

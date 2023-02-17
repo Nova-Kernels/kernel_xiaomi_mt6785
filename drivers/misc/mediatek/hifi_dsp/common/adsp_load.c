@@ -207,7 +207,7 @@ static u32 firmware_adsp_load(void *src, size_t size,
 		/* LD_ADR */
 		section_ldr = *(u32 *)(fw_data + fix_offset + 16);
 
-		pr_info(
+		pr_debug(
 			"section%d: load_addr = 0x%08X, offset = 0x%08X, len = %u\n",
 			(loop + 1), section_ldr, section_off, section_len);
 
@@ -263,7 +263,7 @@ static void async_load_hifixdsp_and_run(
 		goto TAIL;
 	}
 
-	pr_info("firmware %s load success, size = %d\n",
+	pr_debug("firmware %s load success, size = %d\n",
 		HIFIXDSP_IMAGE_NAME, (int)fw->size);
 
 	/*

@@ -185,7 +185,7 @@ static int vb2_dc_mmap(void *buf_priv, struct vm_area_struct *vma)
 	int ret;
 
 	if (!buf) {
-		pr_info("No buffer to map\n");
+		pr_debug("No buffer to map\n");
 		return -EINVAL;
 	}
 
@@ -199,7 +199,7 @@ static int vb2_dc_mmap(void *buf_priv, struct vm_area_struct *vma)
 		buf->dma_addr, buf->size, buf->attrs);
 
 	if (ret) {
-		pr_info("Remapping memory failed, error: %d\n", ret);
+		pr_debug("Remapping memory failed, error: %d\n", ret);
 		return ret;
 	}
 
@@ -312,7 +312,7 @@ static struct sg_table *vb2_dc_dmabuf_ops_map(
 	sgt->nents = dma_map_sg(db_attach->dev, sgt->sgl, sgt->orig_nents,
 				dma_dir);
 	if (!sgt->nents) {
-		pr_info("failed to map scatterlist\n");
+		pr_debug("failed to map scatterlist\n");
 		mutex_unlock(lock);
 		return ERR_PTR(-EIO);
 	}
@@ -543,7 +543,7 @@ static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
 
 	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
 	if (!sgt) {
-		//pr_info("failed to allocate sg table\n");
+		//pr_debug("failed to allocate sg table\n");
 		ret = -ENOMEM;
 		goto fail_pfnvec;
 	}
@@ -551,7 +551,7 @@ static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
 	ret = sg_alloc_table_from_pages(sgt, frame_vector_pages(vec), n_pages,
 		offset, size, GFP_KERNEL);
 	if (ret) {
-		pr_info("failed to initialize sg table\n");
+		pr_debug("failed to initialize sg table\n");
 		goto fail_sgt;
 	}
 
@@ -562,14 +562,14 @@ static void *vb2_dc_get_userptr(struct device *dev, unsigned long vaddr,
 	sgt->nents = dma_map_sg_attrs(buf->dev, sgt->sgl, sgt->orig_nents,
 				      buf->dma_dir, DMA_ATTR_SKIP_CPU_SYNC);
 	if (sgt->nents <= 0) {
-		pr_info("failed to map scatterlist\n");
+		pr_debug("failed to map scatterlist\n");
 		ret = -EIO;
 		goto fail_sgt_init;
 	}
 
 	contig_size = vb2_dc_get_contiguous_size(sgt);
 	if (contig_size < size) {
-		pr_info("contiguous mapping is too small %lu/%lu\n",
+		pr_debug("contiguous mapping is too small %lu/%lu\n",
 			contig_size, size);
 		ret = -EFAULT;
 		goto fail_map_sg;
@@ -613,19 +613,19 @@ int vb2_dc_map_dmabuf(void *mem_priv)
 	dma_addr_t iommu_pa;
 
 	if (WARN_ON(!buf->db_attach)) {
-		pr_info("trying to pin a non attached buffer\n");
+		pr_debug("trying to pin a non attached buffer\n");
 		return -EINVAL;
 	}
 
 	if (WARN_ON(buf->dma_sgt)) {
-		pr_info("dmabuf buffer is already pinned\n");
+		pr_debug("dmabuf buffer is already pinned\n");
 		return 0;
 	}
 
 	/* get the associated scatterlist for this buffer */
 	sgt = dma_buf_map_attachment(buf->db_attach, buf->dma_dir);
 	if (IS_ERR(sgt)) {
-		pr_info("Error getting dmabuf scatterlist\n");
+		pr_debug("Error getting dmabuf scatterlist\n");
 		return -EINVAL;
 	}
 
@@ -633,7 +633,7 @@ int vb2_dc_map_dmabuf(void *mem_priv)
 	contig_size = vb2_dc_get_contiguous_size(sgt);
 	if (contig_size < buf->size) {
 #ifdef CONFIG_MTK_IOMMU_V2
-		pr_info("contiguous chunk is too small %lu/%lu b\n",
+		pr_debug("contiguous chunk is too small %lu/%lu b\n",
 			contig_size, buf->size);
 #endif
 		dma_buf_unmap_attachment(buf->db_attach, sgt, buf->dma_dir);
@@ -658,12 +658,12 @@ void vb2_dc_unmap_dmabuf(void *mem_priv)
 	struct sg_table *sgt = buf->dma_sgt;
 
 	if (WARN_ON(!buf->db_attach)) {
-		pr_info("trying to unpin a not attached buffer\n");
+		pr_debug("trying to unpin a not attached buffer\n");
 		return;
 	}
 
 	if (WARN_ON(!sgt)) {
-		pr_info("dmabuf buffer is already unpinned\n");
+		pr_debug("dmabuf buffer is already unpinned\n");
 		return;
 	}
 
@@ -710,7 +710,7 @@ void *vb2_dc_attach_dmabuf(struct device *dev, struct dma_buf *dbuf,
 	/* create attachment for the dmabuf with the user device */
 	dba = dma_buf_attach(dbuf, buf->dev);
 	if (IS_ERR(dba)) {
-		pr_info("failed to attach dmabuf\n");
+		pr_debug("failed to attach dmabuf\n");
 		kfree(buf);
 		return dba;
 	}

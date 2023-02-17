@@ -131,7 +131,7 @@ static int __init otp_init(void)
 {
 	otp_pmic_high_vcore_init();
 
-	pr_info("[OTP] init done\n");
+	pr_debug("[OTP] init done\n");
 
 	return 0;
 }

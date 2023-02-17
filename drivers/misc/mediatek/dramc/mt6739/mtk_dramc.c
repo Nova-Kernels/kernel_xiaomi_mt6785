@@ -72,7 +72,7 @@ struct dram_info dram_info_dummy_read;
 
 #define DRAMC_RSV_TAG "[DRAMC_RSV]"
 #define dramc_rsv_aee_warn(string, args...) do {\
-	pr_info("[ERR]"string, ##args); \
+	pr_debug("[ERR]"string, ##args); \
 	aee_kernel_warning(DRAMC_RSV_TAG, "[ERR]"string, ##args);  \
 } while (0)
 
@@ -85,12 +85,12 @@ static int __init dram_dummy_read_fixup(void)
 
 	/* Success to acquire memory */
 	if (ret == 0) {
-		pr_info("%s: %pa\n", __func__, &dram_rank1_addr);
+		pr_debug("%s: %pa\n", __func__, &dram_rank1_addr);
 		return 0;
 	}
 
 	/* error occurs */
-	pr_info("%s: failed to acquire last 1 page(%d)\n", __func__, ret);
+	pr_debug("%s: failed to acquire last 1 page(%d)\n", __func__, ret);
 	return -1;
 }
 
@@ -130,13 +130,13 @@ const char *uname, int depth, void *data)
 		g_dram_info_dummy_read = &dram_info_dummy_read;
 		dram_info_dummy_read.rank_num = get_dram_info->rank_num;
 		dram_rank_num = get_dram_info->rank_num;
-		pr_info("[DRAMC] dram info dram rank number = %d\n",
+		pr_debug("[DRAMC] dram info dram rank number = %d\n",
 		g_dram_info_dummy_read->rank_num);
 
 		if (dram_rank_num == SINGLE_RANK) {
 			dram_info_dummy_read.rank_info[0].start = dram_rank0_addr;
 			dram_info_dummy_read.rank_info[1].start = dram_rank0_addr;
-			pr_info("[DRAMC] dram info dram rank0 base = 0x%llx\n",
+			pr_debug("[DRAMC] dram info dram rank0 base = 0x%llx\n",
 			g_dram_info_dummy_read->rank_info[0].start);
 		} else if (dram_rank_num == DUAL_RANK) {
 			/* No dummy read address for rank1, try to fix it up */
@@ -147,13 +147,13 @@ const char *uname, int depth, void *data)
 
 			dram_info_dummy_read.rank_info[0].start = dram_rank0_addr;
 			dram_info_dummy_read.rank_info[1].start = dram_rank1_addr;
-			pr_info("[DRAMC] dram info dram rank0 base = 0x%llx\n",
+			pr_debug("[DRAMC] dram info dram rank0 base = 0x%llx\n",
 			g_dram_info_dummy_read->rank_info[0].start);
-			pr_info("[DRAMC] dram info dram rank1 base = 0x%llx\n",
+			pr_debug("[DRAMC] dram info dram rank1 base = 0x%llx\n",
 			g_dram_info_dummy_read->rank_info[1].start);
 		} else {
 			No_DummyRead = 1;
-			pr_info("[DRAMC] dram info dram rank number incorrect !!!\n");
+			pr_debug("[DRAMC] dram info dram rank number incorrect !!!\n");
 		}
 	}
 
@@ -172,7 +172,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 
 	rank_pasr_segment[0] = segment_rank0 & 0xFF;	/* for rank0 */
 	rank_pasr_segment[1] = segment_rank1 & 0xFF;	/* for rank1 */
-	pr_info("[DRAMC0] PASR r0 = 0x%x  r1 = 0x%x\n", rank_pasr_segment[0], rank_pasr_segment[1]);
+	pr_debug("[DRAMC0] PASR r0 = 0x%x  r1 = 0x%x\n", rank_pasr_segment[0], rank_pasr_segment[1]);
 
 	/* backup original data */
 	dramc0_spcmd = readl(PDEF_DRAMC0_REG_1E4);
@@ -198,7 +198,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 		/* gpt_busy_wait_us(1); */
 		do {
 			if (cnt-- == 0) {
-				pr_info("[DRAMC0] PASR MRW fail!\n");
+				pr_debug("[DRAMC0] PASR MRW fail!\n");
 				return -1;
 			}
 			udelay(1);
@@ -217,7 +217,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 	writel(dramc0_pd_ctrl, PDEF_DRAMC0_REG_1DC);
 
 	/* writel(0x00000004, PDEF_DRAMC0_REG_088); */
-	pr_info("[DRAMC0] PASR offset 0x88 = 0x%x\n", readl(PDEF_DRAMC0_REG_088));
+	pr_debug("[DRAMC0] PASR offset 0x88 = 0x%x\n", readl(PDEF_DRAMC0_REG_088));
 	writel(dramc0_spcmd, PDEF_DRAMC0_REG_1E4);
 
 	return 0;
@@ -272,7 +272,7 @@ int Binning_DRAM_complex_mem_test(void)
 	ptr = vmalloc(MEM_TEST_SIZE);
 
 	if (!ptr) {
-		/* pr_info("fail to vmalloc\n"); */
+		/* pr_debug("fail to vmalloc\n"); */
 		/*ASSERT(0);*/
 		ret = -24;
 		goto fail;
@@ -282,9 +282,9 @@ int Binning_DRAM_complex_mem_test(void)
 	MEM16_BASE = (unsigned short *)ptr;
 	MEM32_BASE = (unsigned int *)ptr;
 	MEM_BASE = (unsigned int *)ptr;
-	/*pr_info("Test DRAM start address 0x%lx\n", (unsigned long)ptr);*/
-	pr_info("Test DRAM start address %p\n", ptr);
-	pr_info("Test DRAM SIZE 0x%x\n", MEM_TEST_SIZE);
+	/*pr_debug("Test DRAM start address 0x%lx\n", (unsigned long)ptr);*/
+	pr_debug("Test DRAM start address %p\n", ptr);
+	pr_debug("Test DRAM SIZE 0x%x\n", MEM_TEST_SIZE);
 	size = len >> 2;
 
 	/* === Verify the tied bits (tied high) === */
@@ -609,7 +609,7 @@ int Binning_DRAM_complex_mem_test(void)
 		}
 		pattern32++;
 	}
-	pr_info("complex R/W mem test pass\n");
+	pr_debug("complex R/W mem test pass\n");
 
 fail:
 	vfree(ptr);
@@ -636,7 +636,7 @@ unsigned int lpDram_Register_Read(unsigned int Reg_base, unsigned int Offset)
 	else if ((Reg_base == PHY_AO_CHA) && (Offset < 0x1000))
 		return readl(IOMEM(DDRPHY_CHA_BASE_ADDR + Offset));
 
-	pr_info("lpDram_Register_Read: unsupported Reg_base (%d)\n", Reg_base);
+	pr_debug("lpDram_Register_Read: unsupported Reg_base (%d)\n", Reg_base);
 	return 0;
 }
 EXPORT_SYMBOL(lpDram_Register_Read);
@@ -670,9 +670,9 @@ unsigned int get_dram_data_rate(void)
 	}
 
 #if 0
-	pr_info("MEMPLL1_DIV=%d, MEMPLL1_NCPO=%d, MEMPLL2_FBSEL=%d, MEMPLL2_FBDIV=%d\n",
+	pr_debug("MEMPLL1_DIV=%d, MEMPLL1_NCPO=%d, MEMPLL2_FBSEL=%d, MEMPLL2_FBDIV=%d\n",
 			MEMPLL1_DIV, MEMPLL1_NCPO, MEMPLL2_FBSEL, MEMPLL2_FBDIV);
-	pr_info("MEMPLL2_M4PDIV=%d, MEMPLL1_FOUT=%d, MEMPLL2_FOUT=%d\n",
+	pr_debug("MEMPLL2_M4PDIV=%d, MEMPLL1_FOUT=%d, MEMPLL2_FOUT=%d\n",
 			MEMPLL2_M4PDIV, MEMPLL1_FOUT, MEMPLL2_FOUT);
 #endif
 
@@ -685,7 +685,7 @@ unsigned int get_dram_data_rate(void)
 		break;
 
 	default:
-		pr_info("[DRAMC] MemFreq region is incorrect MEMPLL2_FOUT=%d\n", MEMPLL2_FOUT);
+		pr_debug("[DRAMC] MemFreq region is incorrect MEMPLL2_FOUT=%d\n", MEMPLL2_FOUT);
 	}
 
 	return MEMPLL2_FOUT;
@@ -784,25 +784,25 @@ int dram_dummy_read_reserve_mem_of_init(struct reserved_mem *rmem)
 
 	if (strstr(DRAM_R0_DUMMY_READ_RESERVED_KEY, rmem->name)) {
 		if (rsize < DRAM_RSV_SIZE) {
-			pr_info("[DRAMC] Can NOT reserve memory for Rank0\n");
+			pr_debug("[DRAMC] Can NOT reserve memory for Rank0\n");
 			No_DummyRead = 1;
 			return 0;
 		}
 		dram_rank0_addr = rptr;
 		dram_rank_num++;
-		pr_info("[dram_dummy_read_reserve_mem_of_init] dram_rank0_addr = %pa, size = 0x%x\n",
+		pr_debug("[dram_dummy_read_reserve_mem_of_init] dram_rank0_addr = %pa, size = 0x%x\n",
 				&dram_rank0_addr, rsize);
 	}
 
 	if (strstr(DRAM_R1_DUMMY_READ_RESERVED_KEY, rmem->name)) {
 		if (rsize < DRAM_RSV_SIZE) {
-			pr_info("[DRAMC] Can NOT reserve memory for Rank1\n");
+			pr_debug("[DRAMC] Can NOT reserve memory for Rank1\n");
 			No_DummyRead = 1;
 			return 0;
 		}
 		dram_rank1_addr = rptr;
 		dram_rank_num++;
-		pr_info("[dram_dummy_read_reserve_mem_of_init] dram_rank1_addr = %pa, size = 0x%x\n",
+		pr_debug("[dram_dummy_read_reserve_mem_of_init] dram_rank1_addr = %pa, size = 0x%x\n",
 				&dram_rank1_addr, rsize);
 	}
 
@@ -862,13 +862,13 @@ static int dram_probe(struct platform_device *pdev)
 	void __iomem *base_temp[3];
 	struct device_node *node = NULL;
 
-	pr_info("[DRAMC] module probe.\n");
+	pr_debug("[DRAMC] module probe.\n");
 
 	for (i = 0; i <= 2; i++) {
 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
 		base_temp[i] = devm_ioremap_resource(&pdev->dev, res);
 		if (IS_ERR(base_temp[i])) {
-			pr_info("[DRAMC] unable to map %d base\n", i);
+			pr_debug("[DRAMC] unable to map %d base\n", i);
 			return -EINVAL;
 		}
 	}
@@ -879,51 +879,51 @@ static int dram_probe(struct platform_device *pdev)
 
 	DDRPHY_CHA_BASE_ADDR = base_temp[2];
 
-	pr_info("[DRAMC]get DRAMC_AO_CHA_BASE_ADDR @ %p\n", DRAMC_AO_CHA_BASE_ADDR);
+	pr_debug("[DRAMC]get DRAMC_AO_CHA_BASE_ADDR @ %p\n", DRAMC_AO_CHA_BASE_ADDR);
 
-	pr_info("[DRAMC]get DDRPHY_CHA_BASE_ADDR @ %p\n", DDRPHY_CHA_BASE_ADDR);
+	pr_debug("[DRAMC]get DDRPHY_CHA_BASE_ADDR @ %p\n", DDRPHY_CHA_BASE_ADDR);
 
-	pr_info("[DRAMC]get DRAMC_NAO_CHA_BASE_ADDR @ %p\n", DRAMC_NAO_CHA_BASE_ADDR);
+	pr_debug("[DRAMC]get DRAMC_NAO_CHA_BASE_ADDR @ %p\n", DRAMC_NAO_CHA_BASE_ADDR);
 
 	node = of_find_compatible_node(NULL, NULL, "mediatek,sleep");
 	if (node) {
 		SLEEP_BASE_ADDR = of_iomap(node, 0);
-		pr_info("[DRAMC]get SLEEP_BASE_ADDR @ %p\n",
+		pr_debug("[DRAMC]get SLEEP_BASE_ADDR @ %p\n",
 		SLEEP_BASE_ADDR);
 	} else {
-		pr_info("[DRAMC]can't find SLEEP_BASE_ADDR compatible node\n");
+		pr_debug("[DRAMC]can't find SLEEP_BASE_ADDR compatible node\n");
 		return -1;
 	}
 
 	DRAM_TYPE = get_ddr_type();
-	pr_info("[DRAMC Driver] dram type =%d\n", DRAM_TYPE);
+	pr_debug("[DRAMC Driver] dram type =%d\n", DRAM_TYPE);
 
 	if (!DRAM_TYPE) {
-		pr_info("[DRAMC Driver] dram type error !!\n");
+		pr_debug("[DRAMC Driver] dram type error !!\n");
 		return -1;
 	}
 
-	pr_info("[DRAMC Driver] Dram Data Rate = %d\n", get_dram_data_rate());
-	pr_info("[DRAMC Driver] shuffle_status = %d\n", get_shuffle_status());
+	pr_debug("[DRAMC Driver] Dram Data Rate = %d\n", get_dram_data_rate());
+	pr_debug("[DRAMC Driver] shuffle_status = %d\n", get_shuffle_status());
 
 	ret = driver_create_file(pdev->dev.driver,
 	&driver_attr_emi_clk_mem_test);
 	if (ret) {
-		pr_info("fail to create the emi_clk_mem_test sysfs files\n");
+		pr_debug("fail to create the emi_clk_mem_test sysfs files\n");
 		return ret;
 	}
 
 	ret = driver_create_file(pdev->dev.driver,
 	&driver_attr_read_dram_data_rate);
 	if (ret) {
-		pr_info("fail to create the read dram data rate sysfs files\n");
+		pr_debug("fail to create the read dram data rate sysfs files\n");
 		return ret;
 	}
 
 	if (dram_can_support_fh())
-		pr_info("[DRAMC Driver] dram can support DFS\n");
+		pr_debug("[DRAMC Driver] dram can support DFS\n");
 	else
-		pr_info("[DRAMC Driver] dram can not support DFS\n");
+		pr_debug("[DRAMC Driver] dram can not support DFS\n");
 
 	return 0;
 }
@@ -959,14 +959,14 @@ static int __init dram_test_init(void)
 
 	ret = platform_driver_register(&dram_test_drv);
 	if (ret) {
-		pr_info("[DRAMC] init fail, ret 0x%x\n", ret);
+		pr_debug("[DRAMC] init fail, ret 0x%x\n", ret);
 		return ret;
 	}
 
 	if (of_scan_flat_dt(dt_scan_dram_info, NULL) > 0) {
-		pr_info("[DRAMC]find dt_scan_dram_info\n");
+		pr_debug("[DRAMC]find dt_scan_dram_info\n");
 	} else {
-		pr_info("[DRAMC]can't find dt_scan_dram_info\n");
+		pr_debug("[DRAMC]can't find dt_scan_dram_info\n");
 		return -1;
 	}
 
@@ -1021,7 +1021,7 @@ unsigned int mt_dramc_chn_get(unsigned int emi_cona)
 	case 0:
 		return 1;
 	default:
-		pr_info("[LastDRAMC] invalid channel num (emi_cona = 0x%x)\n", emi_cona);
+		pr_debug("[LastDRAMC] invalid channel num (emi_cona = 0x%x)\n", emi_cona);
 	}
 	return 0;
 }
@@ -1068,7 +1068,7 @@ unsigned int  mt_dramc_ta_addr_set(unsigned int rank, unsigned int temp_addr)
 	Reg_Sync_Writel(DRAMC_AO_CHA_BASE_ADDR+0x3c, test_agent_base_temp);
 	test_agent_base_temp = ((Reg_Readl(DRAMC_AO_CHA_BASE_ADDR+0x38) & ~(0xf)) | ((temp_addr>>28) & 0xf));
 	Reg_Sync_Writel(DRAMC_AO_CHA_BASE_ADDR+0x38, test_agent_base_temp);
-	/*pr_info("\n\n[LastDRAMC] temp addr =0x%x",test_agent_base_temp);*/
+	/*pr_debug("\n\n[LastDRAMC] temp addr =0x%x",test_agent_base_temp);*/
 	return 1;
 }
 EXPORT_SYMBOL(mt_dramc_ta_addr_set);

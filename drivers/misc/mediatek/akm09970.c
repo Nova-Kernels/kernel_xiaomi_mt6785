@@ -179,7 +179,7 @@ static int akm09970_active(struct akm09970_soc_ctrl *c_ctrl, bool on)
 	int rc = 0;
 	uint8_t mode = 0x00;
 
-	pr_info("akm sensor %s\n", on ? "on" : "off");
+	pr_debug("akm sensor %s\n", on ? "on" : "off");
 
 	if (!atomic_read(&c_ctrl->power_enabled) && on) {
 		rc = akm09970_power_up(c_ctrl);
@@ -227,7 +227,7 @@ static int akm09970_active(struct akm09970_soc_ctrl *c_ctrl, bool on)
 		akm09970_power_down(c_ctrl);
 		hrtimer_cancel(&c_ctrl->timer);
 	} else {
-		pr_info("The same power state, do nothing!\n");
+		pr_debug("The same power state, do nothing!\n");
 	}
 
 	return 0;
@@ -572,7 +572,7 @@ static int akm09970_probe(struct i2c_client *client, const struct i2c_device_id 
 	struct pinctrl_state *pins_default = NULL;
 	struct akm09970_soc_ctrl *c_ctrl = NULL;
 
-	pr_info("Probe enter\n");
+	pr_debug("Probe enter\n");
 
 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
 		pr_err("Check_functionality failed\n");
@@ -678,7 +678,7 @@ static int akm09970_probe(struct i2c_client *client, const struct i2c_device_id 
 	if (rc < 0)
 		pr_err("Failed to create debug file: %d\n", rc);
 
-	pr_info("Probe exit\n");
+	pr_debug("Probe exit\n");
 
 	return 0;
 
@@ -734,7 +734,7 @@ static int akm09970_remove(struct i2c_client *client)
 	if (gpio_is_valid(c_ctrl->gpio_reset))
 		gpio_free(c_ctrl->gpio_reset);
 
-	pr_info("Removed exit\n");
+	pr_debug("Removed exit\n");
 
 	return 0;
 }

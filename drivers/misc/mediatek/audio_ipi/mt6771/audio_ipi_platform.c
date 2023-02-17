@@ -71,7 +71,7 @@ bool is_audio_dsp_support(const uint32_t dsp_id)
 #endif
 		break;
 	default:
-		pr_info("%s(), dsp_id %u not support!!\n", __func__, dsp_id);
+		pr_debug("%s(), dsp_id %u not support!!\n", __func__, dsp_id);
 	}
 	return is_opendsp_support;
 }

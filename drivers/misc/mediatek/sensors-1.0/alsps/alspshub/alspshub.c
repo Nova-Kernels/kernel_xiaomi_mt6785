@@ -324,7 +324,7 @@ static void alspshub_init_done_work(struct work_struct *work)
 	cfg_data[2] = obj->ps_thd_cali[2];
 	cfg_data[3] = obj->ps_thd_cali[3];
 	spin_unlock(&calibration_lock);
-	pr_info("alspshub_init_done_work 1 [%d, %d, %d, %d]\n",
+	pr_debug("alspshub_init_done_work 1 [%d, %d, %d, %d]\n",
 		cfg_data[0], cfg_data[1],
 		cfg_data[2], cfg_data[3]);
 
@@ -342,7 +342,7 @@ static void alspshub_init_done_work(struct work_struct *work)
 	if (err < 0)
 		pr_err("sensor_cfg_to_hub fail\n");
 
-	pr_info("alspshub_init_done_work 2 [%d, %d, %d, %d]\n",
+	pr_debug("alspshub_init_done_work 2 [%d, %d, %d, %d]\n",
 		cfg_data[0], cfg_data[1],
 		cfg_data[2], cfg_data[3]);
 
@@ -357,7 +357,7 @@ static void alspshub_init_done_work(struct work_struct *work)
 	if (err < 0)
 		pr_err("sensor_cfg_to_hub fail\n");
 
-	pr_info("alspshub_init_done_work 3 [%d, %d, %d, %d]\n",
+	pr_debug("alspshub_init_done_work 3 [%d, %d, %d, %d]\n",
 		cfg_data[0], cfg_data[1],
 		cfg_data[2], cfg_data[3]);
 
@@ -372,7 +372,7 @@ static void alspshub_init_done_work(struct work_struct *work)
 	if (err < 0)
 		pr_err("sensor_cfg_to_hub fail\n");
 
-	pr_info("alspshub_init_done_work 4 [%d, %d, %d, %d]\n",
+	pr_debug("alspshub_init_done_work 4 [%d, %d, %d, %d]\n",
 		cfg_data[0], cfg_data[1],
 		cfg_data[2], cfg_data[3]);
 
@@ -387,7 +387,7 @@ static void alspshub_init_done_work(struct work_struct *work)
 	if (err < 0)
 		pr_err("sensor_cfg_to_hub fail\n");
 
-	pr_info("alspshub_init_done_work 4 [%d, %d, %d, %d]\n",
+	pr_debug("alspshub_init_done_work 4 [%d, %d, %d, %d]\n",
 		cfg_data[0], cfg_data[1],
 		cfg_data[2], cfg_data[3]);
 
@@ -545,7 +545,7 @@ static int alshub_factory_set_cali(PS_CALI_DATA cali)
 	int err = 0;
 	int32_t cfg_data[4] = {0};
 
-	pr_info("alshub_factory_set_cali [%d, %d, %d, %d]\n",
+	pr_debug("alshub_factory_set_cali [%d, %d, %d, %d]\n",
 		cali.threshold0, cali.threshold1,
 		cali.threshold2, cali.threshold3);
 	cfg_data[0] = cali.threshold0;
@@ -582,7 +582,7 @@ static int alshub_factory_get_cali(int32_t *offset)
 {
 	struct alspshub_ipi_data *obj = obj_ipi_data;
 	*offset = atomic_read(&obj->als_cali);
-	pr_info("alshub_factory_get_cali *offset: %d!\n", *offset);
+	pr_debug("alshub_factory_get_cali *offset: %d!\n", *offset);
 	return 0;
 }
 static int pshub_factory_enable_sensor(bool enable_disable,
@@ -861,7 +861,7 @@ static int als_set_cali(uint8_t *data, uint8_t count)
 	struct alspshub_ipi_data *obj = obj_ipi_data;
 	int32_t cfg_data[4] = {0};
 
-	pr_info("als_set_cali [%d, %d, %d, %d]\n",
+	pr_debug("als_set_cali [%d, %d, %d, %d]\n",
 		buf[0], buf[1], buf[2], buf[3]);
 
 	cfg_data[0] = buf[0];
@@ -879,8 +879,8 @@ static int als_set_cali(uint8_t *data, uint8_t count)
 		spin_lock(&calibration_lock);
 		atomic_set(&obj->als_cali, buf[1]);
 		spin_unlock(&calibration_lock);
-		pr_info("als_set_cali buf: %d!\n", buf[1]);
-		pr_info("als_set_cali *offset: %d!\n", atomic_read(&obj->als_cali));
+		pr_debug("als_set_cali buf: %d!\n", buf[1]);
+		pr_debug("als_set_cali *offset: %d!\n", atomic_read(&obj->als_cali));
 	} else if (cfg_data[0] == AMBIENT_FROM_PROXIMITY) {
 		obj->ch0_ps = cfg_data[1];
 		obj->ch1_ps = cfg_data[2];
@@ -911,7 +911,7 @@ static void cabc_backlight_value_notification_work(struct work_struct *work)
 		cfg_data[2] = 0;
 		cfg_data[3] = 0;
 
-		pr_info("cabc_backlight_value_notification_work [%d, %d, %d, %d]\n",
+		pr_debug("cabc_backlight_value_notification_work [%d, %d, %d, %d]\n",
 			cfg_data[0], cfg_data[1], cfg_data[2], cfg_data[3]);
 
 		sensor_cfg_to_hub(ID_LIGHT,

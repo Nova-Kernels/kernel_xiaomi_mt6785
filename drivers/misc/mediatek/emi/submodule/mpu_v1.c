@@ -92,8 +92,8 @@ static void clear_violation(void)
 	mput = readl(IOMEM(EMI_MPUT));
 
 	if (mpus) {
-		pr_info("[MPU] fail to clear violation\n");
-		pr_info("[MPU] EMI_MPUS: %x, EMI_MPUT: %x\n", mpus, mput);
+		pr_debug("[MPU] fail to clear violation\n");
+		pr_debug("[MPU] EMI_MPUS: %x, EMI_MPUT: %x\n", mpus, mput);
 	}
 }
 
@@ -123,32 +123,32 @@ static void check_violation(void)
 	axi_id = (master_id >> 3) & 0x1FFF;
 	master_name = id2name(axi_id, port_id);
 
-	pr_info("[MPU] EMI MPU violation\n");
-	pr_info("[MPU] MPUS: %x, MPUT: %x, MPUT_2ND: %x.\n",
+	pr_debug("[MPU] EMI MPU violation\n");
+	pr_debug("[MPU] MPUS: %x, MPUT: %x, MPUT_2ND: %x.\n",
 		mpus, mput, mput_2nd);
-	pr_info("[MPU] current process is \"%s \" (pid: %i)\n",
+	pr_debug("[MPU] current process is \"%s \" (pid: %i)\n",
 		current->comm, current->pid);
-	pr_info("[MPU] corrupted address is 0x%llx, in region %d\n",
+	pr_debug("[MPU] corrupted address is 0x%llx, in region %d\n",
 		vio_addr, region);
-	pr_info("[MPU] master ID: 0x%x, AXI ID: 0x%x, port ID: 0x%x\n",
+	pr_debug("[MPU] master ID: 0x%x, AXI ID: 0x%x, port ID: 0x%x\n",
 		master_id, axi_id, port_id);
-	pr_info("[MPU] violation master is %s, from domain 0x%x\n",
+	pr_debug("[MPU] violation master is %s, from domain 0x%x\n",
 		master_name, domain_id);
 
 	if (wr_vio == 1)
-		pr_info("[MPU] write violation\n");
+		pr_debug("[MPU] write violation\n");
 	else if (wr_vio == 2)
-		pr_info("[MPU] read violation\n");
+		pr_debug("[MPU] read violation\n");
 	else
-		pr_info("[MPU] strange write/read violation (%d)\n", wr_vio);
+		pr_debug("[MPU] strange write/read violation (%d)\n", wr_vio);
 	if (wr_oo_vio == 1)
-		pr_info("[MPU] write out-of-range violation\n");
+		pr_debug("[MPU] write out-of-range violation\n");
 	else if (wr_oo_vio == 2)
-		pr_info("[MPU] read out-of-range violation\n");
+		pr_debug("[MPU] read out-of-range violation\n");
 
 #ifdef MPU_BYPASS
 	if (bypass_violation(mpus, &init_flag)) {
-		pr_info("[MPU] bypass flow\n");
+		pr_debug("[MPU] bypass flow\n");
 		clear_violation();
 		clear_md_violation();
 		return;
@@ -166,8 +166,8 @@ static void check_violation(void)
 			exec_ccci_kern_func_by_md_id(0, ID_MD_MPU_ASSERT,
 				str, strlen(str));
 
-			pr_info("[MPU] violation trigger MD, ");
-			pr_info("str=%s strlen(str)=%d\n",
+			pr_debug("[MPU] violation trigger MD, ");
+			pr_debug("str=%s strlen(str)=%d\n",
 				str, (int)strlen(str));
 		}
 
@@ -198,7 +198,7 @@ int emi_mpu_set_protection(struct emi_region_info_t *region_info)
 	int i;
 
 	if (region_info->region >= EMI_MPU_REGION_NUM) {
-		pr_info("[MPU] can not support region %u\n",
+		pr_debug("[MPU] can not support region %u\n",
 			region_info->region);
 		return -1;
 	}
@@ -219,7 +219,7 @@ EXPORT_SYMBOL(emi_mpu_set_protection);
 int emi_mpu_clear_protection(struct emi_region_info_t *region_info)
 {
 	if (region_info->region > EMI_MPU_REGION_NUM) {
-		pr_info("[MPU] can not support region %u\n",
+		pr_debug("[MPU] can not support region %u\n",
 			region_info->region);
 		return -1;
 	}
@@ -249,7 +249,7 @@ static ssize_t mpu_config_show(struct device_driver *driver, char *buf)
 
 #if EMI_MPU_TEST
 	i = (*((unsigned int *)(mpu_test_buf + 0x10000)));
-	pr_info("[MPU] trigger violation with read 0x%x\n", i);
+	pr_debug("[MPU] trigger violation with read 0x%x\n", i);
 #endif
 
 	for (region = show_region; region < EMI_MPU_REGION_NUM; region++) {
@@ -302,11 +302,11 @@ static ssize_t mpu_config_store
 	int i, ret;
 
 	if ((strlen(buf) + 1) > EMI_MPU_MAX_CMD_LEN) {
-		pr_info("[MPU] store command overflow\n");
+		pr_debug("[MPU] store command overflow\n");
 		return count;
 	}
 
-	pr_info("[MPU] store: %s\n", buf);
+	pr_debug("[MPU] store: %s\n", buf);
 
 	command = kmalloc((size_t) EMI_MPU_MAX_CMD_LEN, GFP_KERNEL);
 	backup_command = command;
@@ -325,63 +325,63 @@ static ssize_t mpu_config_store
 		if (i < 2)
 			goto mpu_store_end;
 
-		pr_info("[MPU] %s %s\n", token[0], token[1]);
+		pr_debug("[MPU] %s %s\n", token[0], token[1]);
 
 		ret = kstrtoul(token[1], 10, &region);
 		if (ret != 0) {
-			pr_info("[MPU] fail to parse region\n");
+			pr_debug("[MPU] fail to parse region\n");
 			goto mpu_store_end;
 		}
 
 		if (region < EMI_MPU_REGION_NUM) {
 			show_region = (unsigned int) region;
-			pr_info("[MPU] set show_region to %u\n", show_region);
+			pr_debug("[MPU] set show_region to %u\n", show_region);
 		}
 	} else if (!strncmp(buf, "SET", strlen("SET"))) {
 		if (i < 3)
 			goto mpu_store_end;
 
-		pr_info("[MPU] %s %s %s\n", token[0], token[1], token[2]);
+		pr_debug("[MPU] %s %s %s\n", token[0], token[1], token[2]);
 
 		ret = kstrtoul(token[1], 10, &dgroup);
 		if (ret != 0) {
-			pr_info("[MPU] fail to parse dgroup\n");
+			pr_debug("[MPU] fail to parse dgroup\n");
 			goto mpu_store_end;
 		}
 
 		ret = kstrtoul(token[2], 16, &apc);
 		if (ret != 0) {
-			pr_info("[MPU] fail to parse apc\n");
+			pr_debug("[MPU] fail to parse apc\n");
 			goto mpu_store_end;
 		}
 
 		if (dgroup < EMI_MPU_DGROUP_NUM) {
 			region_info.apc[dgroup] = (unsigned int) apc;
-			pr_info("[MPU] apc[%lu]: 0x%x\n",
+			pr_debug("[MPU] apc[%lu]: 0x%x\n",
 				dgroup, region_info.apc[dgroup]);
 		}
 	} else if (!strncmp(buf, "ON", strlen("ON"))) {
 		if (i < 4)
 			goto mpu_store_end;
 
-		pr_info("[MPU] %s %s %s %s\n",
+		pr_debug("[MPU] %s %s %s %s\n",
 			token[0], token[1], token[2], token[3]);
 
 		ret = kstrtoull(token[1], 16, &start);
 		if (ret != 0) {
-			pr_info("[MPU] fail to parse start\n");
+			pr_debug("[MPU] fail to parse start\n");
 			goto mpu_store_end;
 		}
 
 		ret = kstrtoull(token[2], 16, &end);
 		if (ret != 0) {
-			pr_info("[MPU] fail to parse end\n");
+			pr_debug("[MPU] fail to parse end\n");
 			goto mpu_store_end;
 		}
 
 		ret = kstrtoul(token[3], 10, &region);
 		if (ret != 0) {
-			pr_info("[MPU] fail to parse region\n");
+			pr_debug("[MPU] fail to parse region\n");
 			goto mpu_store_end;
 		}
 
@@ -395,11 +395,11 @@ static ssize_t mpu_config_store
 		if (i < 2)
 			goto mpu_store_end;
 
-		pr_info("[MPU] %s %s\n", token[0], token[1]);
+		pr_debug("[MPU] %s %s\n", token[0], token[1]);
 
 		ret = kstrtoul(token[1], 10, &region);
 		if (ret != 0) {
-			pr_info("[MPU] fail to parse region\n");
+			pr_debug("[MPU] fail to parse region\n");
 			goto mpu_store_end;
 		}
 
@@ -408,7 +408,7 @@ static ssize_t mpu_config_store
 			emi_mpu_clear_protection(&region_info);
 		}
 	} else
-		pr_info("[MPU] unknown store command\n");
+		pr_debug("[MPU] unknown store command\n");
 
 mpu_store_end:
 	kfree(backup_command);
@@ -455,11 +455,11 @@ void mpu_init(struct platform_driver *emi_ctrl, struct platform_device *pdev)
 	unsigned int *ptr_test_buf;
 
 	ptr_test_buf = (unsigned int *)__pa(mpu_test_buf);
-	pr_info("[MPU] mpu_test_buf: %p\n", ptr_test_buf);
+	pr_debug("[MPU] mpu_test_buf: %p\n", ptr_test_buf);
 	*((unsigned int *)(mpu_test_buf + 0x10000)) = 0xDEADDEAD;
 #endif
 
-	pr_info("[MPU] initialize EMI MPU\n");
+	pr_debug("[MPU] initialize EMI MPU\n");
 
 	CEN_EMI_BASE = mt_cen_emi_base_get();
 
@@ -470,19 +470,19 @@ void mpu_init(struct platform_driver *emi_ctrl, struct platform_device *pdev)
 	if (!check_violation_cb)
 		check_violation_cb = check_violation;
 	if (readl(IOMEM(EMI_MPUS))) {
-		pr_info("[MPU] detect violation in driver init\n");
+		pr_debug("[MPU] detect violation in driver init\n");
 		check_violation_cb();
 	} else
 		clear_violation();
 
 	if (node) {
 		mpu_irq = irq_of_parse_and_map(node, MPU_IRQ_INDEX);
-		pr_info("[MPU] get MPU IRQ: %d\n", mpu_irq);
+		pr_debug("[MPU] get MPU IRQ: %d\n", mpu_irq);
 
 		ret = request_irq(mpu_irq, (irq_handler_t)violation_irq,
 			IRQF_TRIGGER_NONE, "mpu", emi_ctrl);
 		if (ret != 0) {
-			pr_info("[MPU] fail to request IRQ (%d)\n", ret);
+			pr_debug("[MPU] fail to request IRQ (%d)\n", ret);
 			return;
 		}
 	}
@@ -498,14 +498,14 @@ void mpu_init(struct platform_driver *emi_ctrl, struct platform_device *pdev)
 #if !defined(USER_BUILD_KERNEL)
 	ret = driver_create_file(&emi_ctrl->driver, &driver_attr_mpu_config);
 	if (ret)
-		pr_info("[MPU] fail to create mpu_config\n");
+		pr_debug("[MPU] fail to create mpu_config\n");
 #endif
 }
 
 int emi_mpu_check_register(void (*cb_func)(void))
 {
 	if (!cb_func) {
-		pr_info("%s%d: cb_func is NULL\n", __func__, __LINE__);
+		pr_debug("%s%d: cb_func is NULL\n", __func__, __LINE__);
 		return -EINVAL;
 	}
 

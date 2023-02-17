@@ -315,7 +315,7 @@ static void vpu_met_log_dump(struct vpu_device *vd)
 		GFP_ATOMIC);
 
 	if (!ptr) {
-		pr_info("%s: met log alloc fail: %zu, %d\n",
+		pr_debug("%s: met log alloc fail: %zu, %d\n",
 			__func__, sizeof(struct vpu_met_log),
 			log_buf_size);
 		return;
@@ -369,7 +369,7 @@ void vpu_met_isr(struct vpu_device *vd)
 	case VPU_REQ_DO_CLOSED_FILE:
 		break;
 	default:
-		pr_info("%s: vpu%d: unsupported cmd: %d\n",
+		pr_debug("%s: vpu%d: unsupported cmd: %d\n",
 			__func__, vd->id, dump);
 		break;
 	}

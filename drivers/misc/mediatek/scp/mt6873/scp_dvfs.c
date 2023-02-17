@@ -180,7 +180,7 @@ static uint32_t _mt_scp_dvfs_set_test_freq(uint32_t sum)
 	if (scp_dvfs_debug_flag == -1)
 		return 0;
 
-	pr_info("manually set opp = %d\n", scp_dvfs_debug_flag);
+	pr_debug("manually set opp = %d\n", scp_dvfs_debug_flag);
 
 	/*
 	 * calculate test feature freq to meet fixed opp level.
@@ -198,7 +198,7 @@ static uint32_t _mt_scp_dvfs_set_test_freq(uint32_t sum)
 
 	feature_table[VCORE_TEST_FEATURE_ID].freq =
 		added_freq;
-	pr_info("request freq: %d + %d = %d (MHz)\n",
+	pr_debug("request freq: %d + %d = %d (MHz)\n",
 			sum,
 			added_freq,
 			sum + added_freq);
@@ -671,13 +671,13 @@ static ssize_t mt_scp_dvfs_ctrl_proc_write(
 	if (n == 1 || n == 2) {
 		if (!strcmp(cmd, "on")) {
 			scp_dvfs_flag = 1;
-			pr_info("SCP DVFS: ON\n");
+			pr_debug("SCP DVFS: ON\n");
 		} else if (!strcmp(cmd, "off")) {
 			scp_dvfs_flag = -1;
-			pr_info("SCP DVFS: OFF\n");
+			pr_debug("SCP DVFS: OFF\n");
 		} else if (!strcmp(cmd, "opp")) {
 			if (dvfs_opp == -1) {
-				pr_info("remove the opp setting of command\n");
+				pr_debug("remove the opp setting of command\n");
 
 				feature_table[VCORE_TEST_FEATURE_ID].freq = 0;
 
@@ -689,13 +689,13 @@ static ssize_t mt_scp_dvfs_ctrl_proc_write(
 
 				scp_register_feature(VCORE_TEST_FEATURE_ID);
 			} else {
-				pr_info("invalid opp value %d\n", dvfs_opp);
+				pr_debug("invalid opp value %d\n", dvfs_opp);
 			}
 		} else {
-			pr_info("invalid command %s\n", cmd);
+			pr_debug("invalid command %s\n", cmd);
 		}
 	} else {
-		pr_info("invalid length %d\n", n);
+		pr_debug("invalid length %d\n", n);
 	}
 
 	return count;
@@ -770,10 +770,10 @@ static ssize_t mt_scp_sleep_ctrl0_proc_write(
 				pr_err("%s: mtk_ipi_send_compl fail, ret=%d\n",
 					__func__, ret);
 		} else {
-			pr_info("Warning: invalid input value %d\n", val);
+			pr_debug("Warning: invalid input value %d\n", val);
 		}
 	} else {
-		pr_info("Warning: invalid input command, val=%d\n", val);
+		pr_debug("Warning: invalid input command, val=%d\n", val);
 	}
 
 	return count;
@@ -848,10 +848,10 @@ static ssize_t mt_scp_sleep_ctrl1_proc_write(
 				pr_err("%s: mtk_ipi_send_compl fail, ret=%d\n",
 					__func__, ret);
 		} else {
-			pr_info("Warning: invalid input value %d\n", val);
+			pr_debug("Warning: invalid input value %d\n", val);
 		}
 	} else {
-		pr_info("Warning: invalid input command, val=%d\n", val);
+		pr_debug("Warning: invalid input command, val=%d\n", val);
 	}
 
 	return count;
@@ -917,7 +917,7 @@ static ssize_t mt_scp_sleep_cnt0_proc_write(
 			pr_err("%s: mtk_ipi_send_compl fail, ret=%d\n",
 				__func__, ret);
 	} else {
-		pr_info("Warning: invalid input command, val=%d\n", val);
+		pr_debug("Warning: invalid input command, val=%d\n", val);
 	}
 
 	return count;
@@ -983,7 +983,7 @@ static ssize_t mt_scp_sleep_cnt1_proc_write(
 			pr_err("%s: mtk_ipi_send_compl fail, ret=%d\n",
 				__func__, ret);
 	} else {
-		pr_info("Warning: invalid input command, val=%d\n", val);
+		pr_debug("Warning: invalid input command, val=%d\n", val);
 	}
 
 	return count;
@@ -1033,13 +1033,13 @@ static ssize_t mt_scp_resrc_req_proc_write(
 
 	if (sscanf(desc, "%7s %d", cmd, &req_opp) == 2) {
 		if (strcmp(cmd, "req_on")) {
-			pr_info("invalid command %s\n", cmd);
+			pr_debug("invalid command %s\n", cmd);
 			return count;
 		}
 
 		if (req_opp >= 0  && req_opp < SCP_REQ_MAX) {
 			if (req_opp != scp_resrc_req_cmd) {
-				pr_info("scp_resrc_req_cmd = %d\n",
+				pr_debug("scp_resrc_req_cmd = %d\n",
 						req_opp);
 
 				ret = scp_resource_req(req_opp);
@@ -1049,12 +1049,12 @@ static ssize_t mt_scp_resrc_req_proc_write(
 				else
 					scp_resrc_req_cmd = req_opp;
 			} else
-				pr_info("SCP Req CMD  is not changed\n");
+				pr_debug("SCP Req CMD  is not changed\n");
 		} else {
-			pr_info("Warning: invalid input value %d\n", req_opp);
+			pr_debug("Warning: invalid input value %d\n", req_opp);
 		}
 	} else {
-		pr_info("Warning: invalid input number\n");
+		pr_debug("Warning: invalid input number\n");
 	}
 
 	return count;
@@ -1271,7 +1271,7 @@ static unsigned int ulposc_cali_process(int idx)
 		return 0;
 	}
 
-	pr_info("calibration done, target=%dMHz, calibrated=%dMHz\n",
+	pr_debug("calibration done, target=%dMHz, calibrated=%dMHz\n",
 				target_val/1000, current_val/1000);
 
 	return cal_result;
@@ -1282,7 +1282,7 @@ void ulposc_cali_init(void)
 	struct device_node *node;
 	int i;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	/* get ULPOSC base address */
 	node = of_find_compatible_node(NULL, NULL,
@@ -1344,7 +1344,7 @@ void sync_ulposc_cali_data_to_scp(void)
 		*ptrTmp = ulposc_cfg[i].freq;
 		*(ptrTmp+1) = ulposc_cfg[i].cali_val;
 
-		pr_info("ipi to scp: freq=%d, cali_val=0x%x\n",
+		pr_debug("ipi to scp: freq=%d, cali_val=0x%x\n",
 			ulposc_cfg[i].freq, ulposc_cfg[i].cali_val);
 
 		ret = mtk_ipi_send_compl(&scp_ipidev,

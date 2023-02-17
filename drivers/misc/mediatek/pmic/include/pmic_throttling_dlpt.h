@@ -22,7 +22,7 @@
 #if defined PMIC_DEBUG_PR_DBG
 #define pmic_spm_crit2(fmt, args...)	pr_notice("[SPM-PMIC] " fmt, ##args)
 #else
-#define pmic_spm_crit2(fmt, args...)	pr_info("[SPM-PMIC] " fmt, ##args)
+#define pmic_spm_crit2(fmt, args...)	pr_debug("[SPM-PMIC] " fmt, ##args)
 #endif
 #else
 #define pmic_spm_crit2(fmt, args...)

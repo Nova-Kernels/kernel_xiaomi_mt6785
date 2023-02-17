@@ -107,11 +107,11 @@ int dpm_check_supported_modes(void)
 				svdm_svid_ops[i].svid)
 				is_disorder = true;
 		}
-		pr_info("SVDM supported mode [%d]: name = %s, svid = 0x%x\n",
+		pr_debug("SVDM supported mode [%d]: name = %s, svid = 0x%x\n",
 			i, svdm_svid_ops[i].name,
 			svdm_svid_ops[i].svid);
 	}
-	pr_info("%s : found \"disorder\"...\n", __func__);
+	pr_debug("%s : found \"disorder\"...\n", __func__);
 	found_error |= is_disorder;
 	return found_error ? -EFAULT : 0;
 }

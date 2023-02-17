@@ -1151,10 +1151,10 @@ static void mtk_nand_dump_bbt_info(struct mtk_nand_chip_bbt_info *chip_bbt)
 {
 	u32 i;
 
-	pr_info("%s: bad_block_num:%d, initial_bad_num:%d\n",
+	pr_debug("%s: bad_block_num:%d, initial_bad_num:%d\n",
 		__func__, chip_bbt->bad_block_num, chip_bbt->initial_bad_num);
 	for (i = 0; i < chip_bbt->bad_block_num; i++)
-		pr_info("bad_index:%d\n", chip_bbt->bad_block_table[i]);
+		pr_debug("bad_index:%d\n", chip_bbt->bad_block_table[i]);
 }
 
 int mtk_chip_bbt_init(struct data_bmt_struct *data_bmt)
@@ -1794,11 +1794,11 @@ static void dump_block_bitmap(void)
 	num = div_up(num, 32) * info->plane_num;
 
 	for (i = 0; i < num; i++) {
-		pr_info("%08x ", info->block_type_bitmap[i]);
+		pr_debug("%08x ", info->block_type_bitmap[i]);
 		if ((i + 1) % 16 == 0)
-			pr_info("\n");
+			pr_debug("\n");
 	}
-	pr_info("\n");
+	pr_debug("\n");
 }
 
 #if 0
@@ -1808,7 +1808,7 @@ void dump_block_bit_map(u8 *array)
 	int num;
 	bool check;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	for (i = 0; i < 500; i++) {
 		num = array[i];
 		if (num == 0)
@@ -1820,7 +1820,7 @@ void dump_block_bit_map(u8 *array)
 
 			check = is_slc_block(&data_info->chip_info,
 					     ((i * 8) + j));
-			pr_info("block %d is tlc check = %d\n",
+			pr_debug("block %d is tlc check = %d\n",
 				((i * 8) + j), check);
 		}
 	}
@@ -1835,7 +1835,7 @@ int mtk_nand_update_block_type(int num, unsigned int *blk)
 
 	nandx_get_device(FL_ERASING);
 	for (i = 0; i < num; i++) {
-		pr_info("%s: erase block %d\n", __func__, blk[i]);
+		pr_debug("%s: erase block %d\n", __func__, blk[i]);
 		row = (blk[i] + data_info->bmt.start_block) *
 		    info->data_page_num;
 		ret = nandx_core_erase(&row, 1, MODE_SLC);
@@ -1913,7 +1913,7 @@ int mvg_set_current_case(const char *gname, const char *cname)
 #if defined(CONFIG_PWR_LOSS_MTK_SPOH)
 	if (mvg_on_group_case(gname, cname)) {
 		if (cstack) {
-			pr_info("[MVG] set case reentry on %s-%s\n",
+			pr_debug("[MVG] set case reentry on %s-%s\n",
 				gname, cname);
 			return -EINVAL;
 		}
@@ -1938,7 +1938,7 @@ int mvg_case_exit(const char *gname, const char *cname)
 	s2 = strcmp(cstack->cname, cname);
 
 	if (s1 || s2) {
-		pr_info("[MVG] %s: un-balance current %s-%s, exit %s-%s\n",
+		pr_debug("[MVG] %s: un-balance current %s-%s, exit %s-%s\n",
 			__func__, cstack->gname, cstack->cname, gname, cname);
 		return -EINVAL;
 	}
@@ -1999,7 +1999,7 @@ int init_mntl_module(void)
 		pr_err("remap ko memory fail\n");
 		return -ENODEV;
 	}
-	pr_info("load ko %p\n", va);
+	pr_debug("load ko %p\n", va);
 	init_module_mem((void *)va, size);
 
 	return 0;

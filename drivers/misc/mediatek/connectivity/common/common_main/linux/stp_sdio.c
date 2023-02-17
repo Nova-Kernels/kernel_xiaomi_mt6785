@@ -273,7 +273,7 @@ do { \
 #define STPSDIO_PR_INFO(fmt, arg...) \
 do { \
 	if (gStpSdioDbgLvl >= STPSDIO_LOG_INFO) \
-		pr_info(DFT_TAG "[I]%s:"  fmt, __func__, ##arg); \
+		pr_debug(DFT_TAG "[I]%s:"  fmt, __func__, ##arg); \
 } while (0)
 
 #define STPSDIO_PR_WARN(fmt, arg...)	\

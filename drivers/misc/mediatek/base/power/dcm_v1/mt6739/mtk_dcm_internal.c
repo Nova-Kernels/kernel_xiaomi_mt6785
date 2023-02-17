@@ -51,7 +51,7 @@ unsigned long dcm_chn0_emi_base;
 short is_dcm_bringup(void)
 {
 #ifdef DCM_BRINGUP
-	dcm_pr_info("%s: skipped for bring up\n", __func__);
+	dcm_pr_debug("%s: skipped for bring up\n", __func__);
 	return 1;
 #else
 	return 0;
@@ -413,7 +413,7 @@ struct DCM dcm_array[NR_DCM_TYPE] = {
 
 void dcm_dump_regs(void)
 {
-	dcm_pr_info("\n******** dcm dump register *********\n");
+	dcm_pr_debug("\n******** dcm dump register *********\n");
 	REG_DUMP(INFRA_BUS_DCM_CTRL);
 	REG_DUMP(PERI_BUS_DCM_CTRL);
 	REG_DUMP(MEM_DCM_CTRL);

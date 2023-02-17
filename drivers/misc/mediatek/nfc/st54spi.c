@@ -1253,7 +1253,7 @@ static int __init st54spi_init(void)
 {
 	int status;
 
-	pr_info("Loading st54spi driver\n");
+	pr_debug("Loading st54spi driver\n");
 
 	/* Claim our 256 reserved device numbers.  Then register a class
 	 * that will key udev/mdev to add/remove /dev nodes.  Last, register
@@ -1262,7 +1262,7 @@ static int __init st54spi_init(void)
 	BUILD_BUG_ON(N_SPI_MINORS > 256);
 	spidev_major = __register_chrdev(0, 0, N_SPI_MINORS,
 		"spi", &st54spi_fops);
-	pr_info("Loading st54spi driver, major: %d\n", spidev_major);
+	pr_debug("Loading st54spi driver, major: %d\n", spidev_major);
 
 	st54spi_class = class_create(THIS_MODULE, "spidev");
 	if (IS_ERR(st54spi_class)) {
@@ -1275,7 +1275,7 @@ static int __init st54spi_init(void)
 		class_destroy(st54spi_class);
 		unregister_chrdev(spidev_major, st54spi_spi_driver.driver.name);
 	}
-	pr_info("Loading st54spi driver: %d\n", status);
+	pr_debug("Loading st54spi driver: %d\n", status);
 	return status;
 }
 module_init(st54spi_init);

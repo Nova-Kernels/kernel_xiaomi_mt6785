@@ -49,7 +49,7 @@ uint32_t DbgLevel = WIFI_FW_LOG_INFO;
 #define WIFI_INFO_FUNC_LIMITED(fmt, arg...)	\
 	do { \
 		if (DbgLevel >= WIFI_FW_LOG_INFO) \
-			pr_info_ratelimited(PFX "%s[L]: " fmt, __func__, ##arg); \
+			pr_debug_ratelimited(PFX "%s[L]: " fmt, __func__, ##arg); \
 	} while (0)
 #define WIFI_WARN_FUNC(fmt, arg...)	\
 	do { \

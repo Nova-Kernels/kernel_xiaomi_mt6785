@@ -99,7 +99,7 @@ static u32 charging_parameter_to_value(const u32 *parameter,
 			return i;
 	}
 
-	pr_info("no register value matched\n");
+	pr_debug("no register value matched\n");
 	return 0;
 }
 
@@ -142,7 +142,7 @@ static int mt6390_charger_parse_dt(struct mt6390_charger *info,
 	struct device_node *np = dev->of_node;
 	struct mt6390_charger_desc *desc = NULL;
 
-	pr_info("%s: starts\n", __func__);
+	pr_debug("%s: starts\n", __func__);
 
 	if (!np) {
 		chr_err("%s: no device node\n", __func__);
@@ -184,7 +184,7 @@ static int mt6390_charger_parse_dt(struct mt6390_charger *info,
 
 	info->desc = desc;
 
-	pr_info("chr name:%s alias:%s\n",
+	pr_debug("chr name:%s alias:%s\n",
 		info->charger_dev_name, info->charger_prop.alias_name);
 
 	return 0;
@@ -358,7 +358,7 @@ static int mt6390_dump_register(struct charger_device *chg_dev)
 		chr_debug("[0x%x]=0x%x\t", i, upmu_get_reg_value(i));
 	chr_debug("\n");
 
-	pr_info("ICHG = %dmA, CV = %dmV, CHG_EN = %d\n",
+	pr_debug("ICHG = %dmA, CV = %dmV, CHG_EN = %d\n",
 		ichg / 1000, cv / 1000, chg_en);
 
 	return ret;
@@ -408,7 +408,7 @@ static int mt6390_charger_init_setting(struct mt6390_charger *info)
 	unsigned short val;
 
 	val = pmic_get_register_value(PMIC_RG_VBAT_CV_VTH);
-	pr_info("[%s] VBAT_CV_VTH: 0x%x\n", __func__, val);
+	pr_debug("[%s] VBAT_CV_VTH: 0x%x\n", __func__, val);
 
 #if 0 /* TODO */
 	ret = mt6390_set_ichg(info);
@@ -451,7 +451,7 @@ static int mt6390_charger_probe(struct platform_device *pdev)
 	int ret = 0;
 	struct mt6390_charger *info = NULL;
 
-	pr_info("%s: starts\n", __func__);
+	pr_debug("%s: starts\n", __func__);
 
 	info = devm_kzalloc(&pdev->dev, sizeof(*info), GFP_KERNEL);
 	if (!info)

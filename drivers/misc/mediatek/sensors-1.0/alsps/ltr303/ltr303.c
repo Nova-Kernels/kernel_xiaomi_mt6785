@@ -23,11 +23,11 @@
 
 #define LTR303_DEV_NAME			"ltr303"
 #define APS_TAG					"[ALS] "
-#define APS_FUN(f)              pr_info(APS_TAG"%s\n", __func__)
-#define APS_ERR(fmt, args...)   pr_info(APS_TAG"%s %d : "\
+#define APS_FUN(f)              pr_debug(APS_TAG"%s\n", __func__)
+#define APS_ERR(fmt, args...)   pr_debug(APS_TAG"%s %d : "\
 		fmt, __func__, __LINE__, ##args)
-#define APS_LOG(fmt, args...)   pr_info(APS_TAG fmt, ##args)
-#define APS_DBG(fmt, args...)   pr_info(APS_TAG fmt, ##args)
+#define APS_LOG(fmt, args...)   pr_debug(APS_TAG fmt, ##args)
+#define APS_DBG(fmt, args...)   pr_debug(APS_TAG fmt, ##args)
 
 static const struct i2c_device_id ltr303_i2c_id[] = {
 	{LTR303_DEV_NAME, 0},

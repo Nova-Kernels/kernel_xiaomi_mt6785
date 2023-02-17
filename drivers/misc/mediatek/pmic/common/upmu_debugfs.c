@@ -45,7 +45,7 @@ int pmic_pre_wdt_reset(void)
 #if 0
 	preempt_disable();
 	local_irq_disable();
-	pr_info(PMICTAG "[%s][pmic_boot_status]\n", __func__);
+	pr_debug(PMICTAG "[%s][pmic_boot_status]\n", __func__);
 	pmic_dump_exception_reg();
 #if DUMP_ALL_REG
 	pmic_dump_register();
@@ -88,7 +88,7 @@ static ssize_t show_pmic_access(struct device *dev,
 				struct device_attribute *attr,
 				char *buf)
 {
-	pr_info("[%s] 0x%x\n", __func__, g_reg_value);
+	pr_debug("[%s] 0x%x\n", __func__, g_reg_value);
 	return sprintf(buf, "0x%x\n", g_reg_value);
 }
 
@@ -102,9 +102,9 @@ static ssize_t store_pmic_access(struct device *dev,
 	unsigned int reg_value = 0;
 	unsigned int reg_address = 0;
 
-	pr_info("[%s]\n", __func__);
+	pr_debug("[%s]\n", __func__);
 	if (buf != NULL && size != 0) {
-		pr_info("[%s] size is %d, buf is %s\n"
+		pr_debug("[%s] size is %d, buf is %s\n"
 			, __func__, (int)size, buf);
 
 		pvalue = (char *)buf;
@@ -115,16 +115,16 @@ static ssize_t store_pmic_access(struct device *dev,
 		if (val) {
 			ret = kstrtou32(val, 16, (unsigned int *)&reg_value);
 
-			pr_info("[%s] write PMU reg 0x%x with value 0x%x !\n"
+			pr_debug("[%s] write PMU reg 0x%x with value 0x%x !\n"
 				, __func__, reg_address, reg_value);
 			ret = pmic_config_interface(
 					reg_address, reg_value, 0xFFFF, 0x0);
 		} else {
 			ret = pmic_read_interface(
 					reg_address, &g_reg_value, 0xFFFF, 0x0);
-			pr_info("[%s] read PMU reg 0x%x with value 0x%x !\n"
+			pr_debug("[%s] read PMU reg 0x%x with value 0x%x !\n"
 				, __func__, reg_address, g_reg_value);
-			pr_info("[%s] use \"cat pmic_access\" to get value\n"
+			pr_debug("[%s] use \"cat pmic_access\" to get value\n"
 				,  __func__);
 		}
 	}
@@ -177,10 +177,10 @@ static ssize_t pmic_dbg_level_write(struct file *file,
 	if (ret)
 		return ret;
 
-	pr_info("[%s] value=0x%x\n", __func__, value);
+	pr_debug("[%s] value=0x%x\n", __func__, value);
 	if (value != 0xFFFF) {
 		pmic_dbg_level_set(value);
-		pr_info("D %d, HK %d, IRQ %d, REG %d, COM %d\n",
+		pr_debug("D %d, HK %d, IRQ %d, REG %d, COM %d\n",
 			gPMICDbgLvl, gPMICHKDbgLvl, gPMICIRQDbgLvl,
 			gPMICREGDbgLvl, gPMICCOMDbgLvl);
 	}

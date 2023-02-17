@@ -336,7 +336,7 @@ static int disp_probe(struct platform_device *pdev)
 	if (disp_probe_cnt)
 		return 0;
 
-	pr_info("disp driver(1) %s begin\n", __func__);
+	pr_debug("disp driver(1) %s begin\n", __func__);
 
 	/* save pdev for disp_probe_1 */
 	memcpy(&mydev, pdev, sizeof(mydev));
@@ -348,7 +348,7 @@ static int disp_probe(struct platform_device *pdev)
 
 	disp_probe_cnt++;
 
-	pr_info("disp driver(1) %s end\n", __func__);
+	pr_debug("disp driver(1) %s end\n", __func__);
 
 	return 0;
 }
@@ -383,7 +383,7 @@ static int __init disp_probe_1(void)
 	unsigned long va;
 	unsigned int irq;
 
-	pr_info("disp driver(1) %s begin\n", __func__);
+	pr_debug("disp driver(1) %s begin\n", __func__);
 
 #if (defined(CONFIG_MTK_TEE_GP_SUPPORT) || \
 	defined(CONFIG_TRUSTONIC_TEE_SUPPORT)) && \
@@ -520,7 +520,7 @@ static int __init disp_probe_1(void)
 	ddp_path_init();
 	disp_m4u_init();
 
-	pr_info("disp driver(1) %s end\n", __func__);
+	pr_debug("disp driver(1) %s end\n", __func__);
 	/* NOT_REFERENCED(class_dev); */
 	return ret;
 }

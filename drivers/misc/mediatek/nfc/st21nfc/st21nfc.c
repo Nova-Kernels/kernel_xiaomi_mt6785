@@ -296,7 +296,7 @@ static int st21nfc_loc_set_polaritymode(
 	int ret;
 
 	if (enable_debug_log)
-		pr_info("%s:%d mode %d", __FILE__, __LINE__, mode);
+		pr_debug("%s:%d mode %d", __FILE__, __LINE__, mode);
 
 	st21nfc_dev->polarity_mode = mode;
 	/* setup irq_flags */
@@ -337,7 +337,7 @@ static int st21nfc_loc_set_polaritymode(
 	st21nfc_disable_irq(st21nfc_dev);
 
 	if (enable_debug_log)
-		pr_info("%s:%d ret %d", __FILE__, __LINE__, ret);
+		pr_debug("%s:%d ret %d", __FILE__, __LINE__, ret);
 
 	return ret;
 }
@@ -493,7 +493,7 @@ static ssize_t st21nfc_dev_read(
 		pr_debug("%s : reading %zu bytes.\n", __func__, count);
 
 	if (gpiod_get_value(st21nfc_dev->gpiod_irq) == 0) {
-		pr_info("%s : read called but no IRQ.\n", __func__);
+		pr_debug("%s : read called but no IRQ.\n", __func__);
 		memset(st21nfc_dev->buffer, 0x7E, count);
 		if (copy_to_user(buf, st21nfc_dev->buffer, count)) {
 			pr_warn("%s : failed to copy to user space\n",
@@ -647,7 +647,7 @@ static int st21nfc_dev_open(struct inode *inode, struct file *filp)
 			struct st21nfc_device, st21nfc_device);
 
 	if (enable_debug_log)
-		pr_info("%s:%d dev_open", __FILE__, __LINE__);
+		pr_debug("%s:%d dev_open", __FILE__, __LINE__);
 
 	if (st21nfc_dev->device_open) {
 		ret = -EBUSY;
@@ -676,7 +676,7 @@ static void *st21nfc_st54spi_data;
 void st21nfc_register_st54spi_cb(void (*cb)(int, void *), void *data)
 {
 	if (enable_debug_log)
-		pr_info("%s\n", __func__);
+		pr_debug("%s\n", __func__);
 
 	st21nfc_st54spi_cb = cb;
 	st21nfc_st54spi_data = data;
@@ -684,7 +684,7 @@ void st21nfc_register_st54spi_cb(void (*cb)(int, void *), void *data)
 void st21nfc_unregister_st54spi_cb(void)
 {
 	if (enable_debug_log)
-		pr_info("%s\n", __func__);
+		pr_debug("%s\n", __func__);
 
 	st21nfc_st54spi_cb = NULL;
 	st21nfc_st54spi_data = NULL;
@@ -721,19 +721,19 @@ static long st21nfc_dev_ioctl(struct file *filp,
 	switch (cmd) {
 	case ST21NFC_SET_POLARITY_RISING:
 	case ST21NFC_LEGACY_SET_POLARITY_RISING:
-		pr_info(" ### ST21NFC_SET_POLARITY_RISING ###\n");
+		pr_debug(" ### ST21NFC_SET_POLARITY_RISING ###\n");
 		st21nfc_loc_set_polaritymode(st21nfc_dev, IRQF_TRIGGER_RISING);
 		break;
 
 	case ST21NFC_SET_POLARITY_HIGH:
 	case ST21NFC_LEGACY_SET_POLARITY_HIGH:
-		pr_info(" ### ST21NFC_SET_POLARITY_HIGH ###\n");
+		pr_debug(" ### ST21NFC_SET_POLARITY_HIGH ###\n");
 		st21nfc_loc_set_polaritymode(st21nfc_dev, IRQF_TRIGGER_HIGH);
 		break;
 
 	case ST21NFC_PULSE_RESET:
 	case ST21NFC_LEGACY_PULSE_RESET:
-		pr_info("%s Double Pulse Request\n", __func__);
+		pr_debug("%s Double Pulse Request\n", __func__);
 		if (!IS_ERR(st21nfc_dev->gpiod_reset)) {
 			if (st21nfc_st54spi_cb != 0)
 				(*st21nfc_st54spi_cb)(ST54SPI_CB_RESET_START,
@@ -748,7 +748,7 @@ static long st21nfc_dev_ioctl(struct file *filp,
 			gpiod_set_value(st21nfc_dev->gpiod_reset, 0);
 			msleep(20);
 			gpiod_set_value(st21nfc_dev->gpiod_reset, 1);
-			pr_info("%s done Double Pulse Request\n", __func__);
+			pr_debug("%s done Double Pulse Request\n", __func__);
 			if (st21nfc_st54spi_cb != 0)
 				(*st21nfc_st54spi_cb)(ST54SPI_CB_RESET_END,
 					st21nfc_st54spi_data);
@@ -780,7 +780,7 @@ static long st21nfc_dev_ioctl(struct file *filp,
 	case ST21NFC_RECOVERY:
 	case ST21NFC_LEGACY_RECOVERY:
 		/* For ST21NFCD usage only */
-		pr_info("%s Recovery Request\n", __func__);
+		pr_debug("%s Recovery Request\n", __func__);
 		if (!IS_ERR(st21nfc_dev->gpiod_reset)) {
 			if (st21nfc_dev->irq_is_attached) {
 				devm_free_irq(&st21nfc_dev->client->dev,
@@ -805,7 +805,7 @@ static long st21nfc_dev_ioctl(struct file *filp,
 			usleep_range(10000, 11000);
 			gpiod_set_value(st21nfc_dev->gpiod_reset, 1);
 
-			pr_info("%s done Pulse Request\n", __func__);
+			pr_debug("%s done Pulse Request\n", __func__);
 		}
 
 		msleep(20);
@@ -815,7 +815,7 @@ static long st21nfc_dev_ioctl(struct file *filp,
 		msleep(20);
 		gpiod_set_value(st21nfc_dev->gpiod_irq, 0);
 		msleep(20);
-		pr_info("%s Recovery procedure finished\n", __func__);
+		pr_debug("%s Recovery procedure finished\n", __func__);
 		ret = gpiod_direction_input(st21nfc_dev->gpiod_irq);
 		if (ret) {
 			pr_err("%s : gpiod_direction_input failed\n", __func__);
@@ -1146,7 +1146,7 @@ static int st21nfc_probe(struct i2c_client *client,
 		pr_err("%s : gpio_request failed\n", __FILE__);
 		return -ENODEV;
 	}
-	pr_info("%s : IRQ GPIO = %d\n", __func__, r);
+	pr_debug("%s : IRQ GPIO = %d\n", __func__, r);
 	ret = gpio_direction_input(r);
 	if (ret) {
 		pr_err("%s : gpio_direction_input failed\n", __FILE__);
@@ -1178,7 +1178,7 @@ static int st21nfc_probe(struct i2c_client *client,
 		pr_err("%s : gpio_request failed\n", __FILE__);
 		return -ENODEV;
 	}
-	pr_info("%s : RST GPIO = %d\n", __func__, r);
+	pr_debug("%s : RST GPIO = %d\n", __func__, r);
 	ret = gpio_direction_output(r, 1);
 	if (ret) {
 		pr_err("%s : gpio_direction_output failed\n", __FILE__);
@@ -1279,7 +1279,7 @@ static int st21nfc_probe(struct i2c_client *client,
 	np = of_find_compatible_node(NULL, NULL, "mediatek,irq_nfc-eint");
 	if (np) {
 		client->irq = irq_of_parse_and_map(np, 0);
-		pr_info("%s : MT IRQ GPIO = %d\n", __func__, client->irq);
+		pr_debug("%s : MT IRQ GPIO = %d\n", __func__, client->irq);
 	}
 #endif  // ST21NFCD_MTK
 
@@ -1477,7 +1477,7 @@ static struct platform_driver st21nfc_platform_driver = {
 /* module load/unload record keeping */
 static int __init st21nfc_dev_init(void)
 {
-	pr_info("Loading st21nfc driver\n");
+	pr_debug("Loading st21nfc driver\n");
 #ifndef KRNMTKLEGACY_GPIO
 	platform_driver_register(&st21nfc_platform_driver);
 	if (enable_debug_log)
@@ -1490,7 +1490,7 @@ module_init(st21nfc_dev_init);
 
 static void __exit st21nfc_dev_exit(void)
 {
-	pr_info("Unloading st21nfc driver\n");
+	pr_debug("Unloading st21nfc driver\n");
 	i2c_del_driver(&st21nfc_driver);
 }
 

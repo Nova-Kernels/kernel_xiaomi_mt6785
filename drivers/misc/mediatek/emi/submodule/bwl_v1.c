@@ -188,7 +188,7 @@ static ssize_t bwl_config_store
 	int i, ret;
 
 	if ((strlen(buf) + 1) > BWL_MAX_CMD_LEN) {
-		pr_info("[BWL] store command overflow\n");
+		pr_debug("[BWL] store command overflow\n");
 		return count;
 	}
 
@@ -306,13 +306,13 @@ static ssize_t concurrency_scenario_store
 			"ON", strlen("ON"))) {
 
 			bwl_ctrl(i, 1);
-			/* pr_info("[BWL] %s ON\n", name); */
+			/* pr_debug("[BWL] %s ON\n", name); */
 			break;
 		} else if (!strncmp(buf + strlen(name) + 1,
 			"OFF", strlen("OFF"))) {
 
 			bwl_ctrl(i, 0);
-			/* pr_info("[BWL] %s OFF\n", name); */
+			/* pr_debug("[BWL] %s OFF\n", name); */
 			break;
 		}
 	}

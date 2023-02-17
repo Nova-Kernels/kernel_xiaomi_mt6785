@@ -331,7 +331,7 @@ PHY_INT32 I2cReadReg(PHY_UINT8 dev_id, PHY_UINT8 Addr, PHY_UINT8 *Data)
 PHY_INT32 I2cWriteReg(PHY_UINT8 dev_id, PHY_UINT8 addr, PHY_UINT8 val)
 {
 	if (IS_PRINT)
-		pr_info("I2C Write@%x [%x]=%x\n", dev_id, addr, val);
+		pr_debug("I2C Write@%x [%x]=%x\n", dev_id, addr, val);
 
 	writew((dev_id << 1), ADDR_I2C_SLAVE_ADDR);
 	writew(2, ADDR_I2C_TRANSFER_LEN);
@@ -355,7 +355,7 @@ PHY_INT32 I2cWriteReg(PHY_UINT8 dev_id, PHY_UINT8 addr, PHY_UINT8 val)
 PHY_INT32 I2cReadReg(PHY_UINT8 dev_id, PHY_UINT8 addr, PHY_UINT8 *data)
 {
 	if (IS_PRINT)
-		pr_info("I2C Read@%x [%x]\n", dev_id, addr);
+		pr_debug("I2C Read@%x [%x]\n", dev_id, addr);
 
 	writew((dev_id << 1), ADDR_I2C_SLAVE_ADDR);
 	writew(1, ADDR_I2C_TRANSFER_LEN);
@@ -387,7 +387,7 @@ PHY_INT32 I2cReadReg(PHY_UINT8 dev_id, PHY_UINT8 addr, PHY_UINT8 *data)
 	*data = readw(ADDR_I2C_DATA_PORT);
 
 	if (IS_PRINT)
-		pr_info("I2C Read [%x]=%x\n", addr, *data);
+		pr_debug("I2C Read [%x]=%x\n", addr, *data);
 
 	return PHY_TRUE;	/* !!(PHY_INT32)*data; */
 }

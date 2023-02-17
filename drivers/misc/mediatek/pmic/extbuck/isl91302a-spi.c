@@ -61,9 +61,9 @@ static int isl91302a_read_device(void *client, u32 addr, int len, void *dst)
 
 	*(unsigned char *)dst = (rx_buf & 0xff000000) >> 24;
 #if 0
-	pr_info("%s addr 0x%02x = 0x%02x\n", __func__, addr, *val);
-	pr_info("%s tx_buf = 0x%08x\n", __func__, tx_buf);
-	pr_info("%s rx_buf = 0x%08x\n", __func__, rx_buf);
+	pr_debug("%s addr 0x%02x = 0x%02x\n", __func__, addr, *val);
+	pr_debug("%s tx_buf = 0x%08x\n", __func__, tx_buf);
+	pr_debug("%s rx_buf = 0x%08x\n", __func__, rx_buf);
 #endif
 	return ret;
 }
@@ -101,9 +101,9 @@ int isl91302a_write_device(void *client,
 		return ret;
 
 #if 0
-	pr_info("%s addr 0x%02x = 0x%02x\n", __func__, addr, value);
-	pr_info("%s tx_buf = 0x%08x\n", __func__, tx_buf);
-	pr_info("%s rx_buf = 0x%08x\n", __func__, rx_buf);
+	pr_debug("%s addr 0x%02x = 0x%02x\n", __func__, addr, value);
+	pr_debug("%s tx_buf = 0x%08x\n", __func__, tx_buf);
+	pr_debug("%s rx_buf = 0x%08x\n", __func__, rx_buf);
 #endif
 	return ret;
 }
@@ -258,7 +258,7 @@ static struct mt_chip_conf isl91302a_spi_config = {
 
 static void isl91302a_spi_init(struct spi_device *spi)
 {
-	pr_info("%s inited\n", __func__);
+	pr_debug("%s inited\n", __func__);
 	spi->bits_per_word = 32;
 	spi->controller_data = &isl91302a_spi_config;
 	mdelay(100);
@@ -302,7 +302,7 @@ static int isl91302a_spi_probe(struct spi_device *spi)
 	struct isl91302a_chip *chip;
 	int ret;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	chip = devm_kzalloc(&spi->dev,
 		sizeof(struct isl91302a_chip), GFP_KERNEL);
@@ -338,7 +338,7 @@ static int isl91302a_spi_probe(struct spi_device *spi)
 		return -EINVAL;
 	}
 
-	pr_info("%s --OK!!--\n", __func__);
+	pr_debug("%s --OK!!--\n", __func__);
 	return 0;
 }
 

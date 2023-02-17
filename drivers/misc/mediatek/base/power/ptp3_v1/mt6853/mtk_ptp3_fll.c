@@ -74,9 +74,9 @@
 #define FLL_TAG	 "[FLL]"
 
 #define fll_err(fmt, args...)	\
-	pr_info(FLL_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(FLL_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
 #define fll_msg(fmt, args...)	\
-	pr_info(FLL_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(FLL_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #ifdef FLL_DEBUG
 #define fll_debug(fmt, args...)	\

@@ -105,12 +105,12 @@ static int freqhopping_slt_test_proc_read(struct seq_file *m, void *v)
 	/* This FH_MSG_NOTICE doesn't need to be replaced by seq_file *m
 	 * because userspace parser only needs to know fhctl_slt_test_result
 	 */
-	pr_info("[FH] %s()\n", __func__);
-	pr_info("[FH] fhctl slt result info\n");
-	pr_info("[FH] return 0 => [SLT]FHCTL Test Pass!\n");
-	pr_info("[FH] return -1 => [SLT]FHCTL Test Fail!\n");
-	pr_info("[FH] return (result != 0 && result != -1) ");
-	pr_info("[FH] => [SLT]FHCTL Test Untested!\n");
+	pr_debug("[FH] %s()\n", __func__);
+	pr_debug("[FH] fhctl slt result info\n");
+	pr_debug("[FH] return 0 => [SLT]FHCTL Test Pass!\n");
+	pr_debug("[FH] return -1 => [SLT]FHCTL Test Fail!\n");
+	pr_debug("[FH] return (result != 0 && result != -1) ");
+	pr_debug("[FH] => [SLT]FHCTL Test Untested!\n");
 
 	seq_printf(m, "%d\n", fhctl_slt_test_result);
 
@@ -124,7 +124,7 @@ static ssize_t freqhopping_slt_test_proc_write(struct file *file,
 {
 	char *cmd = (char *)__get_free_page(GFP_USER);
 
-	pr_info("[FH] %s()\n", __func__);
+	pr_debug("[FH] %s()\n", __func__);
 
 	if (cmd == NULL)
 		return -ENOMEM;
@@ -137,7 +137,7 @@ static ssize_t freqhopping_slt_test_proc_write(struct file *file,
 	if (!strcmp(cmd, "slt_start"))
 		fhctl_slt_test_result = g_p_fh_hal_drv->mt_fh_hal_slt_start();
 	else
-		pr_info("[FH]unknown cmd = %s\n", cmd);
+		pr_debug("[FH]unknown cmd = %s\n", cmd);
 out:
 	free_page((unsigned long)cmd);
 
@@ -429,7 +429,7 @@ EXPORT_SYMBOL(mt_dfs_general_pll);
 int mt_dfs_armpll(unsigned int pll, unsigned int dds)
 {
 	if (!g_p_fh_hal_drv) {
-		pr_info("[FH] [%s]: g_p_fh_hal_drv is uninitialized."
+		pr_debug("[FH] [%s]: g_p_fh_hal_drv is uninitialized."
 			, __func__);
 		return 1;
 	}
@@ -478,11 +478,11 @@ static int freqhopping_debug_proc_init(void)
 #endif /* SUPPORT_SLT_TEST */
 	struct proc_dir_entry *fh_proc_dir = NULL;
 
-	pr_info("[FH] %s", __func__);
+	pr_debug("[FH] %s", __func__);
 
 	fh_proc_dir = proc_mkdir("freqhopping", NULL);
 	if (fh_proc_dir == NULL) {
-		pr_info("[FH]proc_mkdir fail!");
+		pr_debug("[FH]proc_mkdir fail!");
 		return -EINVAL;
 	}
 
@@ -490,7 +490,7 @@ static int freqhopping_debug_proc_init(void)
 	prdumpregentry
 		= proc_create("dumpregs", 0664, fh_proc_dir, &dumpregs_fops);
 	if (prdumpregentry == NULL) {
-		pr_info("[FH][%s]: failed to create "PROC_FH_(dumpregs)
+		pr_debug("[FH][%s]: failed to create "PROC_FH_(dumpregs)
 			, __func__);
 		return -EINVAL;
 	}
@@ -499,7 +499,7 @@ static int freqhopping_debug_proc_init(void)
 	prStatusentry
 		= proc_create("status", 0664, fh_proc_dir, &status_fops);
 	if (prStatusentry == NULL) {
-		pr_info("[FH][%s]: failed to create "PROC_FH_(status)
+		pr_debug("[FH][%s]: failed to create "PROC_FH_(status)
 			, __func__);
 		return -EINVAL;
 	}
@@ -509,7 +509,7 @@ static int freqhopping_debug_proc_init(void)
 		= proc_create("freqhopping_debug", 0664, fh_proc_dir,
 				&freqhopping_debug_fops);
 	if (prDebugentry == NULL) {
-		pr_info("[FH][%s]: failed to create "PROC_FH_(freqhopping_debug)
+		pr_debug("[FH][%s]: failed to create "PROC_FH_(freqhopping_debug)
 			, __func__);
 		return -EINVAL;
 	}
@@ -520,7 +520,7 @@ static int freqhopping_debug_proc_init(void)
 	prslttestentry
 		= proc_create("slt_test", 0664, fh_proc_dir, &slt_test_fops);
 	if (prslttestentry == NULL) {
-		pr_info("[FH][%s]: failed to create /proc/freqhopping/slt_test"
+		pr_debug("[FH][%s]: failed to create /proc/freqhopping/slt_test"
 			, __func__);
 		return -EINVAL;
 	}
@@ -539,7 +539,7 @@ int freqhopping_config(unsigned int pll_id
 	unsigned int skip_flag = 0;
 
 	if ((g_p_fh_hal_drv->mt_fh_get_init()) == 0) {
-		pr_info("[FH]Not init yet, init first.");
+		pr_debug("[FH]Not init yet, init first.");
 		return 1;
 	}
 
@@ -581,11 +581,11 @@ static int mt_freqhopping_init(void)
 {
 	int ret;
 
-	pr_info("[FH]: init\n");
+	pr_debug("[FH]: init\n");
 
 	g_p_fh_hal_drv = mt_get_fh_hal_drv();
 	if (g_p_fh_hal_drv == NULL) {
-		pr_info("[FH]No fh driver is found\n");
+		pr_debug("[FH]No fh driver is found\n");
 		return -EINVAL;
 	}
 
@@ -603,7 +603,7 @@ static int mt_freqhopping_init(void)
 	if (ret != 0)
 		return ret;
 
-	pr_info("[FH]: init success\n");
+	pr_debug("[FH]: init success\n");
 
 	return 0;
 }

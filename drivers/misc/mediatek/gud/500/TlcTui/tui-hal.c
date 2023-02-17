@@ -46,7 +46,7 @@ static bool allocate_tui_memory_pool(struct tui_mempool *pool, size_t size)
 	bool ret = false;
 	void *tui_mem_pool = NULL;
 
-	pr_info("%s %s:%d\n", __func__, __FILE__, __LINE__);
+	pr_debug("%s %s:%d\n", __func__, __FILE__, __LINE__);
 	if (!size) {
 		pr_debug("TUI frame buffer: nothing to allocate.");
 		return true;
@@ -261,5 +261,5 @@ u32 hal_tui_notif(void)
 /* Do nothing it's only use for QC */
 void hal_tui_post_start(struct tlc_tui_response_t *rsp)
 {
-	pr_info("%s(%d)\n", __func__, __LINE__);
+	pr_debug("%s(%d)\n", __func__, __LINE__);
 }

@@ -199,7 +199,7 @@ static int __init tee_smem_devs_init(void)
 	struct trusted_mem_device *t_device;
 	int idx = 0;
 
-	pr_info("%s:%d (%d)\n", __func__, __LINE__,
+	pr_debug("%s:%d (%d)\n", __func__, __LINE__,
 		(int)TEE_SECURE_MEM_DEVICE_COUNT);
 
 	for (idx = 0; idx < TEE_SECURE_MEM_DEVICE_COUNT; idx++) {
@@ -216,7 +216,7 @@ static int __init tee_smem_devs_init(void)
 		}
 	}
 
-	pr_info("%s:%d (end)\n", __func__, __LINE__);
+	pr_debug("%s:%d (end)\n", __func__, __LINE__);
 	return TMEM_OK;
 }
 

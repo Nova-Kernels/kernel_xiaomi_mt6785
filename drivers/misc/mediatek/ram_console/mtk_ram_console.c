@@ -787,12 +787,12 @@ static int __init ram_console_early_init(void)
 	if (of_scan_flat_dt(dt_get_ram_console, &sram)) {
 		ram_console_parse_memory_info(&sram, &memory_info_data);
 		if (sram.def_type == RAM_CONSOLE_DEF_SRAM) {
-			pr_info("ram_console: using sram:0x%x\n", sram.start);
+			pr_debug("ram_console: using sram:0x%x\n", sram.start);
 			start = sram.start;
 			size  = sram.size;
 			bufp = ioremap_wc(sram.start, sram.size);
 		} else if (sram.def_type == RAM_CONSOLE_DEF_DRAM) {
-			pr_info("ram_console: using dram:0x%x\n",
+			pr_debug("ram_console: using dram:0x%x\n",
 					memory_info_data.dram_addr);
 			start = memory_info_data.dram_addr;
 			size = memory_info_data.dram_size;
@@ -879,7 +879,7 @@ late_initcall(ram_console_late_init);
 
 int ram_console_pstore_reserve_memory(struct reserved_mem *rmem)
 {
-	pr_info("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n", "mediatek,pstore",
+	pr_debug("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n", "mediatek,pstore",
 		 (unsigned long long)rmem->base,
 		 (unsigned long long)rmem->base +
 		 (unsigned long long)rmem->size,
@@ -889,7 +889,7 @@ int ram_console_pstore_reserve_memory(struct reserved_mem *rmem)
 
 int ram_console_binary_reserve_memory(struct reserved_mem *rmem)
 {
-	pr_info("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n",
+	pr_debug("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n",
 		"mediatek,ram_console",
 		 (unsigned long long)rmem->base,
 		 (unsigned long long)rmem->base +

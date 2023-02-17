@@ -75,7 +75,7 @@ int adsp_clk_device_probe(struct platform_device *pdev)
 		scp_clks[i].clock = devm_clk_get(dev, scp_clks[i].name);
 		if (IS_ERR(scp_clks[i].clock)) {
 			ret = PTR_ERR(scp_clks[i].clock);
-			pr_info("%s devm_clk_get %s fail %d\n", __func__,
+			pr_debug("%s devm_clk_get %s fail %d\n", __func__,
 				   scp_clks[i].name, ret);
 		}
 	}
@@ -86,7 +86,7 @@ int adsp_clk_device_probe(struct platform_device *pdev)
 /* clock deinit */
 void adsp_clk_device_remove(void *dev)
 {
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 }
 
 int adsp_enable_clock(void)
@@ -98,14 +98,14 @@ int adsp_enable_clock(void)
 	/* enable scp clock before access adsp clock cg */
 	ret = clk_prepare_enable(scp_clks[CLK_TOP_SCP_SEL].clock);
 	if (IS_ERR(&ret)) {
-		pr_info("%s(), clk_prepare_enable %s fail, ret %d\n",
+		pr_debug("%s(), clk_prepare_enable %s fail, ret %d\n",
 			__func__, scp_clks[CLK_TOP_SCP_SEL].name, ret);
 		return -EINVAL;
 	}
 
 	ret = clk_prepare_enable(adsp_clks[CLK_SCP_SYS_ADSP].clock);
 	if (IS_ERR(&ret)) {
-		pr_info("%s(), clk_prepare_enable %s fail, ret %d\n",
+		pr_debug("%s(), clk_prepare_enable %s fail, ret %d\n",
 			__func__, adsp_clks[CLK_SCP_SYS_ADSP].name, ret);
 		return -EINVAL;
 	}

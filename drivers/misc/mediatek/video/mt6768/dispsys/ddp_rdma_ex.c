@@ -1572,7 +1572,7 @@ void polling_rdma_output_line_is_not_zero(void)
 
 	if (polling_rdma_output_line_enable &&
 		!primary_display_is_video_mode()) {
-		/* pr_info("%s start\n", __func__); */
+		/* pr_debug("%s start\n", __func__); */
 
 		while (loop_cnt < 1*1000) {
 			if (DISP_REG_GET(offset +
@@ -1585,7 +1585,7 @@ void polling_rdma_output_line_is_not_zero(void)
 		}
 #if 0
 		if (loop_cnt)
-			pr_info(
+			pr_debug(
 			"%s delay loop_cnt=%d, outline=0x%x\n",
 				__func__,
 				loop_cnt,
@@ -1601,7 +1601,7 @@ void polling_rdma_output_line_is_not_zero(void)
 				DISP_REG_GET(offset +
 					DISP_REG_RDMA_OUT_LINE_CNT));
 
-		/* pr_info("%s done\n", __func__); */
+		/* pr_debug("%s done\n", __func__); */
 	}
 }
 

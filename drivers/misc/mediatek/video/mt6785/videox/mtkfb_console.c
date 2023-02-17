@@ -87,11 +87,11 @@ static void _mfc_draw_char(struct MFC_CONTEXT *ctxt, UINT32 x, UINT32 y, char c)
 	int font_draw_table16[4];
 
 	if (x > (MFC_WIDTH - MFC_FONT_WIDTH)) {
-		pr_info("draw width too large,x=%d\n", x);
+		pr_debug("draw width too large,x=%d\n", x);
 		return;
 	}
 	if (y > (MFC_HEIGHT - MFC_FONT_HEIGHT)) {
-		pr_info("draw hight too large,y=%d\n", y);
+		pr_debug("draw hight too large,y=%d\n", y);
 		return;
 	}
 
@@ -165,7 +165,7 @@ static void _mfc_draw_char(struct MFC_CONTEXT *ctxt, UINT32 x, UINT32 y, char c)
 		}
 		break;
 	default:
-		pr_info("draw char fail,MFC_BPP=%d\n", MFC_BPP);
+		pr_debug("draw char fail,MFC_BPP=%d\n", MFC_BPP);
 		break;
 	}
 }

@@ -74,9 +74,9 @@
 #define PDP_TAG	 "[PDP]"
 
 #define pdp_err(fmt, args...)	\
-	pr_info(PDP_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(PDP_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
 #define pdp_msg(fmt, args...)	\
-	pr_info(PDP_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(PDP_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #ifdef PDP_DEBUG
 #define pdp_debug(fmt, args...) \

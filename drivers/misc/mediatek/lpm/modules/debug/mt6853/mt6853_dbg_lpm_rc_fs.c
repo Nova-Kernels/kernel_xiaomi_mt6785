@@ -175,7 +175,7 @@ int mt6853_lpm_rc_cond_ctrl(int rc_id, unsigned int act,
 		MT6853_DBG_SMC(MT_SPM_DBG_SMC_UID_RC_COND_CTRL,
 				    act, cond_ctrl_id, !!value);
 	else
-		pr_info("[%s:%d] - unknown cond id = %u\n",
+		pr_debug("[%s:%d] - unknown cond id = %u\n",
 			__func__, __LINE__, cond_id);
 
 	return res;
@@ -205,7 +205,7 @@ int mt6853_lpm_rc_ratio_timer_func(unsigned long long dur, void *priv)
 			(MT_LPM_SMC_ACT_GET | MT_LPM_SMC_ACT_CLR),
 			MT_RM_CONSTRAINT_ID_BUS26M, 0);
 
-	pr_info("[name:spm&][RC] ratio, duration_ms:%llu, dram:%llu%%, syspll:%llu%%, bus26m:%llu%%\n",
+	pr_debug("[name:spm&][RC] ratio, duration_ms:%llu, dram:%llu%%, syspll:%llu%%, bus26m:%llu%%\n",
 			dur, RC_COVERT_RATIO(dur, rc_dram_t),
 			RC_COVERT_RATIO(dur, rc_syspll_t),
 			RC_COVERT_RATIO(dur, rc_bus26m_t));

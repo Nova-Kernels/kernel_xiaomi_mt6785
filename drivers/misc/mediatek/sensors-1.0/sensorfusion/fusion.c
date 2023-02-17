@@ -275,7 +275,7 @@ static ssize_t fusion_store_batch(struct device *dev,
 			goto err_out;
 		}
 	} else
-		pr_info("batch state no need change\n");
+		pr_debug("batch state no need change\n");
 #else
 	err = fusion_enable_and_batch(index);
 #endif

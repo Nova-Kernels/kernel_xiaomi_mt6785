@@ -74,7 +74,7 @@
 #define ADCC_TAG	"[ADCC]"
 
 #define adcc_info(fmt, args...)	\
-	pr_info(ADCC_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(ADCC_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #ifdef ADCC_DEBUG_ON
 #define adcc_debug(fmt, args...) \

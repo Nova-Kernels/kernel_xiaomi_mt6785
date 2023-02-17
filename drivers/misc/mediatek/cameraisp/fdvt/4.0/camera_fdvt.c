@@ -82,7 +82,7 @@ pr_debug("FDVT [%s] " format, __func__, ##args)
 #define LOG_DBG(format, args...) \
 pr_debug("FDVT [%s] " format, __func__, ##args)
 #define LOG_INF(format, args...) \
-pr_info("FDVT [%s] " format, __func__, ##args)
+pr_debug("FDVT [%s] " format, __func__, ##args)
 #define LOG_WRN(format, args...) \
 pr_warn("FDVT [%s] WARNING: " format, __func__, ##args)
 #define LOG_ERR(format, args...) \
@@ -524,7 +524,7 @@ enum m4u_callback_ret_t FDVT_M4U_TranslationFault_callback(int port,
 	unsigned int u4RegValue = 0;
 	unsigned int u4Index = 0;
 
-	pr_info("[FDVT_M4U]fault call port=%d, mva=0x%x", port, mva);
+	pr_debug("[FDVT_M4U]fault call port=%d, mva=0x%x", port, mva);
 
 	for (u4Index = 0x0; u4Index < 0x180; u4Index += 4) {
 		u4RegValue = ioread32((void *)(FDVT_ADDR + u4Index));

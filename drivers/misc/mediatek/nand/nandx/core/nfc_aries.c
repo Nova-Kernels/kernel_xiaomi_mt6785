@@ -12,61 +12,61 @@
 
 static inline void nfc_dump_register(struct nfc_info *info)
 {
-	pr_info("NFI_CNFG = 0x%x\nNFI_PAGEFMT = 0x%x\nNFI_CON = 0x%x\n",
+	pr_debug("NFI_CNFG = 0x%x\nNFI_PAGEFMT = 0x%x\nNFI_CON = 0x%x\n",
 		nfi_readl(info, NFI_CNFG), nfi_readl(info, NFI_PAGEFMT),
 		nfi_readl(info, NFI_CON));
-	pr_info
+	pr_debug
 	    ("NFI_ACCCON = 0x%x\nNFI_INTR_EN = 0x%x\nNFI_INTR_STA = 0x%x\n",
 	     nfi_readl(info, NFI_ACCCON), nfi_readl(info, NFI_INTR_EN),
 	     nfi_readl(info, NFI_INTR_STA));
-	pr_info("NFI_CMD = 0x%x\nNFI_ADDRNOB = 0x%x\nNFI_COLADDR = 0x%x\n",
+	pr_debug("NFI_CMD = 0x%x\nNFI_ADDRNOB = 0x%x\nNFI_COLADDR = 0x%x\n",
 		nfi_readl(info, NFI_CMD), nfi_readl(info, NFI_ADDRNOB),
 		nfi_readl(info, NFI_COLADDR));
-	pr_info
+	pr_debug
 	    ("NFI_ROWADDR = 0x%x\nNFI_CNRNB = 0x%x\nNFI_PIO_DIRDY = 0x%x\n",
 	     nfi_readl(info, NFI_ROWADDR), nfi_readl(info, NFI_CNRNB),
 	     nfi_readl(info, NFI_PIO_DIRDY));
-	pr_info("NFI_STA = 0x%x\nNFI_ADDRCNTR = 0x%x\nNFI_STRADDR = 0x%x\n",
+	pr_debug("NFI_STA = 0x%x\nNFI_ADDRCNTR = 0x%x\nNFI_STRADDR = 0x%x\n",
 		nfi_readl(info, NFI_STA), nfi_readl(info, NFI_ADDRCNTR),
 		nfi_readl(info, NFI_STRADDR));
-	pr_info("NFI_BYTELEN = 0x%x\nNFI_CSEL = 0x%x\nNFI_FDML0 = 0x%x\n",
+	pr_debug("NFI_BYTELEN = 0x%x\nNFI_CSEL = 0x%x\nNFI_FDML0 = 0x%x\n",
 		nfi_readl(info, NFI_BYTELEN), nfi_readl(info, NFI_CSEL),
 		nfi_readl(info, NFI_FDML(0)));
-	pr_info
+	pr_debug
 	    ("NFI_FDMM0 = 0x%x\nNFI_DEBUG_CON1 = 0x%x\nNFI_MASTER_STA = 0x%x\n",
 	     nfi_readl(info, NFI_FDMM(0)), nfi_readl(info, NFI_DEBUG_CON1),
 	     nfi_readl(info, NFI_MASTER_STA));
-	pr_info("NFI_SECCUS_SIZE = 0x%x\nNFI_RANDOM_CNFG = 0x%x\n",
+	pr_debug("NFI_SECCUS_SIZE = 0x%x\nNFI_RANDOM_CNFG = 0x%x\n",
 		nfi_readl(info, NFI_SECCUS_SIZE),
 		nfi_readl(info, NFI_RANDOM_CNFG));
-	pr_info("NFI_EMPTY_THRESH = 0x%x\nNFI_NAND_TYPE_CNFG = 0x%x\n",
+	pr_debug("NFI_EMPTY_THRESH = 0x%x\nNFI_NAND_TYPE_CNFG = 0x%x\n",
 		nfi_readl(info, NFI_EMPTY_THRESH),
 		nfi_readl(info, NFI_NAND_TYPE_CNFG));
-	pr_info("NFI_ACCCON1 = 0x%x\nNFI_DELAY_CTRL = 0x%x\n",
+	pr_debug("NFI_ACCCON1 = 0x%x\nNFI_DELAY_CTRL = 0x%x\n",
 		nfi_readl(info, NFI_ACCCON1),
 		nfi_readl(info, NFI_DELAY_CTRL));
-	pr_info("NFI_TLC_RD_WHR2 = 0x%x\n", nfi_readl(info, NFI_TLC_RD_WHR2));
-	pr_info
+	pr_debug("NFI_TLC_RD_WHR2 = 0x%x\n", nfi_readl(info, NFI_TLC_RD_WHR2));
+	pr_debug
 	    ("ECC_ENCCON = 0x%x\nECC_ENCCNFG = 0x%x\nECC_ENCDIADDR = 0x%x\n",
 	     ecc_readl(info, ECC_ENCCON), ecc_readl(info, ECC_ENCCNFG),
 	     ecc_readl(info, ECC_ENCDIADDR));
-	pr_info
+	pr_debug
 	    ("ECC_ENCIDLE = 0x%x\nECC_ENCSTA = 0x%x\nECC_ENCIRQ_EN = 0x%x\n",
 	     ecc_readl(info, ECC_ENCIDLE), ecc_readl(info, ECC_ENCSTA),
 	     ecc_readl(info, ECC_ENCIRQ_EN));
-	pr_info
+	pr_debug
 	    ("ECC_ENCIRQ_STA = 0x%x\nECC_PIO_DIRDY = 0x%x\nECC_DECCON = 0x%x\n",
 	     ecc_readl(info, ECC_ENCIRQ_STA), ecc_readl(info, ECC_PIO_DIRDY),
 	     ecc_readl(info, ECC_DECCON));
-	pr_info
+	pr_debug
 	    ("ECC_DECCNFG = 0x%x\nECC_DECDIADDR = 0x%x\nECC_DECIDLE = 0x%x\n",
 	     ecc_readl(info, ECC_DECCNFG), ecc_readl(info, ECC_DECDIADDR),
 	     ecc_readl(info, ECC_DECIDLE));
-	pr_info
+	pr_debug
 	    ("ECC_DECENUM0 = 0x%x\nECC_DECDONE = 0x%x\nECC_DECIRQ_EN = 0x%x\n",
 	     ecc_readl(info, ECC_DECENUM(0)), ecc_readl(info, ECC_DECDONE),
 	     ecc_readl(info, ECC_DECIRQ_EN));
-	pr_info("ECC_DECIRQ_STA = 0x%x\nECC_DECFSM = 0x%x\n",
+	pr_debug("ECC_DECIRQ_STA = 0x%x\nECC_DECFSM = 0x%x\n",
 		ecc_readl(info, ECC_DECIRQ_STA), ecc_readl(info, ECC_DECFSM));
 }
 

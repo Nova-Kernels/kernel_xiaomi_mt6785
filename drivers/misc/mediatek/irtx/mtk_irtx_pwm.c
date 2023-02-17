@@ -154,7 +154,7 @@ void switch_irtx_gpio(int mode)
 	}
 
 	pinctrl_select_state(ppinctrl_irtx, pins_irtx);
-	pr_info("%s() [PinC] to mode:%d done.\n", __func__, mode);
+	pr_debug("%s() [PinC] to mode:%d done.\n", __func__, mode);
 }
 
 static int dev_char_open(struct inode *inode, struct file *file)
@@ -167,7 +167,7 @@ static int dev_char_open(struct inode *inode, struct file *file)
 		goto exit;
 	}
 
-	pr_info("%s() IRTX open by %s\n", __func__, current->comm);
+	pr_debug("%s() IRTX open by %s\n", __func__, current->comm);
 	nonseekable_open(inode, file);
 exit:
 	return ret;
@@ -183,7 +183,7 @@ static int dev_char_close(struct inode *inode, struct file *file)
 		goto exit;
 	}
 
-	pr_info("%s() IRTX close by %s\n", __func__, current->comm);
+	pr_debug("%s() IRTX close by %s\n", __func__, current->comm);
 exit:
 	return ret;
 }
@@ -208,11 +208,11 @@ static ssize_t dev_char_write(struct file *file, const char __user *buf,
 
 	ret = get_ir_transmit();
 	if (ret < 0) {
-		pr_info("%s(), another ir is transmitting\n", __func__);
+		pr_debug("%s(), another ir is transmitting\n", __func__);
 		goto exit_0;
 	}
 
-	pr_info("%s() irtx write len=0x%x, pwm=%d\n", __func__,
+	pr_debug("%s() irtx write len=0x%x, pwm=%d\n", __func__,
 		(unsigned int)count, (unsigned int)irtx_pwm_config.pwm_no);
 	if (count == 0) {
 		ret = 0;
@@ -255,17 +255,17 @@ static ssize_t dev_char_write(struct file *file, const char __user *buf,
 	ret = pwm_set_spec_config(&irtx_pwm_config);
 	buf_ptr = (int *) wave_vir;
 	total_time = buf_ptr[buf_size - 1];
-	pr_info("irtx ret:%d, period:%d, count:%zu, total:%d, duty:%d/%d\n",
+	pr_debug("irtx ret:%d, period:%d, count:%zu, total:%d, duty:%d/%d\n",
 		ret, h_l_period, count, total_time,
 		pwm_ir.duty_cycle, pwm_ir.cycle);
 #ifdef IRTX_DEBUG
-	pr_info("%s() irtx pwm buf size = %d\n", __func__, buf_size);
+	pr_debug("%s() irtx pwm buf size = %d\n", __func__, buf_size);
 	for (i = 0; i < buf_size; i++) {
 		if (i && i % 16 == 0)
-			pr_info("\n");
-		pr_info("[%d]0x%x, ", i, buf_ptr[i]);
+			pr_debug("\n");
+		pr_debug("[%d]0x%x, ", i, buf_ptr[i]);
 	}
-	pr_info("\n");
+	pr_debug("\n");
 #endif
 	if (total_time <= 0) {
 		total_time = (count-4)*8*h_l_period;
@@ -274,7 +274,7 @@ static ssize_t dev_char_write(struct file *file, const char __user *buf,
 	usleep_range(total_time, total_time + 100);
 
 	ret = count;
-	pr_info("[IRTX] done, clean up\n");
+	pr_debug("[IRTX] done, clean up\n");
 	mt_pwm_disable(irtx_pwm_config.pwm_no, irtx_pwm_config.pmic_pad);
 	switch_irtx_gpio(IRTX_GPIO_MODE_LED_DEFAULT);
 
@@ -283,7 +283,7 @@ exit_2:
 			wave_phy);
 exit_1:
 	if (put_ir_transmit() < 0)
-		pr_info("%s, irtx is not transmitting\n");
+		pr_debug("%s, irtx is not transmitting\n");
 exit_0:
 	return ret;
 }
@@ -310,7 +310,7 @@ static long dev_char_ioctl(struct file *file, unsigned int cmd,
 			/* gpio: bit 0-11 */
 			gpio_id = (unsigned long)((para & 0x0FFF0000) > 16);
 			en = (para & 0xF);
-			pr_info("%s IRTX SET LED EN:0x%x,gpioid:%ul,en:%ul\n",
+			pr_debug("%s IRTX SET LED EN:0x%x,gpioid:%ul,en:%ul\n",
 				__func__, para, gpio_id, en);
 
 			if (en)
@@ -327,7 +327,7 @@ static long dev_char_ioctl(struct file *file, unsigned int cmd,
 			ret = -EFAULT;
 		} else {
 			pwm_ir.carrier = para;
-			pr_info("irtx carrier freq = %d\n", pwm_ir.carrier);
+			pr_debug("irtx carrier freq = %d\n", pwm_ir.carrier);
 		}
 		break;
 	case IRTX_IOC_SET_DUTY_CYCLE:
@@ -339,7 +339,7 @@ static long dev_char_ioctl(struct file *file, unsigned int cmd,
 		} else {
 			pwm_ir.cycle = para & 0xFFFF;
 			pwm_ir.duty_cycle = (para >> 16) & 0xFFFF;
-			pr_info("irtx duty cycle = %d/%d\n",
+			pr_debug("irtx duty cycle = %d/%d\n",
 				pwm_ir.duty_cycle, pwm_ir.cycle);
 		}
 		break;
@@ -356,7 +356,7 @@ static long compat_dev_char_ioctl(struct file *file, unsigned int cmd,
 		unsigned long arg)
 {
 	if (!file->f_op || !file->f_op->unlocked_ioctl) {
-		pr_info("irtx file has no f_op or no unlocked_ioctl.\n");
+		pr_debug("irtx file has no f_op or no unlocked_ioctl.\n");
 		return -ENOTTY;
 	}
 
@@ -370,7 +370,7 @@ static long compat_dev_char_ioctl(struct file *file, unsigned int cmd,
 			file, cmd, (unsigned long)compat_ptr(arg));
 		break;
 	default:
-		pr_info("irtx compat_ioctl : No such command!! 0x%x\n", cmd);
+		pr_debug("irtx compat_ioctl : No such command!! 0x%x\n", cmd);
 		return -ENOIOCTLCMD;
 	}
 }
@@ -409,7 +409,7 @@ static int irtx_probe(struct platform_device *plat_dev)
 		&mt_irtx_dev.pwm_ch);
 	of_property_read_u32(plat_dev->dev.of_node, "pwm_data_invert",
 		&mt_irtx_dev.pwm_data_invert);
-	pr_info("%s() device tree info: major=%d pwm=%d invert=%d\n", __func__,
+	pr_debug("%s() device tree info: major=%d pwm=%d invert=%d\n", __func__,
 		major, mt_irtx_dev.pwm_ch, mt_irtx_dev.pwm_data_invert);
 
 	mt_irtx_dev.ppinctrl_irtx = devm_pinctrl_get(&plat_dev->dev);
@@ -482,11 +482,11 @@ static int irtx_probe(struct platform_device *plat_dev)
 		pr_notice("%s() device_create fail! ret=%d\n", __func__, ret);
 		goto exit;
 	}
-	pr_info("%s() Done.\n", __func__);
+	pr_debug("%s() Done.\n", __func__);
 	return 0;
 
  exit:
-	pr_info("%s() fail! ret=%d\n", __func__, ret);
+	pr_debug("%s() fail! ret=%d\n", __func__, ret);
 	return ret;
 }
 
@@ -506,7 +506,7 @@ static int __init irtx_init(void)
 {
 	int ret = 0;
 
-	pr_info("%s()\n", __func__);
+	pr_debug("%s()\n", __func__);
 	irtx_driver.driver.of_match_table = irtx_of_ids;
 
 	ret = platform_driver_register(&irtx_driver);

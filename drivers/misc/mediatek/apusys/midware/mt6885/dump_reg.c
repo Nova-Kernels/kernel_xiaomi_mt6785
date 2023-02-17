@@ -284,7 +284,7 @@ void apusys_reg_dump(void)
 		if (reg_all_mem == NULL)
 			goto out;
 	} else {
-		pr_info("[apusys][dump] dump is in process, skip this dump!\n");
+		pr_debug("[apusys][dump] dump is in process, skip this dump!\n");
 		goto out;
 	}
 

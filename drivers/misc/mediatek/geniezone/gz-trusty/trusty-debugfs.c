@@ -52,7 +52,7 @@ static int stress_trusty_thread(void *data)
 		else
 			f_cnt[0]++;
 
-		pr_info_ratelimited("[%lld/%lld] %u + %u = %u, %s\n",
+		pr_debug_ratelimited("[%lld/%lld] %u + %u = %u, %s\n",
 				s_cnt[0], f_cnt[0], a, b, ret,
 				(a + b) == ret ? "PASS" : "FAIL");
 
@@ -92,7 +92,7 @@ static int stress_nebula_thread(void *data)
 		else
 			f_cnt[1]++;
 
-		pr_info_ratelimited("[%lld/%lld] %d * %d * %d= %d, %s\n",
+		pr_debug_ratelimited("[%lld/%lld] %d * %d * %d= %d, %s\n",
 				s_cnt[1], f_cnt[1], a, b, c,
 				ret, (a * b * c) == ret ? "PASS" : "FAIL");
 
@@ -100,7 +100,7 @@ static int stress_nebula_thread(void *data)
 			break;
 	}
 
-	pr_info("[%s] End of test, succeed %lld, failed %lld\n",
+	pr_debug("[%s] End of test, succeed %lld, failed %lld\n",
 		__func__, s_cnt[1], f_cnt[1]);
 
 	s_cnt[1] = f_cnt[1] = 0;
@@ -124,7 +124,7 @@ static ssize_t gz_concurrent_show(struct device *dev,
 		tmp[i] = '\0';
 		strncat(str, tmp, 255);
 		strncat(str, "MTEE 1.0 :stress_trusty_thread Running\n", 255);
-		pr_info("stress_trusty on CPU %d, succeed %lld, failed %lld\n",
+		pr_debug("stress_trusty on CPU %d, succeed %lld, failed %lld\n",
 			cpu[0], s_cnt[0], f_cnt[0]);
 	}
 
@@ -135,7 +135,7 @@ static ssize_t gz_concurrent_show(struct device *dev,
 		tmp[i] = '\0';
 		strncat(str, tmp, 255);
 		strncat(str, "MTEE 2.0 :stress_nebula_thread Running\n", 255);
-		pr_info("stress_nebula on CPU %d, succeed %lld, failed %lld\n",
+		pr_debug("stress_nebula on CPU %d, succeed %lld, failed %lld\n",
 			cpu[1], s_cnt[1], f_cnt[1]);
 	}
 
@@ -165,22 +165,22 @@ static ssize_t gz_concurrent_store(struct device *dev,
 		return -EINVAL;
 
 	if (kstrtoul(buf, 10, &tmp)) {
-		pr_info("[%s] convert to number failed\n", __func__);
+		pr_debug("[%s] convert to number failed\n", __func__);
 		return -1;
 	}
 
 	tmp %= 100;
-	pr_info("[%s] get number %lu\n", __func__, tmp);
+	pr_debug("[%s] get number %lu\n", __func__, tmp);
 
 	mutex_lock(&gz_concurrent_lock);
 	if (tmp == 0) {
 		if (trusty_task) {
-			pr_info("[%s] Stop stress_trusty_thread", __func__);
+			pr_debug("[%s] Stop stress_trusty_thread", __func__);
 			kthread_stop(trusty_task);
 		}
 
 		if (nebula_task) {
-			pr_info("[%s] Stop stress_nebula_thread", __func__);
+			pr_debug("[%s] Stop stress_nebula_thread", __func__);
 			kthread_stop(nebula_task);
 		}
 		trusty_task = nebula_task = NULL;
@@ -189,7 +189,7 @@ static ssize_t gz_concurrent_store(struct device *dev,
 	}
 
 	if (trusty_task || nebula_task) {
-		pr_info("[%s] Start already!\n", __func__);
+		pr_debug("[%s] Start already!\n", __func__);
 		mutex_unlock(&gz_concurrent_lock);
 		return n;
 	}
@@ -211,21 +211,21 @@ static ssize_t gz_concurrent_store(struct device *dev,
 	}
 
 	if (IS_ERR(trusty_task))
-		pr_info("[%s] Unable to start on cpu %d: stress_trusty_thread",
+		pr_debug("[%s] Unable to start on cpu %d: stress_trusty_thread",
 			__func__, cpu[0]);
 	else {
 		kthread_bind(trusty_task, cpu[0]);
-		pr_info("[%s] Start stress_trusty_thread on cpu %d",
+		pr_debug("[%s] Start stress_trusty_thread on cpu %d",
 			__func__, cpu[0]);
 		wake_up_process(trusty_task);
 	}
 
 	if (IS_ERR(nebula_task))
-		pr_info("[%s] Unable to start at cpu %d: stress_nebula_thread",
+		pr_debug("[%s] Unable to start at cpu %d: stress_nebula_thread",
 			__func__, cpu[1]);
 	else {
 		kthread_bind(nebula_task, cpu[1]);
-		pr_info("[%s] Start stress_nebula_thread on cpu %d",
+		pr_debug("[%s] Start stress_nebula_thread on cpu %d",
 			__func__, cpu[1]);
 		wake_up_process(nebula_task);
 	}
@@ -379,7 +379,7 @@ static void trusty_create_debugfs(struct trusty_state *s, struct device *dev)
 {
 	int ret;
 
-	pr_info("%s-%s\n", __func__, get_tee_name(s->tee_id));
+	pr_debug("%s-%s\n", __func__, get_tee_name(s->tee_id));
 
 	if (!is_trusty_tee(s->tee_id))
 		return;
@@ -545,7 +545,7 @@ static void nebula_create_debugfs(struct trusty_state *s, struct device *dev)
 {
 	int ret;
 
-	pr_info("%s-%s\n", __func__, get_tee_name(s->tee_id));
+	pr_debug("%s-%s\n", __func__, get_tee_name(s->tee_id));
 
 	if (!is_nebula_tee(s->tee_id))
 		return;
@@ -585,7 +585,7 @@ err_create_vmm_fast_add:
 void mtee_create_debugfs(struct trusty_state *s, struct device *dev)
 {
 	if (!s || !dev) {
-		pr_info("[%s] Invalid input\n", __func__);
+		pr_debug("[%s] Invalid input\n", __func__);
 		return;
 	}
 

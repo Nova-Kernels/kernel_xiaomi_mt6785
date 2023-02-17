@@ -47,7 +47,7 @@ static long tui_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	if (_IOC_TYPE(cmd) != TUI_IO_MAGIC)
 		return -EINVAL;
 
-	pr_info("t-base-tui module: ioctl 0x%x ", cmd);
+	pr_debug("t-base-tui module: ioctl 0x%x ", cmd);
 
 	switch (cmd) {
 	case TUI_IO_SET_RESOLUTION:
@@ -55,12 +55,12 @@ static long tui_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 		 * that rely on onConfigurationChanged to set resolution
 		 * it has no effect on Trustonic reference implementaton.
 		 */
-		pr_info("TLC_TUI_CMD_SET_RESOLUTION\n");
+		pr_debug("TLC_TUI_CMD_SET_RESOLUTION\n");
 		/* NOT IMPLEMENTED */
 		ret = 0;
 		break;
 	case TUI_IO_NOTIFY:
-		pr_info("TUI_IO_NOTIFY\n");
+		pr_debug("TUI_IO_NOTIFY\n");
 
 		if (tlc_notify_event(arg))
 			ret = 0;
@@ -71,7 +71,7 @@ static long tui_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	case TUI_IO_WAITCMD: {
 		struct tlc_tui_command_t tui_cmd = {0};
 
-		pr_info("TUI_IO_WAITCMD\n");
+		pr_debug("TUI_IO_WAITCMD\n");
 
 		ret = tlc_wait_cmd(&tui_cmd);
 		if (ret) {
@@ -95,7 +95,7 @@ static long tui_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	case TUI_IO_ACK: {
 		struct tlc_tui_response_t rsp_id;
 
-		pr_info("TUI_IO_ACK\n");
+		pr_debug("TUI_IO_ACK\n");
 
 		/* Read user response */
 		if (copy_from_user(&rsp_id, uarg, sizeof(rsp_id)))
@@ -111,7 +111,7 @@ static long tui_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	}
 
 	case TUI_IO_INIT_DRIVER: {
-		pr_info("TUI_IO_INIT_DRIVER\n");
+		pr_debug("TUI_IO_INIT_DRIVER\n");
 
 		ret = tlc_init_driver();
 		if (ret) {
@@ -123,7 +123,7 @@ static long tui_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
 	}
 
 	default:
-		pr_info("ERROR %s:%d Unknown ioctl (%u)!\n", __func__,
+		pr_debug("ERROR %s:%d Unknown ioctl (%u)!\n", __func__,
 			__LINE__, cmd);
 		return -ENOTTY;
 	}
@@ -135,14 +135,14 @@ atomic_t fileopened;
 
 static int tui_open(struct inode *inode, struct file *file)
 {
-	pr_info("TUI file opened\n");
+	pr_debug("TUI file opened\n");
 	atomic_inc(&fileopened);
 	return 0;
 }
 
 static int tui_release(struct inode *inode, struct file *file)
 {
-	pr_info("TUI file closed\n");
+	pr_debug("TUI file closed\n");
 	if (atomic_dec_and_test(&fileopened))
 		tlc_notify_event(NOT_TUI_CANCEL_EVENT);
 
@@ -162,9 +162,9 @@ static const struct file_operations tui_fops = {
 /*--------------------------------------------------------------------------- */
 static int __init tlc_tui_init(void)
 {
-	pr_info("Loading t-base-tui module.\n");
+	pr_debug("Loading t-base-tui module.\n");
 	pr_debug("\n=============== Running TUI Kernel TLC ===============\n");
-	pr_info("%s\n", MOBICORE_COMPONENT_BUILD_TAG);
+	pr_debug("%s\n", MOBICORE_COMPONENT_BUILD_TAG);
 
 	dev_t devno;
 	int err;
@@ -200,7 +200,7 @@ static int __init tlc_tui_init(void)
 
 static void __exit tlc_tui_exit(void)
 {
-	pr_info("Unloading t-base-tui module.\n");
+	pr_debug("Unloading t-base-tui module.\n");
 
 	unregister_chrdev_region(tui_cdev.dev, 1);
 	cdev_del(&tui_cdev);

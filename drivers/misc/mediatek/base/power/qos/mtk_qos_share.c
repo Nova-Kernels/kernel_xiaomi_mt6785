@@ -50,7 +50,7 @@ static void qos_get_rec_addr(phys_addr_t *phys,
 	*virt = sspm_reserve_mem_get_virt(QOS_MEM_ID);
 	*size = sspm_reserve_mem_get_size(QOS_MEM_ID);
 
-	pr_info("qos: rec phy_addr = 0x%llx, virt_addr=0x%llx, size = %llu\n",
+	pr_debug("qos: rec phy_addr = 0x%llx, virt_addr=0x%llx, size = %llu\n",
 		(unsigned long long) *phys,
 		(unsigned long long) *virt,
 		*size);
@@ -87,7 +87,7 @@ int qos_init_rec_share(void)
 	qos_share_ref = (struct qos_rec_data *)(uintptr_t)rec_virt_addr;
 
 	if (!qos_share_ref) {
-		pr_info("qos: get sspm dram addr failed\n");
+		pr_debug("qos: get sspm dram addr failed\n");
 		ret = -1;
 		goto end;
 	}

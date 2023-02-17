@@ -64,7 +64,7 @@ static inline bool mali_kbase_has_cs_experimental(void)
 static inline void mali_kbase_print_cs_experimental(void)
 {
 	if (mali_kbase_has_cs_experimental())
-		pr_info("mali_kbase: EXPERIMENTAL (MALI_CS_EXPERIMENTAL) flag enabled");
+		pr_debug("mali_kbase: EXPERIMENTAL (MALI_CS_EXPERIMENTAL) flag enabled");
 }
 
 #endif /* _KBASE_CS_EXPERIMENTAL_H_ */

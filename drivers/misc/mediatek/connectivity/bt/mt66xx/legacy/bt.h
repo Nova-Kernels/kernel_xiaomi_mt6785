@@ -55,15 +55,15 @@ static uint8_t raw_buf[RAW_MAX_BYTES * 5 + 10];
 extern UINT32 gBtDbgLevel;
 
 #define BT_LOG_PRT_DBG(fmt, arg...)	\
-	do { if (gBtDbgLevel >= BT_LOG_DBG) pr_info(PFX "%s: " fmt, __func__, ##arg); } while (0)
+	do { if (gBtDbgLevel >= BT_LOG_DBG) pr_debug(PFX "%s: " fmt, __func__, ##arg); } while (0)
 #define BT_LOG_PRT_INFO(fmt, arg...)	\
-	do { if (gBtDbgLevel >= BT_LOG_INFO) pr_info(PFX "%s: " fmt, __func__, ##arg); } while (0)
+	do { if (gBtDbgLevel >= BT_LOG_INFO) pr_debug(PFX "%s: " fmt, __func__, ##arg); } while (0)
 #define BT_LOG_PRT_WARN(fmt, arg...)	\
-	do { if (gBtDbgLevel >= BT_LOG_WARN) pr_info(PFX "%s: " fmt, __func__, ##arg); } while (0)
+	do { if (gBtDbgLevel >= BT_LOG_WARN) pr_debug(PFX "%s: " fmt, __func__, ##arg); } while (0)
 #define BT_LOG_PRT_ERR(fmt, arg...)	\
-	do { if (gBtDbgLevel >= BT_LOG_ERR) pr_info(PFX "%s: " fmt, __func__, ##arg); } while (0)
+	do { if (gBtDbgLevel >= BT_LOG_ERR) pr_debug(PFX "%s: " fmt, __func__, ##arg); } while (0)
 #define BT_LOG_PRT_INFO_RATELIMITED(fmt, arg...)	\
-	do { if (gBtDbgLevel >= BT_LOG_ERR) pr_info_ratelimited(PFX "%s: " fmt, __func__, ##arg); } while (0)
+	do { if (gBtDbgLevel >= BT_LOG_ERR) pr_debug_ratelimited(PFX "%s: " fmt, __func__, ##arg); } while (0)
 
 #define BT_LOG_PRT_DBG_RAW(p, l, fmt, ...)						\
 			do {	\
@@ -73,15 +73,15 @@ extern UINT32 gBtDbgLevel;
 					const unsigned char *ptr = p;	\
 					for (cnt_ = 0; cnt_ < len_; ++cnt_) {	\
 						if (snprintf(raw_buf+5*cnt_, 6, "0x%02X ", ptr[cnt_]) < 0) {	\
-							pr_info("snprintf error\n");	\
+							pr_debug("snprintf error\n");	\
 							break;	\
 						}	\
 					}	\
 					raw_buf[5*cnt_] = '\0'; \
 					if (l <= RAW_MAX_BYTES) {	\
-						pr_info(PFX" "fmt"%s\n", ##__VA_ARGS__, raw_buf);	\
+						pr_debug(PFX" "fmt"%s\n", ##__VA_ARGS__, raw_buf);	\
 					} else {	\
-						pr_info(PFX" "fmt"%s (prtail)\n", ##__VA_ARGS__, raw_buf); \
+						pr_debug(PFX" "fmt"%s (prtail)\n", ##__VA_ARGS__, raw_buf); \
 					}	\
 				}	\
 			} while (0)
@@ -94,15 +94,15 @@ extern UINT32 gBtDbgLevel;
 				const unsigned char *ptr = p;	\
 				for (cnt_ = 0; cnt_ < len_; ++cnt_) {	\
 					if (snprintf(raw_buf+5*cnt_, 6, "0x%02X ", ptr[cnt_]) < 0) {	\
-						pr_info("snprintf error\n");	\
+						pr_debug("snprintf error\n");	\
 						break;	\
 					}	\
 				}	\
 				raw_buf[5*cnt_] = '\0'; \
 				if (l <= RAW_MAX_BYTES) {	\
-					pr_info(PFX" "fmt"%s\n", ##__VA_ARGS__, raw_buf);	\
+					pr_debug(PFX" "fmt"%s\n", ##__VA_ARGS__, raw_buf);	\
 				} else {	\
-					pr_info(PFX" "fmt"%s (prtail)\n", ##__VA_ARGS__, raw_buf); \
+					pr_debug(PFX" "fmt"%s (prtail)\n", ##__VA_ARGS__, raw_buf); \
 				}	\
 			}	\
 		} while (0)

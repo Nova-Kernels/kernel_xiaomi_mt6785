@@ -189,7 +189,7 @@ static void mt6873_get_spm_wakesrc_irq(void)
 		node = of_find_compatible_node(NULL, NULL,
 			mt6873_spm_wakesrc_irqs[i].name);
 		if (!node) {
-			pr_info("[name:spm&][SPM] find '%s' node failed\n",
+			pr_debug("[name:spm&][SPM] find '%s' node failed\n",
 				mt6873_spm_wakesrc_irqs[i].name);
 			continue;
 		}
@@ -199,7 +199,7 @@ static void mt6873_get_spm_wakesrc_irq(void)
 				mt6873_spm_wakesrc_irqs[i].order);
 
 		if (!mt6873_spm_wakesrc_irqs[i].irq_no) {
-			pr_info("[name:spm&][SPM] get '%s' failed\n",
+			pr_debug("[name:spm&][SPM] get '%s' failed\n",
 				mt6873_spm_wakesrc_irqs[i].name);
 		}
 	}
@@ -667,7 +667,7 @@ static int mt6873_show_message(struct mt6873_spm_wake_status *wakesrc, int type,
 		/* Eable rcu lock checking */
 		rcu_irq_exit_irqson();
 	} else
-		pr_info("[name:spm&][SPM] %s", log_buf);
+		pr_debug("[name:spm&][SPM] %s", log_buf);
 
 #ifdef CONFIG_LPM_STATE_RECORDS
 	if (type == MT_LPM_ISSUER_SUSPEND) {
@@ -730,7 +730,7 @@ static int mt6873_log_timer_func(unsigned long long dur, void *priv)
 					"MCUSYSOFF", NULL);
 		mt6873_logger_help.prev = mt6873_logger_help.cur;
 	} else
-		pr_info("[name:spm&][SPM] MCUSYSOFF Didn't enter low power scenario\n");
+		pr_debug("[name:spm&][SPM] MCUSYSOFF Didn't enter low power scenario\n");
 
 	timer->fired = info->fired;
 	return 0;
@@ -828,7 +828,7 @@ int __init mt6873_logger_init(void)
 	if (mt6873_spm_base)
 		mtk_lp_issuer_register(&mt6873_issuer);
 	else
-		pr_info("[name:mtk_lpm][P] - Don't register the issue by error! (%s:%d)\n",
+		pr_debug("[name:mtk_lpm][P] - Don't register the issue by error! (%s:%d)\n",
 			__func__, __LINE__);
 
 

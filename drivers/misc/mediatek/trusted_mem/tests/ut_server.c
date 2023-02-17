@@ -128,19 +128,19 @@ static void ut_status_reset(u64 ut_cmd)
 static void ut_status_dump(void)
 {
 	do_gettimeofday(&ut_case_end_time);
-	pr_info("[UT_CASE]================================================\n");
-	pr_info("[UT_CASE]Executing UT command: %lld\n", ut_case_command);
-	pr_info("[UT_CASE]  TOTAL TEST ITEMS: %d\n",
+	pr_debug("[UT_CASE]================================================\n");
+	pr_debug("[UT_CASE]Executing UT command: %lld\n", ut_case_command);
+	pr_debug("[UT_CASE]  TOTAL TEST ITEMS: %d\n",
 		ut_case_pass_count + ut_case_fail_count);
-	pr_info("[UT_CASE]  PASS TEST ITEMS: %d\n", ut_case_pass_count);
-	pr_info("[UT_CASE]  FAIL TEST ITEMS: %d\n", ut_case_fail_count);
+	pr_debug("[UT_CASE]  PASS TEST ITEMS: %d\n", ut_case_pass_count);
+	pr_debug("[UT_CASE]  FAIL TEST ITEMS: %d\n", ut_case_fail_count);
 	if (ut_case_fail_count == 0)
-		pr_info("[UT_CASE]all UT test items are passed!!!\n");
+		pr_debug("[UT_CASE]all UT test items are passed!!!\n");
 	else
-		pr_info("[UT_CASE]some items are failed, please check!!!\n");
-	pr_info("[UT_CASE]  Spend time: %d.%d seconds\n", ut_get_spend_sec(),
+		pr_debug("[UT_CASE]some items are failed, please check!!!\n");
+	pr_debug("[UT_CASE]  Spend time: %d.%d seconds\n", ut_get_spend_sec(),
 		ut_get_spend_msec());
-	pr_info("[UT_CASE]================================================\n");
+	pr_debug("[UT_CASE]================================================\n");
 }
 
 static struct UT_TEST_CASE g_test_case_list;
@@ -168,7 +168,7 @@ static int run_one_test_case(struct UT_TEST_CASE *t_case, u64 cmd, u64 param1,
 	struct ut_params params;
 	struct ut_test_case_statistics *statistics = &t_case->item.statistics;
 
-	pr_info("[UT_SUITE]        UT case:%lld .....\n", cmd);
+	pr_debug("[UT_SUITE]        UT case:%lld .....\n", cmd);
 
 	ut_status_reset(cmd);
 
@@ -205,9 +205,9 @@ static void dump_run_cases_results(u64 cmd, bool run_all_cases)
 	u32 all_spend_msec = 0;
 	struct ut_test_case_statistics *t_statistics;
 
-	pr_info("[UT_SUITE]Test Results: RUN %s\n",
+	pr_debug("[UT_SUITE]Test Results: RUN %s\n",
 		(run_all_cases ? "ALL" : "ONE"));
-	pr_info("[UT_SUITE] CASE     PASS       FAIL     TIME\n");
+	pr_debug("[UT_SUITE] CASE     PASS       FAIL     TIME\n");
 
 	/* clang-format off */
 	list_for_each_entry_safe(t_case, tmp, &g_test_case_list.list, list) {
@@ -215,7 +215,7 @@ static void dump_run_cases_results(u64 cmd, bool run_all_cases)
 		t_statistics = &t_case->item.statistics;
 		if (t_statistics->ret != UT_STATE_UNSUPPORTED_CMD) {
 			if (cmd == t_case->item.cmd || run_all_cases)
-				pr_info("[UT_SUITE]%5lld     %-9d  %-7d  %05d.%06d sec\n",
+				pr_debug("[UT_SUITE]%5lld     %-9d  %-7d  %05d.%06d sec\n",
 					t_case->item.cmd,
 					t_statistics->pass_cnt,
 					t_statistics->fail_cnt,
@@ -231,8 +231,8 @@ static void dump_run_cases_results(u64 cmd, bool run_all_cases)
 	if (run_all_cases) {
 		all_spend_sec += (all_spend_msec / 1000000);
 		all_spend_msec = (all_spend_msec % 1000000);
-		pr_info("[UT_SUITE] Summary:\n");
-		pr_info("[UT_SUITE]  ALL     %-9d  %-7d  %05d.%06d sec\n",
+		pr_debug("[UT_SUITE] Summary:\n");
+		pr_debug("[UT_SUITE]  ALL     %-9d  %-7d  %05d.%06d sec\n",
 			all_pass_cnt, all_fail_cnt, all_spend_sec,
 			all_spend_msec);
 	}
@@ -250,7 +250,7 @@ int invoke_ut_test_case(u64 cmd)
 	list_for_each_entry_safe(t_case, tmp, &g_test_case_list.list, list) {
 		/* clang-format on */
 		if (run_all_cases) {
-			pr_info("[UT_SUITE]Running UT Suites: %s\n",
+			pr_debug("[UT_SUITE]Running UT Suites: %s\n",
 				t_case->item.test_description);
 			case_ret = run_one_test_case(
 				t_case, t_case->item.cmd, t_case->item.param1,
@@ -261,7 +261,7 @@ int invoke_ut_test_case(u64 cmd)
 				return TMEM_GENERAL_ERROR;
 			}
 		} else if (t_case->item.cmd == cmd) {
-			pr_info("[UT_SUITE]Running UT Suites: %s\n",
+			pr_debug("[UT_SUITE]Running UT Suites: %s\n",
 				t_case->item.test_description);
 			case_ret = run_one_test_case(
 				t_case, t_case->item.cmd, t_case->item.param1,
@@ -271,8 +271,8 @@ int invoke_ut_test_case(u64 cmd)
 	}
 
 	if (case_ret == UT_STATE_UNSUPPORTED_CMD) {
-		pr_info("[UT_SUITE]No UT Suite is Founded!\n");
-		pr_info("[UT_SUITE]UT case:%lld is unsupported!\n", cmd);
+		pr_debug("[UT_SUITE]No UT Suite is Founded!\n");
+		pr_debug("[UT_SUITE]UT case:%lld is unsupported!\n", cmd);
 		return TMEM_OPERATION_NOT_IMPLEMENTED;
 	}
 
@@ -308,13 +308,13 @@ int invoke_ut_cases(u64 cmd, u64 param1, u64 param2, u64 param3)
 	UNUSED(param2);
 	UNUSED(param3);
 
-	pr_info("%s:%d cmd=%lld\n", __func__, __LINE__, cmd);
+	pr_debug("%s:%d cmd=%lld\n", __func__, __LINE__, cmd);
 	return invoke_ut_test_case(cmd);
 }
 
 static int __init tmem_ut_server_init(void)
 {
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 
 	INIT_LIST_HEAD(&g_test_case_list.list);
 	return TMEM_OK;

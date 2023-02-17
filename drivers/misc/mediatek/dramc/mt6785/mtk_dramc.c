@@ -119,7 +119,7 @@ static unsigned int cbt_mode_rank[2];
 #define DRAMC_TAG "[DRAMC]"
 #define DRAMC_RSV_TAG "[DRAMC_RSV]"
 
-#define dramc_info(format, ...)	pr_info(DRAMC_TAG format, ##__VA_ARGS__)
+#define dramc_info(format, ...)	pr_debug(DRAMC_TAG format, ##__VA_ARGS__)
 
 __weak void *mt_spm_base_get(void)
 {

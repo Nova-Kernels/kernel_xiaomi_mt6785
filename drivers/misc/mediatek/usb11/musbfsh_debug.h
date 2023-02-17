@@ -48,7 +48,7 @@ extern int musbfsh_debug;
 #define xprintk(level,  format, args...)  \
 	do { \
 		if (_dbg_level(level)) { \
-			pr_info("[MUSB]%s %d: " format, \
+			pr_debug("[MUSB]%s %d: " format, \
 				__func__, __LINE__, ## args); \
 		} \
 	} while (0)

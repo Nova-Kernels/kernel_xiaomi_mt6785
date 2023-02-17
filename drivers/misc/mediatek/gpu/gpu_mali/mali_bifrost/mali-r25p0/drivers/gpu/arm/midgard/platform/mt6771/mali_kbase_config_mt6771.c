@@ -30,7 +30,7 @@
 #include "mtk_idle.h"
 
 #define MALI_TAG						"[GPU/MALI]"
-#define mali_pr_info(fmt, args...)		pr_info(MALI_TAG"[INFO]"fmt, ##args)
+#define mali_pr_debug(fmt, args...)		pr_debug(MALI_TAG"[INFO]"fmt, ##args)
 #define mali_pr_debug(fmt, args...)		pr_debug(MALI_TAG"[DEBUG]"fmt, ##args)
 
 DEFINE_MUTEX(g_mfg_lock);
@@ -327,7 +327,7 @@ static void *_mtk_of_ioremap(const char *node_name, int idx)
 	if (node)
 		return of_iomap(node, idx);
 
-	mali_pr_info("@%s: cannot find [%s] of_node\n", __func__, node_name);
+	mali_pr_debug("@%s: cannot find [%s] of_node\n", __func__, node_name);
 
 	return NULL;
 }
@@ -369,7 +369,7 @@ int mtk_platform_init(struct platform_device *pdev, struct kbase_device *kbdev)
 {
 
 	if (!pdev || !kbdev) {
-		mali_pr_info("@%s: input parameter is NULL\n", __func__);
+		mali_pr_debug("@%s: input parameter is NULL\n", __func__);
 		return -1;
 	}
 
@@ -378,7 +378,7 @@ int mtk_platform_init(struct platform_device *pdev, struct kbase_device *kbdev)
 
 	g_bucks_workqueue = create_workqueue("gpu_bucks");
 	if (!g_bucks_workqueue)
-		mali_pr_info("@%s: Failed to create g_bucks_workqueue\n", __func__);
+		mali_pr_debug("@%s: Failed to create g_bucks_workqueue\n", __func__);
 
 	INIT_WORK(&g_disable_bucks_work, __disable_bucks_work_cb);
 
@@ -389,29 +389,29 @@ int mtk_platform_init(struct platform_device *pdev, struct kbase_device *kbdev)
 
 	g_MFG_base = _mtk_of_ioremap("mediatek,mfgcfg", 0);
 	if (g_MFG_base == NULL) {
-		mali_pr_info("@%s: fail to remap MGFCFG register\n", __func__);
+		mali_pr_debug("@%s: fail to remap MGFCFG register\n", __func__);
 		return -1;
 	}
 
 	g_INFRA_AO_base = _mtk_of_ioremap("mediatek,mfgcfg", 1);
 	if (g_INFRA_AO_base == NULL) {
-		mali_pr_info("@%s: fail to remap INFRA_AO register\n", __func__);
+		mali_pr_debug("@%s: fail to remap INFRA_AO register\n", __func__);
 		return -1;
 	}
 
 	g_DBGAPB_base = _mtk_of_ioremap("mediatek,mfgcfg", 4);
 	if (g_DBGAPB_base == NULL) {
-		mali_pr_info("@%s: fail to remap DBGAPB register\n", __func__);
+		mali_pr_debug("@%s: fail to remap DBGAPB register\n", __func__);
 		return -1;
 	}
 
 	g_TOPCKGEN_base = _mtk_of_ioremap("mediatek,topckgen", 0);
 	if (g_TOPCKGEN_base == NULL) {
-		mali_pr_info("@%s: fail to remap TOPCKGEN register\n", __func__);
+		mali_pr_debug("@%s: fail to remap TOPCKGEN register\n", __func__);
 		return -1;
 	}
 
-	mali_pr_info("@%s: initialize successfully\n", __func__);
+	mali_pr_debug("@%s: initialize successfully\n", __func__);
 
 	return 0;
 }

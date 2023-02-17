@@ -30,7 +30,7 @@
 
 /*******************Modify Following Strings for Debug************************/
 #define PFX "imx386_camera_primax mono"
-#define LOG_INF(fmt, args...)	pr_info(PFX "[%s] " fmt, __func__, ##args)
+#define LOG_INF(fmt, args...)	pr_debug(PFX "[%s] " fmt, __func__, ##args)
 #define LOG_1 LOG_INF("IMX386,MIPI 4LANE\n")
 #define SENSORDB LOG_INF
 /**********************   Modify end	**************************************/
@@ -2583,7 +2583,7 @@ static kal_uint32 set_test_pattern_mode(kal_bool enable)
 
 static kal_uint32 streaming_control(kal_bool enable)
 {
-	pr_info("streaming_enable(0=Sw tandby,1=streaming): %d\n", enable);
+	pr_debug("streaming_enable(0=Sw tandby,1=streaming): %d\n", enable);
 	if (enable) {
 		write_cmos_sensor(0x0100, 0X01);
 	if (imgsensor.current_scenario_id == MSDK_SCENARIO_ID_HIGH_SPEED_VIDEO)

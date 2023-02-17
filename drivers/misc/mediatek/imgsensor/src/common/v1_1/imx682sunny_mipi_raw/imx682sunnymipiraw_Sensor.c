@@ -441,7 +441,7 @@ static void read_sensor_Cali(void)
 	/*Internal Module Type*/
 	if ((0x01/* QSC Valid */ == read_cmos_eeprom_8(0x1255)) &&
 		(0x03/* sonny */ == read_cmos_eeprom_8(0x1256))) {
-		pr_info("OTP type: Internal Only");
+		pr_debug("OTP type: Internal Only");
 		otp_flag = OTP_QSC_INTERNAL;
 
 		for (idx = 0; idx < QSCSize; idx++) {
@@ -451,14 +451,14 @@ static void read_sensor_Cali(void)
 			sensor_qsc++;
 		}
 	} else {
-		pr_info("OTP type: No Data, 0x1255 = %d, 0x1256 = %d",
+		pr_debug("OTP type: No Data, 0x1255 = %d, 0x1256 = %d",
 		read_cmos_eeprom_8(0x1255), read_cmos_eeprom_8(0x1256));
 	}
 
 
 	if ((0x01/* LRC Valid */ == read_cmos_eeprom_8(0x0DE2)) &&
 		(0x02/* sonny */ == read_cmos_eeprom_8(0x0DE3))) {
-		pr_info("LRC setting enter");
+		pr_debug("LRC setting enter");
 		lrc_flag = 1;
 
 		for (idx = 0; idx < LRCSize; idx++) {
@@ -477,7 +477,7 @@ static void read_sensor_Cali(void)
 			sensor_lrc++;
 		}
 	} else {
-		pr_info("LRC type: No Data, 0x0DE2 = %d, 0x0DE3 = %d",
+		pr_debug("LRC type: No Data, 0x0DE2 = %d, 0x0DE3 = %d",
 		read_cmos_eeprom_8(0x0DE2), read_cmos_eeprom_8(0x0DE3));
 	}
 
@@ -494,7 +494,7 @@ static void write_sensor_QSC(void)
 static void write_sensor_LRC(void)
 {
 	if (lrc_flag) {
-		pr_info("write_sensor_LRC");
+		pr_debug("write_sensor_LRC");
 		imx682sunny_table_write_cmos_sensor(imx682sunny_LRC_setting_L,
 		sizeof(imx682sunny_LRC_setting_L) / sizeof(kal_uint16));
 		imx682sunny_table_write_cmos_sensor(imx682sunny_LRC_setting_R,
@@ -615,7 +615,7 @@ static void write_shutter(kal_uint32 shutter)
 	} else {
 		/* Extend frame length*/
 		if (read_cmos_sensor_8(0x0350) != 0x01) {
-			pr_info("single cam scenario enable auto-extend");
+			pr_debug("single cam scenario enable auto-extend");
 			write_cmos_sensor_8(0x0350, 0x01);
 		}
 		write_cmos_sensor_8(0x0104, 0x01);
@@ -3327,7 +3327,7 @@ static void custom4_setting(void)
 		sizeof(imx682sunny_custom4_setting)/sizeof(kal_uint16));
 
 	if (otp_flag == OTP_QSC_NONE) {
-		pr_info("OTP no QSC Data, close qsc register");
+		pr_debug("OTP no QSC Data, close qsc register");
 		write_cmos_sensor_8(0x3621, 0x00);
 	}
 
@@ -4897,7 +4897,7 @@ break;
 			break;
 #endif
 		default:
-			pr_info("error: get wrong vc_INFO id = %d",
+			pr_debug("error: get wrong vc_INFO id = %d",
 			*feature_data_32);
 			break;
 		}

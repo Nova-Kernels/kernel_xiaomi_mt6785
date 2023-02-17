@@ -175,7 +175,7 @@ static int vpu_alg_load(struct vpu_algo_list *al, const char *name,
 	if (al->ops->hw_init) {
 		ret = al->ops->hw_init(al, alg);
 		if (ret) {
-			pr_info("%s: vpu%d: %s: hw_init: %d\n",
+			pr_debug("%s: vpu%d: %s: hw_init: %d\n",
 				__func__, al->vd->id, al->name, ret);
 			al->ops->put(alg);
 			goto out;

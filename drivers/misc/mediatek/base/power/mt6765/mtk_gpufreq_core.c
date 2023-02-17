@@ -401,7 +401,7 @@ unsigned int mt_gpufreq_voltage_enable_set(unsigned int enable)
 		__func__, enable, g_volt_enable_state);
 
 	if (g_DVFS_is_paused_by_ptpod && enable == 0) {
-		gpufreq_pr_info("@%s: DVFS is paused by PTPOD\n", __func__);
+		gpufreq_pr_debug("@%s: DVFS is paused by PTPOD\n", __func__);
 		mutex_unlock(&mt_gpufreq_lock);
 		return -1;
 	}
@@ -2390,7 +2390,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 	struct device_node *node;
 	int i;
 
-	gpufreq_pr_info("@%s: gpufreq driver probe, clock is %d KHz\n",
+	gpufreq_pr_debug("@%s: gpufreq driver probe, clock is %d KHz\n",
 			__func__, mt_get_ckgen_freq(9));
 
 	g_opp_stress_test_state = false;
@@ -2444,11 +2444,11 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 		return PTR_ERR(g_clk->mtcmos_mfg_core0);
 	}
 
-	pr_info("[GPU/DVFS][INFO]@%s: clk_mux is at 0x%p, ",
+	pr_debug("[GPU/DVFS][INFO]@%s: clk_mux is at 0x%p, ",
 		__func__, g_clk->clk_mux);
-	pr_info("clk_main_parent is at 0x%p, \t", g_clk->clk_main_parent);
-	pr_info("mtcmos_mfg_async is at 0x%p, \t", g_clk->mtcmos_mfg_async);
-	pr_info("mtcmos_mfg is at 0x%p, mtcmos_mfg_core0 is at 0x%p, ",
+	pr_debug("clk_main_parent is at 0x%p, \t", g_clk->clk_main_parent);
+	pr_debug("mtcmos_mfg_async is at 0x%p, \t", g_clk->mtcmos_mfg_async);
+	pr_debug("mtcmos_mfg is at 0x%p, mtcmos_mfg_core0 is at 0x%p, ",
 		g_clk->mtcmos_mfg, g_clk->mtcmos_mfg_core0);
 
 
@@ -2480,7 +2480,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 		/* Other Version, set default segment */
 		g_segment_id = MT6765_SEGMENT;
 	}
-	gpufreq_pr_info("@%s: g_efuse_id = 0x%08X, g_segment_id = %d\n",
+	gpufreq_pr_debug("@%s: g_efuse_id = 0x%08X, g_segment_id = %d\n",
 		__func__, g_efuse_id, g_segment_id);
 
 	/* alloc PMIC regulator */
@@ -2571,7 +2571,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 		gpufreq_perr("@%s: enable VGPU failed\n", __func__);
 #endif
 
-	/*pr_info("[GPU/DVFS][INFO]@%s: VGPU is enabled = %d (%d mV),"
+	/*pr_debug("[GPU/DVFS][INFO]@%s: VGPU is enabled = %d (%d mV),"
 	 *		" VSRAM_GPU is enabled = %d (%d mV)\n",
 	 *		__func__, regulator_is_enabled(g_pmic->reg_vgpu),
 	 *		(regulator_get_voltage(g_pmic->reg_vgpu) / 1000),
@@ -2592,7 +2592,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 	/* setup initial frequency */
 	__mt_gpufreq_set_initial();
 	/*
-	 * pr_info("[GPU/DVFS][INFO]@%s: current freq = %d KHz,"
+	 * pr_debug("[GPU/DVFS][INFO]@%s: current freq = %d KHz,"
 	 *		" current volt = %d uV, \t"
 	 *		"g_cur_opp_freq = %d, g_cur_opp_volt = %d,"
 	 *		"g_cur_opp_vsram_volt = %d, \t"
@@ -2644,17 +2644,17 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 #endif /* ifdef MT_GPUFREQ_BATT_OC_PROTECT */
 
 
-	pr_info(
+	pr_debug(
 		"[GPU/DVFS][INFO]@%s: VGPU sfchg raising rate: %d us,",
 		__func__, g_vgpu_sfchg_rrate);
-	pr_info(
+	pr_debug(
 		" VGPU sfchg falling rate: %d us, \t", g_vgpu_sfchg_frate);
-	pr_info(
+	pr_debug(
 		"VSRAM_GPU sfchg raising rate: %d us,", g_vsram_sfchg_rrate);
-	pr_info(
+	pr_debug(
 		" VSRAM_GPU sfchg falling rate: %d us, \t",
 		g_vsram_sfchg_frate);
-	pr_info(
+	pr_debug(
 		"PMIC SRCLKEN_HIGH time: %d us\n", PMIC_SRCLKEN_HIGH_TIME_US);
 
 

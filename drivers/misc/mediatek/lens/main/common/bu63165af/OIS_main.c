@@ -92,7 +92,7 @@ double alfa_Y, beta_Y;
 #ifdef OIS_DEBUG
 #define OIS_DRVNAME "BU63165AF_OIS"
 #define LOG_INF(format, args...)                                               \
-	pr_info(OIS_DRVNAME " [%s] " format, __func__, ##args)
+	pr_debug(OIS_DRVNAME " [%s] " format, __func__, ##args)
 #endif
 
 /* GLOBAL variable ( Upper Level Host Set this Global variables ) */

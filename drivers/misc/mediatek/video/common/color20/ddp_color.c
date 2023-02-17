@@ -1090,7 +1090,7 @@ static unsigned int g_color_dbg_en;
 	pr_notice("[COLOR] %s: " fmt "\n", __func__, ##arg)
 #define COLOR_DBG(fmt, arg...) \
 	do { if (g_color_dbg_en) \
-		pr_info("[COLOR] %s: " fmt "\n", __func__, ##arg); \
+		pr_debug("[COLOR] %s: " fmt "\n", __func__, ##arg); \
 		} while (0)
 #define COLOR_NLOG(fmt, arg...) \
 	pr_debug("[COLOR] %s: " fmt "\n", __func__, ##arg)

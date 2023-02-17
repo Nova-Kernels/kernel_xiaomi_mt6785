@@ -79,11 +79,11 @@
 #define CREDIT_DIDT_TAG	 "[CREDIT_DIDT]"
 
 #define credit_didt_err(fmt, args...)	\
-	pr_info(CREDIT_DIDT_TAG"[ERROR][%s():%d]" fmt,\
+	pr_debug(CREDIT_DIDT_TAG"[ERROR][%s():%d]" fmt,\
 	__func__, __LINE__, ##args)
 
 #define credit_didt_msg(fmt, args...)	\
-	pr_info(CREDIT_DIDT_TAG"[INFO][%s():%d]" fmt,\
+	pr_debug(CREDIT_DIDT_TAG"[INFO][%s():%d]" fmt,\
 	__func__, __LINE__, ##args)
 
 #ifdef CREDIT_DIDT_DEBUG

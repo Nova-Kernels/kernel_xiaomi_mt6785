@@ -173,7 +173,7 @@ static void scp_ipi_syscore_dbg_resume(void)
 #endif
 		if (ret) {
 			if (i < 2)
-				pr_info("[SCP] ipc%d wakeup\n", i);
+				pr_debug("[SCP] ipc%d wakeup\n", i);
 			else
 				mt_print_scp_ipi_id(i - 2);
 			break;
@@ -793,7 +793,7 @@ static inline ssize_t scp_ipi_debug(struct device *kobj
 		ipi_monitor_dump(&scp_ipidev);
 		break;
 	default:
-		pr_info("cmd '%d' is not supported.\n", opt);
+		pr_debug("cmd '%d' is not supported.\n", opt);
 		break;
 	}
 
@@ -1699,14 +1699,14 @@ static int scp_device_probe(struct platform_device *pdev)
 		node = of_find_compatible_node(NULL, NULL,
 					      scp_ipi_irqs[i].name);
 		if (!node) {
-			pr_info("[SCP] find '%s' node failed\n",
+			pr_debug("[SCP] find '%s' node failed\n",
 				scp_ipi_irqs[i].name);
 			continue;
 		}
 		scp_ipi_irqs[i].irq_no =
 			irq_of_parse_and_map(node, scp_ipi_irqs[i].order);
 		if (!scp_ipi_irqs[i].irq_no)
-			pr_info("[SCP] get '%s' fail\n", scp_ipi_irqs[i].name);
+			pr_debug("[SCP] get '%s' fail\n", scp_ipi_irqs[i].name);
 	}
 
 	ret = mtk_ipi_device_register(&scp_ipidev, pdev, &scp_mboxdev,

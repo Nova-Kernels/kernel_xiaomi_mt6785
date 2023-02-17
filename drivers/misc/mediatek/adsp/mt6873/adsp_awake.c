@@ -35,7 +35,7 @@ static int adsp_send_sys_event(struct adsp_sysevent_ctrl *ctrl,
 	s64     time_ipc_us;
 
 	if (mutex_trylock(&ctrl->lock) == 0) {
-		pr_info("%s(), mutex_trylock busy", __func__);
+		pr_debug("%s(), mutex_trylock busy", __func__);
 		return ADSP_IPI_BUSY;
 	}
 
@@ -99,7 +99,7 @@ int adsp_awake_lock(u32 cid)
 	ret = adsp_send_sys_event(&sysevent_ctrls[cid], val, true);
 
 	if (ret)
-		pr_info("%s, lock fail", __func__);
+		pr_debug("%s, lock fail", __func__);
 
 	return ret;
 }
@@ -125,7 +125,7 @@ int adsp_awake_unlock(u32 cid)
 	ret = adsp_send_sys_event(&sysevent_ctrls[cid], val, true);
 
 	if (ret)
-		pr_info("%s, unlock fail", __func__);
+		pr_debug("%s, unlock fail", __func__);
 
 	return ret;
 }

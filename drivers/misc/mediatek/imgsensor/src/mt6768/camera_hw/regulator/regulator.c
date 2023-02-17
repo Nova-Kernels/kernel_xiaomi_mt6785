@@ -112,7 +112,7 @@ enum IMGSENSOR_RETURN imgsensor_oc_interrupt(
 					sensor_idx,
 					regulator_control[i].pregulator_type);
 			if (ret < 0) {
-				pr_info(
+				pr_debug(
 				"[regulator]%s error, ret = %d", __func__, ret);
 				return IMGSENSOR_RETURN_ERROR;
 			}
@@ -143,7 +143,7 @@ enum IMGSENSOR_RETURN imgsensor_oc_interrupt(
 					sensor_idx,
 					regulator_control[i].pregulator_type);
 			if (ret < 0) {
-				pr_info(
+				pr_debug(
 				"[regulator]%s error, ret = %d", __func__, ret);
 				return IMGSENSOR_RETURN_ERROR;
 			}

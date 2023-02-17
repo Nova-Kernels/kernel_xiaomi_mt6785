@@ -77,7 +77,7 @@ static void ca_pmu_overflow_handler(struct perf_event *event,
 {
 	unsigned long long count = local64_read(&event->count);
 
-	pr_info("[Overflow]: ignoring spurious overflow on cpu %u,config=%llu count=%llu\n",
+	pr_debug("[Overflow]: ignoring spurious overflow on cpu %u,config=%llu count=%llu\n",
 	       event->cpu, event->attr.config, count);
 }
 
@@ -132,7 +132,7 @@ static int ca_pmu_create_counter(int cpu)
 			NULL, ca_pmu_overflow_handler, NULL);
 
 		if (IS_ERR(event)) {
-			pr_info("error code: %lu\n", PTR_ERR(event));
+			pr_debug("error code: %lu\n", PTR_ERR(event));
 			goto error;
 		}
 		per_cpu(ca_pmu_stats, cpu).events[i] = event;
@@ -140,7 +140,7 @@ static int ca_pmu_create_counter(int cpu)
 
 	return 0;
 error:
-	pr_info("%s: [ERROR] in CPU%d, i=%d, config=%x\n",
+	pr_debug("%s: [ERROR] in CPU%d, i=%d, config=%x\n",
 			__func__, cpu, i, configs[i]);
 	return -1;
 }
@@ -195,7 +195,7 @@ void dump_preftech_config_per_cpu(void *info)
 	pstats = (struct state_partition_stats *)info;
 
 	if (IS_ERR(pstats) || !pstats) {
-		pr_info("%s: [Error] Invalid info address\n", __func__);
+		pr_debug("%s: [Error] Invalid info address\n", __func__);
 		return;
 	}
 	asm volatile(
@@ -310,7 +310,7 @@ int set_pftch_qos_control(const char *buf, const struct kernel_param *kp)
 		mutex_unlock(&ca_pmu_lock);
 		return 0;
 	}
-	pr_info("Changing state from %d to %d ...\n",
+	pr_debug("Changing state from %d to %d ...\n",
 			pftch_env.is_enabled, val);
 	// backup paranoid and set to 0 for pmu counter permission
 	paranoid_backup = sysctl_perf_event_paranoid;
@@ -328,7 +328,7 @@ int set_pftch_qos_control(const char *buf, const struct kernel_param *kp)
 	if (ret < 0)
 		return ret;
 	end = sched_clock();
-	pr_info("[Change complete] %s with %llu ns with mode %d\n",
+	pr_debug("[Change complete] %s with %llu ns with mode %d\n",
 			pftch_env.is_enabled ? "enable":"disable",
 			(end - start), pftch_env.is_enabled);
 	return 0;
@@ -346,7 +346,7 @@ int ca_force_stop_set_in_kernel(int val)
 		mutex_unlock(&ca_pmu_lock);
 		return 0;
 	}
-	pr_info("Change force_stop setting [%d -> %d], pftch_env.is_enabled:%d from:%pS\n",
+	pr_debug("Change force_stop setting [%d -> %d], pftch_env.is_enabled:%d from:%pS\n",
 		force_stop, val, pftch_env.is_enabled,
 		__builtin_return_address(0));
 	// backup paranoid and set to 0 for pmu counter permission
@@ -359,7 +359,7 @@ int ca_force_stop_set_in_kernel(int val)
 	force_stop = val;
 	sysctl_perf_event_paranoid = paranoid_backup;
 	mutex_unlock(&ca_pmu_lock);
-	pr_info("[Change complete] force_stop:%d\n", force_stop);
+	pr_debug("[Change complete] force_stop:%d\n", force_stop);
 	return 0;
 }
 
@@ -380,7 +380,7 @@ static int ca_force_stop_set(const char *buf, const struct kernel_param *kp)
 		mutex_unlock(&ca_pmu_lock);
 		return 0;
 	}
-	pr_info("Change force_stop setting [%d -> %d], pftch_env.is_enabled:%d\n",
+	pr_debug("Change force_stop setting [%d -> %d], pftch_env.is_enabled:%d\n",
 			force_stop, val, pftch_env.is_enabled);
 	// backup paranoid and set to 0 for pmu counter permission
 	paranoid_backup = sysctl_perf_event_paranoid;
@@ -394,7 +394,7 @@ static int ca_force_stop_set(const char *buf, const struct kernel_param *kp)
 	mutex_unlock(&ca_pmu_lock);
 	if (ret < 0)
 		return ret;
-	pr_info("[Change complete] force_stop:%d\n", force_stop);
+	pr_debug("[Change complete] force_stop:%d\n", force_stop);
 	return 0;
 }
 struct kernel_param_ops force_stop_cb = {
@@ -424,7 +424,7 @@ static void __init init_cpu_config(void)
 		cn = of_get_cpu_node(cpu, NULL);
 
 		if (!cn) {
-			pr_info("Missing device node for CPU %d\n", cpu);
+			pr_debug("Missing device node for CPU %d\n", cpu);
 			continue;
 		}
 
@@ -435,7 +435,7 @@ static void __init init_cpu_config(void)
 				break;
 
 		if (config_index->compatible == NULL) {
-			pr_info("No compatible register for cpu%d: %s\n",
+			pr_debug("No compatible register for cpu%d: %s\n",
 					cpu, config_index->compatible);
 			continue;
 		}
@@ -443,7 +443,7 @@ static void __init init_cpu_config(void)
 		pr_debug("%s: Init cpu%d with %pf", __func__,
 				cpu, config_index->config);
 	}
-	pr_info("%s: [Done]\n", __func__);
+	pr_debug("%s: [Done]\n", __func__);
 }
 
 static int __init ca_init(void)
@@ -455,7 +455,7 @@ static int __init ca_init(void)
 	int cpu, ret;
 
 	if (!proc_create("ca_debug", 0444, NULL, &ca_debug_procfs)) {
-		pr_info("[Error] create /proc/ca_debug failed\n");
+		pr_debug("[Error] create /proc/ca_debug failed\n");
 		return -ENOMEM;
 	}
 
@@ -468,7 +468,7 @@ static int __init ca_init(void)
 
 		ret = ca_pmu_create_counter(cpu);
 		if (ret) {
-			pr_info("%s: [ERROR] ca_pmu_create_counter(CPU%d)\n",
+			pr_debug("%s: [ERROR] ca_pmu_create_counter(CPU%d)\n",
 					__func__, cpu);
 			return ret;
 		}
@@ -480,13 +480,13 @@ static int __init ca_init(void)
 	ret = cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
 			"ca_drv/l3cc:online", ca_cpu_online, ca_cpu_offline);
 	if (ret < 0) {
-		pr_info("%s: [Error] fail to register_cpu_notifier.\n",
+		pr_debug("%s: [Error] fail to register_cpu_notifier.\n",
 				__func__);
 		return ret;
 	}
 
 	ca_hp_online = ret;
-	pr_info("%s: [Done]\n", __func__);
+	pr_debug("%s: [Done]\n", __func__);
 
 	return 0;
 }

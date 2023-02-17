@@ -454,43 +454,43 @@ void mt_pwm_dump_regs_hal(void)
 	unsigned long reg_val;
 
 	reg_val = INREG32(PWM_ENABLE);
-	pr_info("\r\n[PWM_ENABLE is:%lx]\n\r ", reg_val);
+	pr_debug("\r\n[PWM_ENABLE is:%lx]\n\r ", reg_val);
 	reg_val = INREG32(PWM_CK_26M_SEL);
-	pr_info("\r\n[PWM_26M_SEL is:%lx]\n\r ", reg_val);
+	pr_debug("\r\n[PWM_26M_SEL is:%lx]\n\r ", reg_val);
 	/*pr_debug("peri pdn0 clock: 0x%x\n", INREG32(INFRA_PDN_STA0));*/
 
 	for (i = PWM1; i < PWM_MAX; i++) {
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_CON);
-		pr_info("\r\n[PWM%d_CON is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("\r\n[PWM%d_CON is:%lx]\r\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_HDURATION);
-		pr_info("[PWM%d_HDURATION is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_HDURATION is:%lx]\r\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_LDURATION);
-		pr_info("[PWM%d_LDURATION is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_LDURATION is:%lx]\r\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_GDURATION);
-		pr_info("[PWM%d_GDURATION is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_GDURATION is:%lx]\r\n", i + 1, reg_val);
 
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF0_BASE_ADDR);
-		pr_info("\r\n[PWM%d_BUF0_BASE_ADDR is:%lx]\r\n", i, reg_val);
+		pr_debug("\r\n[PWM%d_BUF0_BASE_ADDR is:%lx]\r\n", i, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF0_SIZE);
-		pr_info("\r\n[PWM%d_BUF0_SIZE is:%lx]\r\n", i, reg_val);
+		pr_debug("\r\n[PWM%d_BUF0_SIZE is:%lx]\r\n", i, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF1_BASE_ADDR);
-		pr_info("\r\n[PWM%d_BUF1_BASE_ADDR is:%lx]\r\n", i, reg_val);
+		pr_debug("\r\n[PWM%d_BUF1_BASE_ADDR is:%lx]\r\n", i, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF1_SIZE);
-		pr_info("\r\n[PWM%d_BUF1_SIZE is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("\r\n[PWM%d_BUF1_SIZE is:%lx]\r\n", i + 1, reg_val);
 
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_SEND_DATA0);
-		pr_info("[PWM%d_SEND_DATA0 is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_SEND_DATA0 is:%lx]\r\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_SEND_DATA1);
-		pr_info("[PWM%d_PWM_SEND_DATA1 is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_PWM_SEND_DATA1 is:%lx]\r\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_WAVE_NUM);
-		pr_info("[PWM%d_WAVE_NUM is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_WAVE_NUM is:%lx]\r\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_DATA_WIDTH);
-		pr_info("[PWM%d_WIDTH is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_WIDTH is:%lx]\r\n", i + 1, reg_val);
 
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_THRESH);
-		pr_info("[PWM%d_THRESH is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_THRESH is:%lx]\r\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_SEND_WAVENUM);
-		pr_info("[PWM%d_SEND_WAVENUM is:%lx]\r\n", i + 1, reg_val);
+		pr_debug("[PWM%d_SEND_WAVENUM is:%lx]\r\n", i + 1, reg_val);
 
 	}
 }
@@ -571,7 +571,7 @@ int mt_get_pwm_clk_src(struct platform_device *pdev)
 
 	for (i = PWM1_CLK; i < PWM_CLK_NUM; i++) {
 		pwm_clk[i] = devm_clk_get(&pdev->dev, pwm_clk_name[i]);
-		pr_info("[PWM] get %s clock, %p\n", pwm_clk_name[i], pwm_clk[i]);
+		pr_debug("[PWM] get %s clock, %p\n", pwm_clk_name[i], pwm_clk[i]);
 		if (IS_ERR(pwm_clk[i])) {
 			pr_debug("cannot get %s clock\n", pwm_clk_name[i]);
 			return PTR_ERR(pwm_clk[i]);

@@ -301,7 +301,7 @@ static int init_proc_dir(void)
 	for (i = 0; i < ARRAY_SIZE(entries); i++) {
 		if (!proc_create(entries[i].name, 0644,
 					mtk_perf_dir, entries[i].fops)) {
-			pr_info("%s %s: create %s error\n",
+			pr_debug("%s %s: create %s error\n",
 					TAG,
 					__func__,
 					entries[i].name);
@@ -321,7 +321,7 @@ static int init_mtk_perf_dev(void)
 	ret = misc_register(&mtk_perf_dev);
 
 	if (ret) {
-		pr_info("%s %s: misc_register error:(%d)\n",
+		pr_debug("%s %s: misc_register error:(%d)\n",
 			TAG, __func__, ret);
 		return ret;
 	}
@@ -329,7 +329,7 @@ static int init_mtk_perf_dev(void)
 	ret = kobject_uevent(&mtk_perf_dev.this_device->kobj, KOBJ_ADD);
 
 	if (ret) {
-		pr_info("%s %s: kobject_uevent error:(%d)\n",
+		pr_debug("%s %s: kobject_uevent error:(%d)\n",
 			TAG, __func__, ret);
 		return ret;
 	}
@@ -337,7 +337,7 @@ static int init_mtk_perf_dev(void)
 	wq = create_singlethread_workqueue("mem_thrash_detector");
 
 	if (!wq) {
-		pr_info("%s %s: create_workqueue error:(%d)\n",
+		pr_debug("%s %s: create_workqueue error:(%d)\n",
 			TAG, __func__, ret);
 		return -ENOMEM;
 	}

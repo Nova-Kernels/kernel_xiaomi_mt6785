@@ -47,7 +47,7 @@ out:
  */
 void vpu_dmp_free_locked(struct vpu_device *vd)
 {
-	pr_info("%s:\n", __func__);
+	pr_debug("%s:\n", __func__);
 	if (!vd->dmp)
 		return;
 
@@ -114,7 +114,7 @@ static bool vpu_dmp_is_alive(struct vpu_device *vd)
 
 	pc = vd->dmp->r_dbg[5];
 
-	pr_info("%s: debug info05: %x\n", __func__, pc);
+	pr_debug("%s: debug info05: %x\n", __func__, pc);
 
 	if (!pc)
 		return false;
@@ -124,7 +124,7 @@ static bool vpu_dmp_is_alive(struct vpu_device *vd)
 			return true;
 	}
 
-	pr_info("%s: all info registers are zeros\n", __func__);
+	pr_debug("%s: all info registers are zeros\n", __func__);
 
 	return false;
 }

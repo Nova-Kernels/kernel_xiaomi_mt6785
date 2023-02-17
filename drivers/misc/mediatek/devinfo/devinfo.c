@@ -361,14 +361,14 @@ static void devinfo_parse_dt(void)
 		} else
 			g_hrid_size = HRID_DEFAULT_SIZE;
 
-		pr_info("tag_devinfo_data size:%d, HRID size:%d\n",
+		pr_debug("tag_devinfo_data size:%d, HRID size:%d\n",
 				size, g_hrid_size);
 
 		snprintf(devinfo_segment_buff, sizeof(devinfo_segment_buff),
 				"segment code=0x%x\n",
 				g_devinfo_data[DEVINFO_SEGCODE_INDEX]);
 
-		pr_info("[devinfo][SegCode] Segment Code=0x%x\n",
+		pr_debug("[devinfo][SegCode] Segment Code=0x%x\n",
 				g_devinfo_data[DEVINFO_SEGCODE_INDEX]);
 
 	} else {

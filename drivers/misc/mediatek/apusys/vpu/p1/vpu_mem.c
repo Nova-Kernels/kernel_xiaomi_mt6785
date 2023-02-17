@@ -45,7 +45,7 @@ static void vpu_dump_sg(struct scatterlist *s)
 		if (!p)
 			break;
 		phys = page_to_phys(p);
-		pr_info("%s: s[%d]: pfn: %lx, pa: %lx, len: %lx, dma_addr: %lx\n",
+		pr_debug("%s: s[%d]: pfn: %lx, pa: %lx, len: %lx, dma_addr: %lx\n",
 			__func__, i,
 			(unsigned long) page_to_pfn(p),
 			(unsigned long) phys,
@@ -146,7 +146,7 @@ vpu_map_kva_to_sgt(const char *buf, size_t len, struct sg_table *sgt)
 		else
 			pages[index] = kmap_to_page((void *)p);
 		if (!pages[index]) {
-			pr_info("%s: map failed\n", __func__);
+			pr_debug("%s: map failed\n", __func__);
 			ret = -EFAULT;
 			goto out;
 		}
@@ -159,7 +159,7 @@ vpu_map_kva_to_sgt(const char *buf, size_t len, struct sg_table *sgt)
 		offset_in_page(buf), len, GFP_KERNEL);
 
 	if (ret) {
-		pr_info("%s: sg_alloc_table_from_pages: %d\n",
+		pr_debug("%s: sg_alloc_table_from_pages: %d\n",
 			__func__, ret);
 		goto out;
 	}

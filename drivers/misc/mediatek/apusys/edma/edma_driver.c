@@ -440,7 +440,7 @@ static int __init EDMA_INIT(void)
 	int ret = 0;
 
 	if (!apusys_power_check()) {
-		pr_info("%s: edma is disabled by apusys\n", __func__);
+		pr_debug("%s: edma is disabled by apusys\n", __func__);
 		return -ENODEV;
 	}
 

@@ -164,7 +164,7 @@ int disp_mva_map_kernel(enum DISP_MODULE_ENUM module, unsigned int mva,
 		mtk_iommu_iova_to_va(&(disp_dev->iommu_pdev->dev),
 					      mva, map_va, size);
 	else
-		pr_info("%s, %d, disp_dev is null\n", __func__, __LINE__);
+		pr_debug("%s, %d, disp_dev is null\n", __func__, __LINE__);
 #elif defined(CONFIG_MTK_M4U)
 	m4u_mva_map_kernel(mva, size, map_va, map_size);
 #endif
@@ -316,7 +316,7 @@ void disp_ion_cache_flush(struct ion_client *client,
 		return;
 
 	if (sync_type > ION_CACHE_FLUSH_BY_RANGE_USE_VA) {
-		pr_info("Cannot use ion cache flush anymore\n");
+		pr_debug("Cannot use ion cache flush anymore\n");
 		return;
 	}
 
@@ -329,7 +329,7 @@ void disp_ion_cache_flush(struct ion_client *client,
 	sys_data.cache_sync_param.size = handle->buffer->size;
 
 	if (ion_kernel_ioctl(client, ION_CMD_SYSTEM, (unsigned long)&sys_data))
-		pr_info("ion cache flush failed!\n");
+		pr_debug("ion cache flush failed!\n");
 	ion_unmap_kernel(client, handle);
 #endif
 }
@@ -357,7 +357,7 @@ int disp_hal_allocate_framebuffer(phys_addr_t pa_start, phys_addr_t pa_end,
 	int ret = 0;
 
 	*va = (unsigned long)ioremap_nocache(pa_start, pa_end - pa_start + 1);
-	pr_info("disphal_allocate_fb, pa_start=0x%pa, pa_end=0x%pa, va=0x%lx\n",
+	pr_debug("disphal_allocate_fb, pa_start=0x%pa, pa_end=0x%pa, va=0x%lx\n",
 		&pa_start, &pa_end, *va);
 
 	if (disp_helper_get_option(DISP_OPT_USE_M4U)) {
@@ -398,7 +398,7 @@ int disp_hal_allocate_framebuffer(phys_addr_t pa_start, phys_addr_t pa_end,
 				  unsigned long *va, unsigned long *mva)
 {
 	*va = (unsigned long)ioremap_nocache(pa_start, pa_end - pa_start + 1);
-	pr_info("disphal_allocate_fb, pa_start=0x%pa, pa_end=0x%pa, va=0x%lx\n",
+	pr_debug("disphal_allocate_fb, pa_start=0x%pa, pa_end=0x%pa, va=0x%lx\n",
 		&pa_start, &pa_end, *va);
 
 	*mva = pa_start & 0xffffffffULL;

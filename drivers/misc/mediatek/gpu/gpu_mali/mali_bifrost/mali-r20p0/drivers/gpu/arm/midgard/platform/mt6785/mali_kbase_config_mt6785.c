@@ -41,7 +41,7 @@
 
 
 #define MALI_TAG				"[GPU/MALI]"
-#define mali_pr_info(fmt, args...)		pr_info(MALI_TAG"[INFO]"fmt, ##args)
+#define mali_pr_debug(fmt, args...)		pr_debug(MALI_TAG"[INFO]"fmt, ##args)
 #define mali_pr_debug(fmt, args...)		pr_debug(MALI_TAG"[DEBUG]"fmt, ##args)
 
 DEFINE_MUTEX(g_mfg_lock);
@@ -119,7 +119,7 @@ static int pm_callback_power_on_nolock(struct kbase_device *kbdev)
 #endif
 
 	if (g_is_suspend == 1) {
-		mali_pr_info("@%s: discard powering on since GPU is suspended\n", __func__);
+		mali_pr_debug("@%s: discard powering on since GPU is suspended\n", __func__);
 		return 0;
 	}
 
@@ -259,10 +259,10 @@ static void pm_callback_power_suspend(struct kbase_device *kbdev)
 
 	if (mtk_get_vgpu_power_on_flag() == MTK_VGPU_POWER_ON) {
 		pm_callback_power_off_nolock(kbdev);
-		mali_pr_info("@%s: force powering off GPU\n", __func__);
+		mali_pr_debug("@%s: force powering off GPU\n", __func__);
 	}
 	g_is_suspend = 1;
-	mali_pr_info("@%s: gpu_suspend\n", __func__);
+	mali_pr_debug("@%s: gpu_suspend\n", __func__);
 
 #ifdef MT_GPUFREQ_SRAM_DEBUG
 	aee_rr_rec_gpu_dvfs_vgpu(0x01);
@@ -276,7 +276,7 @@ static void pm_callback_power_resume(struct kbase_device *kbdev)
 	mutex_lock(&g_mfg_lock);
 
 	g_is_suspend = 0;
-	mali_pr_info("@%s: gpu_resume\n", __func__);
+	mali_pr_debug("@%s: gpu_resume\n", __func__);
 
 #ifdef MT_GPUFREQ_SRAM_DEBUG
 	aee_rr_rec_gpu_dvfs_vgpu(0x02);
@@ -327,7 +327,7 @@ static void *__mtk_of_ioremap(const char *node_name, int idx)
 	if (node)
 		return of_iomap(node, idx);
 
-	mali_pr_info("@%s: cannot find [%s] of_node\n", __func__, node_name);
+	mali_pr_debug("@%s: cannot find [%s] of_node\n", __func__, node_name);
 
 	return NULL;
 }
@@ -342,19 +342,19 @@ int mtk_platform_init(struct platform_device *pdev, struct kbase_device *kbdev)
 {
 
 	if (!pdev || !kbdev) {
-		mali_pr_info("@%s: input parameter is NULL\n", __func__);
+		mali_pr_debug("@%s: input parameter is NULL\n", __func__);
 		return -1;
 	}
 
 	g_MFG_base = __mtk_of_ioremap("mediatek,mfgcfg", 0);
 	if (g_MFG_base == NULL) {
-		mali_pr_info("@%s: fail to remap MGFCFG register\n", __func__);
+		mali_pr_debug("@%s: fail to remap MGFCFG register\n", __func__);
 		return -1;
 	}
 
 	g_is_suspend = -1;
 
-	mali_pr_info("@%s: initialize successfully\n", __func__);
+	mali_pr_debug("@%s: initialize successfully\n", __func__);
 
 	return 0;
 }

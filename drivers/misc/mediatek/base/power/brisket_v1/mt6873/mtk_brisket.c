@@ -80,9 +80,9 @@
 #define BRISKET_TAG	 "[BRISKET]"
 
 #define brisket_err(fmt, args...)	\
-	pr_info(BRISKET_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(BRISKET_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
 #define brisket_msg(fmt, args...)	\
-	pr_info(BRISKET_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(BRISKET_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #ifdef BRISKET_DEBUG
 #define brisket_debug(fmt, args...)	\

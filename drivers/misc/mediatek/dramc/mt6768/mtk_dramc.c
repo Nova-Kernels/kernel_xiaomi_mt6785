@@ -52,7 +52,7 @@ void __iomem *DDRPHY_NAO_CHB_BASE_ADDR;
 unsigned int DRAM_TYPE;
 
 #define DRAMC_TAG "[DRAMC]"
-#define dramc_info(format, ...)	pr_info(DRAMC_TAG format, ##__VA_ARGS__)
+#define dramc_info(format, ...)	pr_debug(DRAMC_TAG format, ##__VA_ARGS__)
 struct dram_info *g_dram_info_dummy_read, *get_dram_info;
 struct dram_info dram_info_dummy_read;
 static unsigned int dram_rank_num;
@@ -116,7 +116,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 		local_irq_restore(save_flags);
 		return -1;
 	}
-	/* pr_info("[DRAMC0] get SPM HW SEMAPHORE!\n"); */
+	/* pr_debug("[DRAMC0] get SPM HW SEMAPHORE!\n"); */
 #endif
 	rank_pasr_segment[0] = segment_rank0 & 0xFF; /* for rank0 */
 	rank_pasr_segment[1] = segment_rank1 & 0xFF; /* for rank1 */
@@ -208,7 +208,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 #if !__ETT__
 	if (release_dram_ctrl() != 0)
 		pr_warn("[DRAMC0] release SPM HW SEMAPHORE fail!\n");
-	/* pr_info("[DRAMC0] release SPM HW SEMAPHORE success!\n"); */
+	/* pr_debug("[DRAMC0] release SPM HW SEMAPHORE success!\n"); */
 	local_irq_restore(save_flags);
 #endif
 	return 0;

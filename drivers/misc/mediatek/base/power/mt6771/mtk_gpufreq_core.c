@@ -511,7 +511,7 @@ unsigned int mt_gpufreq_voltage_enable_set(unsigned int enable)
 	mutex_lock(&mt_gpufreq_lock);
 
 	if (g_DVFS_is_paused_by_ptpod && enable == 0) {
-		gpufreq_pr_info("@%s: DVFS is paused by PTPOD\n", __func__);
+		gpufreq_pr_debug("@%s: DVFS is paused by PTPOD\n", __func__);
 		mutex_unlock(&mt_gpufreq_lock);
 		return -1;
 	}
@@ -953,7 +953,7 @@ void mt_gpufreq_dump_reg(void)
 
 	if (g_MFG_base == NULL || g_INFRA_AO_base == NULL || g_SPM_base == NULL ||
 			g_INFRA_base == NULL || g_DBGAPB_base == NULL || g_TOPCKGEN_base == NULL) {
-		gpufreq_pr_info("@%s: fail to I/O remap n", __func__);
+		gpufreq_pr_debug("@%s: fail to I/O remap n", __func__);
 		return;
 	}
 
@@ -2486,7 +2486,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 	struct device_node *node;
 	int i;
 
-	gpufreq_pr_info("@%s: gpufreq driver probe, clock is %d KHz\n",
+	gpufreq_pr_debug("@%s: gpufreq driver probe, clock is %d KHz\n",
 			__func__, mt_get_ckgen_freq(9));
 
 	g_opp_stress_test_state = false;
@@ -2557,7 +2557,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 		return PTR_ERR(g_clk->mtcmos_mfg_core2);
 	}
 
-	pr_info("[GPU/DVFS][INFO]@%s: clk_mux is at 0x%p, clk_main_parent is at 0x%p, \t"
+	pr_debug("[GPU/DVFS][INFO]@%s: clk_mux is at 0x%p, clk_main_parent is at 0x%p, \t"
 			"clk_sub_parent is at 0x%p, subsys_mfg_cg is at 0x%p, mtcmos_mfg_async is at 0x%p, \t"
 			"mtcmos_mfg is at 0x%p, mtcmos_mfg_core0 is at 0x%p, mtcmos_mfg_core1 is at 0x%p, \t"
 			"mtcmos_mfg_core2 is at 0x%p\n",
@@ -2598,7 +2598,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 		/* Other Version, set default segment */
 		g_segment_id = MT6771_SEGMENT_2;
 	}
-	gpufreq_pr_info("@%s: g_efuse_speed_bound_id = 0x%08X, g_efuse_turbo_id = 0x%08X, g_segment_id = %d\n",
+	gpufreq_pr_debug("@%s: g_efuse_speed_bound_id = 0x%08X, g_efuse_turbo_id = 0x%08X, g_segment_id = %d\n",
 			__func__, g_efuse_speed_bound_id, g_efuse_turbo_id, g_segment_id);
 
 	/* alloc PMIC regulator */
@@ -2659,7 +2659,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 	if (regulator_enable(g_pmic->reg_vgpu))
 		gpufreq_pr_err("@%s: enable VGPU failed\n", __func__);
 
-	pr_info("[GPU/DVFS][INFO]@%s: VGPU is enabled = %d (%d mV), VSRAM_GPU is enabled = %d (%d mV)\n",
+	pr_debug("[GPU/DVFS][INFO]@%s: VGPU is enabled = %d (%d mV), VSRAM_GPU is enabled = %d (%d mV)\n",
 			__func__, regulator_is_enabled(g_pmic->reg_vgpu),
 			(regulator_get_voltage(g_pmic->reg_vgpu) / 1000),
 			regulator_is_enabled(g_pmic->reg_vsram_gpu),
@@ -2676,7 +2676,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 
 	/* setup initial frequency */
 	__mt_gpufreq_set_initial();
-	pr_info("[GPU/DVFS][INFO]@%s: current freq = %d KHz, current volt = %d uV, \t"
+	pr_debug("[GPU/DVFS][INFO]@%s: current freq = %d KHz, current volt = %d uV, \t"
 			"g_cur_opp_freq = %d, g_cur_opp_volt = %d, g_cur_opp_vsram_volt = %d, \t"
 			"g_cur_opp_idx = %d, g_cur_opp_cond_idx = %d\n",
 			__func__, __mt_gpufreq_get_cur_freq(), __mt_gpufreq_get_cur_volt() * 10,
@@ -2717,7 +2717,7 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 #endif /* ifdef MT_GPUFREQ_BATT_OC_PROTECT */
 
 
-	pr_info("[GPU/DVFS][INFO]@%s: VGPU sfchg raising rate: %d us, VGPU sfchg falling rate: %d us, \t"
+	pr_debug("[GPU/DVFS][INFO]@%s: VGPU sfchg raising rate: %d us, VGPU sfchg falling rate: %d us, \t"
 			"VSRAM_GPU sfchg raising rate: %d us, VSRAM_GPU sfchg falling rate: %d us, \t"
 			"PMIC SRCLKEN_HIGH time: %d us\n"
 			, __func__, g_vgpu_sfchg_rrate, g_vgpu_sfchg_frate,
@@ -2729,43 +2729,43 @@ static int __mt_gpufreq_pdrv_probe(struct platform_device *pdev)
 
 	g_MFG_base = __mt_gpufreq_of_ioremap("mediatek,mfgcfg", 0);
 	if (!g_MFG_base) {
-		gpufreq_pr_info("@%s: MGF iomap failed", __func__);
+		gpufreq_pr_debug("@%s: MGF iomap failed", __func__);
 		return -ENOENT;
 	}
 
 	g_INFRA_AO_base = __mt_gpufreq_of_ioremap("mediatek,mfgcfg", 1);
 	if (!g_INFRA_AO_base) {
-		gpufreq_pr_info("@%s: INFRA_AO iomap failed", __func__);
+		gpufreq_pr_debug("@%s: INFRA_AO iomap failed", __func__);
 		return -ENOENT;
 	}
 
 	g_SPM_base = __mt_gpufreq_of_ioremap("mediatek,mfgcfg", 2);
 	if (!g_SPM_base) {
-		gpufreq_pr_info("@%s: SPM iomap failed", __func__);
+		gpufreq_pr_debug("@%s: SPM iomap failed", __func__);
 		return -ENOENT;
 	}
 
 	g_INFRA_base = __mt_gpufreq_of_ioremap("mediatek,mfgcfg", 3);
 	if (!g_INFRA_base) {
-		gpufreq_pr_info("@%s: INFRA iomap failed", __func__);
+		gpufreq_pr_debug("@%s: INFRA iomap failed", __func__);
 		return -ENOENT;
 	}
 
 	g_DBGAPB_base = __mt_gpufreq_of_ioremap("mediatek,mfgcfg", 4);
 	if (g_DBGAPB_base == NULL) {
-		gpufreq_pr_info("@%s: fail to remap DBGAPB register\n", __func__);
+		gpufreq_pr_debug("@%s: fail to remap DBGAPB register\n", __func__);
 		return -1;
 	}
 
 	g_TOPCKGEN_base = __mt_gpufreq_of_ioremap("mediatek,topckgen", 0);
 	if (g_TOPCKGEN_base == NULL) {
-		gpufreq_pr_info("@%s: fail to remap TOPCKGEN register\n", __func__);
+		gpufreq_pr_debug("@%s: fail to remap TOPCKGEN register\n", __func__);
 		return -1;
 	}
 
 	g_EMI_APB_BASE = __mt_gpufreq_of_ioremap("mediatek,emi", 0);
 	if (g_EMI_APB_BASE == NULL) {
-		gpufreq_pr_info("@%s: fail to remap EMI_APB register\n", __func__);
+		gpufreq_pr_debug("@%s: fail to remap EMI_APB register\n", __func__);
 		return -1;
 	}
 

@@ -339,7 +339,7 @@ static void process_dbg_opt(const char *opt)
 
 		ret = kstrtouint(p, 0, &vfp);
 		if (ret) {
-			pr_info("error to parse cmd %s\n", opt);
+			pr_debug("error to parse cmd %s\n", opt);
 			return;
 		}
 
@@ -458,7 +458,7 @@ static void process_dbg_opt(const char *opt)
 			if (ret != 3) {
 				snprintf(buf, 50, "error to parse cmd %s\n",
 					 opt);
-				pr_info("error to parse cmd %s\n", opt);
+				pr_debug("error to parse cmd %s\n", opt);
 				return;
 			}
 
@@ -869,14 +869,14 @@ void ddp_debug_init(void)
 				NULL,
 				&debug_fops);
 	if (!dispsys_procfs) {
-		pr_info("[%s %d]failed to create dispsys in /proc/\n",
+		pr_debug("[%s %d]failed to create dispsys in /proc/\n",
 			__func__, __LINE__);
 		goto out;
 	}
 
 	disp_dir_procfs = proc_mkdir("disp", NULL);
 	if (!disp_dir_procfs) {
-		pr_info("[%s %d]failed to create dir disp in /proc/\n",
+		pr_debug("[%s %d]failed to create dir disp in /proc/\n",
 			__func__, __LINE__);
 		goto out;
 	}
@@ -886,7 +886,7 @@ void ddp_debug_init(void)
 				disp_dir_procfs,
 				&debug_fops_dump);
 	if (!disp_dump_procfs) {
-		pr_info("[%s %d]failed to create dump in /proc/disp/\n",
+		pr_debug("[%s %d]failed to create dump in /proc/disp/\n",
 			__func__, __LINE__);
 		goto out;
 	}
@@ -896,7 +896,7 @@ void ddp_debug_init(void)
 				disp_dir_procfs,
 				&low_power_cust_fops);
 	if (!disp_lpmode_procfs) {
-		pr_info("[%s %d]failed to create lowpowermode in /proc/disp/\n",
+		pr_debug("[%s %d]failed to create lowpowermode in /proc/disp/\n",
 			__func__, __LINE__);
 		goto out;
 	}

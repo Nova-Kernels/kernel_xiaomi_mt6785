@@ -20,7 +20,7 @@
 
 #ifdef DEBUG_LOG
 #define AF_REGDUMP "REGDUMP"
-#define LOG_INF(format, args...) pr_info(AF_REGDUMP " " format, ##args)
+#define LOG_INF(format, args...) pr_debug(AF_REGDUMP " " format, ##args)
 #endif
 /* /////////////////////////////////////// */
 

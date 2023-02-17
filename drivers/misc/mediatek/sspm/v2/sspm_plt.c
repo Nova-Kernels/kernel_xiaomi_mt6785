@@ -91,7 +91,7 @@ static ssize_t sspm_ipi_debug_set(struct device *kobj,
 		ipi_monitor_dump(&sspm_ipidev);
 		break;
 	default:
-		pr_info("cmd '%d' is not supported.\n", opt);
+		pr_debug("cmd '%d' is not supported.\n", opt);
 		break;
 	}
 
@@ -136,7 +136,7 @@ int __init sspm_plt_init(void)
 
 	ret = sspm_sysfs_create_file(&dev_attr_sspm_ipi_debug);
 	if (unlikely(ret != 0))
-		pr_info("SSPM: Can't create file node for ipi debug !\n");
+		pr_debug("SSPM: Can't create file node for ipi debug !\n");
 
 	phys_addr = sspm_reserve_mem_get_phys(SSPM_MEM_ID);
 	if (phys_addr == 0) {

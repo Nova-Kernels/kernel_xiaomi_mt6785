@@ -516,15 +516,15 @@ void mcdi_cpc_init(void)
 		ret = snprintf(cpc.cpu[i].name, CPC_LAT_NAME_SIZE,
 			       get_cpu_type_str(i));
 		if (ret < 0)
-			pr_info("[mcdi] [%s] cpc cpu name fail!\n", __func__);
+			pr_debug("[mcdi] [%s] cpc cpu name fail!\n", __func__);
 		ret = snprintf(cpc.cluster[i].name, CPC_LAT_NAME_SIZE,
 			       "cluster off(%s)", get_cpu_type_str(i));
 		if (ret < 0)
-			pr_info("[mcdi] [%s] cpc cluster name fail!\n", __func__);
+			pr_debug("[mcdi] [%s] cpc cluster name fail!\n", __func__);
 	}
 	ret = snprintf(cpc.mcusys.name, CPC_LAT_NAME_SIZE, "mcusys");
 	if (ret < 0)
-		pr_info("[mcdi] [%s] cpc mcusys name fail!\n", __func__);
+		pr_debug("[mcdi] [%s] cpc mcusys name fail!\n", __func__);
 
 	mcdi_cpc_set_auto_off_thres(DEFAULT_AUTO_OFF_THRES_US);
 	mcdi_cpc_auto_off_en(false);

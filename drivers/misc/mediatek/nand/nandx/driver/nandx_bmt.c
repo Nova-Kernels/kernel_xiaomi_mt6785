@@ -137,7 +137,7 @@ static bool bmt_block_isbad(struct bmt_handler *bmt, u32 block)
 	if (!empty_page && bmt->oob[0] == 0xff)
 		return false;
 
-	pr_info("Check bmt block vendor mark %u\n", block);
+	pr_debug("Check bmt block vendor mark %u\n", block);
 
 	nandx_get_device(FL_READING);
 	ret = nandx_core_is_bad(row);
@@ -203,10 +203,10 @@ static void bmt_dump_info(struct bmt_data_info *data_info)
 {
 	int i;
 
-	pr_info("BMT v%d. total %d mapping:\n",
+	pr_debug("BMT v%d. total %d mapping:\n",
 		data_info->header.version, data_info->header.mapped_count);
 	for (i = 0; i < data_info->header.mapped_count; i++) {
-		pr_info("block[%d] map to block[%d]\n",
+		pr_debug("block[%d] map to block[%d]\n",
 			data_info->table[i].bad_index,
 			data_info->table[i].mapped_index);
 	}
@@ -312,7 +312,7 @@ static int bmt_load_data(struct bmt_handler *bmt)
 			continue;
 		}
 
-		pr_info("Match bmt signature @ block 0x%x\n", bmt_index);
+		pr_debug("Match bmt signature @ block 0x%x\n", bmt_index);
 
 		if (!bmt_data_is_valid(bmt)) {
 			pr_err("BMT data not correct %d\n", bmt_index);
@@ -361,12 +361,12 @@ static int find_available_block(struct bmt_handler *bmt, bool start_from_end)
 		if (retry) {
 			/* fix block is good, but erase fail */
 			if (bmt_erase_block(bmt, block)) {
-				pr_info
+				pr_debug
 				    ("Reserved 0x%x for DL_INFO, find next\n",
 				     block);
 				retry -= 1;
 			}
-			pr_info("Erase block %u fail, retry\n", block);
+			pr_debug("Erase block %u fail, retry\n", block);
 			continue;
 		}
 
@@ -418,7 +418,7 @@ static int bmt_write_to_flash(struct bmt_handler *bmt)
 			}
 		}
 
-		pr_info("Find BMT block: 0x%x\n", bmt->current_block);
+		pr_debug("Find BMT block: 0x%x\n", bmt->current_block);
 
 		/* write bmt to flash */
 		ret = bmt_erase_block(bmt, bmt->current_block);
@@ -511,7 +511,7 @@ int nandx_bmt_init(struct nandx_chip_info *dev_info, u32 block_num,
 	nandx_bmt->start_block = dev_info->block_num - block_num;
 	nandx_bmt->block_count = block_num;
 
-	pr_info("bmt start block: %d, bmt block count: %d\n",
+	pr_debug("bmt start block: %d, bmt block count: %d\n",
 		nandx_bmt->start_block, nandx_bmt->block_count);
 
 	memset(nandx_bmt->data_info.table, 0,
@@ -520,10 +520,10 @@ int nandx_bmt_init(struct nandx_chip_info *dev_info, u32 block_num,
 	nandx_bmt->current_block = bmt_load_data(nandx_bmt);
 	if (!nandx_bmt->current_block) {
 		if (rebuild) {
-			pr_info("Not found bmt, do bmt construct...\n");
+			pr_debug("Not found bmt, do bmt construct...\n");
 			return bmt_construct(nandx_bmt);
 		}
-		pr_info("Not found bmt, need construct data bmt info\n");
+		pr_debug("Not found bmt, need construct data bmt info\n");
 		return 1;
 	}
 
@@ -611,11 +611,11 @@ int nandx_bmt_remark(u32 *blocks, int count, enum UPDATE_REASON reason)
 
 	for (i = 0; i < count; i++) {
 		if (blocks[i] >= nandx_bmt->start_block) {
-			pr_info("skip remark bmt bad %u\n", blocks[i]);
+			pr_debug("skip remark bmt bad %u\n", blocks[i]);
 			continue;
 		}
 
-		pr_info("remark bad block %u\n", blocks[i]);
+		pr_debug("remark bad block %u\n", blocks[i]);
 		nandx_bmt_update_block(nandx_bmt, blocks[i], reason);
 	}
 

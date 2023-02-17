@@ -103,7 +103,7 @@ static int __init dram_dummy_read_fixup(void)
 
 	/* Success to acquire memory */
 	if (ret == 0) {
-		pr_info("%s: %pa\n", __func__, &dram_rank1_addr);
+		pr_debug("%s: %pa\n", __func__, &dram_rank1_addr);
 		return 0;
 	}
 
@@ -146,7 +146,7 @@ const char *uname, int depth, void *data)
 		g_dram_info_dummy_read = &dram_info_dummy_read;
 		dram_info_dummy_read.rank_num = get_dram_info->rank_num;
 		dram_rank_num = get_dram_info->rank_num;
-		pr_info("[DRAMC] dram info dram rank number = %d\n",
+		pr_debug("[DRAMC] dram info dram rank number = %d\n",
 		g_dram_info_dummy_read->rank_num);
 
 		if (dram_rank_num == SINGLE_RANK) {
@@ -154,7 +154,7 @@ const char *uname, int depth, void *data)
 				dram_rank0_addr;
 			dram_info_dummy_read.rank_info[1].start =
 				dram_rank0_addr;
-			pr_info("[DRAMC] dram info dram rank0 base = 0x%llx\n",
+			pr_debug("[DRAMC] dram info dram rank0 base = 0x%llx\n",
 			g_dram_info_dummy_read->rank_info[0].start);
 		} else if (dram_rank_num == DUAL_RANK) {
 			/* No dummy read address for rank1, try to fix it up */
@@ -169,9 +169,9 @@ const char *uname, int depth, void *data)
 				dram_rank0_addr;
 			dram_info_dummy_read.rank_info[1].start =
 				dram_rank1_addr;
-			pr_info("[DRAMC] dram info dram rank0 base = 0x%llx\n",
+			pr_debug("[DRAMC] dram info dram rank0 base = 0x%llx\n",
 			g_dram_info_dummy_read->rank_info[0].start);
-			pr_info("[DRAMC] dram info dram rank1 base = 0x%llx\n",
+			pr_debug("[DRAMC] dram info dram rank1 base = 0x%llx\n",
 			g_dram_info_dummy_read->rank_info[1].start);
 		} else {
 			No_DummyRead = 1;
@@ -284,7 +284,7 @@ unsigned int read_dram_mode_reg_by_rank(
 	Reg_Sync_Writel(DRAMC_AO_MRS, temp);
 
 	if (release_dram_ctrl() != 0)
-		pr_info("[DRAMC] release SPM HW SEMAPHORE fail!\n");
+		pr_debug("[DRAMC] release SPM HW SEMAPHORE fail!\n");
 
 	local_irq_restore(save_flags);
 
@@ -388,7 +388,7 @@ void __iomem *dramc_ao_chx_base, void __iomem *dramc_nao_chx_base)
 	else
 		dqs_osc[1] = 0;
 
-	pr_info("[DRAMC] Rank %d, (LSB)MR18= 0x%x, (MSB)MR19= 0x%x, tDQSOscB0 = %d ps tDQSOscB1 = %d ps\n",
+	pr_debug("[DRAMC] Rank %d, (LSB)MR18= 0x%x, (MSB)MR19= 0x%x, tDQSOscB0 = %d ps tDQSOscB1 = %d ps\n",
 		rank, mr18_cur, mr19_cur, dqs_osc[0], dqs_osc[1]);
 #endif
 
@@ -558,7 +558,7 @@ static unsigned int dramc_tx_tracking(int channel)
 						(dqm_orig[shu_index][rank][byte]
 						- pi_adj)	& 0x3F;
 #if 0 /* print message for debugging */
-pr_info("[DRAMC], CH%d RK%d B%d, shu=%d base=%X cur=%X delta=%d INC=%d PI=0x%x Adj=%d newPI=0x%x\n",
+pr_debug("[DRAMC], CH%d RK%d B%d, shu=%d base=%X cur=%X delta=%d INC=%d PI=0x%x Adj=%d newPI=0x%x\n",
 channel, rank, byte, shu_index, mr1819_base[rank][byte], mr1819_cur[byte],
 mr1819_delta, dqsosc_inc[rank], pi_orig[shu_index][rank][byte],
 (pi_adjust * tx_freq_ratio[shu_index] / tx_freq_ratio[shu_level]),
@@ -587,7 +587,7 @@ pi_new[shu_index][rank][byte]);
 					+ pi_adj)	&	0x3F;
 
 #if 0 /* print message for debugging */
-pr_info("[DRAMC], CH%d RK%d B%d, shu=%d base=%X cur=%X delta=%d DEC=%d PI=0x%x Adj=%d newPI=0x%x\n",
+pr_debug("[DRAMC], CH%d RK%d B%d, shu=%d base=%X cur=%X delta=%d DEC=%d PI=0x%x Adj=%d newPI=0x%x\n",
 channel, rank, byte, shu_index, mr1819_base[rank][byte], mr1819_cur[byte],
 mr1819_delta, dqsosc_dec[rank], pi_orig[shu_index][rank][byte],
 (pi_adjust * tx_freq_ratio[shu_index] / tx_freq_ratio[shu_level]),
@@ -704,7 +704,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 #if !__ETT__
 	unsigned long save_flags;
 
-	pr_info("[DRAMC0] PASR r0 = 0x%x  r1 = 0x%x\n",
+	pr_debug("[DRAMC0] PASR r0 = 0x%x  r1 = 0x%x\n",
 	(segment_rank0 & 0xFF), (segment_rank1 & 0xFF));
 	local_irq_save(save_flags);
 	if (acquire_dram_ctrl() != 0) {
@@ -712,7 +712,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 		local_irq_restore(save_flags);
 		return -1;
 	}
-	/* pr_info("[DRAMC0] get SPM HW SEMAPHORE!\n"); */
+	/* pr_debug("[DRAMC0] get SPM HW SEMAPHORE!\n"); */
 #endif
 	rank_pasr_segment[0] = segment_rank0 & 0xFF; /* for rank0 */
 	rank_pasr_segment[1] = segment_rank1 & 0xFF; /* for rank1 */
@@ -806,7 +806,7 @@ int enter_pasr_dpd_config(unsigned char segment_rank0,
 #if !__ETT__
 	if (release_dram_ctrl() != 0)
 		pr_warn("[DRAMC0] release SPM HW SEMAPHORE fail!\n");
-	/* pr_info("[DRAMC0] release SPM HW SEMAPHORE success!\n"); */
+	/* pr_debug("[DRAMC0] release SPM HW SEMAPHORE success!\n"); */
 	local_irq_restore(save_flags);
 #endif
 	return 0;
@@ -864,9 +864,9 @@ int Binning_DRAM_complex_mem_test(void)
 	MEM16_BASE = (unsigned short *)ptr;
 	MEM32_BASE = (unsigned int *)ptr;
 	MEM_BASE = (unsigned int *)ptr;
-	/* pr_info("Test DRAM start address 0x%lx\n", (unsigned long)ptr); */
-	pr_info("Test DRAM start address %p\n", ptr);
-	pr_info("Test DRAM SIZE 0x%x\n", MEM_TEST_SIZE);
+	/* pr_debug("Test DRAM start address 0x%lx\n", (unsigned long)ptr); */
+	pr_debug("Test DRAM start address %p\n", ptr);
+	pr_debug("Test DRAM SIZE 0x%x\n", MEM_TEST_SIZE);
 	size = len >> 2;
 
 	/* === Verify the tied bits (tied high) === */
@@ -1190,7 +1190,7 @@ int Binning_DRAM_complex_mem_test(void)
 		}
 		pattern32++;
 	}
-	pr_info("complex R/W mem test pass\n");
+	pr_debug("complex R/W mem test pass\n");
 
 fail:
 	vfree(ptr);
@@ -1258,7 +1258,7 @@ unsigned int get_dram_data_rate(void)
 
 	u4DataRate = u4VCOFreq>>u4CKDIV4;
 
-	/* pr_info("[DRAMC Driver] PCW=0x%X, u4PREDIV=%d, */
+	/* pr_debug("[DRAMC Driver] PCW=0x%X, u4PREDIV=%d, */
 	/* u4POSDIV=%d, CKDIV4=%d, DataRate=%d\n", */
 	/* u4SDM_PCW, u4PREDIV, u4POSDIV, u4CKDIV4, u4DataRate); */
 
@@ -1402,7 +1402,7 @@ int dram_dummy_read_reserve_mem_of_init(struct reserved_mem *rmem)
 		}
 		dram_rank0_addr = rptr;
 		dram_rank_num++;
-		pr_info("[dummy_read_reserve_init] dram_rank0_addr = %pa, size = 0x%x\n",
+		pr_debug("[dummy_read_reserve_init] dram_rank0_addr = %pa, size = 0x%x\n",
 				&dram_rank0_addr, rsize);
 	}
 
@@ -1414,7 +1414,7 @@ int dram_dummy_read_reserve_mem_of_init(struct reserved_mem *rmem)
 		}
 		dram_rank1_addr = rptr;
 		dram_rank_num++;
-		pr_info("[dummy_read_reserve_init] dram_rank1_addr = %pa, size = 0x%x\n",
+		pr_debug("[dummy_read_reserve_init] dram_rank1_addr = %pa, size = 0x%x\n",
 				&dram_rank1_addr, rsize);
 	}
 
@@ -1512,7 +1512,7 @@ ret_read_mr4:
 	Reg_Sync_Writel(DRAMC_AO_MRS, temp);
 
 	if (release_dram_ctrl() != 0)
-		pr_info("[DRAMC] release SPM HW SEMAPHORE fail!\n");
+		pr_debug("[DRAMC] release SPM HW SEMAPHORE fail!\n");
 
 	local_irq_restore(save_flags);
 
@@ -1589,7 +1589,7 @@ void zqcs_timer_callback(unsigned long data)
 				udelay(1);
 			}
 			if (timeout == 0)
-				pr_info("[DRAMC] request OPP0 timeout!\n");
+				pr_debug("[DRAMC] request OPP0 timeout!\n");
 			else
 				udelay(100);
 		}
@@ -1601,7 +1601,7 @@ void zqcs_timer_callback(unsigned long data)
 	spin_lock_irqsave(&sw_zq_tx_lock, spinlock_save_flags);
 	local_irq_save(save_flags);
 	if (acquire_dram_ctrl() != 0) {
-		pr_info("[DRAMC] can NOT get SPM HW SEMAPHORE!\n");
+		pr_debug("[DRAMC] can NOT get SPM HW SEMAPHORE!\n");
 		goto tx_start;
 	}
 #ifdef DVFS_READY
@@ -1683,7 +1683,7 @@ void zqcs_timer_callback(unsigned long data)
 				local_irq_restore(save_flags);
 				spin_unlock_irqrestore(&sw_zq_tx_lock,
 				spinlock_save_flags);
-				pr_info("CA%x Rank%x ZQCal Start time out\n",
+				pr_debug("CA%x Rank%x ZQCal Start time out\n",
 					CHCounter, RankCounter);
 				return;
 			}
@@ -1715,12 +1715,12 @@ void zqcs_timer_callback(unsigned long data)
 			writel(readl(u4rg_38) | 0x00000002, u4rg_38);
 			if (TimeCnt == 0) { /* time out */
 				if (release_dram_ctrl() != 0)
-					pr_info("[DRAMC] release SPM HW SEMAPHORE fail!\n");
+					pr_debug("[DRAMC] release SPM HW SEMAPHORE fail!\n");
 			mod_timer(&zqcs_timer, jiffies + msecs_to_jiffies(280));
 			local_irq_restore(save_flags);
 			spin_unlock_irqrestore(&sw_zq_tx_lock,
 			spinlock_save_flags);
-			pr_info("CA%x Rank%x ZQCal latch time out\n",
+			pr_debug("CA%x Rank%x ZQCal latch time out\n",
 				CHCounter, RankCounter);
 			return;
 			}
@@ -1728,7 +1728,7 @@ void zqcs_timer_callback(unsigned long data)
 		}
 	}
 	if (release_dram_ctrl() != 0)
-		pr_info("[DRAMC] release SPM HW SEMAPHORE fail!\n");
+		pr_debug("[DRAMC] release SPM HW SEMAPHORE fail!\n");
 
 tx_start:
 	local_irq_restore(save_flags);
@@ -1746,14 +1746,14 @@ tx_start:
 	if (acquire_dram_ctrl() != 0) {
 		local_irq_restore(save_flags);
 		spin_unlock_irqrestore(&sw_zq_tx_lock, spinlock_save_flags);
-		pr_info("[DRAMC] TX 0 can NOT get SPM HW SEMAPHORE!\n");
+		pr_debug("[DRAMC] TX 0 can NOT get SPM HW SEMAPHORE!\n");
 	} else {
 #ifdef DVFS_READY
 		writel(readl(PDEF_SYS_TIMER), PDEF_SPM_TX_TIMESTAMP);
 #endif
 		res[0] = dramc_tx_tracking(0);
 		if (release_dram_ctrl() != 0)
-			pr_info("[DRAMC] TX 0 release SPM HW SEMAPHORE fail!\n");
+			pr_debug("[DRAMC] TX 0 release SPM HW SEMAPHORE fail!\n");
 		local_irq_restore(save_flags);
 		spin_unlock_irqrestore(&sw_zq_tx_lock, spinlock_save_flags);
 	}
@@ -1765,14 +1765,14 @@ tx_start:
 	if (acquire_dram_ctrl() != 0) {
 		local_irq_restore(save_flags);
 		spin_unlock_irqrestore(&sw_zq_tx_lock, spinlock_save_flags);
-		pr_info("[DRAMC] TX 1 can NOT get SPM HW SEMAPHORE!\n");
+		pr_debug("[DRAMC] TX 1 can NOT get SPM HW SEMAPHORE!\n");
 	} else {
 #ifdef DVFS_READY
 		writel(readl(PDEF_SYS_TIMER), PDEF_SPM_TX_TIMESTAMP);
 #endif
 		res[1] = dramc_tx_tracking(1);
 		if (release_dram_ctrl() != 0)
-			pr_info("[DRAMC] TX 1 release SPM HW SEMAPHORE fail!\n");
+			pr_debug("[DRAMC] TX 1 release SPM HW SEMAPHORE fail!\n");
 		local_irq_restore(save_flags);
 		spin_unlock_irqrestore(&sw_zq_tx_lock, spinlock_save_flags);
 	}
@@ -1835,30 +1835,30 @@ static int dram_probe(struct platform_device *pdev)
 	DDRPHY_NAO_CHA_BASE_ADDR = base_temp[6];
 	DDRPHY_NAO_CHB_BASE_ADDR = base_temp[7];
 
-	pr_info("[DRAMC]get DRAMC_AO_CHA_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DRAMC_AO_CHA_BASE_ADDR @ %p\n",
 		DRAMC_AO_CHA_BASE_ADDR);
-	pr_info("[DRAMC]get DRAMC_AO_CHB_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DRAMC_AO_CHB_BASE_ADDR @ %p\n",
 		DRAMC_AO_CHB_BASE_ADDR);
 
-	pr_info("[DRAMC]get DDRPHY_AO_CHA_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DDRPHY_AO_CHA_BASE_ADDR @ %p\n",
 		DDRPHY_AO_CHA_BASE_ADDR);
-	pr_info("[DRAMC]get DDRPHY_AO_CHB_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DDRPHY_AO_CHB_BASE_ADDR @ %p\n",
 		DDRPHY_AO_CHB_BASE_ADDR);
 
-	pr_info("[DRAMC]get DRAMC_NAO_CHA_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DRAMC_NAO_CHA_BASE_ADDR @ %p\n",
 		DRAMC_NAO_CHA_BASE_ADDR);
-	pr_info("[DRAMC]get DRAMC_NAO_CHB_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DRAMC_NAO_CHB_BASE_ADDR @ %p\n",
 		DRAMC_NAO_CHB_BASE_ADDR);
 
-	pr_info("[DRAMC]get DDRPHY_NAO_CHA_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DDRPHY_NAO_CHA_BASE_ADDR @ %p\n",
 		DDRPHY_NAO_CHA_BASE_ADDR);
-	pr_info("[DRAMC]get DDRPHY_NAO_CHB_BASE_ADDR @ %p\n",
+	pr_debug("[DRAMC]get DDRPHY_NAO_CHB_BASE_ADDR @ %p\n",
 		DDRPHY_NAO_CHB_BASE_ADDR);
 
 	node = of_find_compatible_node(NULL, NULL, "mediatek,sleep");
 	if (node) {
 		SLEEP_BASE_ADDR = of_iomap(node, 0);
-		pr_info("[DRAMC]get SLEEP_BASE_ADDR @ %p\n",
+		pr_debug("[DRAMC]get SLEEP_BASE_ADDR @ %p\n",
 		SLEEP_BASE_ADDR);
 	} else {
 		pr_err("[DRAMC]can't find SLEEP_BASE_ADDR compatible node\n");
@@ -1868,10 +1868,10 @@ static int dram_probe(struct platform_device *pdev)
 	node = of_find_compatible_node(NULL, NULL, "mediatek,sys_timer");
 	if (node) {
 		SYS_TIMER_BASE_ADDR = of_iomap(node, 0);
-		pr_info("[DRAMC]get SYS_TIMER_BASE_ADDR @ %p\n",
+		pr_debug("[DRAMC]get SYS_TIMER_BASE_ADDR @ %p\n",
 		SYS_TIMER_BASE_ADDR);
 	} else {
-		pr_info("[DRAMC]can't find SYS_TIMER_BASE_ADDR compatible node\n");
+		pr_debug("[DRAMC]can't find SYS_TIMER_BASE_ADDR compatible node\n");
 		return -1;
 	}
 
@@ -1880,7 +1880,7 @@ static int dram_probe(struct platform_device *pdev)
 #else
 	DRAM_TYPE = TYPE_LPDDR4X;
 #endif
-	pr_info("[DRAMC Driver] dram type =%d\n", DRAM_TYPE);
+	pr_debug("[DRAMC Driver] dram type =%d\n", DRAM_TYPE);
 
 	if (!DRAM_TYPE) {
 		pr_err("[DRAMC Driver] dram type error !!\n");
@@ -1889,7 +1889,7 @@ static int dram_probe(struct platform_device *pdev)
 
 #ifdef EMI_READY
 	CH_NUM = get_ch_num();
-	pr_info("[DRAMC Driver] Channel num =%d\n", CH_NUM);
+	pr_debug("[DRAMC Driver] Channel num =%d\n", CH_NUM);
 
 	if (!CH_NUM) {
 		pr_err("[DRAMC Driver] channel number error !!\n");
@@ -1900,7 +1900,7 @@ static int dram_probe(struct platform_device *pdev)
 #endif
 
 	CBT_MODE = (readl(PDEF_DRAMC0_CHA_REG_01C) & 0x6000) >> 13;
-	pr_info("[DRAMC Driver] cbt mode =%d\n", CBT_MODE);
+	pr_debug("[DRAMC Driver] cbt mode =%d\n", CBT_MODE);
 	switch (CBT_MODE) {
 	case NORMAL_MODE:
 		cbt_mode_rank[0] = RANK_NORMAL;
@@ -1927,8 +1927,8 @@ static int dram_probe(struct platform_device *pdev)
 		(!(get_devinfo_with_index(30) & 0x20)))
 		lp4_highfreq_3600 = 1;
 
-	pr_info("[DRAMC Driver] Dram Data Rate = %d\n", get_dram_data_rate());
-	pr_info("[DRAMC Driver] shuffle_status = %d\n", get_shuffle_status());
+	pr_debug("[DRAMC Driver] Dram Data Rate = %d\n", get_dram_data_rate());
+	pr_debug("[DRAMC Driver] shuffle_status = %d\n", get_shuffle_status());
 
 	if ((DRAM_TYPE == TYPE_LPDDR4) || (DRAM_TYPE == TYPE_LPDDR4X)) {
 		low_freq_counter = 10;
@@ -1936,7 +1936,7 @@ static int dram_probe(struct platform_device *pdev)
 		zqcs_timer.function = zqcs_timer_callback;
 		zqcs_timer.data = 0;
 		if (mod_timer(&zqcs_timer, jiffies + msecs_to_jiffies(280)))
-			pr_info("[DRAMC Driver] Error in ZQCS mod_timer\n");
+			pr_debug("[DRAMC Driver] Error in ZQCS mod_timer\n");
 	}
 
 	ret = driver_create_file(pdev->dev.driver,
@@ -1962,9 +1962,9 @@ static int dram_probe(struct platform_device *pdev)
 #endif
 
 	if (dram_can_support_fh())
-		pr_info("[DRAMC Driver] dram can support DFS\n");
+		pr_debug("[DRAMC Driver] dram can support DFS\n");
 	else
-		pr_info("[DRAMC Driver] dram can not support DFS\n");
+		pr_debug("[DRAMC Driver] dram can not support DFS\n");
 
 	return ret;
 }
@@ -2005,7 +2005,7 @@ static int __init dram_test_init(void)
 	}
 
 	if (of_scan_flat_dt(dt_scan_dram_info, NULL) > 0) {
-		pr_info("[DRAMC]find dt_scan_dram_info\n");
+		pr_debug("[DRAMC]find dt_scan_dram_info\n");
 	} else {
 		pr_err("[DRAMC]can't find dt_scan_dram_info\n");
 		return -1;

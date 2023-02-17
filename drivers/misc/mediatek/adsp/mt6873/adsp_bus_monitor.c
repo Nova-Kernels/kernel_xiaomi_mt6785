@@ -49,15 +49,15 @@ static void adsp_bus_monitor_stage_info(void *addr)
 
 	memcpy_fromio(&cblk, addr, sizeof(struct bus_monitor_cblk));
 
-	pr_info("BUS_DBG_CON = 0x%08x", cblk.ctrl);
-	pr_info("TIMER_CON0 = 0x%08x, TIMER_CON01 = 0x%08x",
+	pr_debug("BUS_DBG_CON = 0x%08x", cblk.ctrl);
+	pr_debug("TIMER_CON0 = 0x%08x, TIMER_CON01 = 0x%08x",
 		cblk.timer_ctrl[0], cblk.timer_ctrl[1]);
 
 	for (i = 0; i < 8; i++) {
 		if (!cblk.r_tracks[i] && !cblk.w_tracks[i])
 			continue;
 
-		pr_info("R_TRACK[%d] = 0x%08x, W_TRACK[%d] = 0x%08x",
+		pr_debug("R_TRACK[%d] = 0x%08x, W_TRACK[%d] = 0x%08x",
 			i, cblk.r_tracks[i],
 			i, cblk.w_tracks[i]);
 	}
@@ -65,9 +65,9 @@ static void adsp_bus_monitor_stage_info(void *addr)
 
 void adsp_bus_monitor_dump(void)
 {
-	pr_info("%s(), BUS_MON_1ST_STAGE BACKUP", __func__);
+	pr_debug("%s(), BUS_MON_1ST_STAGE BACKUP", __func__);
 	adsp_bus_monitor_stage_info((void *)ADSP_BUS_MON_1ST_STAGE_BASE);
 
-	pr_info("%s(), BUS_MON_2ST_STAGE BACKUP", __func__);
+	pr_debug("%s(), BUS_MON_2ST_STAGE BACKUP", __func__);
 	adsp_bus_monitor_stage_info((void *)ADSP_BUS_MON_2ND_STAGE_BASE);
 }

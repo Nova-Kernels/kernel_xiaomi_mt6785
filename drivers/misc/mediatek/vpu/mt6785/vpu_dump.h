@@ -80,19 +80,19 @@ void vpu_dmp_seq_core(struct seq_file *s, int core);
 void vpu_dmp_seq(struct seq_file *s);
 
 #define vpu_dmp_create(core, req, fmt, args...) do { \
-		pr_info("%s: vpu_dmp_create: vpu%d\n", __func__, core); \
+		pr_debug("%s: vpu_dmp_create: vpu%d\n", __func__, core); \
 		vpu_lock(core); \
 		if (!vpu_get_power(core, false)) { \
 			vpu_dmp_create_locked(core, req, fmt, ##args); \
 			vpu_put_power(core, VPT_ENQUE_ON); \
 		} else { \
-			pr_info("%s: vpu_get_power: failed\n", __func__); \
+			pr_debug("%s: vpu_get_power: failed\n", __func__); \
 		} \
 		vpu_unlock(core); \
 	} while (0)
 
 #define vpu_dmp_free(core) do { \
-		pr_info("%s: vpu_dmp_free\n", __func__); \
+		pr_debug("%s: vpu_dmp_free\n", __func__); \
 		vpu_lock(core); \
 		vpu_dmp_free_locked(core); \
 		vpu_unlock(core); \

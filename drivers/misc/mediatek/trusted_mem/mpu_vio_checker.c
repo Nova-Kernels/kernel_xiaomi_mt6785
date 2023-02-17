@@ -95,7 +95,7 @@ static irqreturn_t tmem_mpu_vio_handler(unsigned int emi_id,
 	if ((wr_vio == 2) && (wr_oo_vio == 0)
 	    && ((port_id == 0) || (port_id == 1))) {
 		if (is_secure(vio_addr)) {
-			pr_info("%s:%d vio msg ignored at emi%d (0x%x,%d,%d,%d,%d)\n",
+			pr_debug("%s:%d vio msg ignored at emi%d (0x%x,%d,%d,%d,%d)\n",
 				__func__, __LINE__, emi_id, master_id,
 				domain_id, wr_vio, wr_oo_vio, port_id);
 			return IRQ_HANDLED;
@@ -118,7 +118,7 @@ static int __init tmem_mpu_vio_init(void)
 		return ret;
 	}
 #else
-	pr_info("%s:%d vio checker is not registered!\n", __func__, __LINE__);
+	pr_debug("%s:%d vio checker is not registered!\n", __func__, __LINE__);
 #endif
 
 	return ret;

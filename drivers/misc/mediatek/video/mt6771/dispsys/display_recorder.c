@@ -517,7 +517,7 @@ void dprec_logger_start_fps(void)
 		char fps_log[] = "[DISP] FPS OUTPUT ";
 		int i = 0;
 
-		pr_info("%sfps:%2lld.%01lld, L0:%2lld.%01lld, L1:%2lld.%01lld\n",
+		pr_debug("%sfps:%2lld.%01lld, L0:%2lld.%01lld, L1:%2lld.%01lld\n",
 		fps_log,
 		fps_info_debug.total_fps_high,
 		fps_info_debug.total_fps_low,
@@ -525,7 +525,7 @@ void dprec_logger_start_fps(void)
 		fps_info_debug.layer_fps_low[0],
 		fps_info_debug.layer_fps_high[1],
 		fps_info_debug.layer_fps_low[1]);
-		pr_info("%sL2:%2lld.%01lld, L3:%2lld.%01lld, L4:%2lld.%01lld\n",
+		pr_debug("%sL2:%2lld.%01lld, L3:%2lld.%01lld, L4:%2lld.%01lld\n",
 		fps_log,
 		fps_info_debug.layer_fps_high[2],
 		fps_info_debug.layer_fps_low[2],
@@ -533,7 +533,7 @@ void dprec_logger_start_fps(void)
 		fps_info_debug.layer_fps_low[3],
 		fps_info_debug.layer_fps_high[4],
 		fps_info_debug.layer_fps_low[4]);
-		pr_info("%sL5:%2lld.%01lld, L6:%2lld.%01lld, L7:%2lld.%01lld\n",
+		pr_debug("%sL5:%2lld.%01lld, L6:%2lld.%01lld, L7:%2lld.%01lld\n",
 		fps_log,
 		fps_info_debug.layer_fps_high[5],
 		fps_info_debug.layer_fps_low[5],
@@ -692,7 +692,7 @@ void dprec_logger_frame_seq_begin(unsigned int session_id,
 	if (frm_sequence <= 0 || session_id <= 0)
 		return;
 	if (device_type > DISP_SESSION_MEMORY) {
-		pr_info("seq_begin session_id(0x%x) error, seq(%d)\n",
+		pr_debug("seq_begin session_id(0x%x) error, seq(%d)\n",
 			session_id, frm_sequence);
 		return;
 	}
@@ -719,7 +719,7 @@ void dprec_logger_frame_seq_end(unsigned int session_id,
 	if (frm_sequence <= 0 || session_id <= 0)
 		return;
 	if (device_type > DISP_SESSION_MEMORY) {
-		pr_info("seq_end session_id(0x%x) , seq(%d)\n",
+		pr_debug("seq_end session_id(0x%x) , seq(%d)\n",
 			session_id, frm_sequence);
 		return;
 	}
@@ -1480,7 +1480,7 @@ void init_log_buffer(void)
 	}
 
 	is_buffer_init = true;
-	pr_info("[DISP]%s success\n", __func__);
+	pr_debug("[DISP]%s success\n", __func__);
 	return;
 
 err:

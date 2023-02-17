@@ -1307,7 +1307,7 @@ static int securetime_savefile(void)
 
 static void st_shutdown(struct platform_device *pdev)
 {
-	pr_info("[securetime]%s: kickoff\n", __func__);
+	pr_debug("[securetime]%s: kickoff\n", __func__);
 }
 #endif
 
@@ -1392,7 +1392,7 @@ int KREE_ServGetChunkmemPool(u32 op,
 	chunkmem->size = secure_size;
 	chunkmem->chunkmem_pa = (uint64_t)page_to_phys(secure_pages);
 
-	pr_info("%s() get @%llx [0x%zx]\n", __func__,
+	pr_debug("%s() get @%llx [0x%zx]\n", __func__,
 			chunkmem->chunkmem_pa, secure_size);
 
 	/* flush cache to avoid writing secure memory after allocation. */
@@ -1409,7 +1409,7 @@ int KREE_ServReleaseChunkmemPool(u32 op,
 
 		cma_release(tz_cma, secure_pages,
 				cma_get_size(tz_cma)>>PAGE_SHIFT);
-		pr_info("%s() release @%pax [0x%zx]\n", __func__,
+		pr_debug("%s() release @%pax [0x%zx]\n", __func__,
 				&addr, secure_size);
 		secure_pages = NULL;
 		secure_size = 0;
@@ -1721,7 +1721,7 @@ static int __init rmem_tz_sec_setup(struct reserved_mem *rmem)
 	}
 
 	tz_cma = cma;
-	pr_info("Reserved memory: created CMA memory pool at %pa, size %ld MiB\n",
+	pr_debug("Reserved memory: created CMA memory pool at %pa, size %ld MiB\n",
 		&rmem->base, (unsigned long)rmem->size / SZ_1M);
 
 	return 0;

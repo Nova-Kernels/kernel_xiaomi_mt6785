@@ -58,7 +58,7 @@ struct mt6370_pmu_ldo_platform_data {
 
 static irqreturn_t mt6370_pmu_ldo_oc_irq_handler(int irq, void *data)
 {
-	pr_info("%s: IRQ triggered\n", __func__);
+	pr_debug("%s: IRQ triggered\n", __func__);
 	return IRQ_HANDLED;
 }
 
@@ -262,7 +262,7 @@ static int mt6370_pmu_ldo_probe(struct platform_device *pdev)
 	struct mt6370_pmu_ldo_platform_data pdata, mask;
 	int ret;
 
-	pr_info("%s: (%s)\n", __func__, MT6370_PMU_LDO_DRV_VERSION);
+	pr_debug("%s: (%s)\n", __func__, MT6370_PMU_LDO_DRV_VERSION);
 
 	ldo_data = devm_kzalloc(&pdev->dev, sizeof(*ldo_data), GFP_KERNEL);
 	if (!ldo_data)

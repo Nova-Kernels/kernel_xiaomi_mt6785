@@ -174,7 +174,7 @@ static int lt_reg_save(void)
 	spin_unlock_irqrestore(&elm_lock, flags);
 
 #if 0
-	pr_info(
+	pr_debug(
 		"[EMI ELM] ddr data rate: %d, valid: 0x%08x\n"
 		"%s: 0x%08x\n%s: 0x%08x\n%s: 0x%08x\n%s: 0x%08x\n"
 		"%s: 0x%08x\n%s: 0x%08x\n%s: 0x%08x\n%s: 0x%08x\n"
@@ -294,7 +294,7 @@ static irqreturn_t elm_isr(int irq, void *dev_id)
 	unsigned long flags;
 	int emi_dcm_status;
 
-	pr_info("[EMI ELM] violation\n");
+	pr_debug("[EMI ELM] violation\n");
 	lt_reg_save();
 
 	/* Reset counter */
@@ -328,11 +328,11 @@ int elm_init(unsigned int elm_irq)
 	if (elm_irq != 0) {
 		ret = request_irq(elm_irq, (irq_handler_t)elm_isr, IRQF_TRIGGER_NONE, "elm", &elm_ctrl);
 		if (ret != 0) {
-			pr_info("Fail to request emi_bw_irqnr interrupt. Error = %d.\n", ret);
+			pr_debug("Fail to request emi_bw_irqnr interrupt. Error = %d.\n", ret);
 			return ret;
 		}
 	} else
-		pr_info("[EMI] fail to register elm_irq\n");
+		pr_debug("[EMI] fail to register elm_irq\n");
 
 	elm_valid = 0;
 	lt_init();

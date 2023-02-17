@@ -152,7 +152,7 @@ static int __init systimer_compensation_init(void)
 	minute_timer.function = minute_timer_timeout;
 	rtc_dev = rtc_class_open(CONFIG_RTC_HCTOSYS_DEVICE);
 	if (rtc_dev == NULL) {
-		pr_info("[systimer] rtc_class_open rtc_dev fail\n");
+		pr_debug("[systimer] rtc_class_open rtc_dev fail\n");
 		return -1;
 	}
 	mod_timer(&minute_timer, jiffies + TIME_CHANGE_32K_FROM_13M * HZ);

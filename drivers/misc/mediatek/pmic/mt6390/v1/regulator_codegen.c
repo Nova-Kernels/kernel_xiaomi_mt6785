@@ -640,7 +640,7 @@ static int pmic_ldo_vefuse_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vefuse enable\n");
+	pr_debug("ldo vefuse enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -660,7 +660,7 @@ static int pmic_ldo_vefuse_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vefuse disable\n");
+	pr_debug("ldo vefuse disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -767,7 +767,7 @@ static int pmic_ldo_vcn33_bt_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcn33_bt enable\n");
+	pr_debug("ldo vcn33_bt enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -787,7 +787,7 @@ static int pmic_ldo_vcn33_bt_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcn33_bt disable\n");
+	pr_debug("ldo vcn33_bt disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -1084,7 +1084,7 @@ static int pmic_ldo_vcn18_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcn18 enable\n");
+	pr_debug("ldo vcn18 enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -1104,7 +1104,7 @@ static int pmic_ldo_vcn18_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcn18 disable\n");
+	pr_debug("ldo vcn18 disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -1147,7 +1147,7 @@ static int pmic_ldo_vcama_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcama enable\n");
+	pr_debug("ldo vcama enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -1167,7 +1167,7 @@ static int pmic_ldo_vcama_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcama disable\n");
+	pr_debug("ldo vcama disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -1274,7 +1274,7 @@ static int pmic_ldo_vcamd_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcamd enable\n");
+	pr_debug("ldo vcamd enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -1294,7 +1294,7 @@ static int pmic_ldo_vcamd_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcamd disable\n");
+	pr_debug("ldo vcamd disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -1605,7 +1605,7 @@ static int pmic_ldo_vcamio_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcamio enable\n");
+	pr_debug("ldo vcamio enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -1625,7 +1625,7 @@ static int pmic_ldo_vcamio_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vcamio disable\n");
+	pr_debug("ldo vcamio disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -1668,7 +1668,7 @@ static int pmic_ldo_vldo28_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vldo28 enable\n");
+	pr_debug("ldo vldo28 enable\n");
 	if (mreg->en_cb != NULL) {
 		ret = (mreg->en_cb)(1);
 		/* this OC interrupt needs to delay 1ms after enable power */
@@ -2275,7 +2275,7 @@ static int pmic_ldo_vaud28_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vaud28 enable\n");
+	pr_debug("ldo vaud28 enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -2295,7 +2295,7 @@ static int pmic_ldo_vaud28_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vaud28 disable\n");
+	pr_debug("ldo vaud28 disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -2456,7 +2456,7 @@ static int pmic_ldo_vmc_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vmc enable\n");
+	pr_debug("ldo vmc enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -2476,7 +2476,7 @@ static int pmic_ldo_vmc_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vmc disable\n");
+	pr_debug("ldo vmc disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -2583,7 +2583,7 @@ static int pmic_ldo_vmch_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vmch enable\n");
+	pr_debug("ldo vmch enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -2603,7 +2603,7 @@ static int pmic_ldo_vmch_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vmch disable\n");
+	pr_debug("ldo vmch disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -2710,7 +2710,7 @@ static int pmic_ldo_vemc_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vemc enable\n");
+	pr_debug("ldo vemc enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -2730,7 +2730,7 @@ static int pmic_ldo_vemc_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vemc disable\n");
+	pr_debug("ldo vemc disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -2837,7 +2837,7 @@ static int pmic_ldo_vsim1_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vsim1 enable\n");
+	pr_debug("ldo vsim1 enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -2857,7 +2857,7 @@ static int pmic_ldo_vsim1_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vsim1 disable\n");
+	pr_debug("ldo vsim1 disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -2964,7 +2964,7 @@ static int pmic_ldo_vsim2_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vsim2 enable\n");
+	pr_debug("ldo vsim2 enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -2984,7 +2984,7 @@ static int pmic_ldo_vsim2_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vsim2 disable\n");
+	pr_debug("ldo vsim2 disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -3091,7 +3091,7 @@ static int pmic_ldo_vibr_enable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vibr enable\n");
+	pr_debug("ldo vibr enable\n");
 	if (mreg->en_cb != NULL)
 		ret = (mreg->en_cb)(1);
 	else {
@@ -3111,7 +3111,7 @@ static int pmic_ldo_vibr_disable(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("ldo vibr disable\n");
+	pr_debug("ldo vibr disable\n");
 	if (rdev->use_count == 0) {
 		RGLTRLOG("%s should not be disable. (use_count=0).\n"
 			 , __func__);
@@ -3354,7 +3354,7 @@ static int pmic_buck_set_mode(struct regulator_dev *rdev, unsigned int mode)
 	}
 	pmic_set_register_value(mreg->modeset_reg, val);
 	if (val == pmic_get_register_value(mreg->modeset_reg))
-		pr_info("BUCK %s set FPWM mode:%d pass\n"
+		pr_debug("BUCK %s set FPWM mode:%d pass\n"
 			, mreg->desc.name, val);
 	else {
 		pr_notice("BUCK %s set FPWM mode:%d fail\n"

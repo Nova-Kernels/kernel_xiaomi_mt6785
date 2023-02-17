@@ -1348,7 +1348,7 @@ static int __init tee_tz_init(void)
 {
 	int rc;
 
-	pr_info("TrustKernel TEE Driver initialization\n");
+	pr_debug("TrustKernel TEE Driver initialization\n");
 
 	rc = tee_init_smc_xfer();
 	if (rc < 0)
@@ -1381,7 +1381,7 @@ err0:
 
 static void __exit tee_tz_exit(void)
 {
-	pr_info("TrustKernel TEE Driver Release\n");
+	pr_debug("TrustKernel TEE Driver Release\n");
 
 	platform_device_unregister(&tz_0_plt_device);
 	platform_driver_unregister(&tz_tee_driver);

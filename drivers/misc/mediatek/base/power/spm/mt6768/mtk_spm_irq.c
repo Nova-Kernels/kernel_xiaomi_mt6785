@@ -80,11 +80,11 @@ static void mtk_spm_get_edge_trigger_irq(void)
 	struct device_node *node;
 	unsigned int irq_type;
 
-	pr_info("[SPM] edge trigger irqs:\n");
+	pr_debug("[SPM] edge trigger irqs:\n");
 	for (i = 0; i < IRQ_NUMBER; i++) {
 		node = of_find_compatible_node(NULL, NULL, list[i].name);
 		if (!node) {
-			pr_info("[SPM] find '%s' node failed\n",
+			pr_debug("[SPM] find '%s' node failed\n",
 				list[i].name);
 			continue;
 		}
@@ -93,7 +93,7 @@ static void mtk_spm_get_edge_trigger_irq(void)
 			irq_of_parse_and_map(node, list[i].order);
 
 		if (!edge_trig_irqs[i]) {
-			pr_info("[SPM] get '%s' failed\n",
+			pr_debug("[SPM] get '%s' failed\n",
 				list[i].name);
 			continue;
 		}
@@ -102,7 +102,7 @@ static void mtk_spm_get_edge_trigger_irq(void)
 		irq_type = irq_get_trigger_type(edge_trig_irqs[i]);
 		irq_set_irq_type(edge_trig_irqs[i], irq_type);
 
-		pr_info("[SPM] '%s', irq=%d, type=%d\n", list[i].name,
+		pr_debug("[SPM] '%s', irq=%d, type=%d\n", list[i].name,
 			edge_trig_irqs[i], irq_type);
 	}
 }
@@ -222,7 +222,7 @@ static irqreturn_t spm_irq0_handler(int irq, void *dev_id)
 	spin_unlock_irqrestore(&__spm_lock, flags);
 
 	if (isr & (ISRS_SW_INT1)) {
-		pr_info("[SPM] IRQ0 (ISRS_SW_INT1) HANDLER SHOULD NOT BE EXECUTED (0x%x)\n",
+		pr_debug("[SPM] IRQ0 (ISRS_SW_INT1) HANDLER SHOULD NOT BE EXECUTED (0x%x)\n",
 			isr);
 		#if !defined(CONFIG_FPGA_EARLY_PORTING)
 		spm_vcorefs_dump_dvfs_regs(NULL);
@@ -235,7 +235,7 @@ static irqreturn_t spm_irq0_handler(int irq, void *dev_id)
 		twam_handler(&twamsig, &twam_sel);
 
 	if (isr & (ISRS_SW_INT0 | ISRS_PCM_RETURN))
-		pr_info("[SPM] IRQ0 HANDLER SHOULD NOT BE EXECUTED (0x%x)\n",
+		pr_debug("[SPM] IRQ0 HANDLER SHOULD NOT BE EXECUTED (0x%x)\n",
 			isr);
 
 	return IRQ_HANDLED;
@@ -261,7 +261,7 @@ int mtk_spm_irq_register(unsigned int spmirq0)
 				IRQF_PERCPU,
 				"SPM", NULL);
 			if (err) {
-				pr_info("[SPM] FAILED TO REQUEST IRQ%d (%d)\n",
+				pr_debug("[SPM] FAILED TO REQUEST IRQ%d (%d)\n",
 					i, err);
 				r = -EPERM;
 			}

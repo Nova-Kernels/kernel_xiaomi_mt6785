@@ -316,7 +316,7 @@ static int set_cache_control(const char *buf, const struct kernel_param *kp)
 		return 0;
 	}
 
-	pr_info("Changing state from %d to %d ...\n", is_cache_ctrl_enabled, val);
+	pr_debug("Changing state from %d to %d ...\n", is_cache_ctrl_enabled, val);
 
 	if (val == 0 || val == 1)
 		ret = param_set_int(buf, kp);
@@ -326,7 +326,7 @@ static int set_cache_control(const char *buf, const struct kernel_param *kp)
 	if (ret < 0)
 		return ret;
 
-	pr_info("[Change complete] %s with mode %d\n",
+	pr_debug("[Change complete] %s with mode %d\n",
 		is_cache_ctrl_enabled ? "enable":"disable",
 		is_cache_ctrl_enabled);
 	return 0;

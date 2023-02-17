@@ -1038,7 +1038,7 @@ int nandx_chip_read_retry(struct nandx_chip *chip,
 
 	rr_ops->exit(chip);
 
-	pr_info("nandx-rr2 %d %d\n", *count, ret);
+	pr_debug("nandx-rr2 %d %d\n", *count, ret);
 
 	ops->status = ret;
 	return ret;

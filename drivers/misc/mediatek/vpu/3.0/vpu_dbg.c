@@ -237,7 +237,7 @@ static char *vpu_debug_simple_write(const char __user *buffer, size_t count)
 
 	ret = copy_from_user(buf, buffer, count);
 	if (ret) {
-		pr_info("%s: copy_from_user: ret=%d\n", __func__, ret);
+		pr_debug("%s: copy_from_user: ret=%d\n", __func__, ret);
 		kfree(buf);
 		buf = NULL;
 		goto out;

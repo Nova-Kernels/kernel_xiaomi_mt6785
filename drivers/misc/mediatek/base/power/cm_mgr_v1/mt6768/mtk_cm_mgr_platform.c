@@ -95,7 +95,7 @@ static int *vcore_opp_bw_ptr(int idx)
 		return VCORE_OPP_BW_PTR(1);
 	}
 
-	pr_info("#@# %s(%d) warning value %d\n", __func__, __LINE__, idx);
+	pr_debug("#@# %s(%d) warning value %d\n", __func__, __LINE__, idx);
 	return NULL;
 };
 
@@ -303,11 +303,11 @@ static int cm_mgr_check_dram_type(void)
 		cm_mgr_idx = CM_MGR_LP4;
 	else if (ddr_type == TYPE_LPDDR3)
 		cm_mgr_idx = CM_MGR_LP3;
-	pr_info("#@# %s(%d) ddr_type 0x%x, ddr_hz %d, cm_mgr_idx 0x%x\n",
+	pr_debug("#@# %s(%d) ddr_type 0x%x, ddr_hz %d, cm_mgr_idx 0x%x\n",
 			__func__, __LINE__, ddr_type, ddr_hz, cm_mgr_idx);
 #else
 	cm_mgr_idx = 0;
-	pr_info("#@# %s(%d) NO CONFIG_MTK_DRAMC !!! set cm_mgr_idx to 0x%x\n",
+	pr_debug("#@# %s(%d) NO CONFIG_MTK_DRAMC !!! set cm_mgr_idx to 0x%x\n",
 			__func__, __LINE__, cm_mgr_idx);
 #endif /* CONFIG_MTK_DRAMC */
 
@@ -569,14 +569,14 @@ static int cm_mgr_fb_notifier_callback(struct notifier_block *self,
 
 	switch (blank) {
 	case FB_BLANK_UNBLANK:
-		pr_info("#@# %s(%d) SCREEN ON\n", __func__, __LINE__);
+		pr_debug("#@# %s(%d) SCREEN ON\n", __func__, __LINE__);
 		cm_mgr_blank_status = 0;
 #if defined(CONFIG_MTK_TINYSYS_SSPM_SUPPORT) && defined(USE_CM_MGR_AT_SSPM)
 		cm_mgr_to_sspm_command(IPI_CM_MGR_BLANK, 0);
 #endif /* CONFIG_MTK_TINYSYS_SSPM_SUPPORT */
 		break;
 	case FB_BLANK_POWERDOWN:
-		pr_info("#@# %s(%d) SCREEN OFF\n", __func__, __LINE__);
+		pr_debug("#@# %s(%d) SCREEN OFF\n", __func__, __LINE__);
 		cm_mgr_blank_status = 1;
 		cm_mgr_set_dram_level(-1);
 #if defined(CONFIG_MTK_TINYSYS_SSPM_SUPPORT) && defined(USE_CM_MGR_AT_SSPM)
@@ -757,10 +757,10 @@ int cm_mgr_register_init(void)
 	node = of_find_compatible_node(NULL, NULL,
 			"mediatek,mcucfg_mp0_counter");
 	if (!node)
-		pr_info("find mcucfg_mp0_counter node failed\n");
+		pr_debug("find mcucfg_mp0_counter node failed\n");
 	mcucfg_mp0_counter_base = of_iomap(node, 0);
 	if (!mcucfg_mp0_counter_base) {
-		pr_info("base mcucfg_mp0_counter_base failed\n");
+		pr_debug("base mcucfg_mp0_counter_base failed\n");
 		return -1;
 	}
 
@@ -787,7 +787,7 @@ int cm_mgr_platform_init(void)
 
 	r = cm_mgr_register_init();
 	if (r) {
-		pr_info("FAILED TO CREATE REGISTER(%d)\n", r);
+		pr_debug("FAILED TO CREATE REGISTER(%d)\n", r);
 		return r;
 	}
 
@@ -795,7 +795,7 @@ int cm_mgr_platform_init(void)
 
 	r = fb_register_client(&cm_mgr_fb_notifier);
 	if (r) {
-		pr_info("FAILED TO REGISTER FB CLIENT (%d)\n", r);
+		pr_debug("FAILED TO REGISTER FB CLIENT (%d)\n", r);
 		return r;
 	}
 

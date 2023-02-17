@@ -41,7 +41,7 @@ void mt_power_gs_suspend_compare(unsigned int dump_flag)
 {
 	if (dump_flag & GS_PMIC) {
 		/* 32k-less */
-		pr_info("Power_gs: %s in 32k-less\n", __func__);
+		pr_debug("Power_gs: %s in 32k-less\n", __func__);
 		mt_power_gs_compare("Suspend ", "6358",
 		AP_MT6358_PMIC_Register_Mapping_E2_gs_suspend_32kless,
 		AP_MT6358_PMIC_Register_Mapping_E2_gs_suspend_32kless_len);
@@ -66,7 +66,7 @@ void mt_power_gs_dpidle_compare(unsigned int dump_flag)
 {
 	if (dump_flag & GS_PMIC) {
 		/* 32k-less */
-		pr_info("Power_gs: %s in 32k-less\n", __func__);
+		pr_debug("Power_gs: %s in 32k-less\n", __func__);
 		mt_power_gs_compare("DPIdle  ", "6358",
 		AP_MT6358_PMIC_Register_Mapping_E2_gs_deepidle___lp_mp3_32kless,
 	AP_MT6358_PMIC_Register_Mapping_E2_gs_deepidle___lp_mp3_32kless_len);
@@ -91,7 +91,7 @@ void mt_power_gs_sodi_compare(unsigned int dump_flag)
 {
 	if (dump_flag & GS_PMIC) {
 		/* 32k-less */
-		pr_info("Power_gs: %s in 32k-less\n", __func__);
+		pr_debug("Power_gs: %s in 32k-less\n", __func__);
 		mt_power_gs_compare("SODI  ", "6358",
 		AP_MT6358_PMIC_Register_Mapping_E2_gs_sodi3p0_32kless,
 		AP_MT6358_PMIC_Register_Mapping_E2_gs_sodi3p0_32kless_len);

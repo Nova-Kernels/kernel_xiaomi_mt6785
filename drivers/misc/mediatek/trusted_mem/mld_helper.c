@@ -47,7 +47,7 @@ struct tcore_mem_list_context g_mld_context;
 
 void mld_init(void)
 {
-	pr_info("TMEM_MLD_DETECTION_ENABLED\n");
+	pr_debug("TMEM_MLD_DETECTION_ENABLED\n");
 
 	INIT_LIST_HEAD(&g_mld_context.tcore_list.list);
 	mutex_init(&g_mld_context.lock);

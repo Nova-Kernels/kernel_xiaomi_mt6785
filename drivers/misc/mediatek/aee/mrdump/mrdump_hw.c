@@ -115,7 +115,7 @@ int __init mrdump_hw_init(void)
 	mrdump_wd_dram_reserved_mode(true);
 #endif
 #endif
-	pr_info("%s: init_done.\n", __func__);
+	pr_debug("%s: init_done.\n", __func__);
 	return 0;
 }
 

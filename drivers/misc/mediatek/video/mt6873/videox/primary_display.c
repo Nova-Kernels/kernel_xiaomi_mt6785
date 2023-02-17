@@ -699,7 +699,7 @@ static int _fps_ctx_reset(struct fps_ctx_t *fps_ctx, int reserve_num)
 	int i;
 
 	if (reserve_num >= FPS_ARRAY_SZ) {
-		pr_info("%s error to reset, reserve=%d\n",
+		pr_debug("%s error to reset, reserve=%d\n",
 			__func__, reserve_num);
 		WARN_ON(1);
 	}
@@ -747,7 +747,7 @@ static int fps_ctx_init(struct fps_ctx_t *fps_ctx, int wnd_sz)
 	mutex_init(&fps_ctx->lock);
 
 	if (wnd_sz > FPS_ARRAY_SZ) {
-		pr_info("%s error: wnd_sz = %d\n", __func__, wnd_sz);
+		pr_debug("%s error: wnd_sz = %d\n", __func__, wnd_sz);
 		wnd_sz = FPS_ARRAY_SZ;
 	}
 	fps_ctx->wnd_sz = wnd_sz;
@@ -2631,7 +2631,7 @@ static int init_decouple_buffers(void)
 	decouple_wdma_config.dstPitch = width * Bpp;
 	decouple_wdma_config.security = DISP_NORMAL_BUFFER;
 
-	pr_info("%s done\n", __func__);
+	pr_debug("%s done\n", __func__);
 	return 0;
 }
 
@@ -8457,7 +8457,7 @@ UINT32 DISP_GetVRamSizeBoot(char *cmdline)
 
 	vramsize = mtkfb_get_fb_size();
 	if (!vramsize)
-		pr_info("get fb size fail, size=0x%08x|%d\n",
+		pr_debug("get fb size fail, size=0x%08x|%d\n",
 			vramsize, vramsize);
 	DISPCHECK("[DT]display vram size = 0x%08x|%d\n",
 		vramsize, vramsize);
@@ -8474,7 +8474,7 @@ unsigned int primary_display_get_option(const char *option)
 		return disp_helper_get_option(DISP_OPT_USE_M4U);
 
 	/* ASSERT(0); */
-	pr_info("%s, invalid option\n", __func__);
+	pr_debug("%s, invalid option\n", __func__);
 	return -1;
 }
 
@@ -9274,7 +9274,7 @@ err0:
 
 int display_exit_tui(void)
 {
-	pr_info("[TUI-HAL] %s start\n", __func__);
+	pr_debug("[TUI-HAL] %s start\n", __func__);
 	mmprofile_log_ex(ddp_mmp_get_events()->tui,
 		MMPROFILE_FLAG_PULSE, 1, 1);
 
@@ -9299,7 +9299,7 @@ int display_exit_tui(void)
 
 	mmprofile_log_ex(ddp_mmp_get_events()->tui, MMPROFILE_FLAG_END, 0, 0);
 	DISPMSG("TDDP: %s\n", __func__);
-	pr_info("[TUI-HAL] %s() done\n", __func__);
+	pr_debug("[TUI-HAL] %s() done\n", __func__);
 	return 0;
 }
 
@@ -9375,7 +9375,7 @@ int primary_display_set_scenario(int scenario)
 	if (scenario != DISP_SCENARIO_NORMAL &&
 	    pgc->primary_display_scenario != DISP_SCENARIO_NORMAL) {
 		/* every scenario should start from NORMAL !! */
-		pr_info("%s set scenario %d fail ! current scenario is %d\n",
+		pr_debug("%s set scenario %d fail ! current scenario is %d\n",
 			__func__, scenario, pgc->primary_display_scenario);
 		return -EINVAL;
 	}

@@ -391,6 +391,6 @@ static struct trusted_driver_operations mtee_peer_ops = {
 
 void get_mtee_peer_ops(struct trusted_driver_operations **ops)
 {
-	pr_info("MTEE_PEER_OPS\n");
+	pr_debug("MTEE_PEER_OPS\n");
 	*ops = &mtee_peer_ops;
 }

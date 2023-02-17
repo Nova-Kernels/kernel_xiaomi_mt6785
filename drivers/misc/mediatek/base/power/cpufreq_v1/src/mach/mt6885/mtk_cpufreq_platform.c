@@ -497,7 +497,7 @@ unsigned int get_cur_phy_freq(struct pll_ctrl_t *pll_p)
 	ckdiv1 = _GET_BITS_VAL_(21:17, ckdiv1);
 	cur_khz = _cpu_freq_calc(con1, ckdiv1);
 #if 0
-	tag_pr_info
+	tag_pr_debug
 	("@%s: (%s) = cur_khz = %u, con1[0x%p] = 0x%x, ckdiv1_val = 0x%x\n",
 	__func__, pll_p->name, cur_khz, pll_p->armpll_addr, con1, ckdiv1);
 #endif
@@ -612,29 +612,29 @@ int mt_cpufreq_regulator_map(struct platform_device *pdev)
 {
 	regulator_proc1 = regulator_get_optional(&pdev->dev, "6_vbuck1");
 	if (GEN_DB_ON(IS_ERR(regulator_proc1), "vproc1 Get Failed")) {
-		tag_pr_info("@@6vbuck1 Get Failed\n");
+		tag_pr_debug("@@6vbuck1 Get Failed\n");
 		return -ENODEV;
 	}
 
 	regulator_proc2 = regulator_get_optional(&pdev->dev, "6_vbuck3");
 	if (GEN_DB_ON(IS_ERR(regulator_proc2), "6vbuck3 Get Failed")) {
-		tag_pr_info("@@6vbuck3 Get Failed\n");
+		tag_pr_debug("@@6vbuck3 Get Failed\n");
 		return -ENODEV;
 	}
 
 	regulator_sram1 = regulator_get_optional(&pdev->dev, "vsram_proc1");
 	if (GEN_DB_ON(IS_ERR(regulator_sram1), "vsram_proc1 Get Failed")) {
-		tag_pr_info("@@vsram1 Get Failed\n");
+		tag_pr_debug("@@vsram1 Get Failed\n");
 		return -ENODEV;
 	}
 
 	regulator_sram2 = regulator_get_optional(&pdev->dev, "vsram_proc2");
 	if (GEN_DB_ON(IS_ERR(regulator_sram2), "vsram_proc2 Get Failed")) {
-		tag_pr_info("@@vsram2 Get Failed\n");
+		tag_pr_debug("@@vsram2 Get Failed\n");
 		return -ENODEV;
 	}
 	pmic_ready_flag = 1;
-	tag_pr_info("@@regulator map success!!\n");
+	tag_pr_debug("@@regulator map success!!\n");
 	return 0;
 }
 
@@ -681,7 +681,7 @@ unsigned int _mt_cpufreq_get_cpu_level(void)
 
 	turbo_flag = 0;
 
-	tag_pr_info("%d, %d, Settle time(%d, %d) efuse_val = 0x%x\n",
+	tag_pr_debug("%d, %d, Settle time(%d, %d) efuse_val = 0x%x\n",
 		lv, turbo_flag, UP_SRATE, DOWN_SRATE, val);
 	return lv;
 }
@@ -707,7 +707,7 @@ void _dfd_workaround(void)
 		return;
 
 	if (!pmic_ready_flag) {
-		tag_pr_info("REGULATOR NOT READY!!\n");
+		tag_pr_debug("REGULATOR NOT READY!!\n");
 		return;
 	}
 	start = ktime_get();
@@ -723,7 +723,7 @@ void _dfd_workaround(void)
 
 	b_vproc_p->buck_ops->set_cur_volt(b_vproc_p, 110000);
 	b_vsram_p->buck_ops->set_cur_volt(b_vsram_p,  80000);
-	tag_pr_info("time_d = %llu, wflag = %d b_vproc %u b_vsram = %u\n",
+	tag_pr_debug("time_d = %llu, wflag = %d b_vproc %u b_vsram = %u\n",
 	curtime, wait_flag,
 	b_vproc_p->buck_ops->get_cur_volt(b_vproc_p),
 	b_vsram_p->buck_ops->get_cur_volt(b_vsram_p));

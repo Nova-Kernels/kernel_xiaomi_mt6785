@@ -51,13 +51,13 @@
 #endif
 
 #ifdef DBG_KREE_SYS
-#define KREE_DEBUG(fmt...) pr_info("[KREE]" fmt)
-#define KREE_INFO(fmt...) pr_info("[KREE]" fmt)
-#define KREE_ERR(fmt...) pr_info("[KREE][ERR]" fmt)
+#define KREE_DEBUG(fmt...) pr_debug("[KREE]" fmt)
+#define KREE_INFO(fmt...) pr_debug("[KREE]" fmt)
+#define KREE_ERR(fmt...) pr_debug("[KREE][ERR]" fmt)
 #else
 #define KREE_DEBUG(fmt...)
-#define KREE_INFO(fmt...) pr_info("[KREE]" fmt)
-#define KREE_ERR(fmt...) pr_info("[KREE][ERR]" fmt)
+#define KREE_INFO(fmt...) pr_debug("[KREE]" fmt)
+#define KREE_ERR(fmt...) pr_debug("[KREE][ERR]" fmt)
 #endif
 
 #define DYNAMIC_TIPC_LEN
@@ -265,7 +265,7 @@ TZ_RESULT KREE_SessionToTID(KREE_SESSION_HANDLE session, enum tee_id_t *o_tid)
 	}
 
 	port_lookup_tid("com.default.tee_id", o_tid);
-	pr_info("[%s] session %d to tee id failed, return default %d\n",
+	pr_debug("[%s] session %d to tee id failed, return default %d\n",
 		__func__, session, *o_tid);
 	return TZ_RESULT_ERROR_NO_DATA;
 }

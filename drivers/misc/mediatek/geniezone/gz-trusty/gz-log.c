@@ -111,13 +111,13 @@ static struct gz_log_context glctx;
 static int __init gz_log_context_init(struct reserved_mem *rmem)
 {
 	if (!rmem) {
-		pr_info("[%s] ERROR: invalid reserved memory\n", __func__);
+		pr_debug("[%s] ERROR: invalid reserved memory\n", __func__);
 		return -EFAULT;
 	}
 	glctx.paddr = rmem->base;
 	glctx.size = rmem->size;
 	glctx.flag = STATIC;
-	pr_info("[%s] rmem:%s base(0x%llx) size(0x%zx)\n",
+	pr_debug("[%s] rmem:%s base(0x%llx) size(0x%zx)\n",
 		__func__, rmem->name, glctx.paddr, glctx.size);
 	return 0;
 }
@@ -132,13 +132,13 @@ static int gz_log_page_init(void)
 		glctx.virt = ioremap(glctx.paddr, glctx.size);
 
 		if (!glctx.virt) {
-			pr_info("[%s] ERROR: ioremap failed, use dynamic\n",
+			pr_debug("[%s] ERROR: ioremap failed, use dynamic\n",
 				__func__);
 			glctx.flag = DYNAMIC;
 			goto dynamic_alloc;
 		}
 
-		pr_info("[%s] set by static, virt addr:%p, sz:0x%zx\n",
+		pr_debug("[%s] set by static, virt addr:%p, sz:0x%zx\n",
 			__func__, glctx.virt, glctx.size);
 	} else {
 dynamic_alloc:
@@ -149,7 +149,7 @@ dynamic_alloc:
 			return -ENOMEM;
 
 		glctx.paddr = virt_to_phys(glctx.virt);
-		pr_info("[%s] set by dynamic, virt:%p, sz:0x%zx\n",
+		pr_debug("[%s] set by dynamic, virt:%p, sz:0x%zx\n",
 			__func__, glctx.virt, glctx.size);
 	}
 
@@ -164,12 +164,12 @@ void get_gz_log_buffer(unsigned long *addr, unsigned long *paddr,
 
 	if (!glctx.virt) {
 		*addr = *paddr = *size = *start = 0;
-		pr_info("[%s] ERR gz_log init failed\n", __func__);
+		pr_debug("[%s] ERR gz_log init failed\n", __func__);
 		return;
 	}
 	*addr = (unsigned long)glctx.virt;
 	*paddr = (unsigned long)glctx.paddr;
-	pr_info("[%s] virtual address:0x%lx, paddr:0x%lx\n",
+	pr_debug("[%s] virtual address:0x%lx, paddr:0x%lx\n",
 		__func__, (unsigned long)*addr, *paddr);
 	*size = glctx.size;
 	*start = 0;
@@ -230,7 +230,7 @@ static int trusty_log_panic_notify(struct notifier_block *nb,
 	 * Don't grab the spin lock to hold up the panic notifier, even
 	 * though this is racy.
 	 */
-	pr_info("trusty-log panic notifier - trusty version %s",
+	pr_debug("trusty-log panic notifier - trusty version %s",
 		trusty_version_str_get(gls->trusty_dev));
 	atomic_inc(&gls->gz_log_event_count);
 	wake_up_interruptible(&gls->gz_log_wq);
@@ -245,20 +245,20 @@ static bool trusty_supports_logging(struct device *device)
 				MTEE_SMCNR(SMCF_SC_SHARED_LOG_VERSION, device),
 				TRUSTY_LOG_API_VERSION, 0, 0);
 	if (ret == SM_ERR_UNDEFINED_SMC) {
-		pr_info("trusty-log not supported on secure side.\n");
+		pr_debug("trusty-log not supported on secure side.\n");
 		return false;
 	} else if (ret < 0) {
-		pr_info("trusty std call (GZ_SHARED_LOG_VERSION) failed: %d\n",
+		pr_debug("trusty std call (GZ_SHARED_LOG_VERSION) failed: %d\n",
 		       ret);
 		return false;
 	}
 
 	if (ret == TRUSTY_LOG_API_VERSION) {
-		pr_info("trusty-log API supported: %d\n", ret);
+		pr_debug("trusty-log API supported: %d\n", ret);
 		return true;
 	}
 
-	pr_info("trusty-log unsupported api version: %d, supported: %d\n",
+	pr_debug("trusty-log unsupported api version: %d, supported: %d\n",
 		ret, TRUSTY_LOG_API_VERSION);
 	return false;
 }
@@ -788,7 +788,7 @@ static int trusty_gz_log_remove(struct platform_device *pdev)
 			MTEE_SMCNR(SMCF_SC_SHARED_LOG_RM, gls->trusty_dev),
 			(u32)glctx.paddr, (u32)((u64)glctx.paddr >> 32), 0);
 	if (ret)
-		pr_info("std call(GZ_SHARED_LOG_RM) failed: %d\n", ret);
+		pr_debug("std call(GZ_SHARED_LOG_RM) failed: %d\n", ret);
 
 	if (glctx.flag == STATIC)
 		iounmap(glctx.virt);

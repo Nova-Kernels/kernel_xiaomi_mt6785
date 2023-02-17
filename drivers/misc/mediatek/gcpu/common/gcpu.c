@@ -59,7 +59,7 @@ static int gcpu_probe(struct platform_device *pdev)
 			NULL);
 
 	if (ret != 0)
-		pr_info("[GCPU] request irq %d fail %d\n", gcpu_irq, ret);
+		pr_debug("[GCPU] request irq %d fail %d\n", gcpu_irq, ret);
 	else
 		pr_debug("[GCPU] request irq (%d) succeed!!\n", gcpu_irq);
 
@@ -96,7 +96,7 @@ static int __init gcpu_init(void)
 
 	ret = platform_driver_register(&mtk_gcpu_driver);
 	if (ret)
-		pr_info("[GCPU] init FAIL, ret 0x%x!!!\n", ret);
+		pr_debug("[GCPU] init FAIL, ret 0x%x!!!\n", ret);
 
 	return ret;
 }

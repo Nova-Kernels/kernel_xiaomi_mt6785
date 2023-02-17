@@ -26,7 +26,7 @@
 #define GCPU_DEV_NAME "MTK_GCPU"
 
 #define GCPU_INFO(log, args...) \
-	pr_info("[%s] [%d] INFO: "log, __func__, __LINE__, ##args)
+	pr_debug("[%s] [%d] INFO: "log, __func__, __LINE__, ##args)
 #define GCPU_DEBUG(log, args...) \
 	pr_debug("[%s] [%d] "log, __func__, __LINE__, ##args)
 

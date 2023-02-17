@@ -28,25 +28,25 @@ unsigned int __attribute__((weak)) dcm_get_chip_sw_ver(void)
 
 void __attribute__((weak)) dcm_pre_init(void)
 {
-	dcm_pr_info("weak function of %s\n", __func__);
+	dcm_pr_debug("weak function of %s\n", __func__);
 }
 
 short __attribute__((weak)) dcm_get_cpu_cluster_stat(void)
 {
-	dcm_pr_info("weak function of %s\n", __func__);
+	dcm_pr_debug("weak function of %s\n", __func__);
 
 	return 0;
 }
 
 void __attribute__((weak)) dcm_infracfg_ao_emi_indiv(int on)
 {
-	dcm_pr_info("weak function of %s: on=%d\n", __func__, on);
+	dcm_pr_debug("weak function of %s: on=%d\n", __func__, on);
 }
 
 int __attribute__((weak)) dcm_set_stall_wr_del_sel
 				(unsigned int mp0, unsigned int mp1)
 {
-	dcm_pr_info("weak function of %s: mp0=%d, mp1=%d\n",
+	dcm_pr_debug("weak function of %s: mp0=%d, mp1=%d\n",
 					__func__, mp0, mp1);
 
 	return 0;
@@ -55,13 +55,13 @@ int __attribute__((weak)) dcm_set_stall_wr_del_sel
 void __attribute__((weak)) dcm_set_fmem_fsel_dbc
 				(unsigned int fsel, unsigned int dbc)
 {
-	dcm_pr_info("weak function of %s: fsel=%d, dbc=%d\n",
+	dcm_pr_debug("weak function of %s: fsel=%d, dbc=%d\n",
 					__func__, fsel, dbc);
 }
 
 int __attribute__((weak)) dcm_smc_get_cnt(int type_id)
 {
-	dcm_pr_info("weak function of %s: dcm->type_id=%d\n",
+	dcm_pr_debug("weak function of %s: dcm->type_id=%d\n",
 					__func__, type_id);
 
 	return 0;
@@ -69,63 +69,63 @@ int __attribute__((weak)) dcm_smc_get_cnt(int type_id)
 
 void __attribute__((weak)) dcm_smc_msg_send(unsigned int msg)
 {
-	dcm_pr_info("weak function of %s: msg=%d\n", __func__, msg);
+	dcm_pr_debug("weak function of %s: msg=%d\n", __func__, msg);
 }
 
 void __attribute__((weak)) dcm_set_hotplug_nb(void)
 {
-	dcm_pr_info("weak function of %s\n", __func__);
+	dcm_pr_debug("weak function of %s\n", __func__);
 }
 
 int __attribute__((weak)) sync_dcm_set_cci_freq(unsigned int cci)
 {
-	dcm_pr_info_limit("weak function of %s: cci=%u\n", __func__, cci);
+	dcm_pr_debug_limit("weak function of %s: cci=%u\n", __func__, cci);
 
 	return 0;
 }
 
 int __attribute__((weak)) sync_dcm_set_mp0_freq(unsigned int mp0)
 {
-	dcm_pr_info_limit("weak function of %s: mp0=%u\n", __func__, mp0);
+	dcm_pr_debug_limit("weak function of %s: mp0=%u\n", __func__, mp0);
 
 	return 0;
 }
 
 int __attribute__((weak)) sync_dcm_set_mp1_freq(unsigned int mp1)
 {
-	dcm_pr_info_limit("weak function of %s: mp1=%u\n", __func__, mp1);
+	dcm_pr_debug_limit("weak function of %s: mp1=%u\n", __func__, mp1);
 
 	return 0;
 }
 
 int __attribute__((weak)) sync_dcm_set_mp2_freq(unsigned int mp2)
 {
-	dcm_pr_info_limit("weak function of %s: mp2=%u\n", __func__, mp2);
+	dcm_pr_debug_limit("weak function of %s: mp2=%u\n", __func__, mp2);
 
 	return 0;
 }
 
 void __attribute__((weak)) *mt_dramc_chn_base_get(int channel)
 {
-	dcm_pr_info("weak function of %s\n", __func__);
+	dcm_pr_debug("weak function of %s\n", __func__);
 	return NULL;
 }
 
 void __attribute__((weak)) *mt_ddrphy_chn_base_get(int channel)
 {
-	dcm_pr_info("weak function of %s\n", __func__);
+	dcm_pr_debug("weak function of %s\n", __func__);
 	return NULL;
 }
 
 void __attribute__((weak)) __iomem *mt_cen_emi_base_get(void)
 {
-	dcm_pr_info("weak function of %s\n", __func__);
+	dcm_pr_debug("weak function of %s\n", __func__);
 	return 0;
 }
 
 void __attribute__((weak)) __iomem *mt_chn_emi_base_get(int chn)
 {
-	dcm_pr_info("weak function of %s\n", __func__);
+	dcm_pr_debug("weak function of %s\n", __func__);
 	return 0;
 }
 
@@ -148,10 +148,10 @@ void dcm_set_default(unsigned int type)
 	struct DCM *dcm;
 
 #ifndef ENABLE_DCM_IN_LK
-	dcm_pr_info("[%s]type:0x%08x, init_dcm_type=0x%x\n",
+	dcm_pr_debug("[%s]type:0x%08x, init_dcm_type=0x%x\n",
 					__func__, type, init_dcm_type);
 #else
-	dcm_pr_info("[%s]type:0x%08x, init_dcm_type=0x%x, INIT_DCM_TYPE_BY_K=0x%x\n",
+	dcm_pr_debug("[%s]type:0x%08x, init_dcm_type=0x%x, INIT_DCM_TYPE_BY_K=0x%x\n",
 		 __func__, type, init_dcm_type, INIT_DCM_TYPE_BY_K);
 #endif
 
@@ -172,7 +172,7 @@ void dcm_set_default(unsigned int type)
 			}
 #endif
 
-			dcm_pr_info("[%16s 0x%08x] current state:%d (%d)\n",
+			dcm_pr_debug("[%16s 0x%08x] current state:%d (%d)\n",
 				 dcm->name, dcm->typeid, dcm->current_state,
 				 dcm->disable_refcnt);
 		}
@@ -189,7 +189,7 @@ void dcm_set_state(unsigned int type, int state)
 	struct DCM *dcm;
 	unsigned int init_dcm_type_pre = init_dcm_type;
 
-	dcm_pr_info("[%s]type:0x%08x, set:%d, init_dcm_type_pre=0x%x\n",
+	dcm_pr_debug("[%s]type:0x%08x, set:%d, init_dcm_type_pre=0x%x\n",
 		 __func__, type, state, init_dcm_type_pre);
 
 	mutex_lock(&dcm_lock);
@@ -210,7 +210,7 @@ void dcm_set_state(unsigned int type, int state)
 				dcm->func(dcm->current_state);
 			}
 
-			dcm_pr_info("[%16s 0x%08x] current state:%d (%d)\n",
+			dcm_pr_debug("[%16s 0x%08x] current state:%d (%d)\n",
 				 dcm->name, dcm->typeid, dcm->current_state,
 				 dcm->disable_refcnt);
 
@@ -218,7 +218,7 @@ void dcm_set_state(unsigned int type, int state)
 	}
 
 	if (init_dcm_type_pre != init_dcm_type) {
-		dcm_pr_info("[%s]type:0x%08x, set:%d, init_dcm_type=0x%x->0x%x\n",
+		dcm_pr_debug("[%s]type:0x%08x, set:%d, init_dcm_type=0x%x->0x%x\n",
 			__func__, type, state,
 			init_dcm_type_pre,
 			init_dcm_type);
@@ -234,7 +234,7 @@ void dcm_disable(unsigned int type)
 	struct DCM *dcm;
 	unsigned int init_dcm_type_pre = init_dcm_type;
 
-	dcm_pr_info("[%s]type:0x%08x\n", __func__, type);
+	dcm_pr_debug("[%s]type:0x%08x\n", __func__, type);
 
 	mutex_lock(&dcm_lock);
 
@@ -248,7 +248,7 @@ void dcm_disable(unsigned int type)
 				init_dcm_type &= ~(dcm->typeid);
 			dcm->func(dcm->current_state);
 
-			dcm_pr_info("[%16s 0x%08x] current state:%d (%d)\n",
+			dcm_pr_debug("[%16s 0x%08x] current state:%d (%d)\n",
 				 dcm->name, dcm->typeid, dcm->current_state,
 				 dcm->disable_refcnt);
 
@@ -256,7 +256,7 @@ void dcm_disable(unsigned int type)
 	}
 
 	if (init_dcm_type_pre != init_dcm_type) {
-		dcm_pr_info("[%s]type:0x%08x, init_dcm_type=0x%x->0x%x\n",
+		dcm_pr_debug("[%s]type:0x%08x, init_dcm_type=0x%x->0x%x\n",
 			 __func__, type, init_dcm_type_pre, init_dcm_type);
 		dcm_smc_msg_send(init_dcm_type);
 	}
@@ -271,7 +271,7 @@ void dcm_restore(unsigned int type)
 	struct DCM *dcm;
 	unsigned int init_dcm_type_pre = init_dcm_type;
 
-	dcm_pr_info("[%s]type:0x%08x\n", __func__, type);
+	dcm_pr_debug("[%s]type:0x%08x\n", __func__, type);
 
 	mutex_lock(&dcm_lock);
 
@@ -292,7 +292,7 @@ void dcm_restore(unsigned int type)
 				dcm->func(dcm->current_state);
 			}
 
-			dcm_pr_info("[%16s 0x%08x] current state:%d (%d)\n",
+			dcm_pr_debug("[%16s 0x%08x] current state:%d (%d)\n",
 				 dcm->name, dcm->typeid, dcm->current_state,
 				 dcm->disable_refcnt);
 
@@ -300,7 +300,7 @@ void dcm_restore(unsigned int type)
 	}
 
 	if (init_dcm_type_pre != init_dcm_type) {
-		dcm_pr_info("[%s]type:0x%08x, init_dcm_type=0x%x->0x%x\n",
+		dcm_pr_debug("[%s]type:0x%08x, init_dcm_type=0x%x->0x%x\n",
 			 __func__, type, init_dcm_type_pre, init_dcm_type);
 		dcm_smc_msg_send(init_dcm_type);
 	}
@@ -314,10 +314,10 @@ void dcm_dump_state(int type)
 	int i;
 	struct DCM *dcm;
 
-	dcm_pr_info("\n******** dcm dump state *********\n");
+	dcm_pr_debug("\n******** dcm dump state *********\n");
 	for (i = 0, dcm = &dcm_array[0]; i < NR_DCM_TYPE; i++, dcm++) {
 		if (type & dcm->typeid) {
-			dcm_pr_info("[%-16s 0x%08x] current state:%d (%d)\n",
+			dcm_pr_debug("[%-16s 0x%08x] current state:%d (%d)\n",
 				 dcm->name, dcm->typeid, dcm->current_state,
 				 dcm->disable_refcnt);
 		}
@@ -332,7 +332,7 @@ void dcm_sync_hw_state(void)
 	for (i = 0, dcm = &dcm_array[0]; i < NR_DCM_TYPE; i++, dcm++) {
 		if (dcm->func_is_on != NULL) {
 			dcm->current_state = dcm->func_is_on();
-			dcm_pr_info("[%-16s 0x%08x] sync hw state:%d (%d)\n",
+			dcm_pr_debug("[%-16s 0x%08x] sync hw state:%d (%d)\n",
 				 dcm->name, dcm->typeid, dcm->current_state,
 				 dcm->disable_refcnt);
 		}
@@ -436,18 +436,18 @@ static ssize_t dcm_state_store(struct kobject *kobj,
 				 */
 				if (mask & STALL_DCM_TYPE) {
 					if (mode)
-						dcm_pr_info("stall dcm is enabled for Default(Normal) mode started\n");
+						dcm_pr_debug("stall dcm is enabled for Default(Normal) mode started\n");
 					else
-						dcm_pr_info("stall dcm is disabled for Performance(Sports) mode started\n");
+						dcm_pr_debug("stall dcm is disabled for Performance(Sports) mode started\n");
 				}
 			}
 		} else {
-			dcm_pr_info("SORRY, do not support your command: %s\n",
+			dcm_pr_debug("SORRY, do not support your command: %s\n",
 				    cmd);
 		}
 		ret = n;
 	} else {
-		dcm_pr_info("SORRY, do not support your command.\n");
+		dcm_pr_debug("SORRY, do not support your command.\n");
 		ret = -EINVAL;
 	}
 

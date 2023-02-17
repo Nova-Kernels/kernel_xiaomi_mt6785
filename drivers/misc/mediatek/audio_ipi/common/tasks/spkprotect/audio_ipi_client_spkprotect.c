@@ -189,14 +189,14 @@ int spkprotect_open_dump_file(void)
 
 	file_spk_pcm = filp_open(path_decode_pcm, O_CREAT | O_WRONLY, 0644);
 	if (IS_ERR(file_spk_pcm)) {
-		pr_info("%s(), %s file open error: %ld\n",
+		pr_debug("%s(), %s file open error: %ld\n",
 			__func__, path_decode_pcm, PTR_ERR(file_spk_pcm));
 		return PTR_ERR(file_spk_pcm);
 	}
 
 	file_spk_iv = filp_open(path_decode_ivpcm, O_CREAT | O_WRONLY, 0644);
 	if (IS_ERR(file_spk_iv)) {
-		pr_info("%s(), %s file open error: %ld\n",
+		pr_debug("%s(), %s file open error: %ld\n",
 			__func__, path_decode_ivpcm, PTR_ERR(file_spk_iv));
 		return PTR_ERR(file_spk_iv);
 	}
@@ -204,7 +204,7 @@ int spkprotect_open_dump_file(void)
 	file_spk_debug = filp_open(path_decode_debugpcm,
 				   O_CREAT | O_WRONLY, 0644);
 	if (IS_ERR(file_spk_debug)) {
-		pr_info("%s(), %s file open error: %ld\n",
+		pr_debug("%s(), %s file open error: %ld\n",
 			__func__, path_decode_debugpcm,
 			PTR_ERR(file_spk_debug));
 		return PTR_ERR(file_spk_debug);
@@ -349,7 +349,7 @@ void spkprotect_dump_message(struct ipi_msg_t *ipi_msg)
 	dump_idx = *temp_payload;
 
 	if (ipi_msg == NULL) {
-		pr_info("%s err\n", __func__);
+		pr_debug("%s err\n", __func__);
 		return;
 	} else if (ipi_msg->msg_id == SPK_PROTECT_PCMDUMP_OK) {
 		dump_work[dump_idx].data_size  = *(temp_payload + 1);
@@ -359,7 +359,7 @@ void spkprotect_dump_message(struct ipi_msg_t *ipi_msg)
 		if (ret == 0)
 			dump_data_routine_cnt_pass++;
 	} else
-		pr_info("%s unknown command\n", __func__);
+		pr_debug("%s unknown command\n", __func__);
 
 }
 
@@ -685,7 +685,7 @@ static int spkprotect_dump_kthread(void *data)
 			break;
 		}
 		default: {
-			pr_info("current_idx = %d, idx_r = %d, idx_w = %d, type = %d\n",
+			pr_debug("current_idx = %d, idx_r = %d, idx_w = %d, type = %d\n",
 				current_idx,
 				dump_queue->idx_r, dump_queue->idx_w,
 				dump_package->dump_data_type);

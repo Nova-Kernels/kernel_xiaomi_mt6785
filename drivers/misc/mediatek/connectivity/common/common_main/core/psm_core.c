@@ -47,7 +47,7 @@ do { \
 #define STP_PSM_PR_INFO(fmt, arg...) \
 do { \
 	if (gPsmDbgLevel >= STP_PSM_LOG_INFO) \
-		pr_info(PFX_PSM "[I]%s: "  fmt, __func__, ##arg); \
+		pr_debug(PFX_PSM "[I]%s: "  fmt, __func__, ##arg); \
 } while (0)
 #define STP_PSM_PR_WARN(fmt, arg...) \
 do { \
@@ -1839,7 +1839,7 @@ static INT32 _stp_psm_dbg_out_printk(STP_PSM_RECORD_T *stp_psm_dbg)
 	STP_PSM_PR_DBG("loged record size = %d, in(%d), out(%d)\n", dumpSize, inIndex, outIndex);
 	while (dumpSize > 0) {
 
-		pr_info("STP-PSM:%d.%ds, n(%d)pre_flag(%d)cur_flag(%d)line_no(%d)\n",
+		pr_debug("STP-PSM:%d.%ds, n(%d)pre_flag(%d)cur_flag(%d)line_no(%d)\n",
 		       stp_psm_dbg->queue[outIndex].sec,
 		       stp_psm_dbg->queue[outIndex].usec,
 		       stp_psm_dbg->queue[outIndex].package_no,
@@ -1915,7 +1915,7 @@ static INT32 _stp_psm_opid_dbg_out_printk(P_STP_PSM_OPID_RECORD p_opid_dbg)
 	STP_PSM_PR_DBG("loged record size = %d, in(%d), out(%d)\n", dumpSize, inIndex, outIndex);
 	while (dumpSize > 0) {
 
-		pr_info("STP-PSM:%d.%ds, time[%llu.%06lu], n(%d)pre_flag(%d)cur_flag(%d)line_no(%d) pid(%d)\n",
+		pr_debug("STP-PSM:%d.%ds, time[%llu.%06lu], n(%d)pre_flag(%d)cur_flag(%d)line_no(%d) pid(%d)\n",
 		       p_opid_dbg->queue[outIndex].sec,
 		       p_opid_dbg->queue[outIndex].usec,
 		       p_opid_dbg->queue[outIndex].l_sec,

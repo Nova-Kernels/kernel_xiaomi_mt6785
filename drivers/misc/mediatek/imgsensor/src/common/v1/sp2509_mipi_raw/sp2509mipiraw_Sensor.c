@@ -36,7 +36,7 @@
 /***************************   Modify end    ********************************/
 
 #define cam_pr_debug(format, args...) \
-		pr_info("[%s] " format, __func__, ##args)
+		pr_debug("[%s] " format, __func__, ##args)
 
 static DEFINE_SPINLOCK(imgsensor_drv_lock);
 

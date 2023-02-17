@@ -45,7 +45,7 @@
 
 #define usbc_dbg(level, fmt, args...) do { \
 		if (debug_level & level) { \
-			pr_info("[USB_DP]" fmt, ## args); \
+			pr_debug("[USB_DP]" fmt, ## args); \
 		} \
 	} while (0)
 

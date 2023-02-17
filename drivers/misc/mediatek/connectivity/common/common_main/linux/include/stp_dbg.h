@@ -68,7 +68,7 @@ do { \
 #define STP_DBG_PR_INFO(fmt, arg...) \
 do { \
 	if (gStpDbgDbgLevel >= STP_DBG_LOG_INFO) \
-		pr_info(PFX_STP_DBG "%s: "  fmt, __func__, ##arg); \
+		pr_debug(PFX_STP_DBG "%s: "  fmt, __func__, ##arg); \
 } while (0)
 #define STP_DBG_PR_WARN(fmt, arg...) \
 do { \

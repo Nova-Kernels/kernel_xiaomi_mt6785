@@ -176,12 +176,12 @@ unsigned int __spm_output_wake_reason(
 		/* add size check for vcoredvfs */
 		aee_sram_printk("PCM ASSERT AT 0x%x (%s), r13 = 0x%x, ",
 			  wakesta->assert_pc, scenario, wakesta->r13);
-		pr_info("[SPM] PCM ASSERT AT 0x%x (%s), r13 = 0x%x, ",
+		pr_debug("[SPM] PCM ASSERT AT 0x%x (%s), r13 = 0x%x, ",
 			  wakesta->assert_pc, scenario, wakesta->r13);
 
 		aee_sram_printk(" debug_flag = 0x%x 0x%x\n",
 			  wakesta->debug_flag, wakesta->debug_flag1);
-		pr_info(" debug_flag = 0x%x 0x%x\n",
+		pr_debug(" debug_flag = 0x%x 0x%x\n",
 			  wakesta->debug_flag, wakesta->debug_flag1);
 
 		return WR_PCM_ASSERT;
@@ -265,10 +265,10 @@ unsigned int __spm_output_wake_reason(
 	WARN_ON(log_size >= 768);
 
 	if (!suspend)
-		pr_info("[SPM] %s", log_buf);
+		pr_debug("[SPM] %s", log_buf);
 	else {
 		aee_sram_printk("%s", log_buf);
-		pr_info("[SPM] %s", log_buf);
+		pr_debug("[SPM] %s", log_buf);
 	}
 
 	return wr;
@@ -303,13 +303,13 @@ u32 __spm_get_wake_period(int pwake_time, unsigned int last_wr)
 		period = get_dynamic_period(last_wr != WR_PCM_TIMER
 				? 1 : 0, SPM_WAKE_PERIOD, 1);
 		if (period <= 0) {
-			pr_info("[SPM] CANNOT GET PERIOD FROM FUEL GAUGE\n");
+			pr_debug("[SPM] CANNOT GET PERIOD FROM FUEL GAUGE\n");
 			period = SPM_WAKE_PERIOD;
 		}
 	} else {
 		period = pwake_time;
 		aee_sram_printk("pwake = %d\n", pwake_time);
-		pr_info("[SPM] pwake = %d\n", pwake_time);
+		pr_debug("[SPM] pwake = %d\n", pwake_time);
 	}
 
 	if (period > 36 * 3600)	/* max period is 36.4 hours */

@@ -2096,7 +2096,7 @@ static int mt6362_check_revision(struct mt6362_tcpc_data *tdata)
 }
 
 /*
- * In some platform pr_info may spend too much time on printing debug message.
+ * In some platform pr_debug may spend too much time on printing debug message.
  * So we use this function to test the printk performance.
  * If your platform cannot not pass this check function, please config
  * PD_DBG_INFO, this will provide the threaded debug message for you.
@@ -2120,20 +2120,20 @@ static void check_printk_performance(void)
 	}
 	for (i = 0; i < 10; i++) {
 		t1 = local_clock();
-		pr_info("%d\n", i);
+		pr_debug("%d\n", i);
 		t2 = local_clock();
 		t2 -= t1;
 		nsrem = do_div(t2, 1000000000);
-		pr_info("pr_info : t2-t1 = %lu\n", (unsigned long)nsrem / 1000);
+		pr_debug("pr_debug : t2-t1 = %lu\n", (unsigned long)nsrem / 1000);
 	}
 #else
 	for (i = 0; i < 10; i++) {
 		t1 = local_clock();
-		pr_info("%d\n", i);
+		pr_debug("%d\n", i);
 		t2 = local_clock();
 		t2 -= t1;
 		nsrem = do_div(t2, 1000000000);
-		pr_info("t2-t1 = %lu\n", (unsigned long)nsrem /  1000);
+		pr_debug("t2-t1 = %lu\n", (unsigned long)nsrem /  1000);
 		PD_BUG_ON(nsrem > 100*1000);
 	}
 #endif /* CONFIG_PD_DBG_INFO */

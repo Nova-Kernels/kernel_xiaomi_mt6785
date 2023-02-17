@@ -149,19 +149,19 @@ pr_debug(MyTag "[%s] " format, __func__, ##args)
 #define DIP_DEBUG
 #ifdef DIP_DEBUG
 #define LOG_DBG(format, args...) \
-pr_info(MyTag "[%s] " format, __func__, ##args)
+pr_debug(MyTag "[%s] " format, __func__, ##args)
 #else
 #define LOG_DBG(format, args...)
 #endif
 
 #define LOG_INF(format, args...) \
-pr_info(MyTag "[%s] " format, __func__, ##args)
+pr_debug(MyTag "[%s] " format, __func__, ##args)
 #define LOG_NOTICE(format, args...) \
 pr_notice(MyTag "[%s] " format, __func__, ##args)
 #define LOG_WRN(format, args...) \
-pr_info(MyTag "[%s] " format, __func__, ##args)
+pr_debug(MyTag "[%s] " format, __func__, ##args)
 #define LOG_ERR(format, args...) \
-pr_info(MyTag "[%s] " format, __func__, ##args)
+pr_debug(MyTag "[%s] " format, __func__, ##args)
 #define LOG_AST(format, args...) \
 pr_debug(MyTag "[%s] " format, __func__, ##args)
 
@@ -7794,7 +7794,7 @@ enum m4u_callback_ret_t ISP_M4U_TranslationFault_callback(int port,
 #endif
 {
 
-	pr_info("[ISP_M4U]fault call port=%d, mva=0x%lx", port, mva);
+	pr_debug("[ISP_M4U]fault call port=%d, mva=0x%lx", port, mva);
 
 	switch (port) {
 #if 0
@@ -7812,88 +7812,88 @@ enum m4u_callback_ret_t ISP_M4U_TranslationFault_callback(int port,
 	case M4U_PORT_TIMGO_D1:
 #endif
 	default:  //DIP_A_BASE = 0x15021000
-		pr_info("imgi:0x%08x, imgbi:0x%08x, imgci:0x%08x, vipi:0x%08x,",
+		pr_debug("imgi:0x%08x, imgbi:0x%08x, imgci:0x%08x, vipi:0x%08x,",
 			DIP_RD32(DIP_A_BASE + 0x200),
 			DIP_RD32(DIP_A_BASE + 0x300),
 			DIP_RD32(DIP_A_BASE + 0x330),
 			DIP_RD32(DIP_A_BASE + 0x800));
-		pr_info("vipbi:0x%08x, vipci:0x%08x\n",
+		pr_debug("vipbi:0x%08x, vipci:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x830),
 			DIP_RD32(DIP_A_BASE + 0x860));
 
-		pr_info("imgi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
+		pr_debug("imgi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x204),
 			DIP_RD32(DIP_A_BASE + 0x20c),
 			DIP_RD32(DIP_A_BASE + 0x210));
-		pr_info("imgbi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
+		pr_debug("imgbi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x304),
 			DIP_RD32(DIP_A_BASE + 0x30c),
 			DIP_RD32(DIP_A_BASE + 0x310));
-		pr_info("imgci offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
+		pr_debug("imgci offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x334),
 			DIP_RD32(DIP_A_BASE + 0x33c),
 			DIP_RD32(DIP_A_BASE + 0x340));
-		pr_info("vipi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
+		pr_debug("vipi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x804),
 			DIP_RD32(DIP_A_BASE + 0x80c),
 			DIP_RD32(DIP_A_BASE + 0x810));
-		pr_info("vipbi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
+		pr_debug("vipbi offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x834),
 			DIP_RD32(DIP_A_BASE + 0x83c),
 			DIP_RD32(DIP_A_BASE + 0x840));
-		pr_info("vipci offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
+		pr_debug("vipci offset:0x%08x, xsize:0x%08x, ysize:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x864),
 			DIP_RD32(DIP_A_BASE + 0x86c),
 			DIP_RD32(DIP_A_BASE + 0x870));
-		pr_info("nr3d con:0x%08x, size:0x%08x, tile_xy:0x%08x\n",
+		pr_debug("nr3d con:0x%08x, size:0x%08x, tile_xy:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x7000),
 			DIP_RD32(DIP_A_BASE + 0x7004),
 			DIP_RD32(DIP_A_BASE + 0x7008));
-		pr_info("nr3d on_con:0x%08x, on_off:0x%08x, on_size:0x%08x\n",
+		pr_debug("nr3d on_con:0x%08x, on_off:0x%08x, on_size:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x700c),
 			DIP_RD32(DIP_A_BASE + 0x7010),
 			DIP_RD32(DIP_A_BASE + 0x7014));
 
-		pr_info("TDRI:0x%08x, CQ0_EN(0x%08x)_BA(0x%08x),",
+		pr_debug("TDRI:0x%08x, CQ0_EN(0x%08x)_BA(0x%08x),",
 			DIP_RD32(DIP_A_BASE + 0x004),
 			DIP_RD32(DIP_A_BASE + 0x1204),
 			DIP_RD32(DIP_A_BASE + 0x1208));
-		pr_info("CQ1_EN(0x%08x)_BA(0x%08x), ufdi:0x%08x\n",
+		pr_debug("CQ1_EN(0x%08x)_BA(0x%08x), ufdi:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x121c),
 			DIP_RD32(DIP_A_BASE + 0x1220),
 			DIP_RD32(DIP_A_BASE + 0x230));
-		pr_info("smti_d1:0x%08x, smto_d1:0x%08x, timgo:0x%08x,",
+		pr_debug("smti_d1:0x%08x, smto_d1:0x%08x, timgo:0x%08x,",
 			DIP_RD32(DIP_A_BASE + 0x260),
 			DIP_RD32(DIP_A_BASE + 0x290),
 			DIP_RD32(DIP_A_BASE + 0x360));
-		pr_info("smti_d4:0x%08x, smto_d4:0x%08x,\n",
+		pr_debug("smti_d4:0x%08x, smto_d4:0x%08x,\n",
 			DIP_RD32(DIP_A_BASE + 0x3d0),
 			DIP_RD32(DIP_A_BASE + 0x400));
-		pr_info("dmgi:0x%08x, depi:0x%08x, lcei:0x%08x,",
+		pr_debug("dmgi:0x%08x, depi:0x%08x, lcei:0x%08x,",
 			DIP_RD32(DIP_A_BASE + 0x470),
 			DIP_RD32(DIP_A_BASE + 0x4a0),
 			DIP_RD32(DIP_A_BASE + 0x4d0));
-		pr_info("decso:0x%08x, smti_d2:0x%08x,\n",
+		pr_debug("decso:0x%08x, smti_d2:0x%08x,\n",
 			DIP_RD32(DIP_A_BASE + 0x500),
 			DIP_RD32(DIP_A_BASE + 0x570));
-		pr_info("smto_d2:0x%08x, smti_d3:0x%08x, smto_d3:0x%08x,",
+		pr_debug("smto_d2:0x%08x, smti_d3:0x%08x, smto_d3:0x%08x,",
 			DIP_RD32(DIP_A_BASE + 0x5a0),
 			DIP_RD32(DIP_A_BASE + 0x610),
 			DIP_RD32(DIP_A_BASE + 0x640));
-		pr_info("crzo:0x%08x, crzbo:0x%08x,\n",
+		pr_debug("crzo:0x%08x, crzbo:0x%08x,\n",
 			DIP_RD32(DIP_A_BASE + 0x6b0),
 			DIP_RD32(DIP_A_BASE + 0x720));
-		pr_info("feo:0x%08x, img3o:0x%08x, img3bo:0x%08x, img3co:0x%08x\n",
+		pr_debug("feo:0x%08x, img3o:0x%08x, img3bo:0x%08x, img3co:0x%08x\n",
 			DIP_RD32(DIP_A_BASE + 0x790),
 			DIP_RD32(DIP_A_BASE + 0x890),
 			DIP_RD32(DIP_A_BASE + 0x900),
 			DIP_RD32(DIP_A_BASE + 0x970));
-		pr_info("start: 0x%08x, top_en: 0x%08x, 0x%08x, 0x%08x,",
+		pr_debug("start: 0x%08x, top_en: 0x%08x, 0x%08x, 0x%08x,",
 			DIP_RD32(DIP_A_BASE + 0x1000),
 			DIP_RD32(DIP_A_BASE + 0x1010),
 			DIP_RD32(DIP_A_BASE + 0x1014),
 			DIP_RD32(DIP_A_BASE + 0x1018));
-		pr_info("top_en: 0x%08x, 0x%08x, 0x%08x)\n",
+		pr_debug("top_en: 0x%08x, 0x%08x, 0x%08x)\n",
 			DIP_RD32(DIP_A_BASE + 0x101c),
 			DIP_RD32(DIP_A_BASE + 0x1020),
 			DIP_RD32(DIP_A_BASE + 0x1024));
@@ -7919,39 +7919,39 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 {
 	unsigned int loop = 0;
 
-	pr_info("[MFB_M4U]fault call port=%d, mva=0x%lx", port, mva);
+	pr_debug("[MFB_M4U]fault call port=%d, mva=0x%lx", port, mva);
 	switch (port) {
 #if (MTK_MSF_OFFSET == 1)
 	case M4U_PORT_L11_IMG_MFB_RDMA0:
 #else
 	case M4U_PORT_L9_IMG_MFB_RDMA0_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("baseiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("baseiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xA00),
 		DIP_RD32(MSF_BASE + 0xA04),
 		DIP_RD32(MSF_BASE + 0xA08),
 		DIP_RD32(MSF_BASE + 0xA0C));
-	pr_info("baseic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("baseic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xA40),
 		DIP_RD32(MSF_BASE + 0xA44),
 		DIP_RD32(MSF_BASE + 0xA48),
 		DIP_RD32(MSF_BASE + 0xA4C));
-	pr_info("confi:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("confi:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xC80),
 		DIP_RD32(MSF_BASE + 0xC84),
 		DIP_RD32(MSF_BASE + 0xC88),
@@ -7962,37 +7962,37 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 #else
 	case M4U_PORT_L9_IMG_MFB_RDMA1_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("wei:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("wei:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xC00),
 		DIP_RD32(MSF_BASE + 0xC04),
 		DIP_RD32(MSF_BASE + 0xC08),
 		DIP_RD32(MSF_BASE + 0xC0C));
-	pr_info("refic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("refic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xAC0),
 		DIP_RD32(MSF_BASE + 0xAC4),
 		DIP_RD32(MSF_BASE + 0xAC8),
 		DIP_RD32(MSF_BASE + 0xACC));
-	pr_info("dswi:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("dswi:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xC40),
 		DIP_RD32(MSF_BASE + 0xC44),
 		DIP_RD32(MSF_BASE + 0xC48),
 		DIP_RD32(MSF_BASE + 0xC4C));
-	pr_info("idiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("idiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xB80),
 		DIP_RD32(MSF_BASE + 0xB84),
 		DIP_RD32(MSF_BASE + 0xB88),
@@ -8003,37 +8003,37 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 #else
 	case M4U_PORT_L9_IMG_MFB_RDMA2_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("refiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("refiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xA80),
 		DIP_RD32(MSF_BASE + 0xA84),
 		DIP_RD32(MSF_BASE + 0xA88),
 		DIP_RD32(MSF_BASE + 0xA8C));
-	pr_info("dsiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("dsiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xB00),
 		DIP_RD32(MSF_BASE + 0xB04),
 		DIP_RD32(MSF_BASE + 0xB08),
 		DIP_RD32(MSF_BASE + 0xB0C));
-	pr_info("dsic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("dsic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xB40),
 		DIP_RD32(MSF_BASE + 0xB44),
 		DIP_RD32(MSF_BASE + 0xB48),
 		DIP_RD32(MSF_BASE + 0xB4C));
-	pr_info("idic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("idic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0xBC0),
 		DIP_RD32(MSF_BASE + 0xBC4),
 		DIP_RD32(MSF_BASE + 0xBC8),
@@ -8044,22 +8044,22 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 #else
 	case M4U_PORT_L9_IMG_MFB_RDMA3_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("omcmv:0x%08x, stride:0x%08x,",
+	pr_debug("omcmv:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x120),
 		DIP_RD32(MSS_BASE + 0x124));
 		break;
@@ -8068,26 +8068,26 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 #else
 	case M4U_PORT_L9_IMG_MFB_RDMA4_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("omciy:0x%08x, ofset:0x%08x, stride:0x%08x,",
+	pr_debug("omciy:0x%08x, ofset:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x18C),
 		DIP_RD32(MSS_BASE + 0x190),
 		DIP_RD32(MSS_BASE + 0x194));
-	pr_info("omcic:0x%08x, ofset:0x%08x, stride:0x%08x,",
+	pr_debug("omcic:0x%08x, ofset:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x198),
 		DIP_RD32(MSS_BASE + 0x19C),
 		DIP_RD32(MSS_BASE + 0x1A0));
@@ -8097,27 +8097,27 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 #else
 	case M4U_PORT_L9_IMG_MFB_RDMA5_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("mssiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("mssiy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0xA00),
 		DIP_RD32(MSS_BASE + 0xA04),
 		DIP_RD32(MSS_BASE + 0xA08),
 		DIP_RD32(MSS_BASE + 0xA0C));
-	pr_info("mssic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("mssic:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0xA40),
 		DIP_RD32(MSS_BASE + 0xA44),
 		DIP_RD32(MSS_BASE + 0xA48),
@@ -8128,37 +8128,37 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 #else
 	case M4U_PORT_L9_IMG_MFB_WDMA0_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("fsoy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("fsoy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x900),
 		DIP_RD32(MSF_BASE + 0x904),
 		DIP_RD32(MSF_BASE + 0x908),
 		DIP_RD32(MSF_BASE + 0x90C));
-	pr_info("fsoc:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("fsoc:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x940),
 		DIP_RD32(MSF_BASE + 0x944),
 		DIP_RD32(MSF_BASE + 0x948),
 		DIP_RD32(MSF_BASE + 0x94C));
-	pr_info("weo:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("weo:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x980),
 		DIP_RD32(MSF_BASE + 0x984),
 		DIP_RD32(MSF_BASE + 0x988),
 		DIP_RD32(MSF_BASE + 0x98C));
-	pr_info("dswo:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("dswo:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x9C0),
 		DIP_RD32(MSF_BASE + 0x9C4),
 		DIP_RD32(MSF_BASE + 0x9C8),
@@ -8169,37 +8169,37 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 #else
 	case M4U_PORT_L9_IMG_MFB_WDMA1_MDP:
 #endif
-	pr_info("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
+	pr_debug("msftdr:0x%08x, msstdr:0x%08x diptdr:0x%08x",
 		DIP_RD32(MSF_BASE + 0x804),
 		DIP_RD32(MSS_BASE + 0x804),
 		DIP_RD32(DIP_A_BASE + 0x4));
-	pr_info("msfcmdq:0x%08x, msscmdq:0x%08x",
+	pr_debug("msfcmdq:0x%08x, msscmdq:0x%08x",
 		DIP_RD32(MSF_BASE + 0x7C0),
 		DIP_RD32(MSS_BASE + 0x500));
-	pr_info("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("mss top_cfg:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x400),
 		DIP_RD32(MSS_BASE + 0x404),
 		DIP_RD32(MSS_BASE + 0x408));
-	pr_info("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
+	pr_debug("msf top_ctl:0x%08x, dma_en:0x%08x, eng_en:0x%08x,",
 		DIP_RD32(MSF_BASE + 0x480),
 		DIP_RD32(MSF_BASE + 0x49C),
 		DIP_RD32(MSF_BASE + 0x4A0));
-	pr_info("mssoy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("mssoy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x900),
 		DIP_RD32(MSS_BASE + 0x904),
 		DIP_RD32(MSS_BASE + 0x908),
 		DIP_RD32(MSS_BASE + 0x90C));
-	pr_info("mssoc:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("mssoc:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x940),
 		DIP_RD32(MSS_BASE + 0x944),
 		DIP_RD32(MSS_BASE + 0x948),
 		DIP_RD32(MSS_BASE + 0x94C));
-	pr_info("omcoy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("omcoy:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x980),
 		DIP_RD32(MSS_BASE + 0x984),
 		DIP_RD32(MSS_BASE + 0x988),
 		DIP_RD32(MSS_BASE + 0x98C));
-	pr_info("omcoc:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
+	pr_debug("omcoc:0x%08x, ofset:0x%08x, size:0x%08x, stride:0x%08x,",
 		DIP_RD32(MSS_BASE + 0x9C0),
 		DIP_RD32(MSS_BASE + 0x9C4),
 		DIP_RD32(MSS_BASE + 0x9C8),
@@ -8207,22 +8207,22 @@ enum m4u_callback_ret_t MFB_M4U_TranslationFault_callback(int port,
 		break;
 	default:  //
 		for (loop = 0; loop < (0x39C/0x4); loop++) {
-			pr_info("MSFREG: 0x%08X 0x%08X\n",
+			pr_debug("MSFREG: 0x%08X 0x%08X\n",
 				MSF_BASE_HW + 0x900 + (loop * 0x4),
 				DIP_RD32(MSF_BASE + 0x900 + (loop * 0x4)));
 		}
 		for (loop = 0; loop < (0x42C/0x4); loop++) {
-			pr_info("MSFREG: 0x%08X 0x%08X\n",
+			pr_debug("MSFREG: 0x%08X 0x%08X\n",
 				MSF_BASE_HW + 0x40 + (loop * 0x4),
 				DIP_RD32(MSF_BASE + 0x40 + (loop * 0x4)));
 		}
 		for (loop = 0; loop < (0x19C/0x4); loop++) {
-			pr_info("MSSREG: 0x%08X 0x%08X\n",
+			pr_debug("MSSREG: 0x%08X 0x%08X\n",
 				MSS_BASE_HW + 0x240 + (loop * 0x4),
 				DIP_RD32(MSS_BASE + 0x0240 + (loop * 0x4)));
 		}
 		for (loop = 0; loop < (0x15c/0x4); loop++) {
-			pr_info("MSSREG: 0x%08X 0x%08X\n",
+			pr_debug("MSSREG: 0x%08X 0x%08X\n",
 				MSS_BASE_HW + 0x900 + (loop * 0x4),
 				DIP_RD32(MSS_BASE + 0x0900 + (loop * 0x4)));
 		}

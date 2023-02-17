@@ -66,7 +66,7 @@
 #endif
 
 #if 0
-#define ipi_dbg(x...) pr_info(x)
+#define ipi_dbg(x...) pr_debug(x)
 #else
 #define ipi_dbg(x...)
 #endif
@@ -232,17 +232,17 @@ static void audio_ipi_msg_dispatcher(int id, void *data, unsigned int len)
 	AUD_LOG_V("data = %p, len = %u", data, len);
 
 	if (data == NULL) {
-		pr_info("drop msg due to data = NULL");
+		pr_debug("drop msg due to data = NULL");
 		return;
 	}
 	if (len < IPI_MSG_HEADER_SIZE || len > MAX_IPI_MSG_BUF_SIZE) {
-		pr_info("drop msg due to len(%u) error!!", len);
+		pr_debug("drop msg due to len(%u) error!!", len);
 		return;
 	}
 
 	p_ipi_msg = (struct ipi_msg_t *)data;
 	if (check_msg_format(p_ipi_msg, len) != 0) {
-		pr_info("drop msg due to ipi fmt err");
+		pr_debug("drop msg due to ipi fmt err");
 		return;
 	}
 
@@ -309,7 +309,7 @@ void audio_messenger_ipi_init(void)
 void audio_reg_recv_message(uint8_t task_scene, recv_message_t recv_message)
 {
 	if (task_scene >= TASK_SCENE_SIZE) {
-		pr_info("not support task_scene %d!!", task_scene);
+		pr_debug("not support task_scene %d!!", task_scene);
 		return;
 	}
 
@@ -398,7 +398,7 @@ int audio_send_ipi_msg(
 	ipi_msg_len = get_message_buf_size(p_ipi_msg);
 
 	if (check_msg_format(p_ipi_msg, ipi_msg_len) != 0) {
-		pr_info("drop msg due to ipi fmt err");
+		pr_debug("drop msg due to ipi fmt err");
 		return -1;
 	}
 
@@ -421,7 +421,7 @@ int audio_send_ipi_filled_msg(struct ipi_msg_t *p_ipi_msg)
 		return -1;
 	}
 	if (check_msg_format(p_ipi_msg, get_message_buf_size(p_ipi_msg)) != 0) {
-		pr_info("drop msg due to ipi fmt err");
+		pr_debug("drop msg due to ipi fmt err");
 		return -1;
 	}
 

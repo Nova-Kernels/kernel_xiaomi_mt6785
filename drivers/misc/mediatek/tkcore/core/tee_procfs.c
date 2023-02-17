@@ -711,7 +711,7 @@ static void log_rb(struct klog *klog)
 		uint32_t copy_len, i, k;
 
 		if (rb_overrun(rseq, wseq, klog->tee_rb_len)) {
-			pr_info("---- interrupted\n");
+			pr_debug("---- interrupted\n");
 			rseq = log_ctl->info.tee_read_seq =
 				wseq - klog->tee_rb_len;
 		}
@@ -740,7 +740,7 @@ static void log_rb(struct klog *klog)
 
 		if (((i == copy_len) && (p - line == LINE_LENGTH))
 				|| (i != copy_len)) {
-			pr_info("%s\n", line);
+			pr_debug("%s\n", line);
 			p = line;
 			log_ctl->info.tee_read_seq = rseq;
 		}
@@ -808,7 +808,7 @@ static int register_klog_irq(struct klog *klog)
 		return 0;
 	}
 
-	pr_info("tkcoredrv: tee_log_irq id = %d\n",
+	pr_debug("tkcoredrv: tee_log_irq id = %d\n",
 			irq_num);
 
 	r = request_irq(irq_num,
@@ -840,7 +840,7 @@ static int init_tos_version(struct tee *tee)
 	tee_version_major = param.a0;
 	tee_version_minor = param.a1;
 
-	pr_info("tkcoreos-rev: 0.%d.%d-gp\n",
+	pr_debug("tkcoreos-rev: 0.%d.%d-gp\n",
 		tee_version_major, tee_version_minor);
 
 	return 0;

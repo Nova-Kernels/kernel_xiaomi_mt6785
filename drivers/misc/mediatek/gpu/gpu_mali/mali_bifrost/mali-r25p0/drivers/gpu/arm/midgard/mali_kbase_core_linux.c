@@ -4375,7 +4375,7 @@ static int kbase_platform_device_remove(struct platform_device *pdev)
 		return -ENODEV;
 
 	if (mtk_common_deinit(pdev, kbdev))
-		pr_info("[MALI] fail to mtk_common_deinit\n");
+		pr_debug("[MALI] fail to mtk_common_deinit\n");
 
 
 	kbase_device_term(kbdev);

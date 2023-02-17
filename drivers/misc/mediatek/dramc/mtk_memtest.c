@@ -138,7 +138,7 @@ static ssize_t read_mr4_read(struct file *file,
 
 	emi_base = get_emi_base();
 	if (emi_base == NULL) {
-		pr_info("[DRAMC] can't find EMI base\n");
+		pr_debug("[DRAMC] can't find EMI base\n");
 		return -1;
 	}
 
@@ -250,7 +250,7 @@ int dramc_dram_address_get(phys_addr_t phys_addr,
 
 	emi_base = get_emi_base();
 	if (emi_base == NULL) {
-		pr_info("[DRAMC] can't find EMI base\n");
+		pr_debug("[DRAMC] can't find EMI base\n");
 		return -1;
 	}
 	emi_cona = Reg_Readl(emi_base+0x000);
@@ -261,7 +261,7 @@ int dramc_dram_address_get(phys_addr_t phys_addr,
 	rank_max = mt_dramc_ta_support_ranks();
 
 	if (rank_max > 2) {
-		pr_info("[DRAMC] invalid rank num (rank_max = %u)\n", rank_max);
+		pr_debug("[DRAMC] invalid rank num (rank_max = %u)\n", rank_max);
 		return -1;
 	}
 
@@ -278,7 +278,7 @@ int dramc_dram_address_get(phys_addr_t phys_addr,
 	}
 
 	if (r < 0) {
-		pr_info("[DRAMC] invalid rank\n");
+		pr_debug("[DRAMC] invalid rank\n");
 		return -1;
 	}
 
@@ -287,7 +287,7 @@ int dramc_dram_address_get(phys_addr_t phys_addr,
 	dramc_addr_descramble(&phys_addr, emi_conf);
 
 	/*
-	 * pr_info("[LastDRAMC] reserved address after emi: %llx\n", phys_addr);
+	 * pr_debug("[LastDRAMC] reserved address after emi: %llx\n", phys_addr);
 	 */
 
 	*ch = 0;
@@ -316,7 +316,7 @@ int dramc_dram_address_get(phys_addr_t phys_addr,
 	else if (ddr_type == TYPE_LPDDR3)
 		phys_addr = phys_addr >> 2;
 	else {
-		pr_info("[DRAMC] undefined DRAM type\n");
+		pr_debug("[DRAMC] undefined DRAM type\n");
 		return -1;
 	}
 
@@ -523,30 +523,30 @@ static phys_addr_t memtest_user_v2p(unsigned long va)
 	phys_addr_t pa;
 
 	if (current == NULL) {
-		pr_info("warning: memorytest_user_v2p, current is NULL!\n");
+		pr_debug("warning: memorytest_user_v2p, current is NULL!\n");
 		return 0;
 	}
 	if (current->mm == NULL) {
-		pr_info("warning: memorytest_user_v2p, current->mm is NULL!\n");
-		pr_info("tgid=0x%x, name=%s\n", current->tgid, current->comm);
+		pr_debug("warning: memorytest_user_v2p, current->mm is NULL!\n");
+		pr_debug("tgid=0x%x, name=%s\n", current->tgid, current->comm);
 		return 0;
 	}
 
 	pgd = pgd_offset(current->mm, va);       /* what is tsk->mm */
 	if (pgd_none(*pgd) || pgd_bad(*pgd)) {
-		pr_info("memorytest_user_v2p, va=0x%lx, pgd invalid!\n", va);
+		pr_debug("memorytest_user_v2p, va=0x%lx, pgd invalid!\n", va);
 		return 0;
 	}
 
 	pud = pud_offset(pgd, va);
 	if (pud_none(*pud) || pud_bad(*pud)) {
-		pr_info("memorytest_user_v2p, va=0x%lx, pud invalid!\n", va);
+		pr_debug("memorytest_user_v2p, va=0x%lx, pud invalid!\n", va);
 		return 0;
 	}
 
 	pmd = pmd_offset(pud, va);
 	if (pmd_none(*pmd) || pmd_bad(*pmd)) {
-		pr_info("(memorytest_user_v2p, va=0x%lx, pmd invalid!\n", va);
+		pr_debug("(memorytest_user_v2p, va=0x%lx, pmd invalid!\n", va);
 		return 0;
 	}
 
@@ -561,7 +561,7 @@ static phys_addr_t memtest_user_v2p(unsigned long va)
 
 	pte_unmap(pte);
 
-	pr_info("memorytest_user_v2p, va=0x%lx, pte invalid!\n", va);
+	pr_debug("memorytest_user_v2p, va=0x%lx, pte invalid!\n", va);
 	return 0;
 }
 
@@ -620,7 +620,7 @@ static void mmap_mem_close(struct vm_area_struct *vma)
 	struct list_head *p;
 
 	/*
-	 *pr_info("%s(): 0x%lx~0x%lx pgoff=0x%lx %x\n", __func__,
+	 *pr_debug("%s(): 0x%lx~0x%lx pgoff=0x%lx %x\n", __func__,
 	 *		vma->vm_start, vma->vm_end, vma->vm_pgoff, size);
 	 */
 
@@ -693,7 +693,7 @@ static int test_mem_mmap(struct file *file, struct vm_area_struct *vma)
 	mutex_lock(lock);
 
 
-	/* pr_info("%s(0): pgoff=0x%lx 0x%lx %lu\n", __func__, */
+	/* pr_debug("%s(0): pgoff=0x%lx 0x%lx %lu\n", __func__, */
 	/* vma->vm_pgoff, size, (unsigned long) file->private_data); */
 
 	if (((vma->vm_pgoff << PAGE_SHIFT) + size) >= *sz) {
@@ -703,7 +703,7 @@ static int test_mem_mmap(struct file *file, struct vm_area_struct *vma)
 
 	pfn = *addr >> PAGE_SHIFT;
 	vma->vm_pgoff += pfn;
-	/* pr_info("%s(1): pgoff=0x%lx 0x%lx %lu\n", __func__, */
+	/* pr_debug("%s(1): pgoff=0x%lx 0x%lx %lu\n", __func__, */
 	/* vma->vm_pgoff, size, (unsigned long) file->private_data); */
 
 	if (!valid_mmap_phys_addr_range(vma->vm_pgoff, size)) {
@@ -768,33 +768,33 @@ static int __init dram_memtest_interface_init(void)
 
 	get_emi_base = (void __iomem *)symbol_get(mt_emi_base_get);
 	if (get_emi_base == NULL) {
-		pr_info("%s: mt_emi_base_get is NULL\n", __func__);
+		pr_debug("%s: mt_emi_base_get is NULL\n", __func__);
 		return -1;
 	}
 
 	emi_base = get_emi_base();
 	if (emi_base == NULL) {
-		pr_info("%s: can't find EMI base\n", __func__);
+		pr_debug("%s: can't find EMI base\n", __func__);
 		return -1;
 	}
 
 	memtest_dir = debugfs_create_dir("memtest", NULL);
 	if (!memtest_dir) {
-		pr_info("%s: create dir fail\n", __func__);
+		pr_debug("%s: create dir fail\n", __func__);
 		return -1;
 	}
 
 	read_mr4 = debugfs_create_file("read_mr4", 0444,
 			memtest_dir, NULL, &read_mr4_fops);
 	if (!read_mr4) {
-		pr_info("%s: create read_mr4 interface fail\n", __func__);
+		pr_debug("%s: create read_mr4 interface fail\n", __func__);
 		return -1;
 	}
 
 	read_mr5 = debugfs_create_file("read_mr5", 0444,
 			memtest_dir, NULL, &read_mr5_fops);
 	if (!read_mr5) {
-		pr_info("%s: create read_mr5 interface fail\n", __func__);
+		pr_debug("%s: create read_mr5 interface fail\n", __func__);
 		return -1;
 	}
 
@@ -802,7 +802,7 @@ static int __init dram_memtest_interface_init(void)
 			0666,
 			memtest_dir, NULL, &read_dram_addr_fops);
 	if (!read_dram_addr) {
-		pr_info("%s: create read_dram_addr interface fail\n", __func__);
+		pr_debug("%s: create read_dram_addr interface fail\n", __func__);
 		return -1;
 	}
 
@@ -810,14 +810,14 @@ static int __init dram_memtest_interface_init(void)
 			0666,
 			memtest_dir, NULL, &test_result_fops);
 	if (!memtest_result) {
-		pr_info("%s: create result interface fail\n", __func__);
+		pr_debug("%s: create result interface fail\n", __func__);
 		return -1;
 	}
 
 	memtest_v2p = debugfs_create_file("v2p", 0444,
 			memtest_dir, NULL, &test_v2p_fops);
 	if (!memtest_v2p) {
-		pr_info("%s: create v2p interface fail\n", __func__);
+		pr_debug("%s: create v2p interface fail\n", __func__);
 		return -1;
 	}
 
@@ -826,7 +826,7 @@ static int __init dram_memtest_interface_init(void)
 				0664,
 				memtest_dir, (void *) 0, &test_mem_fops);
 		if (!memtest_mem0) {
-			pr_info("%s: create mem0 interface fail\n", __func__);
+			pr_debug("%s: create mem0 interface fail\n", __func__);
 			return -1;
 		}
 	}
@@ -836,7 +836,7 @@ static int __init dram_memtest_interface_init(void)
 				0664,
 				memtest_dir, (void *) 1, &test_mem_fops);
 		if (!memtest_mem1) {
-			pr_info("%s: create mem1 interface fail\n", __func__);
+			pr_debug("%s: create mem1 interface fail\n", __func__);
 			return -1;
 		}
 	}

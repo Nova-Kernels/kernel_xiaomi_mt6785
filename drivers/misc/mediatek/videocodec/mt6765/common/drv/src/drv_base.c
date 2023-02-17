@@ -72,12 +72,12 @@ int search_slot_byHdl(unsigned long ulpa, unsigned long handle)
 	}
 
 	/* dump debug info */
-	pr_info("search_slot_byHdl");
+	pr_debug("search_slot_byHdl");
 	for (i = 0; i < VCODEC_INST_NUM / 2; i++) {
 		/* Add one line comment for avoid kernel coding style,
 		 * WARNING:BRACES:
 		 */
-		pr_info("[%d] 0x%lx", i, hw_ctx[i].pvHandle);
+		pr_debug("[%d] 0x%lx", i, hw_ctx[i].pvHandle);
 	}
 
 	return -1;
@@ -124,7 +124,7 @@ struct VAL_VCODEC_OAL_HW_CONTEXT_T *set_slot(unsigned long ulpa,
 		}
 	}
 
-	pr_info("[VCODEC] set_slot All %d Slots unavaliable\n",
+	pr_debug("[VCODEC] set_slot All %d Slots unavaliable\n",
 			VCODEC_INST_NUM);
 	hw_ctx[0].u4ThreadNum = VCODEC_THREAD_MAX_NUM - 1;
 	for (i = 0; i < hw_ctx[0].u4ThreadNum; i++) {
@@ -173,7 +173,7 @@ struct VAL_VCODEC_OAL_HW_CONTEXT_T
 				k++) {
 				if (hw_ctx[i].u4ThreadID[j] ==
 				a_prVcodecThreadID.u4ThreadID[k]) {
-					pr_info("already exists in %d slot",
+					pr_debug("already exists in %d slot",
 							i);
 					*a_prIndex = i;
 					return &hw_ctx[i];
@@ -201,7 +201,7 @@ struct VAL_VCODEC_OAL_HW_CONTEXT_T
 	}
 
 	{
-		pr_info("set_slot_TID  All %d Slots unavaliable\n",
+		pr_debug("set_slot_TID  All %d Slots unavaliable\n",
 				VCODEC_INST_NUM);
 		hw_ctx[0].u4ThreadNum =
 				a_prVcodecThreadID.u4ThreadNum;
@@ -246,7 +246,7 @@ struct VAL_VCODEC_OAL_HW_CONTEXT_T *free_slot(unsigned long ulpa)
 		}
 	}
 
-	pr_info("[VCODEC][ERROR] free_slot can't find pid in HWLockSlot\n");
+	pr_debug("[VCODEC][ERROR] free_slot can't find pid in HWLockSlot\n");
 	return 0;
 }
 
@@ -295,7 +295,7 @@ void add_ncmem(unsigned long a_ulKVA,
 		/* Add one line comment for avoid kernel coding style,
 		 *  WARNING:BRACES:
 		 */
-		pr_info("CAN'T ADD add_ncmem, List is FULL!!\n");
+		pr_debug("CAN'T ADD add_ncmem, List is FULL!!\n");
 	}
 
 	pr_debug("add_ncmem -\n");
@@ -338,7 +338,7 @@ void free_ncmem(unsigned long a_ulKVA, unsigned long a_ulKPA)
 		/* Add one line comment for avoid kernel coding style,
 		 * WARNING:BRACES:
 		 */
-		pr_info("CAN'T Free free_ncmem, Address is not find!!\n");
+		pr_debug("CAN'T Free free_ncmem, Address is not find!!\n");
 	}
 
 	pr_debug("free_ncmem -\n");
@@ -424,7 +424,7 @@ unsigned long search_ncmem_byKPA(unsigned long a_ulKPA)
 	}
 
 	if (u4I == VCODEC_INST_NUM_x_10) {
-		pr_info("CAN'T Find address search_ncmem_byKPA");
+		pr_debug("CAN'T Find address search_ncmem_byKPA");
 		return ncache_mem_list[0].ulKVA + ulVA_Offset;
 	}
 

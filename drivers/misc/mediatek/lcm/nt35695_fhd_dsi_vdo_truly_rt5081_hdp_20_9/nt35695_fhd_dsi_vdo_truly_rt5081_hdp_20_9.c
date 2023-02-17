@@ -1545,7 +1545,7 @@ static unsigned int lcm_compare_id(void)
 	read_reg_v2(0xDB, buffer, 1);
 	version_id = buffer[0];
 
-	pr_info("[LCM]%s,nt35695_id=0x%08x,version_id=0x%x\n",
+	pr_debug("[LCM]%s,nt35695_id=0x%08x,version_id=0x%x\n",
 		__func__, id, version_id);
 
 	if (id == LCM_ID_NT35695 && version_id == 0x81)

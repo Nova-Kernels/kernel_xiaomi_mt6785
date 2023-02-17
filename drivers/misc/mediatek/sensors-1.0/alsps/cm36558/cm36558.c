@@ -901,7 +901,7 @@ static int CM36558_check_intr(struct i2c_client *client)
 		goto EXIT_ERR;
 	}
 
-	pr_info(
+	pr_debug(
 		"CM36558_REG_PS_DATA value value_low = %x, value_reserve = %x\n",
 		databuf[0], databuf[1]);
 
@@ -912,7 +912,7 @@ static int CM36558_check_intr(struct i2c_client *client)
 		goto EXIT_ERR;
 	}
 
-	pr_info("CM36558_REG_INT_FLAG value value_low = %x, value_high = %x\n",
+	pr_debug("CM36558_REG_INT_FLAG value value_low = %x, value_high = %x\n",
 		 databuf[0], databuf[1]);
 
 	if (databuf[1] & 0x02) {
@@ -938,7 +938,7 @@ static void CM36558_eint_work(struct work_struct *work)
 		struct CM36558_priv, eint_work);
 	int res = 0;
 
-	pr_info("CM36558 int top half time = %lld\n", int_top_time);
+	pr_debug("CM36558 int top half time = %lld\n", int_top_time);
 
 	res = CM36558_check_intr(obj->client);
 	if (res != 0) {
@@ -1074,7 +1074,7 @@ static int set_psensor_threshold(struct i2c_client *client)
 	int res = 0;
 	u8 databuf[3];
 
-	pr_info("%s function high: 0x%x, low:0x%x\n", __func__,
+	pr_debug("%s function high: 0x%x, low:0x%x\n", __func__,
 		 atomic_read(&obj->ps_thd_val_high),
 		 atomic_read(&obj->ps_thd_val_low));
 	databuf[0] = CM36558_REG_PS_THDL;
@@ -1211,7 +1211,7 @@ static int als_enable_nodata(int en)
 {
 	int res = 0;
 
-	pr_info("CM36558_obj als enable value = %d\n", en);
+	pr_debug("CM36558_obj als enable value = %d\n", en);
 
 	mutex_lock(&CM36558_mutex);
 	if (en)
@@ -1462,7 +1462,7 @@ static int cm36558_ps_factory_set_threshold(int32_t threshold[2])
 	int err = 0;
 	struct CM36558_priv *obj = CM36558_obj;
 
-	pr_info("%s set threshold high: 0x%x, low: 0x%x\n", __func__,
+	pr_debug("%s set threshold high: 0x%x, low: 0x%x\n", __func__,
 		 threshold[0], threshold[1]);
 	atomic_set(&obj->ps_thd_val_high, (threshold[0] + obj->ps_cali));
 	atomic_set(&obj->ps_thd_val_low, (threshold[1] + obj->ps_cali));

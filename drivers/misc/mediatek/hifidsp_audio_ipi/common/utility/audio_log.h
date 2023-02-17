@@ -25,11 +25,11 @@
 #endif
 
 #ifndef AUD_LOG_D
-#define AUD_LOG_D pr_info
+#define AUD_LOG_D pr_debug
 #endif
 
 #ifndef AUD_LOG_W
-#define AUD_LOG_W pr_info
+#define AUD_LOG_W pr_debug
 #endif
 
 #ifndef AUD_LOG_E

@@ -68,7 +68,7 @@ int apu_tp_init(struct apu_tp_tbl *tbl)
 	for_each_kernel_tracepoint(apu_tp_lookup, tbl);
 	apu_tp_foreach(tbl, t) {
 		if (!t->tp) {
-			pr_info("%s: %s was not found\n", __func__, t->name);
+			pr_debug("%s: %s was not found\n", __func__, t->name);
 			apu_tp_exit(tbl);  /* free registered entries */
 			return -EINVAL;
 		}

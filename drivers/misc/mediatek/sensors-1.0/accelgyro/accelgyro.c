@@ -816,7 +816,7 @@ static ssize_t gyro_store_enable_nodata(struct device *dev,
 		cxt->enable = 0;
 		cxt->is_active_nodata = false;
 	} else {
-		pr_info(" gyro_store enable nodata cmd error !!\n");
+		pr_debug(" gyro_store enable nodata cmd error !!\n");
 		err = -1;
 		goto err_out;
 	}
@@ -897,7 +897,7 @@ static ssize_t gyro_store_batch(struct device *dev,
 	err = sscanf(buf, "%d,%d,%lld,%lld", &handle, &flag, &cxt->delay_ns,
 		     &cxt->latency_ns);
 	if (err != 4) {
-		pr_info("%s param error: err = %d\n", __func__, err);
+		pr_debug("%s param error: err = %d\n", __func__, err);
 		return -1;
 	}
 
@@ -934,7 +934,7 @@ static ssize_t gyro_store_flush(struct device *dev,
 
 	err = kstrtoint(buf, 10, &handle);
 	if (err != 0)
-		pr_info("%s param error: err = %d\n", __func__, err);
+		pr_debug("%s param error: err = %d\n", __func__, err);
 
 	pr_debug("%s param: handle %d\n", __func__, handle);
 
@@ -943,10 +943,10 @@ static ssize_t gyro_store_flush(struct device *dev,
 	if (cxt->gyro_ctl.flush != NULL)
 		err = cxt->gyro_ctl.flush();
 	else
-		pr_info(
+		pr_debug(
 			"GYRO DRIVER OLD ARCHITECTURE DON'T SUPPORT GYRO COMMON VERSION FLUSH\n");
 	if (err < 0)
-		pr_info("gyro enable flush err %d\n", err);
+		pr_debug("gyro enable flush err %d\n", err);
 	mutex_unlock(&gyro_context_obj->gyro_op_mutex);
 	return err;
 }
@@ -981,10 +981,10 @@ static ssize_t gyro_store_cali(struct device *dev,
 	if (cxt->gyro_ctl.set_cali != NULL)
 		err = cxt->gyro_ctl.set_cali(cali_buf, count);
 	else
-		pr_info(
+		pr_debug(
 			"GYRO DRIVER OLD ARCHITECTURE DON'T SUPPORT GYRO COMMON VERSION FLUSH\n");
 	if (err < 0)
-		pr_info("gyro set cali err %d\n", err);
+		pr_debug("gyro set cali err %d\n", err);
 	mutex_unlock(&gyro_context_obj->gyro_op_mutex);
 	vfree(cali_buf);
 	return count;
@@ -1321,13 +1321,13 @@ int gyro_register_control_path(struct gyro_control_path *ctl)
 	/* add misc dev for sensor hal control cmd */
 	err = gyro_misc_init(gyro_context_obj);
 	if (err) {
-		pr_info("unable to register gyro misc device!!\n");
+		pr_debug("unable to register gyro misc device!!\n");
 		return -2;
 	}
 	err = sysfs_create_group(&gyro_context_obj->mdev.this_device->kobj,
 				 &gyro_attribute_group);
 	if (err < 0) {
-		pr_info("unable to create gyro attribute file\n");
+		pr_debug("unable to create gyro attribute file\n");
 		return -3;
 	}
 
@@ -1353,7 +1353,7 @@ static int check_repeat_data(int x, int y, int z)
 	z_t = z;
 
 	if (pc > 100) {
-		pr_info("Gyro sensor output repeat data\n");
+		pr_debug("Gyro sensor output repeat data\n");
 		pc = 0;
 	}
 

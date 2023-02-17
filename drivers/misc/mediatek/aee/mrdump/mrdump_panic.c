@@ -66,11 +66,11 @@ static void aee_exception_reboot(void)
 
 	res = get_wd_api(&wd_api);
 	if (res < 0) {
-		pr_info("arch_reset, get wd api error %d\n", res);
+		pr_debug("arch_reset, get wd api error %d\n", res);
 		while (1)
 			cpu_relax();
 	} else {
-		pr_info("exception reboot\n");
+		pr_debug("exception reboot\n");
 		mode += WD_SW_RESET_KEEP_DDR_RESERVE;
 		wd_api->wd_sw_reset(mode);
 	}
@@ -473,7 +473,7 @@ static const char *get_timestamp_string(char *buf, int bufsize)
 	n = snprintf(buf, bufsize, "[%5lu.%06lu]",
 		       (unsigned long)ts, rem_nsec / 1000);
 	if (n < 0 || n >= bufsize) {
-		pr_info("print time failed\n");
+		pr_debug("print time failed\n");
 		*buf = '\0';
 	}
 	return buf;

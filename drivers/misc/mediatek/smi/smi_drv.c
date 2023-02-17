@@ -70,7 +70,7 @@ static bool smi_sspm_ipi_register;
 		if (cmdq != 0) \
 			cmdq_util_msg(string, ##args); \
 		else \
-			pr_warn(string, ##args); \
+			pr_debug(string, ##args); \
 	} while (0)
 #elif IS_ENABLED(CONFIG_MTK_CMDQ)
 #include <cmdq_helper_ext.h>

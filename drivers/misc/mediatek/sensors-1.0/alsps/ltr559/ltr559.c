@@ -40,7 +40,7 @@
 #define APS_TAG                  "[ltr559] "
 #define APS_FUN(f)               pr_debug(APS_TAG "%s\n", __func__)
 
-#define APS_ERR(fmt, args...)	pr_info(APS_TAG fmt, ##args)
+#define APS_ERR(fmt, args...)	pr_debug(APS_TAG fmt, ##args)
 #if 1
 #define APS_LOG(fmt, args...)	pr_debug(APS_TAG fmt, ##args)
 

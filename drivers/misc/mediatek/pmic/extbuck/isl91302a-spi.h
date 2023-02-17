@@ -99,7 +99,7 @@ extern int isl91302a_regulator_deinit(struct isl91302a_chip *chip);
 #define isl91302a_clr_bit(spi, reg, mask) \
 	isl91302a_assign_bit(spi, reg, mask, 0x00)
 
-#define ISL91302A_INFO(format, args...) pr_info(format, ##args)
+#define ISL91302A_INFO(format, args...) pr_debug(format, ##args)
 #define ISL91302A_pr_notice(format, args...)	pr_notice(format, ##args)
 
 #endif /* __LINUX_ISL91302A_SPI_H */

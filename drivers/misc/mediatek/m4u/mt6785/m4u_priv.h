@@ -32,10 +32,10 @@
 #include "m4u_reg.h"
 #include "../3.2/m4u_pgtable.h"
 
-#define M4UMSG(string, args...)	     pr_info("[M4U] "string, ##args)
-#define M4UINFO(string, args...)     pr_info("[M4U] "string, ##args)
+#define M4UMSG(string, args...)	     pr_debug("[M4U] "string, ##args)
+#define M4UINFO(string, args...)     pr_debug("[M4U] "string, ##args)
 
-#define m4u_info(string, args...)    pr_info("[M4U] "string, ##args)
+#define m4u_info(string, args...)    pr_debug("[M4U] "string, ##args)
 #define m4u_debug(string, args...)   pr_debug("[M4U] "string, ##args)
 
 
@@ -327,7 +327,7 @@ extern int gM4U_log_to_uart;
 		if (seq_file)\
 			seq_printf(seq_file, fmt, ##args);\
 		else\
-			pr_info(fmt, ##args);\
+			pr_debug(fmt, ##args);\
 	} while (0)
 
 /* ======================================= */

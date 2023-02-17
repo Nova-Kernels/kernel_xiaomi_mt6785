@@ -94,10 +94,10 @@ int emi_mpu_get_violation_port(void)
 {
 	int ret;
 
-	pr_info("[EMI MPU] emi_mpu_get_violation_port\n");
+	pr_debug("[EMI MPU] emi_mpu_get_violation_port\n");
 
 	if (isetocunt == 0) {
-		pr_info("[EMI MPU] EMI did not set Port ID\n");
+		pr_debug("[EMI MPU] EMI did not set Port ID\n");
 		isetocunt = 2;
 		return MASTER_ALL;
 	}
@@ -106,7 +106,7 @@ int emi_mpu_get_violation_port(void)
 	isetocunt = 0;
 
 	if (ret >= MASTER_ALL)
-		pr_info("[EMI MPU] Port ID: %d is an invalid Port ID\n", ret);
+		pr_debug("[EMI MPU] Port ID: %d is an invalid Port ID\n", ret);
 	else
 		Violation_PortID = MASTER_ALL;
 
@@ -122,7 +122,7 @@ static const char *__id2name(u32 id)
 	axi_ID = (id >> 3) & 0x00001FFF;
 	port_ID = id & 0x00000007;
 	emi_mpu_set_violation_port(port_ID);
-	pr_info("[EMI MPU] axi_id = %x, port_id = %x\n", axi_ID, port_ID);
+	pr_debug("[EMI MPU] axi_id = %x, port_id = %x\n", axi_ID, port_ID);
 
 	for (i = 0; i < ARRAY_SIZE(mst_tbl); i++) {
 		if (__match_id(axi_ID, i, port_ID))
@@ -148,8 +148,8 @@ static void __clear_emi_mpu_vio(void)
 	dbg_t = readl(IOMEM(EMI_MPUT));
 
 	if (dbg_s) {
-		pr_info("Fail to clear EMI MPU violation\n");
-		pr_info("EMI_MPUS = %x, EMI_MPUT = %x", dbg_s, dbg_t);
+		pr_debug("Fail to clear EMI MPU violation\n");
+		pr_debug("EMI_MPUS = %x, EMI_MPUT = %x", dbg_s, dbg_t);
 	}
 }
 
@@ -165,7 +165,7 @@ static int mpu_check_violation(void)
 	dbg_t_2nd = readl(IOMEM(EMI_MPUT_2ND));
 	vio_addr = (dbg_t + (((unsigned long long)(dbg_t_2nd & 0xF)) << 32) + emi_physical_offset);
 
-	pr_info("Clear status.\n");
+	pr_debug("Clear status.\n");
 
 	master_ID = (dbg_s & 0x0000FFFF);
 	domain_ID = (dbg_s >> 21) & 0x0000000F;
@@ -175,29 +175,29 @@ static int mpu_check_violation(void)
 
 	/*TBD: print the abort region*/
 
-	pr_info("EMI MPU violation.\n");
-	pr_info("[EMI MPU] Debug info start ----------------------------------------\n");
+	pr_debug("EMI MPU violation.\n");
+	pr_debug("[EMI MPU] Debug info start ----------------------------------------\n");
 
-	pr_info("EMI_MPUS = %x, EMI_MPUT = %x, EMI_MPUT_2ND = %x.\n", dbg_s, dbg_t, dbg_t_2nd);
-	pr_info("Current process is \"%s \" (pid: %i).\n", current->comm, current->pid);
-	pr_info("Violation address is 0x%llx.\n", vio_addr);
-	pr_info("Violation master ID is 0x%x.\n", master_ID);
+	pr_debug("EMI_MPUS = %x, EMI_MPUT = %x, EMI_MPUT_2ND = %x.\n", dbg_s, dbg_t, dbg_t_2nd);
+	pr_debug("Current process is \"%s \" (pid: %i).\n", current->comm, current->pid);
+	pr_debug("Violation address is 0x%llx.\n", vio_addr);
+	pr_debug("Violation master ID is 0x%x.\n", master_ID);
 	/*print out the murderer name*/
 	master_name = __id2name(master_ID);
-	pr_info("Violation domain ID is 0x%x.\n", domain_ID);
+	pr_debug("Violation domain ID is 0x%x.\n", domain_ID);
 	if (wr_vio == 1)
-		pr_info("Write violation.\n");
+		pr_debug("Write violation.\n");
 	else if (wr_vio == 2)
-		pr_info("Read violation.\n");
+		pr_debug("Read violation.\n");
 	else
-		pr_info("Strange write / read violation value = %d.\n", wr_vio);
-	pr_info("Corrupted region is %d\n\r", region);
+		pr_debug("Strange write / read violation value = %d.\n", wr_vio);
+	pr_debug("Corrupted region is %d\n\r", region);
 	if (wr_oo_vio == 1)
-		pr_info("Write out of range violation.\n");
+		pr_debug("Write out of range violation.\n");
 	else if (wr_oo_vio == 2)
-		pr_info("Read out of range violation.\n");
+		pr_debug("Read out of range violation.\n");
 
-	pr_info("[EMI MPU] Debug info end------------------------------------------\n");
+	pr_debug("[EMI MPU] Debug info end------------------------------------------\n");
 
 #ifdef CONFIG_MTK_AEE_FEATURE
 	if (wr_vio != 0) {
@@ -208,7 +208,7 @@ static int mpu_check_violation(void)
 			sprintf(pstr, "EMI_MPUS = 0x%x, ADDR = 0x%llx", dbg_s, vio_addr);
 
 			exec_ccci_kern_func_by_md_id(0, ID_MD_MPU_ASSERT, str, strlen(str));
-			pr_info("[EMI MPU] MPU violation trigger MD str=%s strlen(str)=%d\n",
+			pr_debug("[EMI MPU] MPU violation trigger MD str=%s strlen(str)=%d\n",
 				str, (int)strlen(str));
 		}
 
@@ -230,7 +230,7 @@ static int mpu_check_violation(void)
 /*EMI MPU violation handler*/
 static irqreturn_t mpu_violation_irq(int irq, void *dev_id)
 {
-	pr_info("It's a MPU violation.\n");
+	pr_debug("It's a MPU violation.\n");
 	mpu_check_violation();
 	return IRQ_HANDLED;
 }
@@ -363,7 +363,7 @@ static ssize_t emi_mpu_show(struct device_driver *driver, char *buf)
 		int temp;
 
 		temp = (*((volatile unsigned int *)(mpu_test_buffer+0x10000)));
-		pr_info("mpu_test_buffer+10000 = 0x%x\n", temp);
+		pr_debug("mpu_test_buffer+10000 = 0x%x\n", temp);
 	}
 #endif
 
@@ -384,10 +384,10 @@ const char *buf, size_t count)
 	ssize_t ret;
 
 	if ((strlen(buf) + 1) > MAX_EMI_MPU_STORE_CMD_LEN) {
-		pr_info("emi_mpu_store command overflow.");
+		pr_debug("emi_mpu_store command overflow.");
 		return count;
 	}
-	pr_info("emi_mpu_store: %s\n", buf);
+	pr_debug("emi_mpu_store: %s\n", buf);
 
 	command = kmalloc((size_t) MAX_EMI_MPU_STORE_CMD_LEN, GFP_KERNEL);
 	if (!command)
@@ -415,18 +415,18 @@ const char *buf, size_t count)
 		 */
 		ret = kstrtoull(token[1], 16, &start_addr);
 		if (ret != 0)
-			pr_info("kstrtoul fails to parse start_addr");
+			pr_debug("kstrtoul fails to parse start_addr");
 		ret = kstrtoull(token[2], 16, &end_addr);
 		if (ret != 0)
-			pr_info("kstrtoul fails to parse end_addr");
+			pr_debug("kstrtoul fails to parse end_addr");
 		ret = kstrtoul(token[3], 10, (unsigned long *)&region);
 		if (ret != 0)
-			pr_info("kstrtoul fails to parse region");
+			pr_debug("kstrtoul fails to parse region");
 		ret = kstrtoull(token[4], 16, &access_permission);
 		if (ret != 0)
-			pr_info("kstrtoull fails to parse access_permission");
+			pr_debug("kstrtoull fails to parse access_permission");
 		emi_mpu_set_region_protection(start_addr, end_addr, region, access_permission);
-		pr_info("Set EMI_MPU: start: 0x%llx, end: 0x%llx, region: %lx, permission: 0x%llx.\n",
+		pr_debug("Set EMI_MPU: start: 0x%llx, end: 0x%llx, region: %lx, permission: 0x%llx.\n",
 		       start_addr, end_addr, region, access_permission);
 	} else if (!strncmp(buf, DIS_MPU_STR, strlen(DIS_MPU_STR))) {
 		i = 0;
@@ -443,26 +443,26 @@ const char *buf, size_t count)
 		 */
 		ret = kstrtoull(token[1], 16, &start_addr);
 		if (ret != 0)
-			pr_info("kstrtoul fails to parse start_addr");
+			pr_debug("kstrtoul fails to parse start_addr");
 		ret = kstrtoull(token[2], 16, &end_addr);
 		if (ret != 0)
-			pr_info("kstrtoul fails to parse end_addr");
+			pr_debug("kstrtoul fails to parse end_addr");
 		ret = kstrtoul(token[3], 10, (unsigned long *)&region);
 		if (ret != 0)
-			pr_info("kstrtoul fails to parse region");
+			pr_debug("kstrtoul fails to parse region");
 
 		emi_mpu_set_region_protection(0x0, 0x0, region,
 		SET_ACCESS_PERMISSON(UNLOCK,
 			NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
 			NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION));
 
-		pr_info("set EMI MPU: start: 0x%x, end: 0x%x, region: %lx, permission: 0x%llx\n",
+		pr_debug("set EMI MPU: start: 0x%x, end: 0x%x, region: %lx, permission: 0x%llx\n",
 		0, 0, region,
 		SET_ACCESS_PERMISSON(UNLOCK,
 			NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
 			NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION));
 	} else {
-		pr_info("Unknown emi_mpu command.\n");
+		pr_debug("Unknown emi_mpu command.\n");
 	}
 
 	kfree(command);
@@ -511,11 +511,11 @@ static int __init emi_mpu_mod_init(void)
 	unsigned int mpu_irq = 0;
 
 #if EMI_MPU_TEST
-	pr_info("[EMI_MPU] ptr_phyical: %llx\n", (unsigned long long)__pa(mpu_test_buffer));
+	pr_debug("[EMI_MPU] ptr_phyical: %llx\n", (unsigned long long)__pa(mpu_test_buffer));
 	*((volatile unsigned int *)(mpu_test_buffer+0x10000)) = 0xdeaddead;
 #endif
 
-	pr_info("Initialize EMI MPU.\n");
+	pr_debug("Initialize EMI MPU.\n");
 
 	isetocunt = 0;
 
@@ -524,24 +524,24 @@ static int __init emi_mpu_mod_init(void)
 	EMI_MPU_BASE = mt_emi_mpu_base_get();
 
 	if (CEN_EMI_BASE == NULL) {
-		pr_info("[EMI MPU] can't get CEN_EMI_BASE\n");
+		pr_debug("[EMI MPU] can't get CEN_EMI_BASE\n");
 		return -1;
 	}
 
 	if (EMI_MPU_BASE == NULL) {
-		pr_info("[EMI MPU] can't get EMI_MPU_BASE\n");
+		pr_debug("[EMI MPU] can't get EMI_MPU_BASE\n");
 		return -1;
 	}
 
 	mt_emi_reg_base_set(CEN_EMI_BASE);
 	emi_physical_offset = 0x40000000;
 
-	pr_info("[EMI MPU] EMI_MPUS = 0x%x\n", readl(IOMEM(EMI_MPUS)));
-	pr_info("[EMI MPU] EMI_MPUT = 0x%x\n", readl(IOMEM(EMI_MPUT)));
-	pr_info("[EMI MPU] EMI_MPUT_2ND = 0x%x\n", readl(IOMEM(EMI_MPUT_2ND)));
+	pr_debug("[EMI MPU] EMI_MPUS = 0x%x\n", readl(IOMEM(EMI_MPUS)));
+	pr_debug("[EMI MPU] EMI_MPUT = 0x%x\n", readl(IOMEM(EMI_MPUT)));
+	pr_debug("[EMI MPU] EMI_MPUT_2ND = 0x%x\n", readl(IOMEM(EMI_MPUT_2ND)));
 
 	if (readl(IOMEM(EMI_MPUS))) {
-		pr_info("[EMI MPU] get MPU violation in driver init\n");
+		pr_debug("[EMI MPU] get MPU violation in driver init\n");
 		mpu_check_violation();
 	} else {
 		__clear_emi_mpu_vio();
@@ -558,7 +558,7 @@ static int __init emi_mpu_mod_init(void)
 			(irq_handler_t)mpu_violation_irq, IRQF_TRIGGER_LOW | IRQF_SHARED,
 			"mt_emi_mpu", &emi_mpu_ctrl);
 		if (ret != 0) {
-			pr_info("Fail to request EMI_MPU interrupt. Error = %d.\n", ret);
+			pr_debug("Fail to request EMI_MPU interrupt. Error = %d.\n", ret);
 			return ret;
 		}
 	}
@@ -571,11 +571,11 @@ static int __init emi_mpu_mod_init(void)
 	/* register driver and create sysfs files */
 	ret = platform_driver_register(&emi_mpu_ctrl);
 	if (ret)
-		pr_info("Fail to register EMI_MPU driver.\n");
+		pr_debug("Fail to register EMI_MPU driver.\n");
 
 	ret = driver_create_file(&emi_mpu_ctrl.driver, &driver_attr_mpu_config);
 	if (ret)
-		pr_info("Fail to create MPU config sysfs file.\n");
+		pr_debug("Fail to create MPU config sysfs file.\n");
 #endif
 
 	return 0;

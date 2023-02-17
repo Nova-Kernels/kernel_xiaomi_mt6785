@@ -570,7 +570,7 @@ void dynamic_change_ring_buf_size(
 			change_size  = (2 * (data_count + write_size));
 			change_size += MAX_SIZE_OF_ONE_FRAME;
 
-			pr_info("%s(), %p: %u -> %u, data_count %u, write_size %u, free_space %u\n",
+			pr_debug("%s(), %p: %u -> %u, data_count %u, write_size %u, free_space %u\n",
 				__func__,
 				rb->base,
 				rb->size,

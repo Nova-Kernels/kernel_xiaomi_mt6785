@@ -280,14 +280,14 @@ static int rt5081_set_scenario(int scenario)
 	mutex_lock(&rt5081_mutex);
 	if (scenario & FLASHLIGHT_SCENARIO_CAMERA_MASK) {
 		if (!is_decrease_voltage) {
-			pr_info("Decrease voltage level.\n");
+			pr_debug("Decrease voltage level.\n");
 			charger_manager_enable_high_voltage_charging(
 					flashlight_charger_consumer, false);
 			is_decrease_voltage = 1;
 		}
 	} else {
 		if (is_decrease_voltage) {
-			pr_info("Increase voltage level.\n");
+			pr_debug("Increase voltage level.\n");
 			charger_manager_enable_high_voltage_charging(
 					flashlight_charger_consumer, true);
 			is_decrease_voltage = 0;
@@ -527,7 +527,7 @@ static int rt5081_ioctl(unsigned int cmd, unsigned long arg)
 		break;
 
 	default:
-		pr_info("No such command and arg(%d): (%d, %d)\n",
+		pr_debug("No such command and arg(%d): (%d, %d)\n",
 				channel, _IOC_NR(cmd), (int)fl_arg->arg);
 		return -ENOTTY;
 	}
@@ -621,13 +621,13 @@ static int rt5081_parse_dt(struct device *dev,
 
 	pdata->channel_num = of_get_child_count(np);
 	if (!pdata->channel_num) {
-		pr_info("Parse no dt, node.\n");
+		pr_debug("Parse no dt, node.\n");
 		return 0;
 	}
-	pr_info("Channel number(%d).\n", pdata->channel_num);
+	pr_debug("Channel number(%d).\n", pdata->channel_num);
 
 	if (of_property_read_u32(np, "decouple", &decouple))
-		pr_info("Parse no dt, decouple.\n");
+		pr_debug("Parse no dt, decouple.\n");
 
 	pdata->dev_id = devm_kzalloc(dev,
 			pdata->channel_num *
@@ -648,7 +648,7 @@ static int rt5081_parse_dt(struct device *dev,
 		pdata->dev_id[i].channel = i;
 		pdata->dev_id[i].decouple = decouple;
 
-		pr_info("Parse dt (type,ct,part,name,channel,decouple)=(%d,%d,%d,%s,%d,%d).\n",
+		pr_debug("Parse dt (type,ct,part,name,channel,decouple)=(%d,%d,%d,%s,%d,%d).\n",
 				pdata->dev_id[i].type, pdata->dev_id[i].ct,
 				pdata->dev_id[i].part, pdata->dev_id[i].name,
 				pdata->dev_id[i].channel,

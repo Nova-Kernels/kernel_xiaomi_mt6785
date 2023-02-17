@@ -467,7 +467,7 @@ static void read_sensor_Cali(void)
 		(otp_data[1] == 0x00) &&
 		(otp_data[2] == 0x0b) &&
 		(otp_data[3] == 0x01)) {
-		pr_info("OTP type: Internal Only");
+		pr_debug("OTP type: Internal Only");
 		otp_flag = OTP_QSC_INTERNAL;
 
 		for (idx = 0; idx < 2304; idx++) {
@@ -490,7 +490,7 @@ static void read_sensor_Cali(void)
 
 	} else if ((otp_data[5] == 0x56) && (otp_data[6] == 0x00)) {
 		/*Internal Module Type*/
-		pr_info("OTP type: Custom Only");
+		pr_debug("OTP type: Custom Only");
 		otp_flag = OTP_QSC_CUSTOM;
 
 		for (idx = 0; idx < 2304; idx++) {
@@ -502,7 +502,7 @@ static void read_sensor_Cali(void)
 		}
 
 	} else {
-		pr_info("OTP type: No Data, 0x0008 = %d, 0x0009 = %d",
+		pr_debug("OTP type: No Data, 0x0008 = %d, 0x0009 = %d",
 		read_cmos_eeprom_8(0x0008), read_cmos_eeprom_8(0x0009));
 	}
 
@@ -628,7 +628,7 @@ static void write_shutter(kal_uint32 shutter)
 	} else {
 		/* Extend frame length*/
 		if (read_cmos_sensor_8(0x0350) != 0x01) {
-			pr_info("single cam scenario enable auto-extend");
+			pr_debug("single cam scenario enable auto-extend");
 			write_cmos_sensor_8(0x0350, 0x01);
 		}
 		write_cmos_sensor_8(0x0104, 0x01);
@@ -3057,7 +3057,7 @@ static void custom3_setting(void)
 		sizeof(imx586_custom3_setting)/sizeof(kal_uint16));
 
 	if (otp_flag == OTP_QSC_NONE) {
-		pr_info("OTP no QSC Data, close qsc register");
+		pr_debug("OTP no QSC Data, close qsc register");
 		write_cmos_sensor_8(0x3621, 0x00);
 	}
 
@@ -4548,7 +4548,7 @@ break;
 				sizeof(struct SENSOR_VC_INFO_STRUCT));
 			break;
 		default:
-			pr_info("error: get wrong vc_INFO id = %d",
+			pr_debug("error: get wrong vc_INFO id = %d",
 			*feature_data_32);
 			break;
 		}

@@ -184,7 +184,7 @@ static inline ssize_t wakelock_store(struct device *dev,
 	else if (input == 0)
 		ret = adsp_awake_unlock(pdata->id);
 
-	pr_info("%s, input %u, ret = %d", __func__, input, ret);
+	pr_debug("%s, input %u, ret = %d", __func__, input, ret);
 
 	return count;
 }
@@ -362,7 +362,7 @@ static long adsp_driver_ioctl(
 	}
 
 	if (ret < 0)
-		pr_info("%s(), ioctl error %d\n", __func__, ret);
+		pr_debug("%s(), ioctl error %d\n", __func__, ret);
 
 	return ret;
 }

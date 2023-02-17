@@ -66,7 +66,7 @@
 		if (DEVAPC_LOG_LEVEL & DEVAPC_LOG_DBG) { \
 			pr_debug(fmt, ##args); \
 		} else if (DEVAPC_LOG_LEVEL & DEVAPC_LOG_INFO) { \
-			pr_info(fmt, ##args); \
+			pr_debug(fmt, ##args); \
 		} \
 	} while (0)
 
@@ -78,7 +78,7 @@
 		if (DEVAPC_VIO_LEVEL & DEVAPC_LOG_DBG) { \
 			pr_debug_ratelimited(fmt, ##args); \
 		} else if (DEVAPC_VIO_LEVEL & DEVAPC_LOG_INFO) { \
-			pr_info_ratelimited(fmt, ##args); \
+			pr_debug_ratelimited(fmt, ##args); \
 		} \
 	} while (0)
 
@@ -1036,7 +1036,7 @@ static ssize_t devapc_dbg_write(struct file *file, const char __user *buffer,
 	DEVAPC_MSG("[DEVAPC] debugging...\n");
 	len = (count < (sizeof(input) - 1)) ? count : (sizeof(input) - 1);
 	if (copy_from_user(input, buffer, len)) {
-		pr_info("[DEVAPC] copy from user failed!\n");
+		pr_debug("[DEVAPC] copy from user failed!\n");
 		return -EFAULT;
 	}
 
@@ -1050,7 +1050,7 @@ static ssize_t devapc_dbg_write(struct file *file, const char __user *buffer,
 		slave_type = E_DAPC_OTHERS_SLAVE;
 
 	if (slave_type >= E_DAPC_OTHERS_SLAVE) {
-		pr_info("[DEVAPC] wrong input slave type\n");
+		pr_debug("[DEVAPC] wrong input slave type\n");
 		return -EFAULT;
 	}
 	DEVAPC_MSG("[DEVAPC] slave_type = %lu\n", slave_type);
@@ -1062,7 +1062,7 @@ static ssize_t devapc_dbg_write(struct file *file, const char __user *buffer,
 		domain = E_DOMAIN_OTHERS;
 
 	if (domain >= E_DOMAIN_OTHERS) {
-		pr_info("[DEVAPC] wrong input domain type\n");
+		pr_debug("[DEVAPC] wrong input domain type\n");
 		return -EFAULT;
 	}
 	DEVAPC_MSG("[DEVAPC] domain id = %lu\n", domain);
@@ -1074,7 +1074,7 @@ static ssize_t devapc_dbg_write(struct file *file, const char __user *buffer,
 		index = 0xFFFFFFFF;
 
 	if (index > DEVAPC_TOTAL_SLAVES) {
-		pr_info("[DEVAPC] wrong input index type\n");
+		pr_debug("[DEVAPC] wrong input index type\n");
 		return -EFAULT;
 	}
 	DEVAPC_MSG("[DEVAPC] slave config_idx = %lu\n", index);

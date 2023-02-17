@@ -86,7 +86,7 @@ int vpu_pwr_get_locked(struct vpu_device *vd, uint8_t boost)
 	int ret = 0;
 
 	if (vd->state == VS_REMOVING) {
-		pr_info("%s: vpu%d is going to be removed\n",
+		pr_debug("%s: vpu%d is going to be removed\n",
 			__func__, vd->id);
 		return -ENODEV;
 	}
@@ -264,7 +264,7 @@ static void vpu_pwr_off_locked(struct vpu_device *vd, int suspend)
 	}
 
 	if (vpu_xos_wait_idle(vd))
-		pr_info("%s: vpu%d: not in idle state\n", __func__, vd->id);
+		pr_debug("%s: vpu%d: not in idle state\n", __func__, vd->id);
 
 	vpu_pwr_debug("%s: vpu%d: apu_device_power_suspend(%d, %d)\n",
 		__func__, vd->id, adu_id, suspend);

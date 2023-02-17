@@ -189,7 +189,7 @@ static void aw8622_wavefrom_data_load(const struct firmware *cont, void *context
 	struct waveform_data_info *p_waveform_data = NULL;
 	int data_offset = 0;
 	unsigned int total_time = 0;
-	pr_info("%s enter\n", __func__);
+	pr_debug("%s enter\n", __func__);
 
 	if (!cont) {
 		pr_err("%s: failed to read %s\n", __func__, aw8622_waveform_file_name[haptic->cur_load_idx + haptic->load_idx_offset]);
@@ -201,7 +201,7 @@ static void aw8622_wavefrom_data_load(const struct firmware *cont, void *context
 	if (p_waveform_data == NULL) {
 		pr_err("%s: p_waveform_data cat't used \n", __func__);
 	}
-	pr_info("%s: loaded %s - size: %zu\n", __func__,
+	pr_debug("%s: loaded %s - size: %zu\n", __func__,
 		aw8622_waveform_file_name[haptic->cur_load_idx + haptic->load_idx_offset], cont ? cont->size : 0);
 
 	if (p_waveform_data->is_loaded) { /* Free up old space */
@@ -222,7 +222,7 @@ static void aw8622_wavefrom_data_load(const struct firmware *cont, void *context
 
 	p_waveform_data->len = cont->size - data_offset;
 	
-	pr_info("%s: %s  file size = %ld\n", __func__, aw8622_waveform_file_name[haptic->cur_load_idx + haptic->load_idx_offset], cont->size);
+	pr_debug("%s: %s  file size = %ld\n", __func__, aw8622_waveform_file_name[haptic->cur_load_idx + haptic->load_idx_offset], cont->size);
 	
 	memcpy(p_waveform_data->data, cont->data + data_offset, p_waveform_data->len);
 	if (p_waveform_data->us_time_len == 0) {
@@ -234,9 +234,9 @@ static void aw8622_wavefrom_data_load(const struct firmware *cont, void *context
 	p_waveform_data->is_loaded = true;
 	release_firmware(cont);
 
-	pr_info("%s idx = %d, sample_freq = %u, sample_nums = %u, len = %u time len = %u\n", __func__, 
+	pr_debug("%s idx = %d, sample_freq = %u, sample_nums = %u, len = %u time len = %u\n", __func__, 
 			haptic->cur_load_idx, p_waveform_data->sample_freq, p_waveform_data->sample_nums, p_waveform_data->len, p_waveform_data->us_time_len);
-	pr_info("%s load %s success\n", __func__, aw8622_waveform_file_name[haptic->cur_load_idx + haptic->load_idx_offset]);
+	pr_debug("%s load %s success\n", __func__, aw8622_waveform_file_name[haptic->cur_load_idx + haptic->load_idx_offset]);
 }
 
 
@@ -248,21 +248,21 @@ static int aw8622_get_f0_info(struct aw8622_haptic *haptic)
 		dev_err(haptic->dev, "%s request_firmware failed\n", __func__);
 		return -EIO;
 	}
-	pr_info("%s data %d size = %zu\n", __func__, firmware->data[0], firmware->size);
+	pr_debug("%s data %d size = %zu\n", __func__, firmware->data[0], firmware->size);
 	if (firmware->size > 0) {
 		haptic->load_idx_offset = firmware->data[0] & 0xff;
-		pr_info("%s haptic->load_idx_offset 1 = %u\n", __func__, haptic->load_idx_offset);
+		pr_debug("%s haptic->load_idx_offset 1 = %u\n", __func__, haptic->load_idx_offset);
 	}
 
 	if (haptic->load_idx_offset != LOW_F0_LOAD_WAVEFORM_OFFSET &&
 			haptic->load_idx_offset != MID_F0_LOAD_WAVEFORM_OFFSET &&
 			haptic->load_idx_offset != HIGH_F0_LOAD_WAVEFORM_OFFSET) {
 		haptic->load_idx_offset = MID_F0_LOAD_WAVEFORM_OFFSET;
-		pr_info("%s haptic->load_idx_offset 2 = %u\n", __func__, haptic->load_idx_offset);
+		pr_debug("%s haptic->load_idx_offset 2 = %u\n", __func__, haptic->load_idx_offset);
 	} 
 	haptic->load_idx_offset *= NUMS_WAVEFORM_USED;
     release_firmware(firmware);
-	pr_info("%s haptic->load_idx_offset 3 = %u\n", __func__, haptic->load_idx_offset);
+	pr_debug("%s haptic->load_idx_offset 3 = %u\n", __func__, haptic->load_idx_offset);
 	return 0;
 	
 }
@@ -285,7 +285,7 @@ static void aw8622_waveform_data_delay_work(struct work_struct *delay_work) {
 	haptic = container_of(p_delayed_work,
 					struct aw8622_haptic, load_waveform_work);
 
-	pr_info("%s load wavefile func enter\n", __func__);
+	pr_debug("%s load wavefile func enter\n", __func__);
 
 	/* get aw8622 f0 info */
 
@@ -302,7 +302,7 @@ static void aw8622_waveform_data_delay_work(struct work_struct *delay_work) {
 	}
 	memset(haptic->p_waveform_data, 0, haptic->waveform_data_nums * sizeof(struct waveform_data_info));
 
-	pr_info("%s waveform file offset idx = %d\n", __func__, haptic->load_idx_offset);
+	pr_debug("%s waveform file offset idx = %d\n", __func__, haptic->load_idx_offset);
 	for (i = 0; i < haptic->waveform_data_nums; i++) {
 		haptic->cur_load_idx = i;
 		ret = request_firmware_nowait(THIS_MODULE, FW_ACTION_HOTPLUG,
@@ -336,7 +336,7 @@ static void aw8622_waveform_data_delay_work(struct work_struct *delay_work) {
 	}
 
 	if (haptic->is_wavefrom_ready) {
-		pr_info("%s dma is malloc need release old memeory\n", __func__);
+		pr_debug("%s dma is malloc need release old memeory\n", __func__);
 		dma_free_coherent(haptic->dev, haptic->wave_max_len, haptic->wave_vir,
 					haptic->wave_phy);
 		haptic->is_wavefrom_ready = false;
@@ -354,7 +354,7 @@ static void aw8622_waveform_data_delay_work(struct work_struct *delay_work) {
 	#endif
 #if 1
 	haptic->wave_max_len = wave_max_len + 4;
-	pr_info("%s wavefile max len = %u\n", __func__, haptic->wave_max_len);
+	pr_debug("%s wavefile max len = %u\n", __func__, haptic->wave_max_len);
 	//buf_size = (wave_max_len + 4) / 4 ;
 	haptic->wave_vir = dma_alloc_coherent(haptic->dev, haptic->wave_max_len,
 		  &haptic->wave_phy, GFP_KERNEL | GFP_DMA);
@@ -378,19 +378,19 @@ static void aw8622_hw_off_work(struct work_struct *delay_work) {
 	haptic = container_of(p_delayed_work,
 					struct aw8622_haptic, hw_off_work);
 
-	pr_info("%s\n",__func__);
+	pr_debug("%s\n",__func__);
 	
 	if (haptic->is_actived) {
-		pr_info("%s is active hw off failed \n",__func__);
+		pr_debug("%s is active hw off failed \n",__func__);
 		return;
 	}
 	mutex_unlock(&haptic->mutex_lock);
 	if (!haptic->is_actived)
 	{
-		pr_info("%s hw off success \n",__func__);
+		pr_debug("%s hw off success \n",__func__);
 		gpio_set_value(haptic->hwen_gpio, 0); //hw disable
 		udelay(1000);
-		pr_info("%s pwm call  mt_pwm_disable", __func__);
+		pr_debug("%s pwm call  mt_pwm_disable", __func__);
 		mt_pwm_disable(haptic->pwm_ch, aw8622_pwm_memory_mode_config.pmic_pad);
 		haptic->is_power_on = false;
 	}
@@ -424,7 +424,7 @@ void aw8622_switch_pwm_gpio_mode(struct aw8622_haptic *haptic, int mode)
 	}
 	
 	pinctrl_select_state(haptic->ppinctrl_pwm, pins_state);
-	pr_info("%s() [PinC] to mode:%d done.\n", __func__, mode);
+	pr_debug("%s() [PinC] to mode:%d done.\n", __func__, mode);
 
 }
 
@@ -444,16 +444,16 @@ static int aw8622_state_init(struct aw8622_haptic *haptic) {
 static int aw8622_set_pwm_defalut_state(struct aw8622_haptic *haptic)
 {
 	int err = 0;
-	pr_info("%s\n",__func__);
+	pr_debug("%s\n",__func__);
 	//spin_lock(&haptic->spin_lock);
 	//mt_set_pwm_disable(haptic->pwm_ch);
-	pr_info("%s pwm call  mt_pwm_disable", __func__);
+	pr_debug("%s pwm call  mt_pwm_disable", __func__);
 	mt_pwm_disable(aw8622_pwm_old_mode_config.pwm_no, aw8622_pwm_old_mode_config.pmic_pad);
 	mt_pwm_clk_sel_hal(aw8622_pwm_old_mode_config.pwm_no, CLK_26M);
 	aw8622_pwm_old_mode_config.clk_div = CLK_DIV1;
 	aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.DATA_WIDTH = HAPTIC_PWM_OLD_MODE_CLOCK/haptic->default_pwm_freq; //period 
 	aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.THRESH = HAPTIC_PWM_OLD_MODE_CLOCK/(haptic->default_pwm_freq * 2);
-	pr_info("%s pwm call pwm_set_spec_config", __func__);
+	pr_debug("%s pwm call pwm_set_spec_config", __func__);
 	err = pwm_set_spec_config(&aw8622_pwm_old_mode_config);
 	//spin_unlock(&haptic->spin_lock);
 	if (err < 0) {
@@ -486,7 +486,7 @@ static int aw8622_play_wave(struct aw8622_haptic *haptic)
 	//struct waveform_data_info *p_waveform_info = &haptic->p_waveform_data[p_effect_state->effect_idx];
 	struct waveform_data_info *p_waveform_info = NULL;
 	
-	pr_info("%s entern\n", __func__);
+	pr_debug("%s entern\n", __func__);
 
 
 	if (!haptic->is_power_on && (p_effect_state->effect_idx > LONG_SHOCK_EFFECT_IDX && p_effect_state->effect_idx <= HIGH_SHORT_SHOCK_EFFECT_IDX)) { /* 1 2 3 */
@@ -516,12 +516,12 @@ static int aw8622_play_wave(struct aw8622_haptic *haptic)
 	membuff = p_effect_state->wave_vir;
 
 	for (i = 0; i < buf_size; i++) {
-		pr_info("%s idx = %d, 0x%08x\n", __func__, i, membuff[i]);
+		pr_debug("%s idx = %d, 0x%08x\n", __func__, i, membuff[i]);
 	}
 #endif
 	
 	if (haptic->is_power_on) {
-		//pr_info("%s pwm call  mt_pwm_disable", __func__);
+		//pr_debug("%s pwm call  mt_pwm_disable", __func__);
 		mt_pwm_disable(aw8622_pwm_old_mode_config.pwm_no, aw8622_pwm_old_mode_config.pmic_pad);
 	}
 	
@@ -534,7 +534,7 @@ static int aw8622_play_wave(struct aw8622_haptic *haptic)
 		pwm_wave_num = 0;
 		haptic->h_l_period = HAPTIC_PWM_MEMORY_MODE_CLOCK/LONG_SHOCK_BIT_NUMS_PER_SAMPLED_VALE/p_waveform_info->sample_freq;
 	}
-	//pr_info("%s effect idx = %d, WAVE_NUM = %d, h_l_period = %u\n", __func__, haptic->effect_idx, pwm_wave_num, haptic->h_l_period);
+	//pr_debug("%s effect idx = %d, WAVE_NUM = %d, h_l_period = %u\n", __func__, haptic->effect_idx, pwm_wave_num, haptic->h_l_period);
 	aw8622_pwm_memory_mode_config.PWM_MODE_MEMORY_REGS.HDURATION = haptic->h_l_period - 1;
 	aw8622_pwm_memory_mode_config.PWM_MODE_MEMORY_REGS.LDURATION = haptic->h_l_period - 1;
 	aw8622_pwm_memory_mode_config.PWM_MODE_MEMORY_REGS.WAVE_NUM = pwm_wave_num;
@@ -542,7 +542,7 @@ static int aw8622_play_wave(struct aw8622_haptic *haptic)
 	aw8622_pwm_memory_mode_config.PWM_MODE_MEMORY_REGS.BUF0_SIZE = buf_size - 1;
 		/* old mode switch to memory mode don't need to disable */
 	//mt_set_pwm_disable(aw8622_pwm_old_mode_config.pwm_no);
-		//pr_info("%s pwm call pwm_set_spec_config", __func__);
+		//pr_debug("%s pwm call pwm_set_spec_config", __func__);
 	ret = pwm_set_spec_config(&aw8622_pwm_memory_mode_config);
 #if 0
 	else {
@@ -565,7 +565,7 @@ static int aw8622_play_wave(struct aw8622_haptic *haptic)
 		gpio_set_value(haptic->hwen_gpio, 1); //hw enable
 		haptic->is_power_on = true;
 	}
-	pr_info("%s effect idx = %d, play_time secs = %d, ms= %lu wave nums = %d\n", __func__,
+	pr_debug("%s effect idx = %d, play_time secs = %d, ms= %lu wave nums = %d\n", __func__,
 				p_effect_state->effect_idx, p_effect_state->secs, p_effect_state->nsces/NSEC_PER_MSEC, pwm_wave_num);
 	hrtimer_start(&haptic->timer, ktime_set(p_effect_state->secs,p_effect_state->nsces), HRTIMER_MODE_REL);
 	return 0;
@@ -581,7 +581,7 @@ exit_1:
 static void aw8622_long_shock(struct aw8622_haptic *haptic) 
 {
 	int err;
-	pr_info("%s()\n",__func__);
+	pr_debug("%s()\n",__func__);
 	mt_pwm_clk_sel_hal(aw8622_pwm_old_mode_config.pwm_no, CLK_26M);
 	aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.DATA_WIDTH = HAPTIC_PWM_OLD_MODE_CLOCK/haptic->center_freq;
 	aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.THRESH = HAPTIC_PWM_OLD_MODE_CLOCK/(haptic->center_freq*2);
@@ -603,7 +603,7 @@ static enum hrtimer_restart aw8622_haptic_timer_func(struct hrtimer *timer)
 	struct aw8622_haptic *haptic = container_of(timer, struct aw8622_haptic,
 					     timer);
 	//struct aw8622_effect_state *p_effect_state = &haptic->effect_state;
-	pr_info("%s enter\n", __func__);
+	pr_debug("%s enter\n", __func__);
 	//p_effect_state->is_shock_stop = true;
 	queue_work(haptic->aw8622_wq,&haptic->stop_play_work);
 
@@ -627,7 +627,7 @@ static void aw8622_init_effect_state(struct aw8622_haptic *haptic) {
 	p_effect_state->nsces = (haptic->duration % MSEC_PER_SEC) * NSEC_PER_MSEC;
 	p_effect_state->duration = haptic->duration;
 	//p_effect_state->is_shock_stop = false;
-	pr_info("%s, duration = %u, secs = %d", __func__, haptic->duration, p_effect_state->secs);
+	pr_debug("%s, duration = %u, secs = %d", __func__, haptic->duration, p_effect_state->secs);
 }
 
 
@@ -639,7 +639,7 @@ static void aw8622_haptic_play_work(struct work_struct *work)
 
 	//struct aw8622_effect_state *p_effect_state = &haptic->effect_state;
 	//struct waveform_data_info *p_waveform_info = &haptic->p_waveform_data[p_effect_state->effect_idx];
-	pr_info("%s entern \n", __func__);
+	pr_debug("%s entern \n", __func__);
 	//mutex_lock(&haptic->mutex_lock);
 	if ( haptic->is_actived ) {
 		aw8622_init_effect_state(haptic);
@@ -660,7 +660,7 @@ static void aw8622_haptic_stop_play_work(struct work_struct *work)
 					struct aw8622_haptic, stop_play_work);
 	//struct aw8622_effect_state *p_effect_state = &haptic->effect_state;
 	//struct waveform_data_info *p_waveform_info = &haptic->p_waveform_data[p_effect_state->effect_idx];
-	pr_info("%s entern \n", __func__);
+	pr_debug("%s entern \n", __func__);
 
 	if ( !haptic->is_actived ) {
 		dev_err(haptic->dev, "%s logic error \n", __func__);
@@ -715,7 +715,7 @@ static void aw8622_haptic_test_work(struct work_struct *work)
 			gpio_set_value(haptic->hwen_gpio, 1); //hw enable
 			haptic->is_power_on = true;
 		}
-		pr_info("%s start play_time secs = %d, enter memory mode\n", __func__, 5);	
+		pr_debug("%s start play_time secs = %d, enter memory mode\n", __func__, 5);	
 		
 		msleep(5000);
 		
@@ -727,7 +727,7 @@ static void aw8622_haptic_test_work(struct work_struct *work)
 		aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.DATA_WIDTH = HAPTIC_PWM_OLD_MODE_CLOCK/haptic->default_pwm_freq; //period 
 		aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.THRESH = HAPTIC_PWM_OLD_MODE_CLOCK/(haptic->default_pwm_freq * 2);
 		err = pwm_set_spec_config(&aw8622_pwm_old_mode_config);
-		pr_info("%s end play enter OLD mode\n", __func__);		
+		pr_debug("%s end play enter OLD mode\n", __func__);		
 	}
 	haptic->is_actived = false;
 	queue_delayed_work(haptic->aw8622_wq, &haptic->hw_off_work, 30 * HZ);
@@ -796,8 +796,8 @@ static int aw8622_parse_devicetree_info(struct aw8622_haptic *haptic){
 		   err = PTR_ERR(haptic->ppinctrl_pwm);
 	}
 
-	pr_info("%s dt info def_pwm_freq = %uHz center_freq = %u \n", __func__, haptic->default_pwm_freq, haptic->center_freq);
-	pr_info("%s dt info pwmc_ch = %u\n",__func__, haptic->pwm_ch);
+	pr_debug("%s dt info def_pwm_freq = %uHz center_freq = %u \n", __func__, haptic->default_pwm_freq, haptic->center_freq);
+	pr_debug("%s dt info pwmc_ch = %u\n",__func__, haptic->pwm_ch);
 
 	return err;
 }
@@ -826,7 +826,7 @@ static ssize_t aw8622_activate_store(struct device *dev,
 	if (rc < 0)
 		return rc;
 
-	pr_info("%s: value=%d\n", __FUNCTION__, val);
+	pr_debug("%s: value=%d\n", __FUNCTION__, val);
 	mutex_lock(&haptic->mutex_lock);
 	if (val == 1) {
 		if ( !haptic->is_actived && haptic->is_wavefrom_ready) {
@@ -835,9 +835,9 @@ static ssize_t aw8622_activate_store(struct device *dev,
 			//schedule_work(&haptic->play_work);
 		} else {
 			if ( !haptic->is_wavefrom_ready ) {
-				pr_info("%s haptic waveform not ready\n", __func__);
+				pr_debug("%s haptic waveform not ready\n", __func__);
 			} else {
-				pr_info("%s haptic is active, wait and try again\n", __func__);
+				pr_debug("%s haptic is active, wait and try again\n", __func__);
 			}
 		}
 	} else {
@@ -888,7 +888,7 @@ static ssize_t aw8622_index_store(struct device *dev,
 	}
 	
 	haptic->effect_idx = val;
-	pr_info("%s: index = %d\n", __FUNCTION__, val);
+	pr_debug("%s: index = %d\n", __FUNCTION__, val);
 	return count;
 }
 
@@ -915,7 +915,7 @@ static ssize_t aw8622_duration_store(struct device *dev,
 	if (rc < 0)
 		return rc;
 
-	pr_info("%s: duration = %d\n", __FUNCTION__, val);
+	pr_debug("%s: duration = %d\n", __FUNCTION__, val);
 	
 	/* setting 0 on duration is NOP for now */
 	if (val <= 0)
@@ -958,7 +958,7 @@ static ssize_t aw8622_hwen_store(struct device *dev,
 	if (rc < 0)
 		return rc;
 
-	pr_info("%s: value=%d\n", __FUNCTION__, val);
+	pr_debug("%s: value=%d\n", __FUNCTION__, val);
 
 	if (val == 1) {
 		gpio_set_value(haptic->hwen_gpio, 1); //hw enable
@@ -991,7 +991,7 @@ static ssize_t aw8622_load_wavefile_ctrl_store(struct device *dev,
 	if (rc < 0)
 		return rc;
 
-	pr_info("%s: load_idx_offset=%d\n", __FUNCTION__, val);
+	pr_debug("%s: load_idx_offset=%d\n", __FUNCTION__, val);
 	haptic->load_idx_offset = val;
 
 	schedule_delayed_work(&haptic->load_waveform_work, 0); //delay 10s	
@@ -1024,7 +1024,7 @@ static ssize_t aw8622_debug_val_ctrl_store(struct device *dev,
 	haptic->default_pwm_freq = databuf[2];
 	haptic->interval = databuf[3];
 
-	pr_info("%s haptic->center_freq %u, haptic->h_l+period = %u\n, default_pwm_freq = %u, interval = %u", 
+	pr_debug("%s haptic->center_freq %u, haptic->h_l+period = %u\n, default_pwm_freq = %u, interval = %u", 
 			__func__, haptic->center_freq, haptic->h_l_period, haptic->default_pwm_freq, haptic->interval);
 	return count;
 }
@@ -1054,7 +1054,7 @@ static ssize_t aw8622_debug_pwm_ctrl_store(struct device *dev,
 		aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.DATA_WIDTH = databuf[1]; //period 
 		aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.THRESH = databuf[2];
 		//aw8622_switch_pwm_gpio_mode(haptic, HAPTIC_GPIO_AW8622_SET);
-		pr_info("%s pwm call pwm_set_spec_config", __func__);
+		pr_debug("%s pwm call pwm_set_spec_config", __func__);
 		err = pwm_set_spec_config(&aw8622_pwm_old_mode_config);
 		if (err < 0) {
 			dev_err(haptic->dev, "%s pwm_set_spec_config \n", __func__);
@@ -1063,7 +1063,7 @@ static ssize_t aw8622_debug_pwm_ctrl_store(struct device *dev,
 		aw8622_pwm_old_mode_config.clk_div = databuf[0];
 		aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.DATA_WIDTH = databuf[1]; //period 
 		aw8622_pwm_old_mode_config.PWM_MODE_OLD_REGS.THRESH = databuf[2];
-		pr_info("%s pwm call  mt_pwm_disable", __func__);
+		pr_debug("%s pwm call  mt_pwm_disable", __func__);
 		mt_pwm_disable(haptic->pwm_ch, aw8622_pwm_old_mode_config.pmic_pad);
 		//aw8622_switch_pwm_gpio_mode(haptic, HAPTIC_GPIO_AW8622_DEFAULT);
 	}
@@ -1083,7 +1083,7 @@ static ssize_t aw8622_debug_test_cnt_store(struct device *dev,
 	haptic->test_cnt = databuf[0];
 
 
-	pr_info("%s haptic->test_cnt =  %u", __func__, haptic->test_cnt);
+	pr_debug("%s haptic->test_cnt =  %u", __func__, haptic->test_cnt);
 	queue_work(haptic->aw8622_wq, &haptic->test_work);
 	
 	return count;
@@ -1135,7 +1135,7 @@ static int aw8622_haptic_probe(struct platform_device *pdev)
 	struct aw8622_haptic *haptic;
 	int err;
 
-	pr_info("%s enter \r\n", __func__);
+	pr_debug("%s enter \r\n", __func__);
 	haptic = devm_kzalloc(&pdev->dev, sizeof(*haptic), GFP_KERNEL);
 	if (!haptic)
 		return -ENOMEM;
@@ -1180,7 +1180,7 @@ static int aw8622_haptic_probe(struct platform_device *pdev)
 	aw8622_pwm_memory_mode_config.pwm_no = haptic->pwm_ch;
 	aw8622_pwm_old_mode_config.pwm_no = haptic->pwm_ch;
 
-	pr_info("%s waveform_sample_period = %d\n", __func__, haptic->wave_sample_period);
+	pr_debug("%s waveform_sample_period = %d\n", __func__, haptic->wave_sample_period);
 
 	aw8622_state_init(haptic);
 
@@ -1197,7 +1197,7 @@ static int aw8622_haptic_probe(struct platform_device *pdev)
 	haptic->load_idx_offset = MID_F0_LOAD_WAVEFORM_OFFSET * NUMS_WAVEFORM_USED;
 	schedule_delayed_work(&haptic->load_waveform_work, 10 * HZ); //delay 10s
 
-	pr_info("%s probe success \r\n", __func__);
+	pr_debug("%s probe success \r\n", __func__);
 	return 0;
 }
 
@@ -1210,7 +1210,7 @@ static int __maybe_unused aw8622_haptic_suspend(struct device *dev)
 	if (haptic->is_power_on) {
 		gpio_set_value(haptic->hwen_gpio, 0);
 		udelay(500);
-		pr_info("%s pwm call  mt_pwm_disable", __func__);
+		pr_debug("%s pwm call  mt_pwm_disable", __func__);
 		mt_pwm_disable(aw8622_pwm_old_mode_config.pwm_no, aw8622_pwm_old_mode_config.pmic_pad);
 		haptic->is_power_on = false;
 	}
@@ -1223,7 +1223,7 @@ static int __maybe_unused aw8622_haptic_resume(struct device *dev)
 	//struct aw8622_haptic *haptic = dev_get_drvdata(dev);
 	//int err;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	/* Output default period 50% duty cycle PWM */
 	//aw8622_pwm_init(haptic);
 

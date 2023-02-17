@@ -40,7 +40,7 @@ DEFINE_SPINLOCK(__spm_lock);
 int __attribute__ ((weak)) spm_get_spmfw_idx(void)
 {
 	aee_sram_printk("NO %s !!!\n", __func__);
-	pr_info("[SPM] NO %s !!!\n", __func__);
+	pr_debug("[SPM] NO %s !!!\n", __func__);
 	return 1;
 }
 
@@ -48,7 +48,7 @@ int __attribute__ ((weak)) spm_get_spmfw_idx(void)
 int __attribute__ ((weak)) mtk_spm_irq_register(unsigned int spmirq0)
 {
 	aee_sram_printk("NO %s !!!\n", __func__);
-	pr_info("[SPM] NO %s !!!\n", __func__);
+	pr_debug("[SPM] NO %s !!!\n", __func__);
 	return 0;
 }
 
@@ -59,14 +59,14 @@ int __attribute__ ((weak)) mtk_cpuidle_init(void) { return -EOPNOTSUPP; }
 void __attribute__((weak)) spm_do_dram_config_check(void)
 {
 	aee_sram_printk("NO %s !!!\n", __func__);
-	pr_info("[SPM] NO %s !!!\n", __func__);
+	pr_debug("[SPM] NO %s !!!\n", __func__);
 }
 
 /* Note: implemented in mtk_spm_fs.c */
 int __attribute__((weak)) spm_fs_init(void)
 {
 	aee_sram_printk("NO %s !!!\n", __func__);
-	pr_info("[SPM] NO %s !!!\n", __func__);
+	pr_debug("[SPM] NO %s !!!\n", __func__);
 	return 0;
 }
 
@@ -111,26 +111,26 @@ static void spm_register_init(unsigned int *spm_irq_0_ptr)
 
 	node = of_find_compatible_node(NULL, NULL, "mediatek,sleep");
 	if (!node)
-		pr_info("[SPM] find sleep node failed\n");
+		pr_debug("[SPM] find sleep node failed\n");
 
 	spm_base = of_iomap(node, 0);
 	if (!spm_base)
-		pr_info("[SPM] base spm_base failed\n");
+		pr_debug("[SPM] base spm_base failed\n");
 
 	spmirq0 = irq_of_parse_and_map(node, 0);
 	if (!spmirq0)
-		pr_info("[SPM] get spm_irq_0 failed\n");
+		pr_debug("[SPM] get spm_irq_0 failed\n");
 	*spm_irq_0_ptr = spmirq0;
 
 	node = of_find_compatible_node(NULL, NULL, "mediatek,sleep_reg_md");
 	if (!node)
-		pr_info("[SPM] find sleep_reg_md node failed\n");
+		pr_debug("[SPM] find sleep_reg_md node failed\n");
 
 	sleep_reg_md_base = of_iomap(node, 0);
 	if (!sleep_reg_md_base)
-		pr_info("[SPM] base sleep_reg_md_base failed\n");
+		pr_debug("[SPM] base sleep_reg_md_base failed\n");
 
-	pr_info("[SPM] spm_base = %p, sleep_reg_md_base = %p, spm_irq_0 = %d\n",
+	pr_debug("[SPM] spm_base = %p, sleep_reg_md_base = %p, spm_irq_0 = %d\n",
 		spm_base, sleep_reg_md_base, spmirq0);
 }
 

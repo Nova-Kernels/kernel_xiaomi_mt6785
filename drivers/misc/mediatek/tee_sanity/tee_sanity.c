@@ -144,18 +144,18 @@ static void tee_ut(uint32_t cmd)
 {
 	struct arm_smccc_res res;
 
-	pr_info(PFX "%s, cmd=0x%x\n", __func__, cmd);
+	pr_debug(PFX "%s, cmd=0x%x\n", __func__, cmd);
 	if (cmd == TEE_UT_READ_INTR) {
-		pr_info(PFX "tee_sanity_hwirq:0x%x\n", tee_sanity_hwirq);
+		pr_debug(PFX "tee_sanity_hwirq:0x%x\n", tee_sanity_hwirq);
 		enable_read_hwirq = true;
 
 	} else if (cmd == TEE_UT_TRIGGER_INTR) {
-		pr_info(PFX "trigger interrupt(0x%x)...\n", tee_sanity_hwirq);
+		pr_debug(PFX "trigger interrupt(0x%x)...\n", tee_sanity_hwirq);
 
 		arm_smccc_smc(MTK_SIP_KERNEL_TEE_CONTROL, TEE_OP_ID_SET_PENDING,
 				0, 0, 0, 0, 0, 0, &res);
 
-		pr_info(PFX "trigger interrupt done!\n");
+		pr_debug(PFX "trigger interrupt done!\n");
 
 	} else {
 		pr_err(PFX "%s, cmd=0x%x is not supported\n", __func__, cmd);
@@ -165,7 +165,7 @@ static void tee_ut(uint32_t cmd)
 static irqreturn_t tee_sanity_isr(int intr, void *args)
 {
 	if (intr == tee_sanity_irq)
-		pr_info(PFX "receive interrupt success!\n");
+		pr_debug(PFX "receive interrupt success!\n");
 
 	return IRQ_HANDLED;
 }
@@ -232,7 +232,7 @@ ssize_t tee_sanity_dbg_write(struct file *file, const char __user *buffer,
 
 	if (!strncmp(cmd_str, "enable_ut", sizeof("enable_ut"))) {
 		enable_ut = (param != 0);
-		pr_info(PFX "enable_ut = %s\n",
+		pr_debug(PFX "enable_ut = %s\n",
 			enable_ut ? "enable" : "disable");
 		return count;
 
@@ -240,7 +240,7 @@ ssize_t tee_sanity_dbg_write(struct file *file, const char __user *buffer,
 		if (enable_ut)
 			tee_ut(param);
 		else
-			pr_info(PFX "enable_ut is not enabled\n");
+			pr_debug(PFX "enable_ut is not enabled\n");
 
 		return count;
 
@@ -267,7 +267,7 @@ static int tee_sanity_probe(struct platform_device *pdev)
 	struct device_node *node = pdev->dev.of_node;
 	int ret;
 
-	pr_info(PFX "driver registered\n");
+	pr_debug(PFX "driver registered\n");
 
 	if (IS_ERR(node)) {
 		pr_err(PFX "cannot find device node\n");

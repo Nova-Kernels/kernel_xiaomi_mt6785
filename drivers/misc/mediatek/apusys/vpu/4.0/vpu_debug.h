@@ -37,7 +37,7 @@ int vpu_debug_on(int mask)
 }
 
 #define vpu_debug(mask, ...) do { if (vpu_debug_on(mask)) \
-		pr_info(__VA_ARGS__); \
+		pr_debug(__VA_ARGS__); \
 	} while (0)
 
 int vpu_init_debug(void);

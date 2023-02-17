@@ -200,20 +200,20 @@ void mt_set_pwm_clk_hal(u32 pwm_no, u32 clksrc, u32 div)
 		if (clksrc == CLK_BLOCK_BY_1625_OR_32K) {/* old mode: 32k clk*/
 			SETREG32(reg_con, 1 << PWM_CON_CLKSEL_OLD_OFFSET);
 			SETREG32(reg_con, 1 << PWM_CON_CLKSEL_OFFSET);
-			pr_info("%s: PWM old clock set 32K!\n", __func__);
+			pr_debug("%s: PWM old clock set 32K!\n", __func__);
 		} else {
 			CLRREG32(reg_con, 1 << PWM_CON_CLKSEL_OLD_OFFSET);
 			SETREG32(reg_con, 1 << PWM_CON_CLKSEL_OFFSET);
-			pr_info("%s: PWM old clock set 26M/1625!\n", __func__);
+			pr_debug("%s: PWM old clock set 26M/1625!\n", __func__);
 		}
 	} else {
 		CLRREG32(reg_con, 1 << PWM_CON_CLKSEL_OLD_OFFSET);
 		if (clksrc == CLK_BLOCK) {
 			CLRREG32(reg_con, 1 << PWM_CON_CLKSEL_OFFSET);
-			pr_info("%s: PWM new clock set 26M!\n", __func__);
+			pr_debug("%s: PWM new clock set 26M!\n", __func__);
 		} else if (clksrc == CLK_BLOCK_BY_1625_OR_32K) {
 			SETREG32(reg_con, 1 << PWM_CON_CLKSEL_OFFSET);
-			pr_info("%s: PWM new clock set 26M/1625!\n", __func__);
+			pr_debug("%s: PWM new clock set 26M/1625!\n", __func__);
 		} else
 			pr_err("clksrc(%u) set err\n", clksrc);
 	}
@@ -456,55 +456,55 @@ void mt_pwm_dump_regs_hal(void)
 	int i = 0;
 	unsigned long reg_val = 0;
 
-	pr_info("=========> [PWM DUMP RG START] <=========\n ");
+	pr_debug("=========> [PWM DUMP RG START] <=========\n ");
 	for (i = PWM1; i < PWM_MAX; i++) {
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_CON);
-		pr_info("[PWM%d_CON]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_CON]: 0x%lx\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_HDURATION);
-		pr_info("[PWM%d_HDURATION]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_HDURATION]: 0x%lx\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_LDURATION);
-		pr_info("[PWM%d_LDURATION]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_LDURATION]: 0x%lx\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_GDURATION);
-		pr_info("[PWM%d_GDURATION]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_GDURATION]: 0x%lx\n", i + 1, reg_val);
 
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF0_BASE_ADDR);
-		pr_info("[PWM%d_BUF0_BASE_ADDR]: 0x%lx\n", i, reg_val);
+		pr_debug("[PWM%d_BUF0_BASE_ADDR]: 0x%lx\n", i, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF0_SIZE);
-		pr_info("[PWM%d_BUF0_SIZE]: 0x%lx\n", i, reg_val);
+		pr_debug("[PWM%d_BUF0_SIZE]: 0x%lx\n", i, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF1_BASE_ADDR);
-		pr_info("[PWM%d_BUF1_BASE_ADDR]: 0x%lx\n", i, reg_val);
+		pr_debug("[PWM%d_BUF1_BASE_ADDR]: 0x%lx\n", i, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF1_SIZE);
-		pr_info("[PWM%d_BUF1_SIZE]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_BUF1_SIZE]: 0x%lx\n", i + 1, reg_val);
 
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_SEND_DATA0);
-		pr_info("[PWM%d_SEND_DATA0]: 0x%lx]\n", i + 1, reg_val);
+		pr_debug("[PWM%d_SEND_DATA0]: 0x%lx]\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_SEND_DATA1);
-		pr_info("[PWM%d_PWM_SEND_DATA1]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_PWM_SEND_DATA1]: 0x%lx\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_WAVE_NUM);
-		pr_info("[PWM%d_WAVE_NUM]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_WAVE_NUM]: 0x%lx\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_DATA_WIDTH);
-		pr_info("[PWM%d_WIDTH]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_WIDTH]: 0x%lx\n", i + 1, reg_val);
 
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_THRESH);
-		pr_info("[PWM%d_THRESH]: 0x%lx\n", i + 1, reg_val);
+		pr_debug("[PWM%d_THRESH]: 0x%lx\n", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_SEND_WAVENUM);
-		pr_info("[PWM%d_SEND_WAVENUM]: 0x%lx\n\r", i + 1, reg_val);
+		pr_debug("[PWM%d_SEND_WAVENUM]: 0x%lx\n\r", i + 1, reg_val);
 		reg_val = INREG32(PWM_register[i] + 4 * PWM_BUF_BASE_ADDR2);
-		pr_info("[PWM%d_BUF_BASE_ADDR2]: 0x%lx\n\r", i + 1, reg_val);
+		pr_debug("[PWM%d_BUF_BASE_ADDR2]: 0x%lx\n\r", i + 1, reg_val);
 	}
 
 	reg_val = INREG32(PWM_ENABLE);
-	pr_info("[PWM_ENABLE]: 0x%lx\n ", reg_val);
+	pr_debug("[PWM_ENABLE]: 0x%lx\n ", reg_val);
 	reg_val = INREG32(PWM_CK_26M_SEL);
-	pr_info("[PWM_26M_SEL]: 0x%lx\n ", reg_val);
-	/*pr_info("peri pdn0 clock: 0x%x\n", INREG32(INFRA_PDN_STA0));*/
+	pr_debug("[PWM_26M_SEL]: 0x%lx\n ", reg_val);
+	/*pr_debug("peri pdn0 clock: 0x%x\n", INREG32(INFRA_PDN_STA0));*/
 	reg_val = INREG32(PWM_INT_ENABLE);
-	pr_info("[PWM_INT_ENABLE]:0x%lx\n ", reg_val);
+	pr_debug("[PWM_INT_ENABLE]:0x%lx\n ", reg_val);
 	reg_val = INREG32(PWM_INT_STATUS);
-	pr_info("[PWM_INT_STATUS]: 0x%lx\n ", reg_val);
+	pr_debug("[PWM_INT_STATUS]: 0x%lx\n ", reg_val);
 	reg_val = INREG32(PWM_EN_STATUS);
-	pr_info("[PWM_EN_STATUS]: 0x%lx\n ", reg_val);
-	pr_info("=========> [PWM DUMP RG END] <=========\n ");
+	pr_debug("[PWM_EN_STATUS]: 0x%lx\n ", reg_val);
+	pr_debug("=========> [PWM DUMP RG END] <=========\n ");
 
 }
 
@@ -564,7 +564,7 @@ void mt_pwm_26M_clk_enable_hal(u32 enable)
 void mt_pwm_clk_sel_hal(u32 pwm_no, u32 clk_src)
 {
 	if (pwm_no > PWM_MAX)
-		pr_info("PWM: invalid pwm_no\n");
+		pr_debug("PWM: invalid pwm_no\n");
 	switch (clk_src) {
 	/* 32K */
 	case 0x00:
@@ -593,7 +593,7 @@ void mt_pwm_clk_sel_hal(u32 pwm_no, u32 clk_src)
 		SETREG32(PWM_CLK_SRC_CTRL, 0x3 << PWM_BCLK_SW_CTRL_OFFSET);
 		break;
 	default:
-		pr_info("PWM: invalid clk_src\n");
+		pr_debug("PWM: invalid clk_src\n");
 	}
 }
 

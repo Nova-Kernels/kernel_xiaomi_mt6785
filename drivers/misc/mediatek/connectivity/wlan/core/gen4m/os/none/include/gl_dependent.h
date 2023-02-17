@@ -694,7 +694,7 @@ long KAL_NEED_IMPLEMENT(const char *file, const char *func, int line, ...);
  * source/include/linux/printk.h
  */
 int kal_dbg_print(const char *s, ...);
-#define pr_info(fmt, ...) printf(fmt)
+#define pr_debug(fmt, ...) printf(fmt)
 
 /*
  * kal_hex_dump_to_buffer: convert a blob of data to "hex ASCII" in memory

@@ -1325,7 +1325,7 @@ static const char *mt6873_bus_id_to_master(uint32_t bus_id, uint32_t vio_addr,
 
 	if ((vio_addr >= TINYSYS_START_ADDR && vio_addr <= TINYSYS_END_ADDR) ||
 	    (vio_addr >= MD_START_ADDR && vio_addr <= MD_END_ADDR)) {
-		pr_info(PFX "[DEVAPC] bus_id might be wrong\n");
+		pr_debug(PFX "[DEVAPC] bus_id might be wrong\n");
 
 		if (domain == 0x1)
 			return "SSPM";
@@ -1333,7 +1333,7 @@ static const char *mt6873_bus_id_to_master(uint32_t bus_id, uint32_t vio_addr,
 			return "CONNSYS";
 
 	} else if (vio_addr >= CONN_START_ADDR && vio_addr <= CONN_END_ADDR) {
-		pr_info(PFX "[DEVAPC] bus_id might be wrong\n");
+		pr_debug(PFX "[DEVAPC] bus_id might be wrong\n");
 
 		if (domain == 0x1)
 			return "MD";
@@ -1343,7 +1343,7 @@ static const char *mt6873_bus_id_to_master(uint32_t bus_id, uint32_t vio_addr,
 
 	if (slave_type == SLAVE_TYPE_INFRA) {
 		if (vio_addr <= 0x1FFFFF) {
-			pr_info(PFX "vio_addr is from on-chip SRAMROM\n");
+			pr_debug(PFX "vio_addr is from on-chip SRAMROM\n");
 			if ((bus_id & 0x1) == 0)
 				return "EMI_L2C_M";
 
@@ -1368,7 +1368,7 @@ static const char *mt6873_bus_id_to_master(uint32_t bus_id, uint32_t vio_addr,
 		if ((h_1byte >= 0x14 && h_1byte < 0x18) ||
 				(h_1byte >= 0x1A && h_1byte < 0x1C) ||
 				(h_1byte >= 0x1F && h_1byte < 0x20)) {
-			pr_info(PFX "vio addr is from MM 2nd\n");
+			pr_debug(PFX "vio addr is from MM 2nd\n");
 			if ((bus_id & 0x1) == 1)
 				return "GCE_M";
 
@@ -1482,7 +1482,7 @@ static void mm2nd_vio_handler(void __iomem *infracfg,
 		reg = infracfg + vio0_offset + i * 4;
 		vio_sta = readl(reg);
 		if (vio_sta)
-			pr_info(PFX "MM 2nd violation: %s%d:0x%x\n",
+			pr_debug(PFX "MM 2nd violation: %s%d:0x%x\n",
 					mm_str, i, vio_sta);
 	}
 

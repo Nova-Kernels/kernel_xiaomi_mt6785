@@ -275,7 +275,7 @@ static int otg_tcp_notifier_call(struct notifier_block *nb,
 
 	switch (event) {
 	case TCP_NOTIFY_SOURCE_VBUS:
-		pr_info("%s source vbus = %dmv\n",
+		pr_debug("%s source vbus = %dmv\n",
 				__func__, noti->vbus_state.mv);
 		mutex_lock(&tcpc_otg_pwr_lock);
 		usbc_otg_power_enable = (noti->vbus_state.mv) ? true : false;
@@ -284,13 +284,13 @@ static int otg_tcp_notifier_call(struct notifier_block *nb,
 		break;
 	case TCP_NOTIFY_TYPEC_STATE:
 		if (noti->typec_state.new_state == TYPEC_ATTACHED_SRC) {
-			pr_info("%s OTG Plug in\n", __func__);
+			pr_debug("%s OTG Plug in\n", __func__);
 			mutex_lock(&tcpc_otg_lock);
 			usbc_otg_enable = true;
 			mutex_unlock(&tcpc_otg_lock);
 		} else if (noti->typec_state.old_state == TYPEC_ATTACHED_SRC &&
 				noti->typec_state.new_state == TYPEC_UNATTACHED) {
-			pr_info("%s OTG Plug out\n", __func__);
+			pr_debug("%s OTG Plug out\n", __func__);
 			mutex_lock(&tcpc_otg_lock);
 			usbc_otg_enable = false;
 			mutex_unlock(&tcpc_otg_lock);
@@ -303,28 +303,28 @@ static int otg_tcp_notifier_call(struct notifier_block *nb,
 #else
 static int typec_otg_enable(void *data)
 {
-	pr_info("typec_otg_enable\n");
+	pr_debug("typec_otg_enable\n");
 	musb_typec_host_connect(0);
 	return 0;
 }
 
 static int typec_otg_disable(void *data)
 {
-	pr_info("typec_otg_disable\n");
+	pr_debug("typec_otg_disable\n");
 	musb_typec_host_disconnect(0);
 	return 0;
 }
 
 static int typec_vbus_enable(void *data)
 {
-	pr_info("typec_vbus_enable\n");
+	pr_debug("typec_vbus_enable\n");
 	_set_vbus(mtk_musb, 1);
 	return 0;
 }
 
 static int typec_vbus_disable(void *data)
 {
-	pr_info("typec_vbus_disable\n");
+	pr_debug("typec_vbus_disable\n");
 	_set_vbus(mtk_musb, 0);
 	return 0;
 }

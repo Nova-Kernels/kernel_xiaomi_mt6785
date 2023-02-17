@@ -931,7 +931,7 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 		do {
 			*sensor_id = return_sensor_id();
 			if (*sensor_id == imgsensor_info.sensor_id) {
-				pr_info("i2c write id: 0x%x, ReadOut sensor id: 0x%x, imgsensor_info.sensor_id:0x%x.\n",
+				pr_debug("i2c write id: 0x%x, ReadOut sensor id: 0x%x, imgsensor_info.sensor_id:0x%x.\n",
 					imgsensor.i2c_write_id, *sensor_id,
 					imgsensor_info.sensor_id);
 
@@ -943,7 +943,7 @@ static kal_uint32 get_imgsensor_id(UINT32 *sensor_id)
 			}
 
 			if (retry > 0)
-				pr_info("%s 0x%x, qReadOut sensor id: 0x%x, imgsensor_info.sensor_id:0x%x., retry:%d\n Read sensor id fail, i2c write id:",
+				pr_debug("%s 0x%x, qReadOut sensor id: 0x%x, imgsensor_info.sensor_id:0x%x., retry:%d\n Read sensor id fail, i2c write id:",
 					__func__, imgsensor.i2c_write_id,
 					*sensor_id,
 					imgsensor_info.sensor_id, retry);

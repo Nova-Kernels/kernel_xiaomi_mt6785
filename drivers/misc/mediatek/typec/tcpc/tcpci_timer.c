@@ -1417,7 +1417,7 @@ int tcpci_timer_init(struct tcpc_device *tcpc_dev)
 {
 	int i;
 
-	pr_info("PD Timer number = %d\n", PD_TIMER_NR);
+	pr_debug("PD Timer number = %d\n", PD_TIMER_NR);
 	tcpc_dev->timer_task = kthread_create(tcpc_timer_thread, tcpc_dev,
 			"tcpc_timer_%s.%p", dev_name(&tcpc_dev->dev), tcpc_dev);
 	init_waitqueue_head(&tcpc_dev->timer_wait_que);
@@ -1436,7 +1436,7 @@ int tcpci_timer_init(struct tcpc_device *tcpc_dev)
 	INIT_DELAYED_WORK(&tcpc_dev->wake_up_work, wake_up_work_func);
 	alarm_init(&tcpc_dev->wake_up_timer, ALARM_REALTIME, tcpc_timer_wakeup);
 
-	pr_info("%s : init OK\n", __func__);
+	pr_debug("%s : init OK\n", __func__);
 	return 0;
 }
 
@@ -1457,7 +1457,7 @@ int tcpci_timer_deinit(struct tcpc_device *tcpc_dev)
 	}
 	wakeup_source_trash(&tcpc_dev->wakeup_wake_lock);
 
-	pr_info("%s : de init OK\n", __func__);
+	pr_debug("%s : de init OK\n", __func__);
 	mutex_unlock(&tcpc_dev->timer_lock);
 	return 0;
 }

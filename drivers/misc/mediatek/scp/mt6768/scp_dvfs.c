@@ -528,22 +528,22 @@ static ssize_t mt_scp_dvfs_sleep_proc_write(
 		if (val <= 3) {
 			if (val != scp_sleep_flag) {
 				scp_sleep_flag = val;
-				pr_info("scp_sleep_flag = %d\n",
+				pr_debug("scp_sleep_flag = %d\n",
 						scp_sleep_flag);
 				ret = scp_ipi_send(IPI_DVFS_SLEEP,
 							(void *)&scp_sleep_flag,
 							sizeof(scp_sleep_flag),
 							0, SCP_A_ID);
 				if (ret != SCP_IPI_DONE)
-					pr_info("%s: SCP send IPI fail - %d\n",
+					pr_debug("%s: SCP send IPI fail - %d\n",
 						__func__, ret);
 			} else
-				pr_info("SCP sleep flag is not changed\n");
+				pr_debug("SCP sleep flag is not changed\n");
 		} else {
-			pr_info("Warning: invalid input value %d\n", val);
+			pr_debug("Warning: invalid input value %d\n", val);
 		}
 	} else {
-		pr_info("Warning: invalid input command, val=%d\n", val);
+		pr_debug("Warning: invalid input command, val=%d\n", val);
 	}
 
 	return count;
@@ -585,14 +585,14 @@ static int mt_scp_dvfs_ctrl_proc_show(struct seq_file *m, void *v)
 static void __mt_scp_dvfs_opp_ctrl(int dvfs_opp)
 {
 	if (dvfs_opp == -1) {
-		pr_info("remove the opp setting of command\n");
+		pr_debug("remove the opp setting of command\n");
 		feature_table[VCORE_TEST_FEATURE_ID].freq = 0;
 		scp_deregister_feature(VCORE_TEST_FEATURE_ID);
 	} else if (dvfs_opp >= 0 && dvfs_opp <= 3) {
 		uint32_t i;
 		uint32_t sum = 0, added_freq = 0;
 
-		pr_info("manually set opp = %d\n", dvfs_opp);
+		pr_debug("manually set opp = %d\n", dvfs_opp);
 
 		/*
 		 * calculate scp frequence
@@ -628,7 +628,7 @@ static void __mt_scp_dvfs_opp_ctrl(int dvfs_opp)
 
 		scp_register_feature(VCORE_TEST_FEATURE_ID);
 	} else {
-		pr_info("invalid opp value %d\n", dvfs_opp);
+		pr_debug("invalid opp value %d\n", dvfs_opp);
 	}
 }
 
@@ -655,17 +655,17 @@ static ssize_t mt_scp_dvfs_ctrl_proc_write(
 	if (n == 1 || n == 2) {
 		if (!strcmp(cmd, "on")) {
 			scp_dvfs_flag = 1;
-			pr_info("SCP DVFS: ON\n");
+			pr_debug("SCP DVFS: ON\n");
 		} else if (!strcmp(cmd, "off")) {
 			scp_dvfs_flag = -1;
-			pr_info("SCP DVFS: OFF\n");
+			pr_debug("SCP DVFS: OFF\n");
 		} else if (!strcmp(cmd, "opp")) {
 			__mt_scp_dvfs_opp_ctrl(dvfs_opp);
 		} else {
-			pr_info("invalid command %s\n", cmd);
+			pr_debug("invalid command %s\n", cmd);
 		}
 	} else {
-		pr_info("invalid length %d\n", n);
+		pr_debug("invalid length %d\n", n);
 	}
 
 	return count;

@@ -307,7 +307,7 @@ int __init mrdump_full_init(void)
 		pr_notice("%s: DFD_EXTENDED_DUMP enabled\n", __func__);
 #endif
 
-	pr_info("%s: MT-RAMDUMP enabled done\n", __func__);
+	pr_debug("%s: MT-RAMDUMP enabled done\n", __func__);
 	return 0;
 }
 
@@ -347,7 +347,7 @@ static int __init mrdump_sysfs_init(void)
 		return -EINVAL;
 	}
 
-	pr_info("%s: done.\n", __func__);
+	pr_debug("%s: done.\n", __func__);
 	return 0;
 }
 

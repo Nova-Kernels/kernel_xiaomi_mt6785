@@ -271,7 +271,7 @@ static int mt6370_pmu_probe(struct i2c_client *i2c,
 	u8 dev_info = 0;
 	int ret = 0;
 
-	pr_info("%s: (%s)\n", __func__, MT6370_PMU_I2C_DRV_VERSION);
+	pr_debug("%s: (%s)\n", __func__, MT6370_PMU_I2C_DRV_VERSION);
 
 	ret = mt6370_pmu_chip_id_check(i2c);
 	if (ret < 0)

@@ -262,7 +262,7 @@ int vpu_kbuf_alloc(struct vpu_device *vd)
 	ktime_get_ts(&end);
 
 	if (!iova) {
-		pr_info("%s: vpu%d failed\n", __func__, vd->id);
+		pr_debug("%s: vpu%d failed\n", __func__, vd->id);
 		return -ENOMEM;
 	}
 
@@ -473,7 +473,7 @@ static int vpu_init_bin(void)
 #if VPU_IMG_LEGACY
 	if (of_property_read_u32(node, "bin-phy-addr", &phy_addr) ||
 		of_property_read_u32(node, "bin-size", &phy_size)) {
-		pr_info("%s: unable to get vpu firmware.\n", __func__);
+		pr_debug("%s: unable to get vpu firmware.\n", __func__);
 		return -ENODEV;
 	}
 #endif
@@ -483,7 +483,7 @@ static int vpu_init_bin(void)
 		of_property_read_u32(node, "bin-size", &phy_size) ||
 		of_property_read_u32(node, "img-head", &bin_head_ofs) ||
 		of_property_read_u32(node, "pre-bin", &bin_preload_ofs)) {
-		pr_info("%s: unable to get vpu firmware.\n", __func__);
+		pr_debug("%s: unable to get vpu firmware.\n", __func__);
 		return -ENODEV;
 	}
 #endif
@@ -493,7 +493,7 @@ static int vpu_init_bin(void)
 	vpu_drv->bin_pa = phy_addr;
 	vpu_drv->bin_size = phy_size;
 
-	pr_info("%s: mapped vpu firmware: pa: 0x%lx, size: 0x%x, kva: 0x%lx\n",
+	pr_debug("%s: mapped vpu firmware: pa: 0x%lx, size: 0x%x, kva: 0x%lx\n",
 		__func__, vpu_drv->bin_pa, vpu_drv->bin_size,
 		(unsigned long)vpu_drv->bin_va);
 
@@ -501,7 +501,7 @@ static int vpu_init_bin(void)
 	vpu_drv->bin_head_ofs = bin_head_ofs;
 	vpu_drv->bin_preload_ofs = bin_preload_ofs;
 
-	pr_info("%s: header: 0x%x, preload:0x%x\n", __func__,
+	pr_debug("%s: header: 0x%x, preload:0x%x\n", __func__,
 		vpu_drv->bin_head_ofs, vpu_drv->bin_preload_ofs);
 #endif
 
@@ -656,12 +656,12 @@ static int vpu_init_dev_irq(struct platform_device *pdev,
 	vd->irq_num = irq_of_parse_and_map(pdev->dev.of_node, 0);
 
 	if (vd->irq_num <= 0) {
-		pr_info("%s: %s: invalid IRQ: %d\n",
+		pr_debug("%s: %s: invalid IRQ: %d\n",
 			__func__, vd->name, vd->irq_num);
 		return -ENODEV;
 	}
 
-	pr_info("%s: %s: IRQ: %d\n",
+	pr_debug("%s: %s: IRQ: %d\n",
 		__func__, vd->name, vd->irq_num);
 
 	return 0;
@@ -682,7 +682,7 @@ static int vpu_init_adev(struct vpu_device *vd,
 	ret = apusys_register_device(adev);
 
 	if (ret)
-		pr_info("%s: type: %d, ret: %d\n",
+		pr_debug("%s: type: %d, ret: %d\n",
 			__func__, type, ret);
 
 	return ret;
@@ -847,7 +847,7 @@ static int __init vpu_init(void)
 	vpu_drv = NULL;
 
 	if (!apusys_power_check()) {
-		pr_info("%s: vpu is disabled by apusys\n", __func__);
+		pr_debug("%s: vpu is disabled by apusys\n", __func__);
 		return -ENODEV;
 	}
 

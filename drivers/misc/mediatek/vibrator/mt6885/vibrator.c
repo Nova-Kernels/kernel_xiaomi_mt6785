@@ -112,7 +112,7 @@ void init_cust_vibrator_dtsi(struct platform_device *pdev)
 		else
 			pvib_cust->vib_vol = 0x05;
 #endif
-		pr_info("pvib_cust = %d, %d, %d\n", pvib_cust->vib_timer,
+		pr_debug("pvib_cust = %d, %d, %d\n", pvib_cust->vib_timer,
 				pvib_cust->vib_limit, pvib_cust->vib_vol);
 	}
 }
@@ -120,7 +120,7 @@ void init_cust_vibrator_dtsi(struct platform_device *pdev)
 struct vibrator_hw *get_cust_vibrator_dtsi(void)
 {
 	if (pvib_cust == NULL)
-		pr_info("get dtsi fail, pvib_cust is NULL\n");
+		pr_debug("get dtsi fail, pvib_cust is NULL\n");
 	return pvib_cust;
 }
 
@@ -130,12 +130,12 @@ void vibr_power_set(void)
 	struct vibrator_hw *hw = get_cust_vibrator_dtsi();
 
 	if (hw != NULL) {
-		pr_info("vibrator set voltage = %d\n", hw->vib_vol);
+		pr_debug("vibrator set voltage = %d\n", hw->vib_vol);
 #ifdef CONFIG_MTK_PMIC_NEW_ARCH
 		//pmic_set_register_value(PMIC_RG_VIBR_VOSEL, hw->vib_vol);
 #endif
 	} else {
-		pr_info("can not get vibrator settings from dtsi!\n");
+		pr_debug("can not get vibrator settings from dtsi!\n");
 	}
 #endif
 }

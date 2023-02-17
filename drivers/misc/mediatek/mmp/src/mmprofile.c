@@ -85,7 +85,7 @@ static bool mmp_trace_log_on;
 			pr_debug("MMP:%s(): "fmt"\n", __func__, ##arg); \
 	} while (0)
 
-#define MMP_MSG(fmt, arg...) pr_info("MMP: %s(): "fmt"\n", __func__, ##arg)
+#define MMP_MSG(fmt, arg...) pr_debug("MMP: %s(): "fmt"\n", __func__, ##arg)
 
 #define mmp_aee(string, args...) do {	\
 	char disp_name[100];						\
@@ -98,7 +98,7 @@ static bool mmp_trace_log_on;
 		DB_OPT_DEFAULT | DB_OPT_MMPROFILE_BUFFER | \
 		DB_OPT_DISPLAY_HANG_DUMP | DB_OPT_DUMP_DISPLAY, \
 		disp_name, "[MMP] error"string, ##args);		\
-		pr_info("MMP error: "string, ##args);				\
+		pr_debug("MMP error: "string, ##args);				\
 } while (0)
 struct mmprofile_regtable_t {
 	struct mmprofile_eventinfo_t event_info;
@@ -276,7 +276,7 @@ void mmprofile_get_dump_buffer(unsigned int start, unsigned long *p_addr,
 					&(p_regtable->event_info))) {
 					mmp_aee("pos=0x%x, src_pos=0x%x\n",
 						pos, src_pos);
-					pr_info("region_pos=0x%x, block_pos=0x%x\n",
+					pr_debug("region_pos=0x%x, block_pos=0x%x\n",
 						region_pos, block_pos);
 					return;
 				}
@@ -822,7 +822,7 @@ static void mmprofile_log_int(mmp_event event, enum mmp_log_type type,
 		&(p_mmprofile_ring_buffer[index])))) {
 		mmp_aee("write_pointer:0x%x,index:0x%x,line:%d\n",
 			mmprofile_globals.write_pointer, index, __LINE__);
-		pr_info("buffer_size_record:0x%x,new_buffer_size_record:0x%x\n",
+		pr_debug("buffer_size_record:0x%x,new_buffer_size_record:0x%x\n",
 			mmprofile_globals.buffer_size_record,
 			mmprofile_globals.new_buffer_size_record);
 		return;
@@ -848,7 +848,7 @@ static void mmprofile_log_int(mmp_event event, enum mmp_log_type type,
 				mmp_aee("write_pt:0x%x,index:0x%x,line:%d\n",
 					mmprofile_globals.write_pointer,
 					index, __LINE__);
-				pr_info("buf_size:0x%x,new_buf_size:0x%x\n",
+				pr_debug("buf_size:0x%x,new_buf_size:0x%x\n",
 					mmprofile_globals.buffer_size_record,
 				mmprofile_globals.new_buffer_size_record);
 				return;

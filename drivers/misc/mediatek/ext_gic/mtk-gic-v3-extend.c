@@ -653,7 +653,7 @@ void irq_sw_mode_init(void)
 	if (node)
 		MCUSYS_BASE_SWMODE = of_iomap(node, 0);
 	else
-		pr_info("[gic_ext] fail to find mcucfg node\n");
+		pr_debug("[gic_ext] fail to find mcucfg node\n");
 
 	spin_lock_init(&domain_lock);
 	gic_sched_pm_init();

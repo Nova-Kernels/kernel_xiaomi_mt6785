@@ -140,7 +140,7 @@ int nandx_pmt_init(struct nandx_chip_info *info, u32 start_blk)
 		ret = nandx_read_pmt_table(info, &ops);
 		if (ret > 0) {
 			pmt_found = true;
-			pr_info("find the latest mpt at page %d\n", ops.row);
+			pr_debug("find the latest mpt at page %d\n", ops.row);
 			/* recovery main pmt from mirror pmt */
 			ops.row = nandx_bmt_get_mapped_block(start_blk) * ppb;
 			ret = nandx_core_erase(&ops.row, 1, MODE_SLC);
@@ -151,7 +151,7 @@ int nandx_pmt_init(struct nandx_chip_info *info, u32 start_blk)
 			}
 		}
 	} else {
-		pr_info("find the latest pt at page %d\n", ops.row - 1);
+		pr_debug("find the latest pt at page %d\n", ops.row - 1);
 	}
 
 	nandx_release_device();

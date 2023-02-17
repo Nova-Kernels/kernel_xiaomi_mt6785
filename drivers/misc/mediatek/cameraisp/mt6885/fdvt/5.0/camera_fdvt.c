@@ -164,13 +164,13 @@ pr_debug(MyTag "[%s] " format, __func__, ##args)
 
 #ifdef FDVT_DEBUG_USE
 #define log_dbg(format, args...) \
-pr_info(MyTag "[%s] " format, __func__, ##args)
+pr_debug(MyTag "[%s] " format, __func__, ##args)
 #else
 #define log_dbg(format, args...)
 #endif
 
 #define log_inf(format, args...) \
-pr_info(MyTag "[%s] " format, __func__, ##args)
+pr_debug(MyTag "[%s] " format, __func__, ##args)
 #define log_notice(format, args...) \
 pr_notice(MyTag "[%s] " format, __func__, ##args)
 #define log_wrn(format, args...) \

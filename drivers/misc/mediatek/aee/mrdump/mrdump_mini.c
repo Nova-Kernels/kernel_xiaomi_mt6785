@@ -1032,7 +1032,7 @@ int mrdump_mini_init(void)
 
 int mini_rdump_reserve_memory(struct reserved_mem *rmem)
 {
-	pr_info("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n",
+	pr_debug("[memblock]%s: 0x%llx - 0x%llx (0x%llx)\n",
 		"mediatek,minirdump",
 		 (unsigned long long)rmem->base,
 		 (unsigned long long)rmem->base +

@@ -136,7 +136,7 @@ static void backlight_debug_log(int level, int mappingLevel)
 	count++;
 
 	if (ret < 0 || ret >= 4096) {
-		pr_info("print log error!");
+		pr_debug("print log error!");
 		count = 5;
 	}
 	if (level == 0 || count >= 5 || (current_t - last_time) > 1000000000) {
@@ -164,7 +164,7 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 	if (pled_dtsi)
 		goto out;
 
-	pr_info("[LED] %s pled_dtsi is null, load dts file\n", __func__);
+	pr_debug("[LED] %s pled_dtsi is null, load dts file\n", __func__);
 	pled_dtsi = kmalloc_array(TYPE_TOTAL,
 			sizeof(struct cust_mt65xx_led), GFP_KERNEL);
 	if (pled_dtsi == NULL) {
@@ -189,7 +189,7 @@ struct cust_mt65xx_led *get_cust_led_dtsi(void)
 			strncat(node_name, leds_name[i],
 			sizeof(node_name) - strlen(node_name) - 1));
 		if (!led_node) {
-			pr_info("[LED]Cannot find LED node from dts\n");
+			pr_debug("[LED]Cannot find LED node from dts\n");
 			pled_dtsi[i].mode = 0;
 			pled_dtsi[i].data = -1;
 			continue;

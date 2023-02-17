@@ -257,7 +257,7 @@ struct arphdr_in {
 #define CCMNI_DBG_MSG(idx, fmt, args...) \
 	pr_debug("[ccci%d/net]" fmt, (idx+1), ##args)
 #define CCMNI_INF_MSG(idx, fmt, args...) \
-	pr_info("[ccci%d/net]" fmt, (idx+1), ##args)
+	pr_debug("[ccci%d/net]" fmt, (idx+1), ##args)
 #define CCMNI_PR_DBG(idx, fmt, args...) \
 	pr_debug("[ccci%d/net][Error:%d]%s:" fmt, (idx+1),\
 		__LINE__, __func__, ##args)

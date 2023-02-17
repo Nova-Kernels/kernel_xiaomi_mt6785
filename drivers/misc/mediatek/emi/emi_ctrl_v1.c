@@ -89,7 +89,7 @@ static const struct of_device_id emi_of_ids[] = {
 #ifdef CONFIG_PM
 static int emi_suspend_noirq(struct device *dev)
 {
-	/* pr_info("[EMI] suspend\n"); */
+	/* pr_debug("[EMI] suspend\n"); */
 
 #if ENABLE_ELM
 	suspend_elm();
@@ -100,7 +100,7 @@ static int emi_suspend_noirq(struct device *dev)
 
 static int emi_resume_noirq(struct device *dev)
 {
-	/* pr_info("[EMI] resume\n"); */
+	/* pr_debug("[EMI] resume\n"); */
 
 #if ENABLE_ELM
 	resume_elm();
@@ -145,7 +145,7 @@ static int emi_probe(struct platform_device *pdev)
 	struct proc_dir_entry *proc_entry;
 	int i;
 
-	pr_info("[EMI] module probe.\n");
+	pr_debug("[EMI] module probe.\n");
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	CEN_EMI_BASE = devm_ioremap_resource(&pdev->dev, res);
@@ -184,10 +184,10 @@ static int emi_probe(struct platform_device *pdev)
 				"emi_dcm", &emi_dcm);
 	plat_debug_api_init();
 #endif
-	pr_info("[EMI] get CEN_EMI_BASE @ %p\n", mt_cen_emi_base_get());
-	pr_info("[EMI] get EMI_MPU_BASE @ %p\n", mt_emi_mpu_base_get());
+	pr_debug("[EMI] get CEN_EMI_BASE @ %p\n", mt_cen_emi_base_get());
+	pr_debug("[EMI] get EMI_MPU_BASE @ %p\n", mt_emi_mpu_base_get());
 	for (i = 0; i < MAX_CH; i++)
-		pr_info("[EMI] get CH%d_EMI_BASE @ %p\n",
+		pr_debug("[EMI] get CH%d_EMI_BASE @ %p\n",
 			i, mt_chn_emi_base_get(i));
 
 	proc_entry = proc_create("ddr_info", 0444, NULL, &ddr_info_proc_fops);
@@ -246,12 +246,12 @@ static int __init emi_ctrl_init(void)
 			pr_err("[EMI] fail to get rank_size\n");
 	}
 
-	pr_info("[EMI] dram_type(%d)\n", get_dram_type());
-	pr_info("[EMI] mr5(0x%x)\n", get_dram_mr(5));
-	pr_info("[EMI] ch_num(%d)\n", get_ch_num());
-	pr_info("[EMI] rk_num(%d)\n", get_rk_num());
+	pr_debug("[EMI] dram_type(%d)\n", get_dram_type());
+	pr_debug("[EMI] mr5(0x%x)\n", get_dram_mr(5));
+	pr_debug("[EMI] ch_num(%d)\n", get_ch_num());
+	pr_debug("[EMI] rk_num(%d)\n", get_rk_num());
 	for (i = 0; i < get_rk_num(); i++)
-		pr_info("[EMI] rank%d_size(0x%x)", i, get_rank_size(i));
+		pr_debug("[EMI] rank%d_size(0x%x)", i, get_rank_size(i));
 
 	return 0;
 }

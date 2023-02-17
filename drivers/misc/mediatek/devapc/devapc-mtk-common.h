@@ -31,7 +31,7 @@
 		if (DEVAPC_LOG_LEVEL & DEVAPC_LOG_DBG) { \
 			pr_debug(PFX fmt, ##args); \
 		} else if (DEVAPC_LOG_LEVEL & DEVAPC_LOG_INFO) { \
-			pr_info(PFX fmt, ##args); \
+			pr_debug(PFX fmt, ##args); \
 		} \
 	} while (0)
 
@@ -43,7 +43,7 @@
 		if (DEVAPC_VIO_LEVEL & DEVAPC_LOG_DBG) { \
 			pr_debug(PFX fmt, ##args); \
 		} else if (DEVAPC_VIO_LEVEL & DEVAPC_LOG_INFO) { \
-			pr_info(PFX fmt, ##args); \
+			pr_debug(PFX fmt, ##args); \
 		} \
 	} while (0)
 

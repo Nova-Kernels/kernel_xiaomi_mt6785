@@ -23,7 +23,7 @@ static int vproc2_plat_probe(struct platform_device *pdev)
 	struct isl91302a_chip *chip;
 	int ret = 0;
 
-	pr_info("%s ver(%s)\n", __func__, VPROC2_DRV_VERSION);
+	pr_debug("%s ver(%s)\n", __func__, VPROC2_DRV_VERSION);
 	chip = devm_kzalloc(&pdev->dev,
 		sizeof(struct isl91302a_chip), GFP_KERNEL);
 	chip->dev = &pdev->dev;
@@ -60,7 +60,7 @@ static struct platform_driver vproc2_plat_driver = {
 
 static int __init vproc2_init(void)
 {
-	pr_info("%s ver(%s)\n", __func__, VPROC2_DRV_VERSION);
+	pr_debug("%s ver(%s)\n", __func__, VPROC2_DRV_VERSION);
 	return platform_driver_register(&vproc2_plat_driver);
 }
 

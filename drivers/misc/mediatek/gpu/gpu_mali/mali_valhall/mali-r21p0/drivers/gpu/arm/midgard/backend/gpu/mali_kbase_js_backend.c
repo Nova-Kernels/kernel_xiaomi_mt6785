@@ -203,7 +203,7 @@ static enum hrtimer_restart timer_callback(struct hrtimer *timer)
 					freq = mt_gpufreq_get_freq_by_idx(idx);
 					vgpu = mt_gpufreq_get_volt_by_idx(idx);
 					vsram = mt_gpufreq_get_vsram_by_idx(idx);
-					pr_info("gpu_freq info: idx: %d, freq: %d, vgpu: %d, vsram_gpu: %d\n",
+					pr_debug("gpu_freq info: idx: %d, freq: %d, vgpu: %d, vsram_gpu: %d\n",
 						idx, freq, vgpu, vsram);
 					mt_gpufreq_dump_infra_status();
 
@@ -215,7 +215,7 @@ static enum hrtimer_restart timer_callback(struct hrtimer *timer)
 
 				if (mt_gpufreq_is_dfd_force_dump() == 1 ||
 					mt_gpufreq_is_dfd_force_dump() == 2) {
-					pr_info("gpu dfd force dump\n");
+					pr_debug("gpu dfd force dump\n");
 					mt_gpufreq_software_trigger_dfd();
 					BUG_ON(1);
 				}
@@ -258,7 +258,7 @@ static enum hrtimer_restart timer_callback(struct hrtimer *timer)
 					freq = mt_gpufreq_get_freq_by_idx(idx);
 					vgpu = mt_gpufreq_get_volt_by_idx(idx);
 					vsram = mt_gpufreq_get_vsram_by_idx(idx);
-					pr_info("gpu_freq info: idx: %d, freq: %d, vgpu: %d, vsram_gpu: %d\n",
+					pr_debug("gpu_freq info: idx: %d, freq: %d, vgpu: %d, vsram_gpu: %d\n",
 						idx, freq, vgpu, vsram);
 					mt_gpufreq_dump_infra_status();
 
@@ -270,7 +270,7 @@ static enum hrtimer_restart timer_callback(struct hrtimer *timer)
 
 				if (mt_gpufreq_is_dfd_force_dump() == 1 ||
 					mt_gpufreq_is_dfd_force_dump() == 2) {
-					pr_info("gpu dfd force dump\n");
+					pr_debug("gpu dfd force dump\n");
 					mt_gpufreq_software_trigger_dfd();
 					BUG_ON(1);
 				}

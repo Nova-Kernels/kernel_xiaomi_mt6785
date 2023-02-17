@@ -40,7 +40,7 @@
 #endif
 
 #define MALI_TAG				"[GPU/MALI]"
-#define mali_pr_info(fmt, args...)		pr_info(MALI_TAG"[INFO]"fmt, ##args)
+#define mali_pr_debug(fmt, args...)		pr_debug(MALI_TAG"[INFO]"fmt, ##args)
 #define mali_pr_debug(fmt, args...)		pr_debug(MALI_TAG"[DEBUG]"fmt, ##args)
 
 DEFINE_MUTEX(g_mfg_lock);
@@ -103,7 +103,7 @@ static int pm_callback_power_on_nolock(struct kbase_device *kbdev)
 	gpu_dvfs_status_footprint(GPU_DVFS_STATUS_STEP_1);
 
 	if (g_is_suspend == 1) {
-		mali_pr_info("@%s: discard powering on since GPU is suspended\n", __func__);
+		mali_pr_debug("@%s: discard powering on since GPU is suspended\n", __func__);
 		return 0;
 	}
 
@@ -206,10 +206,10 @@ static void pm_callback_power_suspend(struct kbase_device *kbdev)
 
 	if (mtk_get_vgpu_power_on_flag() == MTK_VGPU_POWER_ON) {
 		pm_callback_power_off_nolock(kbdev);
-		mali_pr_info("@%s: force powering off GPU\n", __func__);
+		mali_pr_debug("@%s: force powering off GPU\n", __func__);
 	}
 	g_is_suspend = 1;
-	mali_pr_info("@%s: gpu_suspend\n", __func__);
+	mali_pr_debug("@%s: gpu_suspend\n", __func__);
 
 	gpu_dvfs_status_footprint(GPU_DVFS_STATUS_STEP_E);
 
@@ -221,7 +221,7 @@ static void pm_callback_power_resume(struct kbase_device *kbdev)
 	mutex_lock(&g_mfg_lock);
 
 	g_is_suspend = 0;
-	mali_pr_info("@%s: gpu_resume\n", __func__);
+	mali_pr_debug("@%s: gpu_resume\n", __func__);
 
 	gpu_dvfs_status_footprint(GPU_DVFS_STATUS_STEP_F);
 
@@ -268,7 +268,7 @@ int mtk_platform_init(struct kbase_device *kbdev)
 {
 
 	if (!kbdev) {
-		mali_pr_info("@%s: input parameter is NULL\n", __func__);
+		mali_pr_debug("@%s: input parameter is NULL\n", __func__);
 		return -1;
 	}
 
@@ -277,7 +277,7 @@ int mtk_platform_init(struct kbase_device *kbdev)
 	//FIXME
 	g_is_suspend = -1;
 
-	mali_pr_info("@%s: initialize successfully\n", __func__);
+	mali_pr_debug("@%s: initialize successfully\n", __func__);
 
 	return 0;
 }

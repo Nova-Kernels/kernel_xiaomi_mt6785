@@ -251,7 +251,7 @@ void ccu_clock_disable(void);
 #define LOG_DBG_MUST(format, args...) \
 	pr_debug(CCU_TAG "[%s] " format, __func__, ##args)
 #define LOG_INF_MUST(format, args...) \
-	pr_info(CCU_TAG "[%s] " format, __func__, ##args)
+	pr_debug(CCU_TAG "[%s] " format, __func__, ##args)
 #define LOG_DBG(format, args...)
 #define LOG_INF(format, args...)
 #define LOG_WARN(format, args...) \

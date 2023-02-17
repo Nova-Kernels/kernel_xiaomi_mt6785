@@ -58,7 +58,7 @@ bool vpu_is_disabled(struct vpu_device *vd)
 	ret = (efuse & mask) || ((seg == 0x1) && (vd->id >= 2));
 
 	/* show efuse info to let user know */
-	pr_info("%s: seg: 0x%x, efuse: 0x%x, core%d is %s\n",
+	pr_debug("%s: seg: 0x%x, efuse: 0x%x, core%d is %s\n",
 		__func__, seg, efuse, vd->id,
 		ret ? "disabled" : "enabled");
 

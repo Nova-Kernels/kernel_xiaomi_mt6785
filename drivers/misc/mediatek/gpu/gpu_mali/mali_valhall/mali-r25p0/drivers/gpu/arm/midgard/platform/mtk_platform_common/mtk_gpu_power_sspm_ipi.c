@@ -44,7 +44,7 @@ static void gpu_send_enable_ipi(unsigned int type, unsigned int enable)
 		ret = mtk_ipi_register(&sspm_ipidev, IPIS_C_GPU_PM, NULL, NULL,
 				(void *) &gpu_pm_ipi_ackdata);
 		if (ret) {
-			pr_info("[gpu sspm] IPIS_C_GPU_PM ipi_register fail, ret %d\n", ret);
+			pr_debug("[gpu sspm] IPIS_C_GPU_PM ipi_register fail, ret %d\n", ret);
 			return;
 		}
 		ipi_register_flag = true;
@@ -57,7 +57,7 @@ static void gpu_send_enable_ipi(unsigned int type, unsigned int enable)
 		cmd_len, 5000);
 
 	if (ret) {
-		pr_info("gpu_send_enable_ipi %d send fail,ret=%d\n",
+		pr_debug("gpu_send_enable_ipi %d send fail,ret=%d\n",
 		ipi_cmd.cmd[0], ret);
 	}
 #else
@@ -195,7 +195,7 @@ int MTKGPUPower_model_init(void) {
 	ret = mtk_ipi_register(&sspm_ipidev, IPIS_C_GPU_PM, NULL, NULL,
 			(void *) &gpu_pm_ipi_ackdata);
 	if (ret) {
-		pr_info("IPIS_C_GPU_PM ipi_register fail, ret %d\n", ret);
+		pr_debug("IPIS_C_GPU_PM ipi_register fail, ret %d\n", ret);
 		return -1;
 	}
 	ipi_register_flag = true;

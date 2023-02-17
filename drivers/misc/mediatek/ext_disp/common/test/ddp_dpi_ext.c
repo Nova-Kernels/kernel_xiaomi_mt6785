@@ -64,7 +64,7 @@
 
 #define DPI_EXT_LOG_PRINT(fmt, arg...)  \
 	{\
-		pr_info(fmt, ##arg); \
+		pr_debug(fmt, ##arg); \
 	}
 
 /**********DPI DVT Case Start***********/

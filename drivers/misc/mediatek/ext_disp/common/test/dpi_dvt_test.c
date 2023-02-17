@@ -1359,7 +1359,7 @@ int dvt_copy_file_data(void *ptr, unsigned int resolution)
 		set_fs(KERNEL_DS);
 		fd = filp_open("/data/picture_4k.bmp", O_RDONLY, 0);
 		if (IS_ERR(fd)) {
-			pr_info
+			pr_debug
 			    ("open picture_4k.bmp fail! %ld\n",
 			     PTR_ERR(fd));
 			set_fs(fs);

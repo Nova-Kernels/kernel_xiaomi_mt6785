@@ -51,9 +51,9 @@ void mt_getmembw_registerCB(getmembw_func pCB)
 		/* reset last time & word all count */
 		last_time_ns = sched_clock();
 		LastWordAllCount = 0;
-		pr_info("[get_mem_bw] register CB is a null function\n");
+		pr_debug("[get_mem_bw] register CB is a null function\n");
 	}	else {
-		pr_info("[get_mem_bw] register CB successful\n");
+		pr_debug("[get_mem_bw] register CB successful\n");
 	}
 
 	g_pGetMemBW = pCB;
@@ -77,10 +77,10 @@ unsigned long long get_mem_bw(void)
 		return g_pGetMemBW();
 
 	emi_dcm_status = BM_GetEmiDcm();
-	/* pr_info("[get_mem_bw]emi_dcm_status = %d\n", emi_dcm_status); */
+	/* pr_debug("[get_mem_bw]emi_dcm_status = %d\n", emi_dcm_status); */
 	current_time_ns = sched_clock();
 	time_period_ns = current_time_ns - last_time_ns;
-	/* pr_info("[get_mem_bw]last_time=%llu, current_time=%llu,
+	/* pr_debug("[get_mem_bw]last_time=%llu, current_time=%llu,
 	 * period=%llu\n", last_time_ns, current_time_ns, time_period_ns);
 	 */
 
@@ -106,18 +106,18 @@ unsigned long long get_mem_bw(void)
 		do_div(time_period_ns, 10000000);
 		do_div(throughput, 10000000);
 		pr_debug("[get_mem_bw] time_period_ns overflow lst\n");
-		/* pr_info("[get_mem_bw] time_period_ns overflow 1st\n"); */
+		/* pr_debug("[get_mem_bw] time_period_ns overflow 1st\n"); */
 
 		if (time_period_ns >= 0xFFFFFFFF) { /* uint32_t overflow */
 			do_div(time_period_ns, 1000);
 			do_div(throughput, 1000);
 			pr_debug("[get_mem_bw] time_period_ns overflow 2nd\n");
-			/* pr_info("[get_mem_bw] time_period overflow 2nd\n"); */
+			/* pr_debug("[get_mem_bw] time_period overflow 2nd\n"); */
 		}
 	}
 
 	do_div(throughput, time_period_ns);
-	/* pr_info("[get_mem_bw]Total MEMORY THROUGHPUT =%llu(MB/s),
+	/* pr_debug("[get_mem_bw]Total MEMORY THROUGHPUT =%llu(MB/s),
 	 * WordAllCount_delta = 0x%llx, LastWordAllCount = 0x%llx\n",
 	 * throughput, WordAllCount, LastWordAllCount);
 	 */
@@ -141,7 +141,7 @@ unsigned long long get_mem_bw(void)
 	}
 	LastWordAllCount = value;
 
-	/* pr_info("[get_mem_bw]loop count = %d, last_word_all_count = 0x%llx\n", count, LastWordAllCount); */
+	/* pr_debug("[get_mem_bw]loop count = %d, last_word_all_count = 0x%llx\n", count, LastWordAllCount); */
 
 	/* start EMI monitor counting */
 	BM_Enable(1);
@@ -150,14 +150,14 @@ unsigned long long get_mem_bw(void)
 	/* restore_infra_dcm();*/
 	BM_SetEmiDcm(emi_dcm_status);
 
-	/*pr_info("[get_mem_bw]throughput = %llx\n", throughput);*/
+	/*pr_debug("[get_mem_bw]throughput = %llx\n", throughput);*/
 
 	return throughput;
 }
 
 static int mem_bw_suspend_callback(struct device *dev)
 {
-	/*pr_info("[get_mem_bw]mem_bw_suspend_callback\n");*/
+	/*pr_debug("[get_mem_bw]mem_bw_suspend_callback\n");*/
 	LastWordAllCount = 0;
 	BM_Pause();
 	return 0;
@@ -165,7 +165,7 @@ static int mem_bw_suspend_callback(struct device *dev)
 
 static int mem_bw_resume_callback(struct device *dev)
 {
-	/* pr_info("[get_mem_bw]mem_bw_resume_callback\n"); */
+	/* pr_debug("[get_mem_bw]mem_bw_resume_callback\n"); */
 	BM_Continue();
 	return 0;
 }
@@ -200,13 +200,13 @@ int mbw_init(void)
 	/* register platform device/driver */
 	ret = platform_device_register(&mt_mem_bw_pdev);
 	if (ret) {
-		pr_info("fail to register mem_bw device @ %s()\n", __func__);
+		pr_debug("fail to register mem_bw device @ %s()\n", __func__);
 		goto out;
 	}
 
 	ret = platform_driver_register(&mt_mem_bw_pdrv);
 	if (ret) {
-		pr_info("fail to register mem_bw driver @ %s()\n", __func__);
+		pr_debug("fail to register mem_bw driver @ %s()\n", __func__);
 		platform_device_unregister(&mt_mem_bw_pdev);
 	}
 

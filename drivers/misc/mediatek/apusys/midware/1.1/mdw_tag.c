@@ -151,7 +151,7 @@ int mdw_tag_init(void)
 
 	ret = apu_tp_init(mdw_tp_tbl);
 	if (ret)
-		pr_info("%s: unable to register\n", __func__);
+		pr_debug("%s: unable to register\n", __func__);
 
 	return ret;
 }

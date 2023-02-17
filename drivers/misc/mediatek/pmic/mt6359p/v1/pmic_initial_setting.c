@@ -198,7 +198,7 @@ void PMIC_LP_INIT_SETTING(void)
 	pmic_ldo_vufs_lp(SW, 1, 1, SW_ON);
 	pmic_ldo_vibr_lp(SW, 1, 1, SW_OFF);
 
-	pr_info("[%s] Chip Ver = %d\n", __func__, g_pmic_chip_version);
+	pr_debug("[%s] Chip Ver = %d\n", __func__, g_pmic_chip_version);
 #endif /*LP_INIT_SETTING_VERIFIED*/
 }
 #elif defined(CONFIG_MACH_MT6873)
@@ -291,7 +291,7 @@ void PMIC_LP_INIT_SETTING(void)
 	pmic_ldo_vsim2_lp(SW, 1, 1, SW_OFF);
 	pmic_ldo_vufs_lp(SW, 1, 1, SW_ON);
 	pmic_ldo_vibr_lp(SW, 1, 1, SW_OFF);
-	pr_info("[%s] Chip Ver = %d\n", __func__, g_pmic_chip_version);
+	pr_debug("[%s] Chip Ver = %d\n", __func__, g_pmic_chip_version);
 #endif /*LP_INIT_SETTING_VERIFIED*/
 }
 #elif defined(CONFIG_MACH_MT6853) || defined(CONFIG_MACH_MT6833)
@@ -399,7 +399,7 @@ void PMIC_LP_INIT_SETTING(void)
 	pmic_ldo_vsim2_lp(SW, 1, 1, SW_OFF);
 	pmic_ldo_vufs_lp(SW, 1, 1, SW_ON);
 	pmic_ldo_vibr_lp(SW, 1, 1, SW_OFF);
-	pr_info("[%s] Chip Ver = %d\n", __func__, g_pmic_chip_version);
+	pr_debug("[%s] Chip Ver = %d\n", __func__, g_pmic_chip_version);
 #endif /*LP_INIT_SETTING_VERIFIED*/
 }
 #endif

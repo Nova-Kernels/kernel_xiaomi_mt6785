@@ -174,7 +174,7 @@ static int set_task_turbo_feats(const char *buf,
 	mutex_unlock(&TURBO_MUTEX_LOCK);
 
 	if (!ret)
-		pr_info("task_turbo_feats is change to %d successfully",
+		pr_debug("task_turbo_feats is change to %d successfully",
 				task_turbo_feats);
 	return ret;
 }

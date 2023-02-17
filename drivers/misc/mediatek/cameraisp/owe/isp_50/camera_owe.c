@@ -135,7 +135,7 @@ struct OWE_CLK_STRUCT owe_clk;
 #define LOG_DBG(format, args...)
 #endif
 
-#define LOG_INF(format, args...)    pr_info(MyTag format,  ##args)
+#define LOG_INF(format, args...)    pr_debug(MyTag format,  ##args)
 #define LOG_NOTICE(format, args...) pr_notice(MyTag format,  ##args)
 #define LOG_WRN(format, args...)    pr_warn(MyTag format,  ##args)
 #define LOG_ERR(format, args...)    pr_err(MyTag format,  ##args)

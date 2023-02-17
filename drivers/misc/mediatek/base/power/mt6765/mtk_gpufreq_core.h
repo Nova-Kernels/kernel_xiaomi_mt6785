@@ -139,8 +139,8 @@
 	pr_debug(GPUFERQ_TAG"[ERROR]"fmt, ##args)
 #define gpufreq_pwarn(fmt, args...)\
 	pr_debug(GPUFERQ_TAG"[WARNING]"fmt, ##args)
-#define gpufreq_pr_info(fmt, args...)\
-	pr_info(GPUFERQ_TAG"[INFO]"fmt, ##args)
+#define gpufreq_pr_debug(fmt, args...)\
+	pr_debug(GPUFERQ_TAG"[INFO]"fmt, ##args)
 #define gpufreq_pr_debug(fmt, args...)\
 	pr_debug(GPUFERQ_TAG"[DEBUG]"fmt, ##args)
 

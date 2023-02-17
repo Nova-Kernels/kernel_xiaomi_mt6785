@@ -342,7 +342,7 @@ static int nand_suspend(struct platform_device *pdev, pm_message_t state)
 	struct nandx_core *ncore;
 	bool high_speed_en, ecc_clk_en;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	nandx_get_device(FL_PM_SUSPENDED);
 
 	mtd = platform_get_drvdata(pdev);
@@ -372,7 +372,7 @@ static int nand_resume(struct platform_device *pdev)
 	struct nandx_lock *nlock = get_nandx_lock();
 	bool high_speed_en, ecc_clk_en;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	mtd = platform_get_drvdata(pdev);
 	ncore = (struct nandx_core *)mtd->priv;
 	pdata = ncore->pdata;

@@ -59,7 +59,7 @@ static int emi_probe(struct platform_device *pdev)
 		mpu_irq = irq_of_parse_and_map(node, 0);
 		cgm_irq = irq_of_parse_and_map(node, 1);
 		elm_irq = irq_of_parse_and_map(node, 2);
-		pr_info("[EMI] get irq of MPU(%d), GCM(%d), ELM(%d)\n",
+		pr_debug("[EMI] get irq of MPU(%d), GCM(%d), ELM(%d)\n",
 			mpu_irq, cgm_irq, elm_irq);
 	} else {
 		mpu_irq = 0;
@@ -70,31 +70,31 @@ static int emi_probe(struct platform_device *pdev)
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 	CEN_EMI_BASE = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(CEN_EMI_BASE)) {
-		pr_info("[EMI] unable to map CEN_EMI_BASE\n");
+		pr_debug("[EMI] unable to map CEN_EMI_BASE\n");
 		return -EINVAL;
 	}
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
 	CHA_EMI_BASE = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(CHA_EMI_BASE)) {
-		pr_info("[EMI] unable to map CHA_EMI_BASE\n");
+		pr_debug("[EMI] unable to map CHA_EMI_BASE\n");
 		return -EINVAL;
 	}
 
 	res = platform_get_resource(pdev, IORESOURCE_MEM, 2);
 	EMI_MPU_BASE = devm_ioremap_resource(&pdev->dev, res);
 	if (IS_ERR(EMI_MPU_BASE)) {
-		pr_info("[EMI] unable to map EMI_MPU_BASE\n");
+		pr_debug("[EMI] unable to map EMI_MPU_BASE\n");
 		return -EINVAL;
 	}
 
-	pr_info("[EMI] get CEN_EMI_BASE @ %p\n", mt_cen_emi_base_get());
-	pr_info("[EMI] get CHA_EMI_BASE @ %p\n", mt_chn_emi_base_get());
-	pr_info("[EMI] get EMI_MPU_BASE @ %p\n", mt_emi_mpu_base_get());
+	pr_debug("[EMI] get CEN_EMI_BASE @ %p\n", mt_cen_emi_base_get());
+	pr_debug("[EMI] get CHA_EMI_BASE @ %p\n", mt_chn_emi_base_get());
+	pr_debug("[EMI] get EMI_MPU_BASE @ %p\n", mt_emi_mpu_base_get());
 
 	ret = mtk_mem_bw_ctrl(CON_SCE_UI, ENABLE_CON_SCE);
 	if (ret)
-		pr_info("[EMI/BWL] fail to set EMI bandwidth limiter\n");
+		pr_debug("[EMI/BWL] fail to set EMI bandwidth limiter\n");
 
 	writel(0x00000040, CHA_EMI_BASE+0x0008);
 	mt_reg_sync_writel(0x00000913, CEN_EMI_BASE+0x5B0);
@@ -124,7 +124,7 @@ static const struct of_device_id emi_of_ids[] = {
 #ifdef CONFIG_PM
 static int emi_suspend_noirq(struct device *dev)
 {
-	/* pr_info("[EMI] suspend\n"); */
+	/* pr_debug("[EMI] suspend\n"); */
 	suspend_elm();
 
 	return 0;
@@ -132,7 +132,7 @@ static int emi_suspend_noirq(struct device *dev)
 
 static int emi_resume_noirq(struct device *dev)
 {
-	/* pr_info("[EMI] resume\n"); */
+	/* pr_debug("[EMI] resume\n"); */
 	resume_elm();
 
 	return 0;
@@ -415,38 +415,38 @@ static int __init emi_ctrl_init(void)
 	/* register EMI ctrl interface */
 	ret = platform_driver_register(&emi_ctrl);
 	if (ret)
-		pr_info("[EMI/BWL] fail to register emi_ctrl driver\n");
+		pr_debug("[EMI/BWL] fail to register emi_ctrl driver\n");
 
 	ret = driver_create_file(&emi_ctrl.driver, &driver_attr_concurrency_scenario);
 	if (ret)
-		pr_info("[EMI/BWL] fail to create emi_bwl sysfs file\n");
+		pr_debug("[EMI/BWL] fail to create emi_bwl sysfs file\n");
 
 	ret = driver_create_file(&emi_ctrl.driver, &driver_attr_elm_ctrl);
 	if (ret)
-		pr_info("[EMI/ELM] fail to create elm_ctrl file\n");
+		pr_debug("[EMI/ELM] fail to create elm_ctrl file\n");
 
 	/* get EMI info from boot tags */
 	if (of_chosen) {
 		ret = of_property_read_u32(of_chosen, "emi_info,dram_type", &(emi_info.dram_type));
 		if (ret)
-			pr_info("[EMI] fail to get dram_type\n");
+			pr_debug("[EMI] fail to get dram_type\n");
 		ret = of_property_read_u32(of_chosen, "emi_info,ch_num", &(emi_info.ch_num));
 		if (ret)
-			pr_info("[EMI] fail to get ch_num\n");
+			pr_debug("[EMI] fail to get ch_num\n");
 		ret = of_property_read_u32(of_chosen, "emi_info,rk_num", &(emi_info.rk_num));
 		if (ret)
-			pr_info("[EMI] fail to get rk_num\n");
+			pr_debug("[EMI] fail to get rk_num\n");
 		ret = of_property_read_u32_array(of_chosen, "emi_info,rank_size",
 			emi_info.rank_size, MAX_RK);
 		if (ret)
-			pr_info("[EMI] fail to get rank_size\n");
+			pr_debug("[EMI] fail to get rank_size\n");
 	}
 
-	pr_info("[EMI] dram_type(%d)\n", get_dram_type());
-	pr_info("[EMI] ch_num(%d)\n", get_ch_num());
-	pr_info("[EMI] rk_num(%d)\n", get_rk_num());
+	pr_debug("[EMI] dram_type(%d)\n", get_dram_type());
+	pr_debug("[EMI] ch_num(%d)\n", get_ch_num());
+	pr_debug("[EMI] rk_num(%d)\n", get_rk_num());
 	for (i = 0; i < get_rk_num(); i++)
-		pr_info("[EMI] rank%d_size(0x%x)", i, get_rank_size(i));
+		pr_debug("[EMI] rank%d_size(0x%x)", i, get_rank_size(i));
 
 	return 0;
 }
@@ -470,7 +470,7 @@ unsigned int get_ch_num(void)
 unsigned int get_rk_num(void)
 {
 	if (emi_info.rk_num > MAX_RK)
-		pr_info("[EMI] rank overflow\n");
+		pr_debug("[EMI] rank overflow\n");
 
 	return emi_info.rk_num;
 }

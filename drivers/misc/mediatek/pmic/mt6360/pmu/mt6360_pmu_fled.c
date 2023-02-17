@@ -759,7 +759,7 @@ static int mt6360_pmu_fled_probe(struct platform_device *pdev)
 	bool use_dt = pdev->dev.of_node;
 	int ret, i;
 
-	pr_info("%s (%s) id = %d\n", __func__, MT6360_PMU_FLED_DRV_VERSION,
+	pr_debug("%s (%s) id = %d\n", __func__, MT6360_PMU_FLED_DRV_VERSION,
 					       pdev->id);
 	if (!mt6360_fled_inited) {
 		if (use_dt) {

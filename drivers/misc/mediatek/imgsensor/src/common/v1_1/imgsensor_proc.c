@@ -116,7 +116,7 @@ static ssize_t CAMERA_HW_Reg_Debug(struct file *file,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -131,7 +131,7 @@ static ssize_t CAMERA_HW_Reg_Debug(struct file *file,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -174,7 +174,7 @@ static ssize_t CAMERA_HW_Reg_Debug2(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -189,7 +189,7 @@ static ssize_t CAMERA_HW_Reg_Debug2(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -232,7 +232,7 @@ static ssize_t CAMERA_HW_Reg_Debug3(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -247,7 +247,7 @@ static ssize_t CAMERA_HW_Reg_Debug3(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -289,7 +289,7 @@ static ssize_t CAMERA_HW_Reg_Debug4(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -304,7 +304,7 @@ static ssize_t CAMERA_HW_Reg_Debug4(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -347,7 +347,7 @@ static ssize_t CAMERA_HW_Reg_Debug5(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -362,7 +362,7 @@ static ssize_t CAMERA_HW_Reg_Debug5(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -406,7 +406,7 @@ static ssize_t CAMERA_HW_Reg_Debug6(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -421,7 +421,7 @@ static ssize_t CAMERA_HW_Reg_Debug6(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -463,7 +463,7 @@ static ssize_t CAMERA_HW_Reg_Debug7(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -478,7 +478,7 @@ static ssize_t CAMERA_HW_Reg_Debug7(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -521,7 +521,7 @@ static ssize_t CAMERA_HW_Reg_Debug8(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			 sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -536,7 +536,7 @@ static ssize_t CAMERA_HW_Reg_Debug8(struct file *file, const char *buffer,
 			"addr = 0x%08x, data = 0x%08x\n",
 			sensorReg.RegAddr, sensorReg.RegData);
 		if (ret < 0) {
-			pr_info("Error! snprintf allocate 0");
+			pr_debug("Error! snprintf allocate 0");
 			ret = IMGSENSOR_RETURN_ERROR;
 			return ret;
 		}
@@ -578,7 +578,7 @@ static int imgsensor_proc_status_info_read(struct seq_file *m, void *v)
 	ret = snprintf(status_info, sizeof(status_info), "ERR_L0, %x\n",
 			*((uint32_t *)(&gimgsensor.status)));
 	if (ret < 0) {
-		pr_info("Error! snprintf allocate 0");
+		pr_debug("Error! snprintf allocate 0");
 		ret = IMGSENSOR_RETURN_ERROR;
 		return ret;
 	}

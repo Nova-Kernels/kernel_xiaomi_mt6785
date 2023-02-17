@@ -150,7 +150,7 @@ int _adsp_deregister_feature(u32 cid, u32 fid, u32 opt)
 		delay = (opt & DEREGI_FLAG_NODELAY) ?
 			0 : msecs_to_jiffies(ctrl->delay_ms);
 		queue_delayed_work(ctrl->wq, &ctrl->suspend_work, delay);
-		pr_info("%s, send suspend work cid(%u), fid(%u), delay(%lu)",
+		pr_debug("%s, send suspend work cid(%u), fid(%u), delay(%lu)",
 				__func__, cid, fid, delay);
 	}
 
@@ -201,12 +201,12 @@ int adsp_register_feature(enum adsp_feature_id fid)
 		ret = _adsp_register_feature(cid, fid, 0);
 
 		if (ret)
-			pr_info("%s, failed core:%d, fid:%d, ret:%d",
+			pr_debug("%s, failed core:%d, fid:%d, ret:%d",
 				__func__, cid, fid, ret);
 	}
 
 	if (!flag)
-		pr_info("%s, feature '%s' not in any core_set",
+		pr_debug("%s, feature '%s' not in any core_set",
 			__func__, feature_table[fid].name);
 
 	return ret;
@@ -228,12 +228,12 @@ int adsp_deregister_feature(enum adsp_feature_id fid)
 		ret = _adsp_deregister_feature(cid, fid, 0);
 
 		if (ret)
-			pr_info("%s, failed core:%d, fid:%d, ret:%d",
+			pr_debug("%s, failed core:%d, fid:%d, ret:%d",
 				__func__, cid, fid, ret);
 	}
 
 	if (!flag)
-		pr_info("%s, feature '%s' not in any core_set",
+		pr_debug("%s, feature '%s' not in any core_set",
 			__func__, feature_table[fid].name);
 
 	return ret;

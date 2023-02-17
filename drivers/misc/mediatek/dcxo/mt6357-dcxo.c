@@ -132,20 +132,20 @@ static ssize_t store_dcxo_capid(struct device *dev,
 	if (buf != NULL && size != 0) {
 		ret = kstrtouint(buf, 0, &capid);
 		if (ret) {
-			pr_info("wrong format!\n");
+			pr_debug("wrong format!\n");
 			return ret;
 		}
 		if (capid > XO_CDAC_TOTAL_MASK) {
-			pr_info("cap code should be within %x!\n",
+			pr_debug("cap code should be within %x!\n",
 				XO_CDAC_TOTAL_MASK);
 			return -EINVAL;
 		}
 
-		pr_info("original cap code: 0x%x\n", dcxo->ori_dcxo_capid);
+		pr_debug("original cap code: 0x%x\n", dcxo->ori_dcxo_capid);
 		dcxo_trim_write(capid);
 		mdelay(1);
 		dcxo->cur_dcxo_capid = dcxo_trim_read();
-		pr_info("write capid 0x%x done. current capid: 0x%x\n",
+		pr_debug("write capid 0x%x done. current capid: 0x%x\n",
 			capid, dcxo->cur_dcxo_capid);
 	}
 
@@ -176,23 +176,23 @@ static ssize_t store_dcxo_board_offset(struct device *dev,
 	if (buf != NULL && size != 0) {
 		ret = kstrtouint(buf, 0, &offset);
 		if (ret) {
-			pr_info("wrong format!\n");
+			pr_debug("wrong format!\n");
 			return ret;
 		}
 		if (offset > XO_CDAC_TOTAL_MASK) {
-			pr_info("offset should be within %x!\n",
+			pr_debug("offset should be within %x!\n",
 				XO_CDAC_TOTAL_MASK);
 			return -EINVAL;
 		}
 
 		capid = dcxo->ori_dcxo_capid;
-		pr_info("original cap code: 0x%x\n", capid);
+		pr_debug("original cap code: 0x%x\n", capid);
 
 		capid = dcxo_capid_add_offset(capid, offset);
 		dcxo_trim_write(capid);
 		mdelay(1);
 		dcxo->cur_dcxo_capid = dcxo_trim_read();
-		pr_info("write capid offset 0x%x done. current capid: 0x%x\n",
+		pr_debug("write capid offset 0x%x done. current capid: 0x%x\n",
 			offset, dcxo->cur_dcxo_capid);
 	}
 
@@ -221,17 +221,17 @@ static ssize_t store_nvram_board_offset(struct device *dev,
 	if (buf != NULL && size != 0) {
 		ret = kstrtouint(buf, 0, &offset);
 		if (ret) {
-			pr_info("wrong format!\n");
+			pr_debug("wrong format!\n");
 			return ret;
 		}
 		if (offset > XO_CDAC_TOTAL_MASK) {
-			pr_info("offset should be within %x!\n",
+			pr_debug("offset should be within %x!\n",
 				XO_CDAC_TOTAL_MASK);
 			return -EINVAL;
 		}
 
 		dcxo->nvram_offset = offset;
-		pr_info("write nvram_board_offset 0x%x\n", offset);
+		pr_debug("write nvram_board_offset 0x%x\n", offset);
 	}
 
 	return size;

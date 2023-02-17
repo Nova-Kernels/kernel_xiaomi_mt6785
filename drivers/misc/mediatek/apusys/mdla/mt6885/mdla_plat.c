@@ -196,7 +196,7 @@ int mdla_dts_map(struct platform_device *pdev)
 		return rc;
 	}
 	apu_mdla_gsm_base = (void *) apu_mdla_gsm->start;
-	pr_info("%s: apu_mdla_gsm_top: %p, apu_mdla_gsm_base: %p\n",
+	pr_debug("%s: apu_mdla_gsm_top: %p, apu_mdla_gsm_base: %p\n",
 		__func__, apu_mdla_gsm_top, apu_mdla_gsm_base);
 
 	apu_conn_top = ioremap_nocache(apu_conn->start,
@@ -1217,7 +1217,7 @@ void mdla_issue_ce(unsigned int core_id)
 					core_id, MREG_TOP_G_CDMA1);
 			if (cdma1 != addr) {
 				ce->state |= (1 << CE_ISSUE_ERROR1);
-				//pr_info("cdma1 = %x\n", cdma1);
+				//pr_debug("cdma1 = %x\n", cdma1);
 			}
 		}
 
@@ -1230,7 +1230,7 @@ void mdla_issue_ce(unsigned int core_id)
 					core_id, MREG_TOP_G_CDMA2);
 			if (cdma2 != nr_cmd_to_issue) {
 				ce->state |= (1 << CE_ISSUE_ERROR2);
-				//pr_info("cdma2 = %x\n", cdma2);
+				//pr_debug("cdma2 = %x\n", cdma2);
 			}
 		}
 

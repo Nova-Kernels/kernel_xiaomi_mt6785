@@ -71,7 +71,7 @@
 #define PICACHU_PR_ERR(fmt, args...)		\
 	pr_err(TAG"[ERROR]"fmt, ##args)
 #define PICACHU_INFO(fmt, args...)		\
-	pr_info(TAG""fmt, ##args)
+	pr_debug(TAG""fmt, ##args)
 
 #define picachu_read(addr)		__raw_readl((void __iomem *)(addr))
 #define picachu_write(addr, val)	mt_reg_sync_writel(val, addr)

@@ -97,17 +97,17 @@ void mt_print_much_log(void)
 	unsigned long print_num = 0;
 
 	t1 = sched_clock();
-	pr_info("printk debug log: start time: %lld.\n", t1);
+	pr_debug("printk debug log: start time: %lld.\n", t1);
 
 	for (;;) {
 		t2 = sched_clock();
 		if ((t2 - t1) / 1000000 > 10 * 1000)
 			break;
-		pr_info("printk debug log: the %ld line, time: %lld.\n",
+		pr_debug("printk debug log: the %ld line, time: %lld.\n",
 			print_num++, t2);
 		__delay(5);
 	}
-	pr_info("mt log total write %ld line in 10 second.\n", print_num);
+	pr_debug("mt log total write %ld line in 10 second.\n", print_num);
 }
 #endif
 

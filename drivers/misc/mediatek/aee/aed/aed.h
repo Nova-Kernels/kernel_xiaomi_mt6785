@@ -210,7 +210,7 @@ struct aee_siginfo {
 #define  AED_PROC_ENTRY(name, entry, mode)\
 	({if (!proc_create(#name, S_IFREG | mode, aed_proc_dir, \
 		&proc_##entry##_fops)) \
-		pr_info("proc_create %s failed\n", #name); })
+		pr_debug("proc_create %s failed\n", #name); })
 
 
 struct proc_dir_entry;

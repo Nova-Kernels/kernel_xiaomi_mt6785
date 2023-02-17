@@ -11,7 +11,7 @@
  * GNU General Public License for more details.
  */
 
-#define UT_LOG(fmt...) pr_info("[GZTEST]" fmt)
+#define UT_LOG(fmt...) pr_debug("[GZTEST]" fmt)
 
 #define INIT_UNITTESTS                                                         \
 	static uint _uts_total;                                                \

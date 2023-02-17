@@ -228,7 +228,7 @@ static int fbconfig_open(struct inode *inode, struct file *file)
 	pm_params->pLcm_params = DISP_GetLcmPara();
 
 	if (unlikely(pm_params->pLcm_params == NULL)) {
-		pr_info("%s #%d pLcm_params is null\n",
+		pr_debug("%s #%d pLcm_params is null\n",
 			__func__, __LINE__);
 		return -EFAULT;
 	}
@@ -1339,7 +1339,7 @@ void PanelMaster_Init(void)
 				&fbconfig_fops);
 
 	if (!ConfigPara_procfs) {
-		pr_info("[%s %d] failed to register fbconfig in proc/display_ddp\n",
+		pr_debug("[%s %d] failed to register fbconfig in proc/display_ddp\n",
 			__func__, __LINE__);
 		return;
 	}

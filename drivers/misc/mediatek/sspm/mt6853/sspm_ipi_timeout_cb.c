@@ -46,7 +46,7 @@ static char *pin_name[SSPM_IPI_COUNT] = {
 /* platform callback when ipi timeout */
 void sspm_ipi_timeout_cb(int ipi_id)
 {
-	pr_info("Error: possible error IPI %d pin=%s\n",
+	pr_debug("Error: possible error IPI %d pin=%s\n",
 		ipi_id, pin_name[ipi_id]);
 
 	ipi_monitor_dump(&sspm_ipidev);

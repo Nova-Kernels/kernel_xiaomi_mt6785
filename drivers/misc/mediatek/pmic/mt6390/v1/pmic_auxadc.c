@@ -633,7 +633,7 @@ int pmic_auxadc_chip_init(struct device *dev)
 						 &g_pmic_pad_vbif28_vol);
 		iio_channel_release(chan_vbif);
 	}
-	pr_info("****[%s] VBIF28 = %d, MDRT_ADC = 0x%x\n",
+	pr_debug("****[%s] VBIF28 = %d, MDRT_ADC = 0x%x\n",
 		__func__, pmic_get_vbif28_volt(), mdrt_adc);
 
 	return ret;

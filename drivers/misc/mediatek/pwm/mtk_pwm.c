@@ -1911,7 +1911,7 @@ static irqreturn_t mt_pwm_irq(int irq, void *intr_pwm_nu)
 		sts = mt_get_intr_status(i);
 		if (sts) {
 			mt_set_intr_ack(i);
-			pr_info(T "PWM int!!ch=%x\n", i/2);
+			pr_debug(T "PWM int!!ch=%x\n", i/2);
 			break;
 		}
 	}

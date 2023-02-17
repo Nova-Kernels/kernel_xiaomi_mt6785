@@ -226,7 +226,7 @@ extern void ion_sec_heap_dump_info(void);
 #else
 static inline void ion_sec_heap_dump_info(void)
 {
-	pr_info("%s is not supported\n", __func__);
+	pr_debug("%s is not supported\n", __func__);
 }
 #endif
 

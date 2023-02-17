@@ -27,7 +27,7 @@ int __init init_cache_priority(void)
 {
 	struct device_node *node;
 
-	pr_info("Init cache priority control");
+	pr_debug("Init cache priority control");
 	node = of_find_compatible_node(NULL, NULL, "mediatek,mcucfg");
 	if (!node) {
 		pr_notice("[MCUSYS] find mediatek,mcucfg node failed\n");

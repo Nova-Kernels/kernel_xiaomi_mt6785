@@ -73,7 +73,7 @@
  ************************************************/
 #define KORO_TAG	 "[xxxx_koro] "
 
-#define koro_info(fmt, args...)		pr_info(KORO_TAG fmt, ##args)
+#define koro_info(fmt, args...)		pr_debug(KORO_TAG fmt, ##args)
 #define koro_debug(fmt, args...)	\
 	pr_debug(KORO_TAG"(%d)" fmt, __LINE__, ##args)
 

@@ -144,7 +144,7 @@ inline uint32_t msg_len_of_type(const uint8_t data_type)
 		msg_len = IPI_MSG_HEADER_SIZE + IPI_MSG_DMA_INFO_SIZE;
 		break;
 	default:
-		pr_info("%d not support!!", data_type);
+		pr_debug("%d not support!!", data_type);
 		msg_len = IPI_MSG_HEADER_SIZE;
 	}
 
@@ -290,7 +290,7 @@ static int parsing_ipi_msg_from_user_space(
 						 wb_dram->addr_val),
 					 wb_dram->data_size);
 			if (retval) {
-				pr_info("copy_to_user dma err, id = 0x%x",
+				pr_debug("copy_to_user dma err, id = 0x%x",
 					ipi_msg.msg_id);
 				ipi_msg.scp_ret = 0;
 			}
@@ -306,7 +306,7 @@ static int parsing_ipi_msg_from_user_space(
 			      &ipi_msg,
 			      sizeof(struct ipi_msg_t));
 	if (retval) {
-		pr_info("copy_to_user err, id = 0x%x", ipi_msg.msg_id);
+		pr_debug("copy_to_user err, id = 0x%x", ipi_msg.msg_id);
 		retval = -EFAULT;
 	}
 

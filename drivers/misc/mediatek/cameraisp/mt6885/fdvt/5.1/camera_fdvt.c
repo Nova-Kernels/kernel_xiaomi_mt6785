@@ -187,19 +187,19 @@ pr_debug(FDTAG "[%s] " format, __func__, ##args)
 
 #ifdef FDVT_DEBUG_USE
 #define log_dbg(format, args...) \
-pr_info(FDTAG "[%s] " format, __func__, ##args)
+pr_debug(FDTAG "[%s] " format, __func__, ##args)
 #else
 #define log_dbg(format, args...)
 #endif
 
 #define log_inf(format, args...) \
-pr_info(FDTAG "[%s] " format, __func__, ##args)
+pr_debug(FDTAG "[%s] " format, __func__, ##args)
 #define log_notice(format, args...) \
 pr_notice(FDTAG "[%s] " format, __func__, ##args)
 #define log_wrn(format, args...) \
-pr_info(FDTAG "[%s] " format, __func__, ##args)
+pr_debug(FDTAG "[%s] " format, __func__, ##args)
 #define log_err(format, args...) \
-pr_info(FDTAG "[%s] " format, __func__, ##args)
+pr_debug(FDTAG "[%s] " format, __func__, ##args)
 #define log_ast(format, args...) \
 pr_debug(FDTAG "[%s] " format, __func__, ##args)
 
@@ -3579,7 +3579,7 @@ enum m4u_callback_ret_t FDVT_M4U_TranslationFault_callback(int port,
 							   void *data)
 #endif
 {
-	pr_info("[FDVT_M4U]fault call port=%d, mva=0x%x", port, mva);
+	pr_debug("[FDVT_M4U]fault call port=%d, mva=0x%x", port, mva);
 
 	switch (port) {
 #if 0
@@ -3589,17 +3589,17 @@ enum m4u_callback_ret_t FDVT_M4U_TranslationFault_callback(int port,
 	case M4U_PORT_FDVT_WRB:
 #endif
 	default: //ISP_FDVT_BASE = 0x1b001000
-		pr_info("FDVT_IN_BASE_ADR_0:0x%08x, FDVT_IN_BASE_ADR_1:0x%08x, FDVT_IN_BASE_ADR_2:0x%08x, FDVT_IN_BASE_ADR_3:0x%08x\n",
+		pr_debug("FDVT_IN_BASE_ADR_0:0x%08x, FDVT_IN_BASE_ADR_1:0x%08x, FDVT_IN_BASE_ADR_2:0x%08x, FDVT_IN_BASE_ADR_3:0x%08x\n",
 			FDVT_RD32(FDVT_IN_BASE_ADR_0_REG),
 			FDVT_RD32(FDVT_IN_BASE_ADR_1_REG),
 			FDVT_RD32(FDVT_IN_BASE_ADR_2_REG),
 			FDVT_RD32(FDVT_IN_BASE_ADR_3_REG));
-		pr_info("FDVT_OUT_BASE_ADR_0:0x%08x, FDVT_OUT_BASE_ADR_1:0x%08x, FDVT_OUT_BASE_ADR_2:0x%08x, FDVT_OUT_BASE_ADR_3:0x%08x\n",
+		pr_debug("FDVT_OUT_BASE_ADR_0:0x%08x, FDVT_OUT_BASE_ADR_1:0x%08x, FDVT_OUT_BASE_ADR_2:0x%08x, FDVT_OUT_BASE_ADR_3:0x%08x\n",
 			FDVT_RD32(FDVT_OUT_BASE_ADR_0_REG),
 			FDVT_RD32(FDVT_OUT_BASE_ADR_1_REG),
 			FDVT_RD32(FDVT_OUT_BASE_ADR_2_REG),
 			FDVT_RD32(FDVT_OUT_BASE_ADR_3_REG));
-		pr_info("FDVT_KERNEL_BASE_ADR_0:0x%08x, FDVT_KERNEL_BASE_ADR_1:0x%08x\n",
+		pr_debug("FDVT_KERNEL_BASE_ADR_0:0x%08x, FDVT_KERNEL_BASE_ADR_1:0x%08x\n",
 			FDVT_RD32(FDVT_KERNEL_BASE_ADR_0_REG),
 			FDVT_RD32(FDVT_KERNEL_BASE_ADR_1_REG));
 	break;

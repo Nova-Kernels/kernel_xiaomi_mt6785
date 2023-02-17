@@ -531,7 +531,7 @@ void dprec_logger_frame_seq_begin(unsigned int session_id,
 	if (frm_sequence <= 0 || session_id <= 0)
 		return;
 	if (device_type > DISP_SESSION_MEMORY) {
-		pr_info("seq_begin session_id(0x%x) error, seq(%d)\n",
+		pr_debug("seq_begin session_id(0x%x) error, seq(%d)\n",
 			session_id, frm_sequence);
 		return;
 	}
@@ -556,7 +556,7 @@ void dprec_logger_frame_seq_end(unsigned int session_id,
 	if (frm_sequence <= 0 || session_id <= 0)
 		return;
 	if (device_type > DISP_SESSION_MEMORY) {
-		pr_info("seq_end session_id(0x%x) , seq(%d)\n",
+		pr_debug("seq_end session_id(0x%x) , seq(%d)\n",
 			session_id, frm_sequence);
 		return;
 	}
@@ -1269,7 +1269,7 @@ void init_log_buffer(void)
 	}
 
 	is_buffer_init = true;
-	pr_info("[DISP]%s success\n", __func__);
+	pr_debug("[DISP]%s success\n", __func__);
 	return;
 
 err:

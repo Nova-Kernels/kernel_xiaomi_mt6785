@@ -492,9 +492,9 @@ static int get_devinfo(void)
 	if (rtc_dev) {
 		err = rtc_read_time(rtc_dev, &tm);
 		if (err < 0)
-			pr_info("fail to read time\n");
+			pr_debug("fail to read time\n");
 	} else
-		pr_info("[systimer] rtc_class_open rtc_dev fail\n");
+		pr_debug("[systimer] rtc_class_open rtc_dev fail\n");
 #endif
 
 	val = (int *)&eem_devinfo;

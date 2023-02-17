@@ -1416,7 +1416,7 @@ static kal_uint32 capture(MSDK_SENSOR_EXPOSURE_WINDOW_STRUCT *image_window,
 		imgsensor.autoflicker_en = KAL_FALSE;
 	} else {
 		if (imgsensor.current_fps != imgsensor_info.cap.max_framerate)
-			pr_info("Warning: current_fps %d fps is not support, so use cap1's setting: %d fps!\n",
+			pr_debug("Warning: current_fps %d fps is not support, so use cap1's setting: %d fps!\n",
 			     imgsensor.current_fps,
 			     imgsensor_info.cap1.max_framerate / 10);
 		imgsensor.pclk = imgsensor_info.cap.pclk;
@@ -1790,7 +1790,7 @@ static kal_uint32 set_max_framerate_by_scenario(enum MSDK_SCENARIO_ID_ENUM
 		} else {
 			if (imgsensor.current_fps !=
 				imgsensor_info.cap.max_framerate)
-				pr_info("Warning: current_fps %d fps is not support, so use cap's setting: %d fps!\n",
+				pr_debug("Warning: current_fps %d fps is not support, so use cap's setting: %d fps!\n",
 				     framerate,
 				     imgsensor_info.cap.max_framerate / 10);
 			frame_length =
@@ -2106,7 +2106,7 @@ static kal_uint32 feature_control(MSDK_SENSOR_FEATURE_ENUM feature_id,
 		}
 		break;
 	case SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY:
-		pr_info("SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY scenarioId:%lld\n",
+		pr_debug("SENSOR_FEATURE_GET_SENSOR_PDAF_CAPACITY scenarioId:%lld\n",
 			*feature_data);
 		/* PDAF capacity enable or not,
 		 * ov13855 only full size support PDAF

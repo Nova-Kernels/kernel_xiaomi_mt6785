@@ -77,7 +77,7 @@ static int ppm_thread_fn(void *data)
 Retry_ON:
 				cpu_dev = get_cpu_device(i);
 				if (!cpu_dev) {
-					pr_info("get cpu%d fail!\n", i);
+					pr_debug("get cpu%d fail!\n", i);
 					continue;
 				}
 
@@ -111,7 +111,7 @@ Retry_ON:
 Retry_OFF:
 				cpu_dev = get_cpu_device(i);
 				if (!cpu_dev) {
-					pr_info("get cpu%d fail!\n", i);
+					pr_debug("get cpu%d fail!\n", i);
 					continue;
 				}
 
@@ -163,7 +163,7 @@ void ppm_notifier(void)
 		smp_method = of_get_property(dn, "smp-method", NULL);
 		if (smp_method != NULL) {
 			if (!strcmp("disabled", smp_method)) {
-				pr_info("[ENTER Hotplug DEBUG MODE!!!]\n");
+				pr_debug("[ENTER Hotplug DEBUG MODE!!!]\n");
 				return;
 			}
 		}

@@ -112,7 +112,7 @@ retry:
 		pr_err("nandx-rr1 %d %d\n", rr_count, ret);
 		setup_read_retry(chip, -1);
 	} else if (rr_count > 0) {
-		pr_info("nandx-rr1 %d %d\n", rr_count, ret);
+		pr_debug("nandx-rr1 %d %d\n", rr_count, ret);
 		setup_read_retry(chip, -1);
 	}
 
@@ -123,7 +123,7 @@ retry:
 		slc_mode_exit(chip);
 
 	if (chip->calibration && ret == -ENANDREAD) {
-		pr_info("auto-k row %u count %d\n", ops->row, cali_count);
+		pr_debug("auto-k row %u count %d\n", ops->row, cali_count);
 		ret = nandx_chip_auto_calibration(chip, cali_count);
 		if (ret) {
 			cali_count++;
@@ -1173,7 +1173,7 @@ struct nandx_chip_dev *nandx_chip_alloc(struct nfc_resource *res)
 	nandx_express_chip = chip;
 #endif
 
-	pr_info("version: %s\n", NANDX_CHIP_VERSION);
+	pr_debug("version: %s\n", NANDX_CHIP_VERSION);
 
 	/* Todo for new chip dev */
 	return &chip->chip_dev;

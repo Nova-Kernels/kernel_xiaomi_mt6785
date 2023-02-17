@@ -99,7 +99,7 @@ static int handle_to_index(int handle)
 		       index);
 		return index;
 	}
-	pr_info("%s handle:%d, index:%d\n", __func__, handle, index);
+	pr_debug("%s handle:%d, index:%d\n", __func__, handle, index);
 	return index;
 }
 
@@ -444,7 +444,7 @@ static ssize_t situation_store_batch(struct device *dev,
 			goto err_out;
 		}
 	} else
-		pr_info("batch state no need change\n");
+		pr_debug("batch state no need change\n");
 #else
 	err = situation_enable_and_batch(index);
 #endif

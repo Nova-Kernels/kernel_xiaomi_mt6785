@@ -75,9 +75,9 @@
 #define DT_TAG	 "[DT]"
 
 #define dt_err(fmt, args...)	\
-	pr_info(DT_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(DT_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
 #define dt_msg(fmt, args...)	\
-	pr_info(DT_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(DT_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #ifdef ARMDT_DEBUG
 #define dt_debug(fmt, args...) \

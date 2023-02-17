@@ -444,9 +444,9 @@ static ssize_t mt_scp_dvfs_debug_proc_write(
 		else if (debug == 1)
 			mt_scp_dvfs_debug = 1;
 		else
-			pr_info("bad argument %d\n", debug);
+			pr_debug("bad argument %d\n", debug);
 	} else {
-		pr_info("invalid command!\n");
+		pr_debug("invalid command!\n");
 	}
 
 	scp_ipi_send(IPI_DVFS_DEBUG, (void *)&mt_scp_dvfs_debug,
@@ -523,22 +523,22 @@ static ssize_t mt_scp_dvfs_sleep_proc_write(
 		if (val <= 3) {
 			if (val != scp_sleep_flag) {
 				scp_sleep_flag = val;
-				pr_info("scp_sleep_flag = %d\n",
+				pr_debug("scp_sleep_flag = %d\n",
 						scp_sleep_flag);
 				ret = scp_ipi_send(IPI_DVFS_SLEEP,
 							(void *)&scp_sleep_flag,
 							sizeof(scp_sleep_flag),
 							0, SCP_A_ID);
 				if (ret != SCP_IPI_DONE)
-					pr_info("%s: SCP send IPI fail - %d\n",
+					pr_debug("%s: SCP send IPI fail - %d\n",
 						__func__, ret);
 			} else
-				pr_info("SCP sleep flag is not changed\n");
+				pr_debug("SCP sleep flag is not changed\n");
 		} else {
-			pr_info("Warning: invalid input value %d\n", val);
+			pr_debug("Warning: invalid input value %d\n", val);
 		}
 	} else {
-		pr_info("Warning: invalid input command, val=%d\n", val);
+		pr_debug("Warning: invalid input command, val=%d\n", val);
 	}
 
 	return count;
@@ -599,10 +599,10 @@ static ssize_t mt_scp_dvfs_ctrl_proc_write(
 	if (n == 1 || n == 2) {
 		if (!strcmp(cmd, "on")) {
 			scp_dvfs_flag = 1;
-			pr_info("SCP DVFS: ON\n");
+			pr_debug("SCP DVFS: ON\n");
 		} else if (!strcmp(cmd, "off")) {
 			scp_dvfs_flag = -1;
-			pr_info("SCP DVFS: OFF\n");
+			pr_debug("SCP DVFS: OFF\n");
 		}
 #if SCP_VCORE_TEST_ENABLE
 		else if (!strcmp(cmd, "req")) {
@@ -640,17 +640,17 @@ static ssize_t mt_scp_dvfs_ctrl_proc_write(
 						VCORE_TEST5_FEATURE_ID);
 
 				pre_feature_req = req;
-				pr_info("[SCP] set freq: %d => %d\n",
+				pr_debug("[SCP] set freq: %d => %d\n",
 					scp_current_freq, scp_expected_freq);
 			} else {
-				pr_info("invalid req value %d\n", req);
+				pr_debug("invalid req value %d\n", req);
 			}
 #endif
 		} else {
-			pr_info("invalid command %s\n", cmd);
+			pr_debug("invalid command %s\n", cmd);
 		}
 	} else {
-		pr_info("invalid length %d\n", n);
+		pr_debug("invalid length %d\n", n);
 	}
 
 	return count;

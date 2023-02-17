@@ -87,9 +87,9 @@
 #define PTP3_TAG	 "[PTP3]"
 
 #define ptp3_err(fmt, args...)	\
-	pr_info(PTP3_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(PTP3_TAG"[ERROR][%s():%d]" fmt, __func__, __LINE__, ##args)
 #define ptp3_msg(fmt, args...)	\
-	pr_info(PTP3_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(PTP3_TAG"[INFO][%s():%d]" fmt, __func__, __LINE__, ##args)
 
 #ifdef PTP3_DEBUG
 #define ptp3_debug(fmt, args...)	\

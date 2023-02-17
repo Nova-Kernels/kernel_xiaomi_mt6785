@@ -378,7 +378,7 @@ static int ITG1010_SetDataFormat(struct i2c_client *client, u8 dataformat)
 	u8 databuf[2] = { 0 };
 	int res = 0;
 
-	/*pr_info("%s\n", __func__);*/
+	/*pr_debug("%s\n", __func__);*/
 
 	databuf[0] = dataformat;
 	res = ITG1010_i2c_write_block(client, ITG1010_REG_CFG, databuf, 1);
@@ -404,7 +404,7 @@ static int ITG1010_SetFullScale(struct i2c_client *client, u8 dataformat)
 	u8 databuf[2] = { 0 };
 	int res = 0;
 
-	/*pr_info("%s\n", __func__);*/
+	/*pr_debug("%s\n", __func__);*/
 
 	databuf[0] = dataformat;
 	res = ITG1010_i2c_write_block(client, ITG1010_REG_GYRO_CFG, databuf, 1);
@@ -431,7 +431,7 @@ static int ITG1010_SetSampleRate(struct i2c_client *client, int sample_rate)
 	int rate_div = 0;
 	int res = 0;
 
-	/*pr_info("%s\n", __func__);*/
+	/*pr_debug("%s\n", __func__);*/
 
 	res = ITG1010_i2c_read_block(client, ITG1010_REG_CFG, databuf, 1);
 	if (res != 0) {
@@ -970,7 +970,7 @@ static int ITG1010_suspend(struct device *dev)
 	struct i2c_client *client = to_i2c_client(dev);
 	struct ITG1010_i2c_data *obj = i2c_get_clientdata(client);
 
-	/*pr_info("%s\n", __func__);*/
+	/*pr_debug("%s\n", __func__);*/
 
 	if (obj == NULL) {
 		pr_err_ratelimited("[Gyro]%s:null pointer!!\n", __func__);
@@ -996,7 +996,7 @@ static int ITG1010_resume(struct device *dev)
 	struct ITG1010_i2c_data *obj = i2c_get_clientdata(client);
 	int err;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	if (obj == NULL) {
 		pr_err_ratelimited("[Gyro]%s:null pointer!!\n", __func__);
@@ -1174,7 +1174,7 @@ static int ITG1010_WriteCalibration(struct i2c_client *client,
 	struct ITG1010_i2c_data *obj = i2c_get_clientdata(client);
 	int cali[ITG1010_AXES_NUM];
 
-	/*pr_info("%s\n", __func__);*/
+	/*pr_debug("%s\n", __func__);*/
 	if (!obj || !dat) {
 		pr_err_ratelimited("[Gyro]%s:null ptr!!\n", __func__);
 		return -EINVAL;
@@ -1223,7 +1223,7 @@ static int ITG1010_factory_get_data(int32_t data[3], int *status)
 }
 static int ITG1010_factory_get_raw_data(int32_t data[3])
 {
-	pr_info("don't support %s!\n", __func__);
+	pr_debug("don't support %s!\n", __func__);
 	return 0;
 }
 static int ITG1010_factory_enable_calibration(void) { return 0; }
@@ -1233,7 +1233,7 @@ static int ITG1010_factory_clear_cali(void)
 
 	err = ITG1010_ResetCalibration(ITG1010_i2c_client);
 	if (err) {
-		pr_info("bmg_ResetCalibration failed!\n");
+		pr_debug("bmg_ResetCalibration failed!\n");
 		return -1;
 	}
 	return 0;
@@ -1261,7 +1261,7 @@ static int ITG1010_factory_get_cali(int32_t data[3])
 
 	err = ITG1010_ReadCalibration(ITG1010_i2c_client, cali);
 	if (err) {
-		pr_info("bmg_ReadCalibration failed!\n");
+		pr_debug("bmg_ReadCalibration failed!\n");
 		return -1;
 	}
 	data[0] =
@@ -1485,7 +1485,7 @@ static int ITG1010_i2c_remove(struct i2c_client *client)
 /*----------------------------------------------------------------------------*/
 static int ITG1010_remove(void)
 {
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	i2c_del_driver(&ITG1010_i2c_driver);
 	return 0;
 }
@@ -1507,7 +1507,7 @@ static int ITG1010_local_init(struct platform_device *pdev)
 /*----------------------------------------------------------------------------*/
 static int __init ITG1010_init(void)
 {
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 	gyro_driver_add(&ITG1010_init_info);
 
 	return 0;
@@ -1515,7 +1515,7 @@ static int __init ITG1010_init(void)
 /*----------------------------------------------------------------------------*/
 static void __exit ITG1010_exit(void)
 {
-/*pr_info("%s\n", __func__);*/
+/*pr_debug("%s\n", __func__);*/
 #ifdef CONFIG_CUSTOM_KERNEL_GYROSCOPE_MODULE
 	gyro_success_Flag = false;
 #endif

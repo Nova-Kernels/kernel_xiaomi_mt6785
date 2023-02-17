@@ -209,7 +209,7 @@ static irqreturn_t mt6370_pmu_irq_handler(int irq, void *priv)
 	u8 valid_chg[16] = { 0 };
 	int i = 0, j = 0, ret = 0;
 
-	pr_info_ratelimited("%s\n", __func__);
+	pr_debug_ratelimited("%s\n", __func__);
 	pm_runtime_get_sync(chip->dev);
 	ret = mt6370_pmu_reg_write(chip, MT6370_PMU_REG_IRQMASK, 0xFE);
 	if (ret < 0) {

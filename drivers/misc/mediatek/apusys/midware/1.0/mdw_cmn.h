@@ -29,16 +29,16 @@ int mdw_debug_on(int mask)
 }
 
 #define mdw_debug(mask, x, ...) do { if (mdw_debug_on(mask)) \
-		pr_info(APUSYS_PREFIX " %s/%d " x, __func__, \
+		pr_debug(APUSYS_PREFIX " %s/%d " x, __func__, \
 		__LINE__, ##__VA_ARGS__); \
 	} while (0)
 
 #define mdw_drv_err(x, args...) \
-	pr_info(APUSYS_PREFIX "[error] %s " x, __func__, ##args)
+	pr_debug(APUSYS_PREFIX "[error] %s " x, __func__, ##args)
 #define mdw_drv_warn(x, args...) \
-	pr_info(APUSYS_PREFIX "[warn] %s " x, __func__, ##args)
+	pr_debug(APUSYS_PREFIX "[warn] %s " x, __func__, ##args)
 #define mdw_drv_info(x, args...) \
-	pr_info(APUSYS_PREFIX "%s " x, __func__, ##args)
+	pr_debug(APUSYS_PREFIX "%s " x, __func__, ##args)
 
 #define mdw_drv_debug(x, ...) mdw_debug(MDW_DBG_DRV, x, ##__VA_ARGS__)
 #define mdw_flw_debug(x, ...) mdw_debug(MDW_DBG_FLW, x, ##__VA_ARGS__)

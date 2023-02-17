@@ -97,10 +97,10 @@
 	do {	\
 		eem_diff_us = eem_cTime_us - eem_pTime_us;	\
 		if (eem_diff_us > TIME_TH_US) {				\
-			pr_info(EEM_TAG "caller_addr %p: %llu us\n", \
+			pr_debug(EEM_TAG "caller_addr %p: %llu us\n", \
 						__builtin_return_address(0), eem_diff_us); \
 		} else if (eem_diff_us < 0) {	\
-			pr_info(EEM_TAG "E: misuse caller_addr %p\n", \
+			pr_debug(EEM_TAG "E: misuse caller_addr %p\n", \
 						__builtin_return_address(0)); \
 		}	\
 	} while (0)

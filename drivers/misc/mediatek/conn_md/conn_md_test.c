@@ -139,18 +139,18 @@ static int conn_md_test_rx_cb(struct ipc_ilm *ilm)
 {
 	int i = 0;
 
-	pr_info("%s, ilm:0x%p\n", __func__, ilm);
-	pr_info("%s, ilm:src_id(%d), dst_id(%d), msg_id(%d)\n", __func__,
+	pr_debug("%s, ilm:0x%p\n", __func__, ilm);
+	pr_debug("%s, ilm:src_id(%d), dst_id(%d), msg_id(%d)\n", __func__,
 		ilm->src_mod_id, ilm->dest_mod_id, ilm->msg_id);
 
-	pr_info("%s, local_para_ptr:0x%p, msg_len:%d\n",
+	pr_debug("%s, local_para_ptr:0x%p, msg_len:%d\n",
 		__func__, ilm->local_para_ptr,
 		ilm->local_para_ptr->msg_len);
 
 	for (i = 0; i < ilm->local_para_ptr->msg_len; i++) {
-		pr_info("%d ", ilm->local_para_ptr->data[i]);
+		pr_debug("%d ", ilm->local_para_ptr->data[i]);
 		if ((i != 0) && (((1 + i) % 8) == 0))
-			pr_info("\n");
+			pr_debug("\n");
 	}
 	return 0;
 }

@@ -86,7 +86,7 @@ void tee_shm_pool_dump(struct device *dev, struct shm_pool *pool, bool forced)
 	if (WARN_ON(!dev || !pool))
 		return;
 
-	pr_info(
+	pr_debug(
 		"%s() poolH(0x%p) pAddr=0x%p vAddr=0x%p size=%zu used=%zu(%zu%%)\n",
 		__func__,
 		(void *) pool,
@@ -95,15 +95,15 @@ void tee_shm_pool_dump(struct device *dev, struct shm_pool *pool, bool forced)
 		pool->size, pool->used, __CALCULATE_RATIO_MEM_USED(pool));
 
 	if ((pool->used != 0) || (forced == true)) {
-		pr_info("  \\ HEAD next:[0x%p] prev:[0x%p]\n",
+		pr_debug("  \\ HEAD next:[0x%p] prev:[0x%p]\n",
 			 (void *)pool->mchunks.next,
 			 (void *)pool->mchunks.prev);
 
-		pr_info(
+		pr_debug(
 			 "  |-[@]        next       prev       pAddr      size     refCount\n");
 
 		list_for_each_entry(chunk, &pool->mchunks, node) {
-			pr_info("  | [0x%p] 0x%p 0x%p 0x%p %08zu %d\n",
+			pr_debug("  | [0x%p] 0x%p 0x%p 0x%p %08zu %d\n",
 				 (void *)chunk,
 				 (void *)chunk->node.next,
 				 (void *)chunk->node.prev,

@@ -38,13 +38,13 @@ static DEFINE_SPINLOCK(devapc_lock);
 
 static void devapc_test_cb(void)
 {
-	pr_info(PFX "%s success !\n", __func__);
+	pr_debug(PFX "%s success !\n", __func__);
 }
 
 static enum devapc_cb_status devapc_test_adv_cb(uint32_t vio_addr)
 {
-	pr_info(PFX "%s success !\n", __func__);
-	pr_info(PFX "vio_addr: 0x%x\n", vio_addr);
+	pr_debug(PFX "%s success !\n", __func__);
+	pr_debug(PFX "vio_addr: 0x%x\n", vio_addr);
 
 	return DEVAPC_NOT_KE;
 }
@@ -119,11 +119,11 @@ static void sramrom_vio_handler(void)
 	vio_info->vio_addr = res.a2;
 
 	if (sramrom_vio == SRAM_VIOLATION)
-		pr_info(PFX "%s, SRAM violation is triggered\n", __func__);
+		pr_debug(PFX "%s, SRAM violation is triggered\n", __func__);
 	else if (sramrom_vio == ROM_VIOLATION)
-		pr_info(PFX "%s, ROM violation is triggered\n", __func__);
+		pr_debug(PFX "%s, ROM violation is triggered\n", __func__);
 	else {
-		pr_info(PFX "SRAMROM violation is not triggered\n");
+		pr_debug(PFX "SRAMROM violation is not triggered\n");
 		return;
 	}
 
@@ -139,7 +139,7 @@ static void sramrom_vio_handler(void)
 	else
 		vio_info->read = 1;
 
-	pr_info(PFX "%s: %s:0x%x, %s:0x%x, %s:%s, %s:0x%x\n",
+	pr_debug(PFX "%s: %s:0x%x, %s:0x%x, %s:%s, %s:0x%x\n",
 		__func__, "master_id", vio_info->master_id,
 		"domain_id", vio_info->domain_id,
 		"rw", rw ? "Write" : "Read",
@@ -264,7 +264,7 @@ static void print_vio_mask_sta(bool debug)
 		pd_vio_shift_sta_reg = mtk_devapc_pd_get(slave_type,
 				VIO_SHIFT_STA, 0);
 
-		pr_info(PFX "[%s] %s: 0x%x\n",
+		pr_debug(PFX "[%s] %s: 0x%x\n",
 				slave_type_to_string(slave_type),
 				"VIO_SHIFT_STA",
 				readl(pd_vio_shift_sta_reg)
@@ -272,7 +272,7 @@ static void print_vio_mask_sta(bool debug)
 
 		for (i = 0; i < vio_info->vio_mask_sta_num[slave_type]; i++) {
 			if (debug)
-				pr_info(PFX "%s: %s_%d: 0x%x, %s_%d: 0x%x\n",
+				pr_debug(PFX "%s: %s_%d: 0x%x, %s_%d: 0x%x\n",
 					slave_type_to_string(slave_type),
 					"VIO_MASK", i,
 					readl(mtk_devapc_pd_get(slave_type,
@@ -303,19 +303,19 @@ static void devapc_vio_info_print(void)
 
 	/* Print violation information */
 	if (vio_info->write)
-		pr_info(PFX "Write Violation\n");
+		pr_debug(PFX "Write Violation\n");
 	else if (vio_info->read)
-		pr_info(PFX "Read Violation\n");
+		pr_debug(PFX "Read Violation\n");
 	else
 		pr_err(PFX "R/W Violation are not raised\n");
 
-	pr_info(PFX "%s%x, %s%x, %s%x, %s%x\n",
+	pr_debug(PFX "%s%x, %s%x, %s%x, %s%x\n",
 			"Vio Addr:0x", vio_info->vio_addr,
 			"High:0x", vio_info->vio_addr_high,
 			"Bus ID:0x", vio_info->master_id,
 			"Dom ID:0x", vio_info->domain_id);
 
-	pr_info(PFX "%s - %s%s, %s%x\n",
+	pr_debug(PFX "%s - %s%s, %s%x\n",
 			"Violation",
 			"Current Process:", current->comm,
 			"PID:", current->pid);
@@ -345,7 +345,7 @@ static bool check_type2_vio_status(int slave_type, int *vio_idx, int *index)
 	if (slave_type == sramrom_slv_type &&
 			check_vio_status(slave_type, sramrom_vio_idx)) {
 
-		pr_info(PFX "SRAMROM violation is triggered\n");
+		pr_debug(PFX "SRAMROM violation is triggered\n");
 		sramrom_vio_handler();
 
 		*vio_idx = sramrom_vio_idx;
@@ -368,7 +368,7 @@ static bool check_type2_vio_status(int slave_type, int *vio_idx, int *index)
 
 		if (mdp_vio || disp2_vio || mmsys_vio) {
 
-			pr_info(PFX "MM2nd violation is triggered\n");
+			pr_debug(PFX "MM2nd violation is triggered\n");
 			mtk_devapc_ctx->soc->mm2nd_vio_handler(
 					mtk_devapc_ctx->infracfg_base,
 					mtk_devapc_ctx->soc->vio_info,
@@ -393,7 +393,7 @@ static bool check_type2_vio_status(int slave_type, int *vio_idx, int *index)
 		}
 	}
 
-	pr_info(PFX "%s: no violation for %s:0x%x\n", __func__,
+	pr_debug(PFX "%s: no violation for %s:0x%x\n", __func__,
 			"slave_type", slave_type);
 	return false;
 }
@@ -441,7 +441,7 @@ static uint32_t sync_vio_dbg(int slave_type, uint32_t shift_bit)
 		sync_done = 1;
 	else {
 		sync_done = 0;
-		pr_info(PFX "sync failed, shift_bit:0x%x\n", shift_bit);
+		pr_debug(PFX "sync failed, shift_bit:0x%x\n", shift_bit);
 	}
 
 	/* Disable shift mechanism */
@@ -478,12 +478,12 @@ static const char *perm_to_string(uint8_t perm)
 
 static void devapc_vio_reason(uint8_t perm)
 {
-	pr_info(PFX "Permission setting: %s\n", perm_to_string(perm));
+	pr_debug(PFX "Permission setting: %s\n", perm_to_string(perm));
 
 	if (perm == 0 || perm > 3)
-		pr_info(PFX "Reason: power/clock is not enabled\n");
+		pr_debug(PFX "Reason: power/clock is not enabled\n");
 	else if (perm == 1 || perm == 2 || perm == 3)
-		pr_info(PFX "Reason: might be permission denied\n");
+		pr_debug(PFX "Reason: might be permission denied\n");
 }
 
 /*
@@ -522,7 +522,7 @@ static uint8_t get_permission(int slave_type, int module_index, int domain)
 				__func__);
 		return 0xFF;
 	} else if (sys_index == -2) {
-		pr_info(PFX "%s: check ATF logs for type2 permssion\n",
+		pr_debug(PFX "%s: check ATF logs for type2 permssion\n",
 				__func__);
 	}
 
@@ -564,16 +564,16 @@ static void mtk_devapc_vio_check(int slave_type, int *shift_bit)
 	vio_shift_sta = readl(mtk_devapc_pd_get(slave_type, VIO_SHIFT_STA, 0));
 
 	if (!vio_shift_sta) {
-		pr_info(PFX "violation is triggered before. %s:0x%x\n",
+		pr_debug(PFX "violation is triggered before. %s:0x%x\n",
 				"shift_bit", *shift_bit);
 
 	} else if (vio_shift_sta & (0x1UL << *shift_bit)) {
-		pr_info(PFX "%s: 0x%x is matched with %s:%d\n",
+		pr_debug(PFX "%s: 0x%x is matched with %s:%d\n",
 				"vio_shift_sta", vio_shift_sta,
 				"shift_bit", *shift_bit);
 
 	} else {
-		pr_info(PFX "%s: 0x%x is not matched with %s:%d\n",
+		pr_debug(PFX "%s: 0x%x is not matched with %s:%d\n",
 				"vio_shift_sta", vio_shift_sta,
 				"shift_bit", *shift_bit);
 
@@ -670,7 +670,7 @@ static bool mtk_devapc_dump_vio_dbg(int slave_type, int *vio_idx, int *index)
 		return true;
 	}
 
-	pr_info(PFX "check_devapc_vio_status: no violation for %s:0x%x\n",
+	pr_debug(PFX "check_devapc_vio_status: no violation for %s:0x%x\n",
 			"slave_type", slave_type);
 	return false;
 }
@@ -714,7 +714,7 @@ static void start_devapc(void)
 		vio_shift_sta = readl(pd_vio_shift_sta_reg);
 		if (vio_shift_sta) {
 			writel(vio_shift_sta, pd_vio_shift_sta_reg);
-			pr_info(PFX "clear %s:0x%x %s:0x%x to 0x%x\n",
+			pr_debug(PFX "clear %s:0x%x %s:0x%x to 0x%x\n",
 					"slave_type", slave_type,
 					"VIO_SHIFT_STA", vio_shift_sta,
 					readl(pd_vio_shift_sta_reg));
@@ -751,7 +751,7 @@ static void start_devapc(void)
 	/* register subsys test cb */
 	register_devapc_vio_callback(&devapc_test_handle);
 
-	pr_info(PFX "%s done\n", __func__);
+	pr_debug(PFX "%s done\n", __func__);
 }
 
 /*
@@ -775,7 +775,7 @@ static void devapc_extra_handler(int slave_type, const char *vio_master,
 	dbg_stat = mtk_devapc_ctx->soc->dbg_stat;
 	vio_info = mtk_devapc_ctx->soc->vio_info;
 
-	pr_info(PFX "%s:%d\n", "vio_trigger_times",
+	pr_debug(PFX "%s:%d\n", "vio_trigger_times",
 			mtk_devapc_ctx->soc->vio_info->vio_trigger_times++);
 
 	/* Dispatch slave owner if APMCU access. Others, dispatch master */
@@ -840,7 +840,7 @@ static void devapc_extra_handler(int slave_type, const char *vio_master,
 
 	/* Severity level */
 	if (dbg_stat->enable_KE && (ret_cb != DEVAPC_NOT_KE)) {
-		pr_info(PFX "Device APC Violation Issue/%s", dispatch_key);
+		pr_debug(PFX "Device APC Violation Issue/%s", dispatch_key);
 		BUG_ON(id != INFRA_SUBSYS_CONN);
 
 	} else if (dbg_stat->enable_AEE) {
@@ -918,7 +918,7 @@ static irqreturn_t devapc_violation_irq(int irq_number, void *dev_id)
 			vio_master = "UNKNOWN_MASTER";
 		}
 
-		pr_info(PFX "%s - %s:0x%x, %s:0x%x, %s:0x%x, %s:0x%x\n",
+		pr_debug(PFX "%s - %s:0x%x, %s:0x%x, %s:0x%x, %s:0x%x\n",
 				"Violation", "slave_type", slave_type,
 				"sys_index",
 				device_info[slave_type][index].sys_index,
@@ -927,7 +927,7 @@ static irqreturn_t devapc_violation_irq(int irq_number, void *dev_id)
 				"vio_index",
 				device_info[slave_type][index].vio_index);
 
-		pr_info(PFX "%s %s %s %s\n",
+		pr_debug(PFX "%s %s %s %s\n",
 				"Violation - master:", vio_master,
 				"access violation slave:",
 				device_info[slave_type][index].device);
@@ -946,7 +946,7 @@ static irqreturn_t devapc_violation_irq(int irq_number, void *dev_id)
 	}
 
 	/* It's an abnormal status */
-	pr_info(PFX "WARNING: Abnormal Status\n");
+	pr_debug(PFX "WARNING: Abnormal Status\n");
 	print_vio_mask_sta(true);
 	BUG_ON(1);
 
@@ -971,7 +971,7 @@ static void devapc_ut(uint32_t cmd)
 	void __iomem *devapc_ao_base;
 	void __iomem *sramrom_base = mtk_devapc_ctx->sramrom_base;
 
-	pr_info(PFX "%s, cmd:0x%x\n", __func__, cmd);
+	pr_debug(PFX "%s, cmd:0x%x\n", __func__, cmd);
 
 	devapc_ao_base = mtk_devapc_ctx->devapc_infra_ao_base;
 
@@ -981,10 +981,10 @@ static void devapc_ut(uint32_t cmd)
 			return;
 		}
 
-		pr_info(PFX "%s, devapc_ao_infra_base:0x%x\n", __func__,
+		pr_debug(PFX "%s, devapc_ao_infra_base:0x%x\n", __func__,
 				readl(devapc_ao_base));
 
-		pr_info(PFX "test done, it should generate violation!\n");
+		pr_debug(PFX "test done, it should generate violation!\n");
 
 	} else if (cmd == DEVAPC_UT_SRAM_VIO) {
 		if (unlikely(sramrom_base == NULL)) {
@@ -992,13 +992,13 @@ static void devapc_ut(uint32_t cmd)
 			return;
 		}
 
-		pr_info(PFX "%s, sramrom_base:0x%x\n", __func__,
+		pr_debug(PFX "%s, sramrom_base:0x%x\n", __func__,
 				readl(sramrom_base + RANDOM_OFFSET));
 
-		pr_info(PFX "test done, it should generate violation!\n");
+		pr_debug(PFX "test done, it should generate violation!\n");
 
 	} else {
-		pr_info(PFX "%s, cmd(0x%x) not supported\n", __func__, cmd);
+		pr_debug(PFX "%s, cmd(0x%x) not supported\n", __func__, cmd);
 	}
 }
 
@@ -1092,7 +1092,7 @@ ssize_t mtk_devapc_dbg_write(struct file *file, const char __user *buffer,
 
 	if (!strncmp(cmd_str, "enable_ut", sizeof("enable_ut"))) {
 		dbg_stat->enable_ut = (param != 0);
-		pr_info(PFX "debapc_dbg_stat->enable_ut = %s\n",
+		pr_debug(PFX "debapc_dbg_stat->enable_ut = %s\n",
 			dbg_stat->enable_ut ? "enable" : "disable");
 		return count;
 
@@ -1100,53 +1100,53 @@ ssize_t mtk_devapc_dbg_write(struct file *file, const char __user *buffer,
 		if (dbg_stat->enable_ut)
 			devapc_ut(param);
 		else
-			pr_info(PFX "devapc_ut is not enabled\n");
+			pr_debug(PFX "devapc_ut is not enabled\n");
 
 		return count;
 
 	} else if (!strncmp(cmd_str, "enable_KE", sizeof("enable_KE"))) {
 		if (dbg_stat->enable_ut) {
 			dbg_stat->enable_KE = (param != 0);
-			pr_info(PFX "debapc_dbg_stat->enable_KE = %s\n",
+			pr_debug(PFX "debapc_dbg_stat->enable_KE = %s\n",
 					dbg_stat->enable_KE ?
 					"enable" : "disable");
 		} else
-			pr_info(PFX "devapc_ut is not enabled\n");
+			pr_debug(PFX "devapc_ut is not enabled\n");
 
 		return count;
 
 	} else if (!strncmp(cmd_str, "enable_AEE", sizeof("enable_AEE"))) {
 		if (dbg_stat->enable_ut) {
 			dbg_stat->enable_AEE = (param != 0);
-			pr_info(PFX "debapc_dbg_stat->enable_AEE = %s\n",
+			pr_debug(PFX "debapc_dbg_stat->enable_AEE = %s\n",
 					dbg_stat->enable_AEE ?
 					"enable" : "disable");
 		} else
-			pr_info(PFX "devapc_ut is not enabled\n");
+			pr_debug(PFX "devapc_ut is not enabled\n");
 
 		return count;
 
 	} else if (!strncmp(cmd_str, "enable_WARN", sizeof("enable_WARN"))) {
 		if (dbg_stat->enable_ut) {
 			dbg_stat->enable_WARN = (param != 0);
-			pr_info(PFX "debapc_dbg_stat->enable_WARN = %s\n",
+			pr_debug(PFX "debapc_dbg_stat->enable_WARN = %s\n",
 					dbg_stat->enable_WARN ?
 					"enable" : "disable");
 		} else
-			pr_info(PFX "devapc_ut is not enabled\n");
+			pr_debug(PFX "devapc_ut is not enabled\n");
 
 		return count;
 
 	} else if (!strncmp(cmd_str, "enable_dapc", sizeof("enable_dapc"))) {
 		dbg_stat->enable_dapc = (param != 0);
-		pr_info(PFX "debapc_dbg_stat->enable_dapc = %s\n",
+		pr_debug(PFX "debapc_dbg_stat->enable_dapc = %s\n",
 			dbg_stat->enable_dapc ? "enable" : "disable");
 
 		return count;
 
 	} else if (!strncmp(cmd_str, "dump_apc", sizeof("dump_apc"))) {
 		if (!dbg_stat->enable_dapc) {
-			pr_info(PFX "dump_apc is not enabled\n");
+			pr_debug(PFX "dump_apc is not enabled\n");
 			return -EINVAL;
 		}
 
@@ -1177,7 +1177,7 @@ ssize_t mtk_devapc_dbg_write(struct file *file, const char __user *buffer,
 		if (parm_str != NULL)
 			err = kstrtol(parm_str, 10, &ctrl_index);
 
-		pr_info(PFX "%s:0x%x, %s:0x%lx, %s:0x%lx, %s:0x%lx\n",
+		pr_debug(PFX "%s:0x%x, %s:0x%lx, %s:0x%lx, %s:0x%lx\n",
 				"slave_type", slave_type,
 				"sys_index", sys_index,
 				"domain_id", domain,
@@ -1196,7 +1196,7 @@ ssize_t mtk_devapc_dbg_write(struct file *file, const char __user *buffer,
 		apc_set_idx = ctrl_index % MOD_NO_IN_1_DEVAPC;
 		ret = (ret & (0x3 << (apc_set_idx * 2))) >> (apc_set_idx * 2);
 
-		pr_info(PFX "Permission is %s\n",
+		pr_debug(PFX "Permission is %s\n",
 			perm_to_string((ret & 0x3)));
 		return count;
 	} else
@@ -1245,7 +1245,7 @@ static ssize_t set_swp_addr_store(struct device_driver *driver,
 	unsigned int param;
 	int err;
 
-	pr_info(PFX "buf: %s", buf);
+	pr_debug(PFX "buf: %s", buf);
 
 	cmd_str = strsep((char **)&buf, " ");
 	if (!cmd_str)
@@ -1261,7 +1261,7 @@ static ssize_t set_swp_addr_store(struct device_driver *driver,
 
 	if (!strncmp(cmd_str, "enable_swp", sizeof("enable_swp"))) {
 		devapc_swp_ctx->swp_enable = (param != 0);
-		pr_info(PFX "devapc_swp_enable = %s\n",
+		pr_debug(PFX "devapc_swp_enable = %s\n",
 			devapc_swp_ctx->swp_enable ? "enable" : "disable");
 
 		writel(param, devapc_swp_ctx->devapc_swp_base);
@@ -1269,7 +1269,7 @@ static ssize_t set_swp_addr_store(struct device_driver *driver,
 			devapc_swp_ctx->swp_phy_addr = 0x0;
 
 	} else if (!strncmp(cmd_str, "set_swp_clr", sizeof("set_swp_clr"))) {
-		pr_info(PFX "set swp clear: 0x%x\n", param);
+		pr_debug(PFX "set swp clear: 0x%x\n", param);
 		devapc_swp_ctx->swp_clr = (param != 0);
 
 		if (devapc_swp_ctx->swp_clr)
@@ -1277,7 +1277,7 @@ static ssize_t set_swp_addr_store(struct device_driver *driver,
 			       devapc_swp_ctx->devapc_swp_base);
 
 	} else if (!strncmp(cmd_str, "set_swp_rw", sizeof("set_swp_rw"))) {
-		pr_info(PFX "set swp r/w: %s\n", param ? "write" : "read");
+		pr_debug(PFX "set swp r/w: %s\n", param ? "write" : "read");
 		devapc_swp_ctx->swp_rw = (param != 0);
 
 		if (devapc_swp_ctx->swp_rw)
@@ -1285,14 +1285,14 @@ static ssize_t set_swp_addr_store(struct device_driver *driver,
 			       devapc_swp_ctx->devapc_swp_base);
 
 	} else if (!strncmp(cmd_str, "set_swp_addr", sizeof("set_swp_addr"))) {
-		pr_info(PFX "set swp physical addr: 0x%x\n", param);
+		pr_debug(PFX "set swp physical addr: 0x%x\n", param);
 		devapc_swp_ctx->swp_phy_addr = param;
 
 		writel(devapc_swp_ctx->swp_phy_addr,
 		       devapc_swp_ctx->devapc_swp_base + DEVAPC_SWP_SA_OFFSET);
 
 	} else if (!strncmp(cmd_str, "set_swp_rg", sizeof("set_swp_rg"))) {
-		pr_info(PFX "set swp range: 0x%x\n", param);
+		pr_debug(PFX "set swp range: 0x%x\n", param);
 		devapc_swp_ctx->swp_rg = param;
 
 		writel(devapc_swp_ctx->swp_rg,
@@ -1300,7 +1300,7 @@ static ssize_t set_swp_addr_store(struct device_driver *driver,
 
 	} else if (!strncmp(cmd_str, "set_swp_wr_val",
 				sizeof("set_swp_wr_val"))) {
-		pr_info(PFX "set swp write value: 0x%x\n", param);
+		pr_debug(PFX "set swp write value: 0x%x\n", param);
 		devapc_swp_ctx->swp_wr_val = param;
 
 		writel(devapc_swp_ctx->swp_wr_val,
@@ -1309,7 +1309,7 @@ static ssize_t set_swp_addr_store(struct device_driver *driver,
 
 	} else if (!strncmp(cmd_str, "set_swp_wr_mask",
 				sizeof("set_swp_wr_mask"))) {
-		pr_info(PFX "set swp write mask: 0x%x\n", param);
+		pr_debug(PFX "set swp write mask: 0x%x\n", param);
 		devapc_swp_ctx->swp_wr_mask = param;
 
 		writel(devapc_swp_ctx->swp_wr_mask,
@@ -1332,7 +1332,7 @@ int mtk_devapc_probe(struct platform_device *pdev,
 	int slave_type;
 	int ret;
 
-	pr_info(PFX "driver registered\n");
+	pr_debug(PFX "driver registered\n");
 
 	if (IS_ERR(node)) {
 		pr_err(PFX "cannot find device node\n");
@@ -1395,7 +1395,7 @@ int mtk_devapc_probe(struct platform_device *pdev,
 	ret = driver_create_file(pdev->dev.driver,
 			&driver_attr_set_swp_addr);
 	if (ret)
-		pr_info(PFX "create SWP sysfs file failed, ret:%d\n", ret);
+		pr_debug(PFX "create SWP sysfs file failed, ret:%d\n", ret);
 #endif
 
 	if (clk_prepare_enable(mtk_devapc_ctx->devapc_infra_clk)) {

@@ -51,9 +51,9 @@ void BM_Init(void)
 		node = of_find_compatible_node(NULL, NULL, "mediatek,infracfg_ao");
 		if (node) {
 			INFRA_AO_BASE = of_iomap(node, 0);
-			pr_info("get INFRA_AO_BASE@ %p\n", INFRACFG_BASE);
+			pr_debug("get INFRA_AO_BASE@ %p\n", INFRACFG_BASE);
 		} else
-			pr_info("can't find compatible node for INFRA_AO_BASE\n");
+			pr_debug("can't find compatible node for INFRA_AO_BASE\n");
 	}
 }
 

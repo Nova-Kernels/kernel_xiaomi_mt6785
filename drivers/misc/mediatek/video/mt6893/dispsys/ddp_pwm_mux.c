@@ -133,7 +133,7 @@ static unsigned int disp_pwm_get_pwmmux(void)
 	if (MUX_DISPPWM_ADDR != NULL)
 		regsrc = clk_readl(MUX_DISPPWM_ADDR);
 	else
-		pr_info("[PWM]mux addr illegal");
+		pr_debug("[PWM]mux addr illegal");
 
 	return regsrc;
 }

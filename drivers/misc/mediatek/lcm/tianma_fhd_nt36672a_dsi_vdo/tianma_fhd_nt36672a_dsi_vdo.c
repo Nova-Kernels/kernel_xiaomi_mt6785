@@ -739,7 +739,7 @@ static int lcm_led_i2c_reg_op(char *buffer, int op, int count)
 		return ret;
 	}
 	LCM_LOGI("%s,reg_val is %s reg_addr = %s\n", __func__, buffer, reg_addr);
-	pr_info("pr_info%s,reg_val is %s reg_addr = %s\n", __func__, buffer, reg_addr);
+	pr_debug("pr_debug%s,reg_val is %s reg_addr = %s\n", __func__, buffer, reg_addr);
 
 	if (op == LM36273_REG_READ) {
 		for (i = 0; i < count; i++) {

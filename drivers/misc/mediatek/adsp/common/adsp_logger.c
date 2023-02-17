@@ -73,7 +73,7 @@ ssize_t adsp_log_read(struct log_ctrl_s *ctrl, char __user *userbuf, size_t len)
 		memcpy_fromio(tmp_area + data_len[0], addr, data_len[1]);
 
 		if (copy_to_user(userbuf, tmp_area, datalen))
-			pr_info("%s, copy to user buf failed\n", __func__);
+			pr_debug("%s, copy to user buf failed\n", __func__);
 
 		vfree(tmp_area);
 	}
@@ -139,13 +139,13 @@ static void adsp_logger_init_handler(int id, void *data, unsigned int len)
 	struct adsp_priv *pdata = get_adsp_core_by_id(*ptr);
 
 	if (!pdata) {
-		pr_info("%s, pdata is NULL\n", __func__);
+		pr_debug("%s, pdata is NULL\n", __func__);
 		return;
 	}
 	if (len > sizeof(unsigned int)) {
 		/* sync error, show error message, add delay for re-sync */
 		delay = msecs_to_jiffies(100);
-		pr_info("%s, resync fail msg, id(%u), addr(0x%x), size(0x%x), check:[0x%x, 0x%x, 0x%x, 0x%x, 0x%x]\n",
+		pr_debug("%s, resync fail msg, id(%u), addr(0x%x), size(0x%x), check:[0x%x, 0x%x, 0x%x, 0x%x, 0x%x]\n",
 			__func__,
 			*(ptr + 0), *(ptr + 1),
 			*(ptr + 2), *(ptr + 3),
@@ -170,7 +170,7 @@ struct log_ctrl_s *adsp_logger_init(int mem_id)
 	struct buffer_info_s *buf_info;
 
 	if (!addr || size < MINIMUM_LOG_BUF_SIZE) {
-		pr_info("%s(), failed addr=%p, size=%zu\n", __func__,
+		pr_debug("%s(), failed addr=%p, size=%zu\n", __func__,
 			addr, size);
 		return addr;
 	}

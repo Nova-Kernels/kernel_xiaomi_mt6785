@@ -530,15 +530,15 @@ u32 nandx_ops_addr_transfer(struct nandx_core *ncore, long long laddr,
 
 void dump_nand_info(struct nandx_chip_info *info)
 {
-	pr_info("block_num is %u\n", info->block_num);
-	pr_info("block_size is %u\n", info->block_size);
-	pr_info("page_size is %u\n", info->page_size);
-	pr_info("slc_block_size is %u\n", info->slc_block_size);
-	pr_info("oob_size is %u\n", info->oob_size);
-	pr_info("sector_size is %u\n", info->sector_size);
-	pr_info("plane_num is %d\n", info->plane_num);
-	pr_info("wl_page_num is %d\n", info->wl_page_num);
-	pr_info("ecc_strength is %u\n", info->ecc_strength);
+	pr_debug("block_num is %u\n", info->block_num);
+	pr_debug("block_size is %u\n", info->block_size);
+	pr_debug("page_size is %u\n", info->page_size);
+	pr_debug("slc_block_size is %u\n", info->slc_block_size);
+	pr_debug("oob_size is %u\n", info->oob_size);
+	pr_debug("sector_size is %u\n", info->sector_size);
+	pr_debug("plane_num is %d\n", info->plane_num);
+	pr_debug("wl_page_num is %d\n", info->wl_page_num);
+	pr_debug("ecc_strength is %u\n", info->ecc_strength);
 }
 
 u32 nandx_calculate_bmt_num(struct nandx_chip_info *info)

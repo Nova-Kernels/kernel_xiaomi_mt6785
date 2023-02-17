@@ -171,7 +171,7 @@ static void rtc_save_pwron_time(bool enable, struct rtc_time *tm, bool logo);
 
 void __attribute__((weak)) arch_reset(char mode, const char *cmd)
 {
-	pr_info("arch_reset is not ready\n");
+	pr_debug("arch_reset is not ready\n");
 }
 
 
@@ -691,7 +691,7 @@ static void rtc_reset_to_deftime(struct rtc_time *tm)
 	hal_rtc_set_alarm(&defaulttm);
 	spin_unlock_irqrestore(&rtc_lock, flags);
 
-	pr_info("reset to default date %04d/%02d/%02d\n",
+	pr_debug("reset to default date %04d/%02d/%02d\n",
 	       RTC_DEFAULT_YEA, RTC_DEFAULT_MTH, RTC_DEFAULT_DOM);
 }
 #endif

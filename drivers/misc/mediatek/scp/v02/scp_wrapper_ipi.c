@@ -320,12 +320,12 @@ void mt_print_scp_ipi_id(unsigned int mbox)
 					mtk_mbox_read(&scp_mboxdev, mbox,
 						    scp_mbox_pin_recv[i].offset,
 						    &buf, MBOX_SLOT_SIZE * 3);
-					pr_info("[SCP] ipi id/type/action/event/reserve = %u/%u/%u/%u/%u\n",
+					pr_debug("[SCP] ipi id/type/action/event/reserve = %u/%u/%u/%u/%u\n",
 						buf.id, buf.info[0],
 						buf.info[1], buf.info[2],
 						buf.info[3]);
 				} else {
-					pr_info("[SCP] mbox%u, ipi id %u\n",
+					pr_debug("[SCP] mbox%u, ipi id %u\n",
 						mbox,
 						scp_mbox_pin_recv[i].chan_id);
 				}

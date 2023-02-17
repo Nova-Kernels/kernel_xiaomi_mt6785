@@ -59,7 +59,7 @@ unsigned long dcm_emi_base;
 short is_dcm_bringup(void)
 {
 #ifdef DCM_BRINGUP
-	dcm_pr_info("%s: skipped for bring up\n", __func__);
+	dcm_pr_debug("%s: skipped for bring up\n", __func__);
 	return 1;
 #else
 	return 0;
@@ -76,29 +76,29 @@ int __init mt_dcm_dts_map(void)
 	/* infracfg_ao */
 	node = of_find_compatible_node(NULL, NULL, INFRACFG_AO_NODE);
 	if (!node) {
-		dcm_pr_info("error: cannot find node %s\n", INFRACFG_AO_NODE);
+		dcm_pr_debug("error: cannot find node %s\n", INFRACFG_AO_NODE);
 		return -1;
 	}
 	dcm_infracfg_ao_base = (unsigned long)of_iomap(node, 0);
 	if (!dcm_infracfg_ao_base) {
-		dcm_pr_info("error: cannot iomap %s\n", INFRACFG_AO_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", INFRACFG_AO_NODE);
 		return -1;
 	}
 
 	/* mcucfg */
 	node = of_find_compatible_node(NULL, NULL, MCUCFG_NODE);
 	if (!node) {
-		dcm_pr_info("error: cannot find node %s\n", MCUCFG_NODE);
+		dcm_pr_debug("error: cannot find node %s\n", MCUCFG_NODE);
 		return -1;
 	}
 	if (of_address_to_resource(node, 0, &r)) {
-		dcm_pr_info("error: cannot get phys addr %s\n", MCUCFG_NODE);
+		dcm_pr_debug("error: cannot get phys addr %s\n", MCUCFG_NODE);
 		return -1;
 	}
 	dcm_mcucfg_phys_base = r.start;
 	dcm_mcucfg_base = (unsigned long)of_iomap(node, 0);
 	if (!dcm_mcucfg_base) {
-		dcm_pr_info("error: cannot iomap %s\n", MCUCFG_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", MCUCFG_NODE);
 		return -1;
 	}
 
@@ -106,47 +106,47 @@ int __init mt_dcm_dts_map(void)
 	/* dramc0_ao */
 	dcm_dramc0_ao_base = (unsigned long)mt_dramc_chn_base_get(0);
 	if (!dcm_dramc0_ao_base) {
-		dcm_pr_info("error: cannot iomap %s\n", DRAMC_AO_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", DRAMC_AO_NODE);
 		return -1;
 	}
 
 	/* dramc1_ao */
 	dcm_dramc1_ao_base = (unsigned long)mt_dramc_chn_base_get(1);
 	if (!dcm_dramc1_ao_base) {
-		dcm_pr_info("error: cannot iomap %s\n", DRAMC_AO_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", DRAMC_AO_NODE);
 		return -1;
 	}
 
 	/* ddrphy0_ao */
 	dcm_ddrphy0_ao_base = (unsigned long)mt_ddrphy_chn_base_get(0);
 	if (!dcm_ddrphy0_ao_base) {
-		dcm_pr_info("error: cannot iomap %s\n", DRAMC_AO_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", DRAMC_AO_NODE);
 		return -1;
 	}
 
 	/* ddrphy1_ao */
 	dcm_ddrphy1_ao_base = (unsigned long)mt_ddrphy_chn_base_get(1);
 	if (!dcm_ddrphy1_ao_base) {
-		dcm_pr_info("error: cannot iomap %s\n", DRAMC_AO_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", DRAMC_AO_NODE);
 		return -1;
 	}
 
 	dcm_chn0_emi_base = (unsigned long)mt_chn_emi_base_get(0);
 	if (!dcm_chn0_emi_base) {
-		dcm_pr_info("error: cannot iomap %s\n", CHN0_EMI_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", CHN0_EMI_NODE);
 		return -1;
 	}
 
 	dcm_chn1_emi_base = (unsigned long)mt_chn_emi_base_get(1);
 	if (!dcm_chn1_emi_base) {
-		dcm_pr_info("error: cannot iomap %s\n", CHN1_EMI_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", CHN1_EMI_NODE);
 		return -1;
 	}
 
 	/* emi */
 	dcm_emi_base = (unsigned long)mt_cen_emi_base_get();
 	if (!dcm_emi_base) {
-		dcm_pr_info("error: cannot iomap %s\n", EMI_NODE);
+		dcm_pr_debug("error: cannot iomap %s\n", EMI_NODE);
 		return -1;
 	}
 
@@ -678,7 +678,7 @@ struct DCM dcm_array[NR_DCM_TYPE] = {
 
 void dcm_dump_regs(void)
 {
-	dcm_pr_info("\n******** dcm dump register *********\n");
+	dcm_pr_debug("\n******** dcm dump register *********\n");
 	/*
 	 * REG_DUMP(CPUSYS_RGU_SYNC_DCM);
 	 */

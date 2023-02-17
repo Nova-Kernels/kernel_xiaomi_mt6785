@@ -47,8 +47,8 @@
 #define echo_srv_name  "com.mediatek.geniezone.srv.echo"
 
 #define KREE_DEBUG(fmt...) pr_debug("[SM_kUT]" fmt)
-#define KREE_INFO(fmt...) pr_info("[SM_kUT]" fmt)
-#define KREE_ERR(fmt...) pr_info("[SM_kUT][ERR]" fmt)
+#define KREE_INFO(fmt...) pr_debug("[SM_kUT]" fmt)
+#define KREE_ERR(fmt...) pr_debug("[SM_kUT][ERR]" fmt)
 
 #define test_case_continuous 0
 #define test_case_discontinuous 1

@@ -519,7 +519,7 @@ struct tcpc_device {
 #ifdef CONFIG_PD_DBG_INFO
 #define RT_DBG_INFO	pd_dbg_info
 #else
-#define RT_DBG_INFO	pr_info
+#define RT_DBG_INFO	pr_debug
 #endif /* CONFIG_PD_DBG_INFO */
 
 #if TYPEC_DBG_ENABLE

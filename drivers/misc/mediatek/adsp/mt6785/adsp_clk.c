@@ -78,7 +78,7 @@ int adsp_clk_device_probe(struct platform_device *pdev)
 /* clock deinit */
 void adsp_clk_device_remove(void *dev)
 {
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 }
 
 int adsp_enable_clock(void)
@@ -86,7 +86,7 @@ int adsp_enable_clock(void)
 	int ret = 0;
 	unsigned long spin_flags;
 
-	pr_info("%s()\n", __func__);
+	pr_debug("%s()\n", __func__);
 	spin_lock_irqsave(&adsp_clock_spinlock, spin_flags);
 	if (++adsp_clock_count == 1)
 		/* unable to access adsp sram before set way_en to 1 */
@@ -108,7 +108,7 @@ void adsp_disable_clock(void)
 {
 	unsigned long spin_flags;
 
-	pr_info("%s()\n", __func__);
+	pr_debug("%s()\n", __func__);
 	clk_disable_unprepare(adsp_clks[CLK_ADSP_INFRA].clock);
 
 	spin_lock_irqsave(&adsp_clock_spinlock, spin_flags);

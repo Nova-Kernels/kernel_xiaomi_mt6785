@@ -388,7 +388,7 @@ static int segment_user_support_check(void *param)
 	val = get_devinfo_with_index(30);
 	if (val == 0x10) {
 		seg_info->seg = SEGMENT_0;
-		pr_info("%s segment:0x%x\n", __func__, (unsigned int)val);
+		pr_debug("%s segment:0x%x\n", __func__, (unsigned int)val);
 	}
 #else
 	val = get_devinfo_with_index(30);
@@ -586,7 +586,7 @@ static void get_bin_raise_voltage(enum DVFS_BUCK buck, int bin_efuse,
 		LOG_ERR("%s invalid buck : %d\n", __func__, buck);
 	}
 
-	pr_info("%s bin_mv:%d, raise_mv:%d\n", __func__, *bin_mv, *raise_mv);
+	pr_debug("%s bin_mv:%d, raise_mv:%d\n", __func__, *bin_mv, *raise_mv);
 }
 
 /*
@@ -766,7 +766,7 @@ static void change_opp_voltage(enum DVFS_VOLTAGE_DOMAIN bk_domain,
 
 		apusys_opps.opps[opp][bk_domain].voltage = final_min_volt;
 
-		pr_info("%s Update Volt!!, bk:%d opp-%d vol=%d (%d, %d, %d)\n",
+		pr_debug("%s Update Volt!!, bk:%d opp-%d vol=%d (%d, %d, %d)\n",
 				__func__, bk_domain, opp,
 				apusys_opps.opps[opp][bk_domain].voltage,
 				tmp1, tmp2, tmp3);
@@ -774,7 +774,7 @@ static void change_opp_voltage(enum DVFS_VOLTAGE_DOMAIN bk_domain,
 		/* set upper bound as binning voltage to this buck domain */
 		if (apusys_opps.opps[opp][bk_domain].voltage > *bin_mv) {
 			apusys_opps.opps[opp][bk_domain].voltage = *bin_mv;
-			pr_info("%s Align BinningVolt!!, bk:%d opp-%d vol=%d\n",
+			pr_debug("%s Align BinningVolt!!, bk:%d opp-%d vol=%d\n",
 				__func__, bk_domain, opp,
 				apusys_opps.opps[opp][bk_domain].voltage);
 		}
@@ -782,7 +782,7 @@ static void change_opp_voltage(enum DVFS_VOLTAGE_DOMAIN bk_domain,
 		/* set lower bound as raising voltage to this buck domain */
 		if (apusys_opps.opps[opp][bk_domain].voltage < *raise_mv) {
 			apusys_opps.opps[opp][bk_domain].voltage = *raise_mv;
-			pr_info("%s Align RaisingVolt!!, bk:%d opp-%d vol=%d\n",
+			pr_debug("%s Align RaisingVolt!!, bk:%d opp-%d vol=%d\n",
 				__func__, bk_domain, opp,
 				apusys_opps.opps[opp][bk_domain].voltage);
 		}
@@ -896,7 +896,7 @@ out:
 #else
 static int binning_support_check(void)
 {
-	pr_info("%s bypass\n", __func__);
+	pr_debug("%s bypass\n", __func__);
 	return 0;
 }
 #endif
@@ -1803,7 +1803,7 @@ static void power_debug_func(void *param)
 
 	global_test_efuse_bin = (*((uint32_t *)param) & 0xFFFF) >> 8;
 	global_test_efuse_raise = *((uint32_t *)param) & 0xF;
-	pr_info("%s test_binning:%d, test_raising:%d\n",
+	pr_debug("%s test_binning:%d, test_raising:%d\n",
 			__func__,
 			global_test_efuse_bin,
 			global_test_efuse_raise);

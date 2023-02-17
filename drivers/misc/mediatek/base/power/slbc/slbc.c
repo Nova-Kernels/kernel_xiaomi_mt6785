@@ -103,7 +103,7 @@ static int slbc_check_mmsram(void)
 	if (!mmsram.size) {
 		mmsram_get_info(&mmsram);
 		if (!mmsram.size) {
-			pr_info("#@# %s(%d) mmsram is wrong !!!\n",
+			pr_debug("#@# %s(%d) mmsram is wrong !!!\n",
 					__func__, __LINE__);
 
 			return -EINVAL;
@@ -118,7 +118,7 @@ static void slbc_set_mmsram_data(struct slbc_data *d)
 {
 #ifdef CONFIG_MTK_SLBC_MMSRAM
 	if (slbc_check_mmsram()) {
-		pr_info("#@# %s(%d) mmsram is wrong !!!\n",
+		pr_debug("#@# %s(%d) mmsram is wrong !!!\n",
 				__func__, __LINE__);
 	}
 
@@ -147,7 +147,7 @@ static void slbc_debug_log(const char *fmt, ...)
 	va_end(va);
 
 	if (len)
-		pr_info("#@# %s\n", buf);
+		pr_debug("#@# %s\n", buf);
 #endif /* SLBC_DEBUG */
 }
 
@@ -175,7 +175,7 @@ int register_slbc_ops(struct slbc_ops *ops)
 
 #ifdef CONFIG_MTK_SLBC_MMSRAM
 	if (slbc_check_mmsram()) {
-		pr_info("#@# %s(%d) mmsram is wrong !!!\n",
+		pr_debug("#@# %s(%d) mmsram is wrong !!!\n",
 				__func__, __LINE__);
 
 		return -EINVAL;
@@ -191,7 +191,7 @@ int register_slbc_ops(struct slbc_ops *ops)
 #endif /* SLBC_TRACE */
 		slbc_debug_log("%s: %s", __func__, slbc_uid_str[uid]);
 	} else {
-		pr_info("#@# %s(%d) data is wrong !!!\n", __func__, __LINE__);
+		pr_debug("#@# %s(%d) data is wrong !!!\n", __func__, __LINE__);
 
 		return -EINVAL;
 	}
@@ -204,7 +204,7 @@ int register_slbc_ops(struct slbc_ops *ops)
 		d->ref = 0;
 		d->pwr_ref = 0;
 	} else {
-		pr_info("#@# %s(%d) slot is wrong !!!\n", __func__, __LINE__);
+		pr_debug("#@# %s(%d) slot is wrong !!!\n", __func__, __LINE__);
 
 		return -EINVAL;
 	}
@@ -235,7 +235,7 @@ int unregister_slbc_ops(struct slbc_ops *ops)
 #endif /* SLBC_TRACE */
 		slbc_debug_log("%s: %s", __func__, slbc_uid_str[uid]);
 	} else {
-		pr_info("#@# %s(%d) data is wrong !!!\n", __func__, __LINE__);
+		pr_debug("#@# %s(%d) data is wrong !!!\n", __func__, __LINE__);
 
 		return -EINVAL;
 	}
@@ -276,7 +276,7 @@ static void slbc_deactivate_timer_fn(unsigned long data)
 			if (test_bit(uid, &slbc_status)) {
 				ref++;
 
-				pr_info("#@# %s(%d) %s not released !!!\n",
+				pr_debug("#@# %s(%d) %s not released !!!\n",
 						__func__, __LINE__,
 						slbc_uid_str[uid]);
 			} else {
@@ -284,7 +284,7 @@ static void slbc_deactivate_timer_fn(unsigned long data)
 				slbc_debug_log("%s: slbc_release_status %lx",
 						__func__, slbc_release_status);
 
-				pr_info("#@# %s(%d) %s released !!!\n",
+				pr_debug("#@# %s(%d) %s released !!!\n",
 						__func__, __LINE__,
 						slbc_uid_str[uid]);
 			}
@@ -317,19 +317,19 @@ int slbc_activate(struct slbc_data *d)
 	if (ops && ops->activate) {
 		ret = slbc_request(d);
 		if (ret) {
-			pr_info("#@# %s(%d) %s request fail !!!\n",
+			pr_debug("#@# %s(%d) %s request fail !!!\n",
 					__func__, __LINE__, slbc_uid_str[uid]);
 
 			return ret;
 		}
 
 		if (ops->activate(d) == CB_DONE) {
-			pr_info("#@# %s(%d) %s activate fail !!!\n",
+			pr_debug("#@# %s(%d) %s activate fail !!!\n",
 					__func__, __LINE__, slbc_uid_str[uid]);
 
 			ret = slbc_release(d);
 			if (ret) {
-				pr_info("#@# %s(%d) %s release fail !!!\n",
+				pr_debug("#@# %s(%d) %s release fail !!!\n",
 						__func__, __LINE__,
 						slbc_uid_str[uid]);
 
@@ -346,7 +346,7 @@ int slbc_activate(struct slbc_data *d)
 		return 0;
 	}
 
-	pr_info("#@# %s(%d) %s data not found !!!\n",
+	pr_debug("#@# %s(%d) %s data not found !!!\n",
 			__func__, __LINE__, slbc_uid_str[uid]);
 
 	return -EFAULT;
@@ -390,7 +390,7 @@ int slbc_deactivate(struct slbc_data *d)
 		return 0;
 	}
 
-	pr_info("#@# %s(%d) %s data not found !!!\n",
+	pr_debug("#@# %s(%d) %s data not found !!!\n",
 			__func__, __LINE__, slbc_uid_str[uid]);
 
 	return -EFAULT;
@@ -577,7 +577,7 @@ int slbc_request(struct slbc_data *d)
 		d->slot_used = 0;
 		d->ref = 0;
 	} else {
-		pr_info("#@# %s(%d) slot is wrong !!!\n", __func__, __LINE__);
+		pr_debug("#@# %s(%d) slot is wrong !!!\n", __func__, __LINE__);
 
 		return -EINVAL;
 	}
@@ -709,23 +709,23 @@ static void slbc_debug_dump_data(struct slbc_data *d)
 {
 	unsigned int uid = d->uid;
 
-	pr_info("\nID %s", slbc_uid_str[uid]);
+	pr_debug("\nID %s", slbc_uid_str[uid]);
 
 	if (test_bit(uid, &slbc_status))
-		pr_info(" activate\n");
+		pr_debug(" activate\n");
 	else
-		pr_info(" deactivate\n");
+		pr_debug(" deactivate\n");
 
-	pr_info("\t%d\t", uid);
-	pr_info("%x\t", d->type);
-	pr_info("%ld\n", d->size);
-	pr_info("%p\t", d->paddr);
-	pr_info("%p\t", d->vaddr);
-	pr_info("%d\t", d->sid);
-	pr_info("%x\n", d->slot_used);
-	pr_info("%p\n", d->config);
-	pr_info("%d\n", d->ref);
-	pr_info("%d\n", d->pwr_ref);
+	pr_debug("\t%d\t", uid);
+	pr_debug("%x\t", d->type);
+	pr_debug("%ld\n", d->size);
+	pr_debug("%p\t", d->paddr);
+	pr_debug("%p\t", d->vaddr);
+	pr_debug("%d\t", d->sid);
+	pr_debug("%x\n", d->slot_used);
+	pr_debug("%p\n", d->config);
+	pr_debug("%d\n", d->ref);
+	pr_debug("%d\n", d->pwr_ref);
 }
 
 static int slbc_debug_all(void)
@@ -733,17 +733,17 @@ static int slbc_debug_all(void)
 	struct slbc_ops *ops;
 	int i;
 
-	pr_info("slbc_enable %x\n", slbc_enable);
-	pr_info("slbc_status %lx\n", slbc_status);
-	pr_info("slbc_mask_status %lx\n", slbc_mask_status);
-	pr_info("slbc_req_status %lx\n", slbc_req_status);
-	pr_info("slbc_release_status %lx\n", slbc_release_status);
-	pr_info("slbc_slot_status %lx\n", slbc_slot_status);
-	pr_info("buffer_ref %x\n", buffer_ref);
-	pr_info("cache_ref %x\n", cache_ref);
-	pr_info("slbc_ref %x\n", slbc_ref);
+	pr_debug("slbc_enable %x\n", slbc_enable);
+	pr_debug("slbc_status %lx\n", slbc_status);
+	pr_debug("slbc_mask_status %lx\n", slbc_mask_status);
+	pr_debug("slbc_req_status %lx\n", slbc_req_status);
+	pr_debug("slbc_release_status %lx\n", slbc_release_status);
+	pr_debug("slbc_slot_status %lx\n", slbc_slot_status);
+	pr_debug("buffer_ref %x\n", buffer_ref);
+	pr_debug("cache_ref %x\n", cache_ref);
+	pr_debug("slbc_ref %x\n", slbc_ref);
 	for (i = 0; i < UID_MAX; i++)
-		pr_info("uid_ref %s %x\n", slbc_uid_str[i], uid_ref[i]);
+		pr_debug("uid_ref %s %x\n", slbc_uid_str[i], uid_ref[i]);
 
 	mutex_lock(&slbc_ops_lock);
 	list_for_each_entry(ops, &slbc_ops_list, node) {
@@ -753,7 +753,7 @@ static int slbc_debug_all(void)
 	}
 	mutex_unlock(&slbc_ops_lock);
 
-	pr_info("\n");
+	pr_debug("\n");
 
 	return 0;
 }
@@ -783,7 +783,7 @@ int slbc_release(struct slbc_data *d)
 		d->sid = sid;
 		d->config = &p_config[sid];
 	} else {
-		pr_info("#@# %s(%d) slot is wrong !!!\n", __func__, __LINE__);
+		pr_debug("#@# %s(%d) slot is wrong !!!\n", __func__, __LINE__);
 
 		return -EINVAL;
 	}
@@ -1182,7 +1182,7 @@ static int slbc_create_debug_fs(void)
 	/* create /proc/slbc */
 	dir = proc_mkdir("slbc", NULL);
 	if (!dir) {
-		pr_info("fail to create /proc/slbc @ %s()\n", __func__);
+		pr_debug("fail to create /proc/slbc @ %s()\n", __func__);
 
 		return -ENOMEM;
 	}
@@ -1190,7 +1190,7 @@ static int slbc_create_debug_fs(void)
 	for (i = 0; i < ARRAY_SIZE(entries); i++) {
 		if (!proc_create_data(entries[i].name, 0660,
 					dir, entries[i].fops, entries[i].data))
-			pr_info("%s(), create /proc/slbc/%s failed\n",
+			pr_debug("%s(), create /proc/slbc/%s failed\n",
 					__func__, entries[i].name);
 	}
 
@@ -1215,10 +1215,10 @@ int __init slbc_module_init(void)
 			else
 				slbc_enable = 0;
 		}
-		pr_info("#@# %s(%d) slbc_enable %d\n", __func__, __LINE__,
+		pr_debug("#@# %s(%d) slbc_enable %d\n", __func__, __LINE__,
 				slbc_enable);
 	} else
-		pr_info("find slbc node failed\n");
+		pr_debug("find slbc node failed\n");
 
 #ifdef CONFIG_PM_SLEEP
 	slbc_ws = wakeup_source_register(NULL, "slbc");
@@ -1228,7 +1228,7 @@ int __init slbc_module_init(void)
 
 	ret = slbc_create_debug_fs();
 	if (ret) {
-		pr_info("FAILED TO CREATE DEBUG FILESYSTEM (%d)\n", ret);
+		pr_debug("FAILED TO CREATE DEBUG FILESYSTEM (%d)\n", ret);
 
 		return ret;
 	}

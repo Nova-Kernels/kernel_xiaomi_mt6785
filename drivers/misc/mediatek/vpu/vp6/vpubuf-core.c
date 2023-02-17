@@ -504,7 +504,7 @@ void vpu_check_dbg_buf(struct vpu_user *user)
 	mutex_lock(&user->dbgbuf_mutex);
 	list_for_each_safe(head, temp, &user->dbgbuf_list) {
 		dbgbuf = vlist_node_of(head, struct vpu_dbg_buf);
-		pr_info("[vpu BUF] free buffer leak : %llu\n", dbgbuf->handle);
+		pr_debug("[vpu BUF] free buffer leak : %llu\n", dbgbuf->handle);
 		free_buf.handle = dbgbuf->handle;
 		vbuf_std_free(vpu_device, &free_buf);
 		list_del_init(vlist_link(dbgbuf, struct vpu_dbg_buf));

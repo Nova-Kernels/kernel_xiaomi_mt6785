@@ -156,12 +156,12 @@ struct MFB_CLK_STRUCT mfb_clk;
 #define log_vrb(format,	args...)    pr_debug(MyTag format, ##args)
 
 #ifdef MFB_DEBUG_USE
-#define log_dbg(format, args...)    pr_info(MyTag format, ##args)
+#define log_dbg(format, args...)    pr_debug(MyTag format, ##args)
 #else
 #define log_dbg(format, args...)
 #endif
 
-#define log_inf(format, args...)    pr_info(MyTag format,  ##args)
+#define log_inf(format, args...)    pr_debug(MyTag format,  ##args)
 #define log_notice(format, args...) pr_notice(MyTag format,  ##args)
 #define log_wrn(format, args...)    pr_debug(MyTag format,  ##args)
 #define log_err(format, args...)    pr_debug(MyTag format,  ##args)

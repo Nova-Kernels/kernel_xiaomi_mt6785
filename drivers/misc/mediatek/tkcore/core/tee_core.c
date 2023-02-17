@@ -523,7 +523,7 @@ static long tee_internal_ioctl(struct tee_context *ctx,
 
 	case TEE_QUERY_DRV_FEATURE_IOC:
 		if (u_arg) {
-			pr_info("tkcoredrv: nsdrv feature = 0x%x\n",
+			pr_debug("tkcoredrv: nsdrv feature = 0x%x\n",
 					nsdrv_feature_flags);
 			if (copy_to_user(u_arg, &nsdrv_feature_flags,
 					sizeof(nsdrv_feature_flags))) {
@@ -816,7 +816,7 @@ struct tee *tee_core_alloc(struct device *dev, char *name, int id,
 	tee->priv = &tee[1];
 
 	snprintf(tee->name, sizeof(tee->name), "%s", name);
-	pr_info("TEE core: Alloc the misc device \"%s\" (id=%d)\n",
+	pr_debug("TEE core: Alloc the misc device \"%s\" (id=%d)\n",
 		tee->name, tee->id);
 
 	tee->miscdev.parent = dev;
@@ -890,7 +890,7 @@ int tee_core_add(struct tee *tee)
 	else
 		misc_class = tee->miscdev.this_device->class;
 
-	pr_info(
+	pr_debug(
 		"TKCore misc: Register the misc device \"%s\" (id=%d,minor=%d)\n",
 		dev_name(tee->miscdev.this_device), tee->id,
 		tee->miscdev.minor);
@@ -902,14 +902,14 @@ EXPORT_SYMBOL(tee_core_add);
 int tee_core_del(struct tee *tee)
 {
 	if (tee) {
-		pr_info(
+		pr_debug(
 			"TEE Core: Destroy the misc device \"%s\" (id=%d)\n",
 			dev_name(tee->miscdev.this_device), tee->id);
 
 		tee_cleanup_sysfs(tee);
 
 		if (tee->miscdev.minor != MISC_DYNAMIC_MINOR) {
-			pr_info(
+			pr_debug(
 				"TEE Core: Deregister the misc device \"%s\" (id=%d)\n",
 				dev_name(tee->miscdev.this_device), tee->id);
 			misc_deregister(&tee->miscdev);
@@ -926,7 +926,7 @@ static int __init tee_core_init(void)
 {
 	int r;
 
-	pr_info("\nTEE Core Framework initialization (ver %s)\n",
+	pr_debug("\nTEE Core Framework initialization (ver %s)\n",
 		_TEE_CORE_FW_VER);
 
 	r = tkcore_tee_pm_init();
@@ -947,7 +947,7 @@ static int __init tee_core_init(void)
 
 static void __exit tee_core_exit(void)
 {
-	pr_info("TEE Core Framework unregistered\n");
+	pr_debug("TEE Core Framework unregistered\n");
 
 	tkcore_tee_pm_exit();
 

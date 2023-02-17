@@ -26,7 +26,7 @@ extern unsigned int g_extd_mobilelog;
 		DISPFUNC();	\
 		if ((!g_mobilelog) &&	\
 				(g_extd_mobilelog))	\
-			pr_info("[EXTD]func|%s\n", __func__);		\
+			pr_debug("[EXTD]func|%s\n", __func__);		\
 	} while (0)
 
 #define EXTDINFO(string, args...)					\
@@ -34,7 +34,7 @@ extern unsigned int g_extd_mobilelog;
 		DISPINFO("[EXTD]"string, ##args);	\
 		if ((!g_mobilelog) &&	\
 				(g_extd_mobilelog))	\
-			pr_info("[EXTD]:"string, ##args);		\
+			pr_debug("[EXTD]:"string, ##args);		\
 	} while (0)
 
 #define EXTDMSG(string, args...)	DISPMSG("[EXTD]"string, ##args)

@@ -51,10 +51,10 @@
 #define vpu_aee_excp_locked(vd, req, key, format, args...) \
 	do { \
 		if (vd->state <= VS_DOWN) { \
-			pr_info(format ", crashed by other thread", ##args); \
+			pr_debug(format ", crashed by other thread", ##args); \
 			break; \
 		} \
-		pr_info(format, ##args); \
+		pr_debug(format, ##args); \
 		vpu_dmp_create_locked(vd, req, format, ##args); \
 		aee_kernel_exception("VPU", \
 			"\nCRDISPATCH_KEY:" key "\n" format, ##args); \
@@ -71,7 +71,7 @@
 
 #define vpu_aee_warn(key, format, args...) \
 	do { \
-		pr_info(format, ##args); \
+		pr_debug(format, ##args); \
 		aee_kernel_warning("VPU", \
 			"\nCRDISPATCH_KEY:" key "\n" format, ##args); \
 	} while (0)

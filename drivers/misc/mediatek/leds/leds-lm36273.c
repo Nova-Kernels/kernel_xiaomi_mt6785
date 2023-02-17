@@ -262,7 +262,7 @@ static long led_i2c_reg_write(char *buf, unsigned long  count)
 	char *input = NULL;
 	unsigned char pbuf[3] = {0};
 
-	pr_info("[%s], count  = %ld, buf = %s ", __func__, count, buf);
+	pr_debug("[%s], count  = %ld, buf = %s ", __func__, count, buf);
 
 	if (count < 9 || buf == NULL) {
 		/* 01 01 01      -- read 0x01 register, len:1*/

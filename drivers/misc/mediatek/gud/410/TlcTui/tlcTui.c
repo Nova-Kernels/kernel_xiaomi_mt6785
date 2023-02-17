@@ -156,9 +156,9 @@ u32 send_cmd_to_user(u32 command_id, u32 data0, u32 data1)
 		 * Unlock the ioctl thread (IOCTL_WAIT) in order to let the
 		 * client know that there is a command to process.
 		 */
-		pr_info("%s: give way to ioctl thread\n", __func__);
+		pr_debug("%s: give way to ioctl thread\n", __func__);
 		complete(&dci_comp);
-		pr_info("TUI TLC is running, waiting for the userland response\n");
+		pr_debug("TUI TLC is running, waiting for the userland response\n");
 		/* Wait for the client acknowledge (IOCTL_ACK). */
 		unsigned long completed = wait_for_completion_timeout(&io_comp,
 				msecs_to_jiffies(5000));
@@ -171,7 +171,7 @@ u32 send_cmd_to_user(u32 command_id, u32 data0, u32 data1)
 		 * There is no client, do nothing except reporting an error to
 		 * SWd.
 		 */
-		pr_info("TUI TLC seems dead. Not waiting for userland answer\n");
+		pr_debug("TUI TLC seems dead. Not waiting for userland answer\n");
 		ret = TUI_DCI_ERR_INTERNAL_ERROR;
 		goto end;
 	}
@@ -243,7 +243,7 @@ static void tlc_process_cmd(void)
 		pr_debug("%s: CMD_TUI_SW_OPEN_SESSION.\n", __func__);
 
 		if (!g_dci_version_checked) {
-			pr_info("ERROR %s:%d DrTui version is not compatible!\n",
+			pr_debug("ERROR %s:%d DrTui version is not compatible!\n",
 				__func__, __LINE__);
 			ret = TUI_DCI_ERR_INTERNAL_ERROR;
 			break;
@@ -289,10 +289,10 @@ static void tlc_process_cmd(void)
 		u32 tlctui_dci_version =
 			TUI_DCI_VERSION(TUI_DCI_VERSION_MAJOR,
 					TUI_DCI_VERSION_MINOR);
-		pr_info("%s: TlcTui DCI Version (%u.%u)\n",  __func__,
+		pr_debug("%s: TlcTui DCI Version (%u.%u)\n",  __func__,
 			TUI_DCI_VERSION_GET_MAJOR(tlctui_dci_version),
 			TUI_DCI_VERSION_GET_MINOR(tlctui_dci_version));
-		pr_info("%s: DrTui DCI Version (%u.%u)\n",  __func__,
+		pr_debug("%s: DrTui DCI Version (%u.%u)\n",  __func__,
 			TUI_DCI_VERSION_GET_MAJOR(drtui_dci_version),
 			TUI_DCI_VERSION_GET_MINOR(drtui_dci_version));
 		/* Write the TlcTui DCI version in the response for the SWd */

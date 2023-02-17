@@ -682,7 +682,7 @@ int dpmgr_path_add_memout(disp_path_handle dp_handle,
 	if (engine == DISP_MODULE_OVL0) {
 		handle->scenario = DDP_SCENARIO_PRIMARY_ALL;
 	} else {
-		pr_info("%s error: engine=%d\n", __func__, engine);
+		pr_debug("%s error: engine=%d\n", __func__, engine);
 		ASSERT(0);
 		return 0;
 	}
@@ -744,7 +744,7 @@ int dpmgr_path_remove_memout(disp_path_handle dp_handle, void *cmdq_handle)
 		dis_scn = DDP_SCENARIO_SUB_OVL_MEMOUT;
 		new_scn = DDP_SCENARIO_SUB_DISP;
 	} else {
-		pr_info("%s: error scenario =%d\n",
+		pr_debug("%s: error scenario =%d\n",
 			__func__, handle->scenario);
 		ASSERT(0);
 		return 0;

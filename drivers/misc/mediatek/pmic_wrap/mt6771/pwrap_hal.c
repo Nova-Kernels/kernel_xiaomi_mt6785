@@ -87,44 +87,44 @@ static void pwrap_of_iounmap(void);
 signed int pwrap_wacs2(unsigned int write, unsigned int adr,
 			unsigned int wdata, unsigned int *rdata)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
 signed int pwrap_read(unsigned int adr, unsigned int *rdata)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
 signed int pwrap_write(unsigned int adr, unsigned int wdata)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 #endif
 signed int pwrap_wacs2_read(unsigned int  adr, unsigned int *rdata)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
 /* Provide PMIC write API */
 signed int pwrap_wacs2_write(unsigned int  adr, unsigned int  wdata)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
 signed int pwrap_read_nochk(unsigned int adr, unsigned int *rdata)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
 signed int pwrap_write_nochk(unsigned int adr, unsigned int wdata)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
@@ -134,25 +134,25 @@ signed int pwrap_write_nochk(unsigned int adr, unsigned int wdata)
  */
 static int __init pwrap_hal_init(void)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 signed int pwrap_init(void)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
 signed int pwrap_init_preloader(void)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 	return 0;
 }
 
 #if !defined CONFIG_MTK_PMIC_WRAP
 void pwrap_dump_all_register(void)
 {
-	pr_info("[PWRAP] PMIC_WRAP do Nothing.\n");
+	pr_debug("[PWRAP] PMIC_WRAP do Nothing.\n");
 }
 #endif
 
@@ -588,14 +588,14 @@ static signed int _pwrap_wacs2_nochk(unsigned int write, unsigned int adr,
 
 static void __pwrap_soft_reset(void)
 {
-	pr_info("start reset wrapper\n");
+	pr_debug("start reset wrapper\n");
 	WRAP_WR32(INFRA_GLOBALCON_RST2_SET, 0x1);
 	WRAP_WR32(INFRA_GLOBALCON_RST2_CLR, 0x1);
 }
 
 static void __pwrap_spi_clk_set(void)
 {
-	pr_info("pwrap_spictl reset ok\n");
+	pr_debug("pwrap_spictl reset ok\n");
 #if !defined(CONFIG_FPGA_EARLY_PORTING)
 	WRAP_WR32(CLK_CFG_5_CLR, 0x00000093);
 	WRAP_WR32(CLK_CFG_5_SET, CLK_SPI_CK_26M);
@@ -613,7 +613,7 @@ static void __pwrap_spi_clk_set(void)
 	WRAP_WR32(MODULE_SW_CG_0_CLR, 0x0000000f);
 	/* turn on clock*/
 	WRAP_WR32(MODULE_SW_CG_2_CLR, 0x00000100);
-	pr_info("spi clk set ....\n");
+	pr_debug("spi clk set ....\n");
 }
 
 /************************************************
@@ -668,7 +668,7 @@ static signed int _pwrap_init_cipher(void)
 	pwrap_write_nochk(PMIC_DEW_CIPHER_KEY_SEL_ADDR, 0x1);
 	pwrap_write_nochk(PMIC_DEW_CIPHER_IV_SEL_ADDR,  0x2);
 	pwrap_write_nochk(PMIC_DEW_CIPHER_EN_ADDR,  0x1);
-	pr_info("[%s] Config CIPHER of PMIC 0 ok\n", __func__);
+	pr_debug("[%s] Config CIPHER of PMIC 0 ok\n", __func__);
 
 #ifdef DUAL_PMICS
 	/* Config CIPHER of PMIC 1 */
@@ -677,56 +677,56 @@ static signed int _pwrap_init_cipher(void)
 	pwrap_write_nochk(EXT_DEW_CIPHER_KEY_SEL, 0x1);
 	pwrap_write_nochk(EXT_DEW_CIPHER_IV_SEL,  0x2);
 	pwrap_write_nochk(EXT_DEW_CIPHER_EN,  0x1);
-	pr_info("[%s] Config CIPHER of PMIC 1 ok\n", __func__);
+	pr_debug("[%s] Config CIPHER of PMIC 1 ok\n", __func__);
 #endif
 	/*wait for cipher data ready@AP */
 	return_value = wait_for_state_ready_init(wait_for_cipher_ready,
 			TIMEOUT_WAIT_IDLE, PMIC_WRAP_CIPHER_RDY, 0);
 	if (return_value != 0) {
-		pr_info("cipher fail,ret=%x\n", return_value);
+		pr_debug("cipher fail,ret=%x\n", return_value);
 		return return_value;
 	}
-	pr_info("wait for cipher to be ready ok\n");
+	pr_debug("wait for cipher to be ready ok\n");
 
 	/* wait for cipher 0 data ready@PMIC */
 	start_time_ns = _pwrap_get_current_time();
 	timeout_ns = _pwrap_time2ns(0xFFFFFF);
 	do {
 		if (_pwrap_timeout_ns(start_time_ns, timeout_ns))
-			pr_info("cipher 0 data\n");
+			pr_debug("cipher 0 data\n");
 
 		pwrap_read_nochk(PMIC_DEW_CIPHER_RDY_ADDR, &rdata);
 	} while (rdata != 0x1); /* cipher_ready */
 
 	return_value = pwrap_write_nochk(PMIC_DEW_CIPHER_MODE_ADDR, 0x1);
 	if (return_value != 0) {
-		pr_info("CIPHER_MODE fail,ret=%x\n", return_value);
+		pr_debug("CIPHER_MODE fail,ret=%x\n", return_value);
 		return return_value;
 	}
-	pr_info("wait for cipher0 data ready ok\n");
+	pr_debug("wait for cipher0 data ready ok\n");
 
 #ifdef DUAL_PMICS
 	start_time_ns = _pwrap_get_current_time();
 	timeout_ns = _pwrap_time2ns(0xFFFFFF);
 	do {
 		if (_pwrap_timeout_ns(start_time_ns, timeout_ns))
-			pr_info("cipher 1 data\n");
+			pr_debug("cipher 1 data\n");
 		pwrap_read_nochk(EXT_DEW_CIPHER_RDY, &rdata);
 	} while (rdata != 0x1); /* cipher_ready */
 
 	return_value = pwrap_write_nochk(EXT_DEW_CIPHER_MODE, 0x1);
 	if (return_value != 0) {
-		pr_info("EXT_CIPHER_MODE fail,ret=%x\n", return_value);
+		pr_debug("EXT_CIPHER_MODE fail,ret=%x\n", return_value);
 		return return_value;
 	}
-	pr_info("wait for cipher 1 data ready ok\n");
+	pr_debug("wait for cipher 1 data ready ok\n");
 #endif
 
 	/* wait for cipher mode idle */
 	return_value = wait_for_state_ready_init(wait_for_idle_and_sync,
 			TIMEOUT_WAIT_IDLE, PMIC_WRAP_WACS2_RDATA, 0);
 	if (return_value != 0) {
-		pr_info("cipher mode idle fail,ret=%x\n", return_value);
+		pr_debug("cipher mode idle fail,ret=%x\n", return_value);
 		return return_value;
 	}
 	WRAP_WR32(PMIC_WRAP_CIPHER_MODE, 1);
@@ -734,14 +734,14 @@ static signed int _pwrap_init_cipher(void)
 	/* Read Test */
 	pwrap_read_nochk(PMIC_DEW_READ_TEST_ADDR, &rdata);
 	if (rdata != DEFAULT_VALUE_READ_TEST) {
-		pr_info("cipher,err=%x, rdata=%x\n", 1, rdata);
+		pr_debug("cipher,err=%x, rdata=%x\n", 1, rdata);
 		return E_PWR_READ_TEST_FAIL;
 	}
 
 #ifdef DUAL_PMICS
 	pwrap_read_nochk(EXT_DEW_READ_TEST, &rdata);
 	if (rdata != DEFAULT_VALUE_READ_TEST) {
-		pr_info("cipher,err=%x, rdata=%x\n", 1, rdata);
+		pr_debug("cipher,err=%x, rdata=%x\n", 1, rdata);
 		return E_PWR_READ_TEST_FAIL;
 	}
 #endif
@@ -948,17 +948,17 @@ static signed int _pwrap_init_sistrobe(int dual_si_sample_settings)
 
 			pwrap_read_nochk(MT6358_DEW_READ_TEST, &rdata);
 			if (rdata == DEFAULT_VALUE_READ_TEST) {
-				pr_info("First Valid Sampling Clock Found!\n");
-				pr_info("si_en_sel = %x, si_ck_sel = %x\n",
+				pr_debug("First Valid Sampling Clock Found!\n");
+				pr_debug("si_en_sel = %x, si_ck_sel = %x\n",
 					 si_en_sel, si_ck_sel);
-				pr_info("si_sample_ctrl = %x, rdata = %x\n",
+				pr_debug("si_sample_ctrl = %x, rdata = %x\n",
 					 si_sample_ctrl, rdata);
 				found = 1;
 				break;
 			}
-			pr_info("si_en_sel = %x, si_ck_sel = %x\n",
+			pr_debug("si_en_sel = %x, si_ck_sel = %x\n",
 				 si_en_sel, si_ck_sel);
-			pr_info("si_sample_ctrl = %x, rdata = %x\n",
+			pr_debug("si_sample_ctrl = %x, rdata = %x\n",
 				 si_sample_ctrl, rdata);
 		}
 		if (found == 1)
@@ -1000,13 +1000,13 @@ static signed int _pwrap_init_sistrobe(int dual_si_sample_settings)
 	si_sample_ctrl = si_sample_ctrl + 0x20;
 	WRAP_WR32(PMIC_WRAP_SI_SAMPLE_CTRL, si_sample_ctrl);
 	if (si_dly == 10) {
-		pr_info("SI Strobe Calibration For PMIC 0 Done\n");
-		pr_info("si_sample_ctrl = %x, si_dly = %x\n",
+		pr_debug("SI Strobe Calibration For PMIC 0 Done\n");
+		pr_debug("si_sample_ctrl = %x, si_dly = %x\n",
 			 si_sample_ctrl, si_dly);
 		si_dly--;
 	}
-	pr_info("SI Strobe Calibration For PMIC 0 Done\n");
-	pr_info("si_sample_ctrl = %x, si_dly = %x\n",
+	pr_debug("SI Strobe Calibration For PMIC 0 Done\n");
+	pr_debug("si_sample_ctrl = %x, si_dly = %x\n",
 		 si_sample_ctrl, si_dly);
 
 #if ULPOSC_Clock
@@ -1033,7 +1033,7 @@ static signed int _pwrap_init_sistrobe(int dual_si_sample_settings)
 		pr_notice("rdata = %x, exp = 0x5aa5\n", rdata);
 		return 0x10;
 	}
-	pr_info("%s Read Test ok\n", __func__);
+	pr_debug("%s Read Test ok\n", __func__);
 
 	return 0;
 }
@@ -1080,7 +1080,7 @@ static signed int _pwrap_reset_spislv(void)
 			TIMEOUT_WAIT_IDLE, PMIC_WRAP_WACS2_RDATA, 0);
 
 	if (return_value != 0) {
-		pr_info("reset_spislv fail,ret=%x\n", return_value);
+		pr_debug("reset_spislv fail,ret=%x\n", return_value);
 		ret = E_PWR_TIMEOUT;
 		goto timeout;
 	}
@@ -1104,24 +1104,24 @@ static signed int _pwrap_init_reg_clock(unsigned int regck_sel)
 	/* Set Read Dummy Cycle Number (Slave Clock is 18MHz) */
 	_pwrap_wacs2_nochk(1, PMIC_DEW_RDDMY_NO_ADDR, 0x8, &rdata);
 	WRAP_WR32(PMIC_WRAP_RDDMY, 0x8);
-	pr_info("NO_SLV_CLK_1M Set Read Dummy Cycle\n");
+	pr_debug("NO_SLV_CLK_1M Set Read Dummy Cycle\n");
 #else
 	_pwrap_wacs2_nochk(1, PMIC_DEW_RDDMY_NO_ADDR, 0x8, &rdata);
 	_pwrap_wacs2_nochk(1, EXT_DEW_RDDMY_NO, 0x8, &rdata);
 	WRAP_WR32(PMIC_WRAP_RDDMY, 0x0808);
-	pr_info("NO_SLV_CLK_1M Set Read Dummy Cycle dual_pmics\n");
+	pr_debug("NO_SLV_CLK_1M Set Read Dummy Cycle dual_pmics\n");
 #endif
 #else
 #ifndef DUAL_PMICS
 	/* Set Read Dummy Cycle Number (Slave Clock is 1MHz) */
 	_pwrap_wacs2_nochk(1, PMIC_DEW_RDDMY_NO_ADDR, 0x68, &rdata);
 	WRAP_WR32(PMIC_WRAP_RDDMY, 0x68);
-	pr_info("SLV_CLK_1M Set Read Dummy Cycle\n");
+	pr_debug("SLV_CLK_1M Set Read Dummy Cycle\n");
 #else
 	_pwrap_wacs2_nochk(1, PMIC_DEW_RDDMY_NO_ADDR, 0x68, &rdata);
 	_pwrap_wacs2_nochk(1, EXT_DEW_RDDMY_NO, 0x68, &rdata);
 	WRAP_WR32(PMIC_WRAP_RDDMY, 0x6868);
-	pr_info("SLV_CLK_1M Set Read Dummy Cycle dual_pmics\n");
+	pr_debug("SLV_CLK_1M Set Read Dummy Cycle dual_pmics\n");
 #endif
 #endif
 
@@ -1171,7 +1171,7 @@ static unsigned int pwrap_read_test(void)
 		pr_notice("Error: return_value = 0x%x\n", return_value);
 		return E_PWR_READ_TEST_FAIL;
 	}
-	pr_info("Read Test pass,return_value=%d\n", return_value);
+	pr_debug("Read Test pass,return_value=%d\n", return_value);
 
 	return 0;
 }
@@ -1182,10 +1182,10 @@ static unsigned int pwrap_write_test(void)
 	unsigned int sub_return1 = 0;
 
 	/* Write test using WACS2 */
-	pr_info("start pwrap_write\n");
+	pr_debug("start pwrap_write\n");
 	sub_return = pwrap_wacs2_write(PMIC_DEW_WRITE_TEST_ADDR,
 					DEFAULT_VALUE_WRITE_TEST);
-	pr_info("after pwrap_write\n");
+	pr_debug("after pwrap_write\n");
 	sub_return1 = pwrap_wacs2_read(PMIC_DEW_WRITE_TEST_ADDR, &rdata);
 	if ((rdata != DEFAULT_VALUE_WRITE_TEST) ||
 	    (sub_return != 0) || (sub_return1 != 0)) {
@@ -1194,7 +1194,7 @@ static unsigned int pwrap_write_test(void)
 		pr_notice("Error: sub_return1 = 0x%x\n", sub_return1);
 		return E_PWR_INIT_WRITE_TEST;
 	}
-	pr_info("Write Test pass\n");
+	pr_debug("Write Test pass\n");
 
 	return 0;
 }
@@ -1214,7 +1214,7 @@ static void pwrap_ut(unsigned int ut_test)
 		break;
 #endif
 	default:
-		pr_info("default test.\n");
+		pr_debug("default test.\n");
 		break;
 	}
 }
@@ -1230,14 +1230,14 @@ signed int pwrap_init(void)
 		return sub_return;
 #endif
 
-	pr_info("%s start!!!!!!!!!!!!!\n", __func__);
+	pr_debug("%s start!!!!!!!!!!!!!\n", __func__);
 
 	__pwrap_spi_clk_set();
 
-	pr_info("__pwrap_spi_clk_set ok\n");
+	pr_debug("__pwrap_spi_clk_set ok\n");
 
 	/* Enable DCM */
-	pr_info("Not need to enable DCM\n");
+	pr_debug("Not need to enable DCM\n");
 
 	/* Reset SPISLV */
 	sub_return = _pwrap_reset_spislv();
@@ -1245,11 +1245,11 @@ signed int pwrap_init(void)
 		pr_notice("reset_spislv fail,ret=%x\n", sub_return);
 		return E_PWR_INIT_RESET_SPI;
 	}
-	pr_info("Reset SPISLV ok\n");
+	pr_debug("Reset SPISLV ok\n");
 
 	/* Enable WRAP */
 	WRAP_WR32(PMIC_WRAP_WRAP_EN, 0x1);
-	pr_info("Enable WRAP ok\n");
+	pr_debug("Enable WRAP ok\n");
 
 #if MTK_PLATFORM_MT6358
 	WRAP_WR32(PMIC_WRAP_HPRIO_ARB_EN, 0x4); /* ONLY WACS2 */
@@ -1259,7 +1259,7 @@ signed int pwrap_init(void)
 	/* Enable WACS2 */
 	WRAP_WR32(PMIC_WRAP_WACS2_EN, 0x1);
 
-	pr_info("Enable WACS2 ok\n");
+	pr_debug("Enable WACS2 ok\n");
 
 	/* SPI Waveform Configuration. 0:safe mode, 1:18MHz */
 	sub_return = _pwrap_init_reg_clock(1);
@@ -1267,7 +1267,7 @@ signed int pwrap_init(void)
 		pr_notice("init_reg_clock fail,ret=%x\n", sub_return);
 		return E_PWR_INIT_REG_CLOCK;
 	}
-	pr_info("_pwrap_init_reg_clock ok\n");
+	pr_debug("_pwrap_init_reg_clock ok\n");
 
 	/* SPI Slave Configuration */
 	sub_return = __pwrap_InitSPISLV();
@@ -1282,7 +1282,7 @@ signed int pwrap_init(void)
 		pr_notice("dio test error,err=%x, ret=%x\n", 0x11, sub_return);
 		return E_PWR_INIT_DIO;
 	}
-	pr_info("_pwrap_init_dio ok\n");
+	pr_debug("_pwrap_init_dio ok\n");
 
 	/* Input data calibration flow; */
 	sub_return = _pwrap_init_sistrobe(0);
@@ -1290,7 +1290,7 @@ signed int pwrap_init(void)
 		pr_notice("InitSiStrobe fail,ret=%x\n", sub_return);
 		return E_PWR_INIT_SIDLY;
 	}
-	pr_info("_pwrap_init_sistrobe ok\n");
+	pr_debug("_pwrap_init_sistrobe ok\n");
 
 	/* Enable Encryption */
 	sub_return = _pwrap_init_cipher();
@@ -1298,7 +1298,7 @@ signed int pwrap_init(void)
 		pr_notice("Encryption fail, ret=%x\n", sub_return);
 		return E_PWR_INIT_CIPHER;
 	}
-	pr_info("_pwrap_init_cipher ok\n");
+	pr_debug("_pwrap_init_cipher ok\n");
 
 	/* Lock SPISLV Registers */
 	sub_return = _pwrap_lock_SPISLVReg();
@@ -1306,7 +1306,7 @@ signed int pwrap_init(void)
 		pr_notice("Lock SPI SLV Reg fail, ret=%x\n", sub_return);
 		return -1;
 	}
-	pr_info("_pwrap_lock_SPISPVReg ok\n");
+	pr_debug("_pwrap_lock_SPISPVReg ok\n");
 
 	/*  Write test using WACS2.  check Write test default value */
 	sub_return = _pwrap_wacs2_write_test(0);
@@ -1314,7 +1314,7 @@ signed int pwrap_init(void)
 		pr_notice("_pwrap_wacs2_write_test fail\n");
 		return E_PWR_INIT_WRITE_TEST;
 	}
-	pr_info("_pwrap_wacs2_write_test ok\n");
+	pr_debug("_pwrap_wacs2_write_test ok\n");
 
 	/* Status update function initialization
 	 * 1. Signature Checking using CRC (CRC 0 only)
@@ -1322,7 +1322,7 @@ signed int pwrap_init(void)
 	 * 3. Read back Auxadc thermal data for GPS
 	 */
 	_pwrap_InitStaUpd();
-	pr_info("_pwrap_InitStaUpd ok\n");
+	pr_debug("_pwrap_InitStaUpd ok\n");
 
 #if (MTK_PLATFORM_MT6358)
 	/* PMIC WRAP priority adjust */
@@ -1331,11 +1331,11 @@ signed int pwrap_init(void)
 #endif
 	/* PMIC_WRAP starvation setting */
 	_pwrap_starve_set();
-	pr_info("_pwrap_starve_set ok\n");
+	pr_debug("_pwrap_starve_set ok\n");
 
 	/* PMIC_WRAP enables */
 	_pwrap_enable();
-	pr_info("_pwrap_enable ok\n");
+	pr_debug("_pwrap_enable ok\n");
 
 	/* Initialization Done */
 	WRAP_WR32(PMIC_WRAP_INIT_DONE0, 0x1);
@@ -1346,7 +1346,7 @@ signed int pwrap_init(void)
 	pwrap_ut(1);
 	pwrap_ut(2);
 
-	pr_info("%s Done!!!!!!!!!\n", __func__);
+	pr_debug("%s Done!!!!!!!!!\n", __func__);
 
 #ifdef CONFIG_OF
 	pwrap_of_iounmap();
@@ -1566,7 +1566,7 @@ static int is_pwrap_init_done(void)
 	int ret = 0;
 
 	ret = WRAP_RD32(PMIC_WRAP_INIT_DONE2);
-	pr_info("%s %d\n", __func__, ret);
+	pr_debug("%s %d\n", __func__, ret);
 	if ((ret & 0x1) == 1)
 		return 0;
 
@@ -1576,7 +1576,7 @@ static int is_pwrap_init_done(void)
 		pwrap_dump_all_register();
 		return ret;
 	}
-	pr_info("init successfully done (%d)\n\n", ret);
+	pr_debug("init successfully done (%d)\n\n", ret);
 	return ret;
 }
 
@@ -1652,7 +1652,7 @@ static signed int pwrap_wacs2_ipi(unsigned int adr,
 	if (err != 0)
 		pr_notice("ipi_write error: %d\n", err);
 	else
-		pr_info("ipi_write success: %x\n", ipi_data_ret);
+		pr_debug("ipi_write success: %x\n", ipi_data_ret);
 
 	/* mutex_unlock(&pwrap_lock); */
 	return 0;
@@ -1744,7 +1744,7 @@ static void pwrap_int_test(void)
 	while (1) {
 		rdata1 = WRAP_RD32(PMIC_WRAP_EINT_STA);
 		pwrap_read(PMIC_CPU_INT_STA_ADDR, &rdata2);
-		pr_info("PMIC_WRAP_EINT_STA=0x%x, INT_STA[0x042E]=0x%x\n",
+		pr_debug("PMIC_WRAP_EINT_STA=0x%x, INT_STA[0x042E]=0x%x\n",
 			 rdata1, rdata2);
 		msleep(500);
 	}
@@ -1765,7 +1765,7 @@ static signed int mt_pwrap_store_hal(const char *buf, size_t count)
 	unsigned int ut_test = 0;
 
 	if (!strncmp(buf, "-h", 2)) {
-		pr_info("PWRAP UT: [1][2]\n");
+		pr_debug("PWRAP UT: [1][2]\n");
 	} else if (!strncmp(buf, "-dump_reg", 9)) {
 		pwrap_dump_all_register();
 	} else if (!strncmp(buf, "-trace_wacs2", 12)) {
@@ -1773,10 +1773,10 @@ static signed int mt_pwrap_store_hal(const char *buf, size_t count)
 	} else if (!strncmp(buf, "-init", 5)) {
 		return_value = pwrap_init();
 		if (return_value == 0)
-			pr_info("pwrap_init pass,return_value=%d\n",
+			pr_debug("pwrap_init pass,return_value=%d\n",
 				  return_value);
 		else
-			pr_info("pwrap_init fail,return_value=%d\n",
+			pr_debug("pwrap_init fail,return_value=%d\n",
 				  return_value);
 	} else if (!strncmp(buf, "-rdap", 5)
 		   && (sscanf(buf + 5, "%x", &reg_addr) == 1)) {
@@ -1800,7 +1800,7 @@ static signed int mt_pwrap_store_hal(const char *buf, size_t count)
 		   && (sscanf(buf + 3, "%d", &ut_test) == 1)) {
 		pwrap_ut(ut_test);
 	} else {
-		pr_info("wrong parameter\n");
+		pr_debug("wrong parameter\n");
 	}
 	return count;
 }
@@ -1812,7 +1812,7 @@ static int __init pwrap_hal_init(void)
 	unsigned int pwrap_irq;
 	struct device_node *pwrap_node;
 
-	pr_info("mt_pwrap_init++++\n");
+	pr_debug("mt_pwrap_init++++\n");
 	pwrap_node = of_find_compatible_node(NULL, NULL, "mediatek,pwrap");
 	if (!pwrap_node) {
 		pr_notice("PWRAP get node failed\n");
@@ -1830,7 +1830,7 @@ static int __init pwrap_hal_init(void)
 		pr_notice("PWRAP get irq fail\n");
 		return -ENODEV;
 	}
-	pr_info("PWRAP reg: 0x%p,  irq: %d\n", pwrap_base, pwrap_irq);
+	pr_debug("PWRAP reg: 0x%p,  irq: %d\n", pwrap_base, pwrap_irq);
 #endif
 	mt_wrp = get_mt_pmic_wrap_drv();
 	mt_wrp->store_hal = mt_pwrap_store_hal;
@@ -1856,7 +1856,7 @@ static int __init pwrap_hal_init(void)
 		pr_notice("not init (%d)\n", ret);
 	}
 
-	pr_info("mt_pwrap_init----\n");
+	pr_debug("mt_pwrap_init----\n");
 	return ret;
 }
 

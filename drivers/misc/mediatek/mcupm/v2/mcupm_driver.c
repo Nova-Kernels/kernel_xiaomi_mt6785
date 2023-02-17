@@ -393,7 +393,7 @@ static unsigned int mcupm_log_enable_set(unsigned int enable)
 		}
 
 		log_ctl->enable = enable;
-		pr_info("MCUPM: logger IPI success ret=%d, ackdata = %d\n",
+		pr_debug("MCUPM: logger IPI success ret=%d, ackdata = %d\n",
 			ret, mcupm_plt_ackdata);
 	}
 
@@ -603,7 +603,7 @@ int __init mcupm_plt_init(void)
 		goto error;
 	}
 
-	pr_info("MCUPM: plt IPI success ret=%d, ackdata=%d\n",
+	pr_debug("MCUPM: plt IPI success ret=%d, ackdata=%d\n",
 		ret, mcupm_plt_ackdata);
 
 #if MCUPM_LOGGER_SUPPORT
@@ -680,7 +680,7 @@ static int mcupm_device_probe(struct platform_device *pdev)
 	pr_debug("[MCUPM] mbox probe\n");
 
 	for (i = 0; i < MCUPM_MBOX_TOTAL; i++) {
-		pr_info("[MCUPM]  mbox-%d, probe\n", i);
+		pr_debug("[MCUPM]  mbox-%d, probe\n", i);
 		mcupm_mbox_table[i].mbdev = &mcupm_mboxdev;
 		if (i == 0) {
 			ret = mtk_mbox_probe(pdev, mcupm_mbox_table[i].mbdev,
@@ -725,7 +725,7 @@ static int mcupm_device_probe(struct platform_device *pdev)
 		return -1;
 	}
 
-	pr_info("MCUPM is ready to service IPI\n");
+	pr_debug("MCUPM is ready to service IPI\n");
 
 	return 0;
 }
@@ -747,10 +747,10 @@ int mcupm_thread(void *data)
 			sizeof(struct mcupm_ipi_data_s) / MCUPM_MBOX_SLOT_SIZE,
 			2000);
 		if (ret) {
-			pr_info("MCUPM: alive ret=%d, ackdata=%d\n",
+			pr_debug("MCUPM: alive ret=%d, ackdata=%d\n",
 				ret, mcupm_plt_ackdata);
 		} else {
-			pr_info("MCUPM is %s\n",
+			pr_debug("MCUPM is %s\n",
 				mcupm_plt_ackdata ? "Alive" : "Dead");
 		}
 		msleep(20000);
@@ -846,7 +846,7 @@ static int __init mcupm_module_init(void)
 		pr_debug("[MCUPM] Platform Init Failed\n");
 		return -1;
 	}
-	pr_info("MCUPM platform service is ready\n");
+	pr_debug("MCUPM platform service is ready\n");
 #endif
 
 #ifdef CONFIG_MEDIATEK_EMI

@@ -50,7 +50,7 @@ static int elevator_detect_open_report_data(int open)
 {
 	int ret = 0;
 
-	pr_info("%s : enable=%d\n", __func__, open);
+	pr_debug("%s : enable=%d\n", __func__, open);
 #if defined CONFIG_MTK_SCP_SENSORHUB_V1
 	if (open == 1)
 		ret = sensor_set_delay_to_hub(ID_ELEVATOR_DETECT, 120);
@@ -67,7 +67,7 @@ static int elevator_detect_open_report_data(int open)
 static int elevator_detect_batch(int flag, int64_t samplingPeriodNs,
 		int64_t maxBatchReportLatencyNs)
 {
-	pr_info("%s : flag=%d\n", __func__, flag);
+	pr_debug("%s : flag=%d\n", __func__, flag);
 
 	return sensor_batch_to_hub(ID_ELEVATOR_DETECT, flag, samplingPeriodNs,
 			maxBatchReportLatencyNs);
@@ -137,7 +137,7 @@ static int __init elevator_detect_init(void)
 
 static void __exit elevator_detect_exit(void)
 {
-	pr_info("elevator_detect exit\n");
+	pr_debug("elevator_detect exit\n");
 }
 
 module_init(elevator_detect_init);

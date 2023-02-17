@@ -307,7 +307,7 @@ static void rt_work_func(struct work_struct *work)
 	struct rt_regmap_device *rd =
 		container_of(work, struct rt_regmap_device, rt_work.work);
 
-	pr_info(" %s\n", __func__);
+	pr_debug(" %s\n", __func__);
 	rt_regmap_cache_sync(rd);
 }
 
@@ -409,7 +409,7 @@ finished:
 
 			j += ret;
 		}
-		pr_info("RT_REGMAP [WRITE] reg0x%04x  [Data] 0x%s\n",
+		pr_debug("RT_REGMAP [WRITE] reg0x%04x  [Data] 0x%s\n",
 							reg, wri_data);
 	}
 	return 0;
@@ -486,7 +486,7 @@ finished:
 
 			j += ret;
 		}
-		pr_info("RT_REGMAP [WRITE] reg0x%04x  [Data] 0x%s\n",
+		pr_debug("RT_REGMAP [WRITE] reg0x%04x  [Data] 0x%s\n",
 								reg, wri_data);
 	}
 
@@ -690,7 +690,7 @@ static int rt_cache_block_read(struct rt_regmap_device *rd, u32 reg,
 	}
 
 	if (rd->props.io_log_en)
-		pr_info("RT_REGMAP [READ] reg0x%04x\n", reg);
+		pr_debug("RT_REGMAP [READ] reg0x%04x\n", reg);
 
 	memcpy(dest, data, bytes);
 
@@ -1535,7 +1535,7 @@ static ssize_t general_write(struct file *file, const char __user *ubuf,
 	ssize_t res;
 	unsigned long utemp = 0;
 
-	pr_info("%s @ %p\n", __func__, ubuf);
+	pr_debug("%s @ %p\n", __func__, ubuf);
 
 	res = simple_write_to_buffer(lbuf, sizeof(lbuf) - 1, ppos, ubuf, count);
 	if (res <= 0)
@@ -1549,7 +1549,7 @@ static ssize_t general_write(struct file *file, const char __user *ubuf,
 		rio = find_register_index(rd, param[0]);
 		down(&rd->semaphore);
 		if (rio.index < 0) {
-			pr_info("this is an invalid or hiden register\n");
+			pr_debug("this is an invalid or hiden register\n");
 			rd->dbg_data.reg_addr = param[0];
 			rd->dbg_data.rio.index = -1;
 		} else {
@@ -1859,7 +1859,7 @@ static ssize_t eachreg_write(struct file *file, const char __user *ubuf,
 		return -EINVAL;
 	}
 
-	pr_info("%s @ %p\n", __func__, ubuf);
+	pr_debug("%s @ %p\n", __func__, ubuf);
 
 	res = simple_write_to_buffer(lbuf, sizeof(lbuf) - 1, ppos, ubuf, count);
 	if (res <= 0)
@@ -2032,7 +2032,7 @@ static int rt_regmap_check(struct rt_regmap_device *rd)
 
 	/* check name property */
 	if (!rd->props.name) {
-		pr_info("there is no node name for rt-regmap\n");
+		pr_debug("there is no node name for rt-regmap\n");
 		return -EINVAL;
 	}
 
@@ -2042,7 +2042,7 @@ static int rt_regmap_check(struct rt_regmap_device *rd)
 	for (i = 0; i < num; i++) {
 		/* check byte size, 1 byte ~ 24 bytes is valid */
 		if (rm[i]->size < 1 || rm[i]->size > 24) {
-			pr_info("rt register size error at reg 0x%02x\n",
+			pr_debug("rt register size error at reg 0x%02x\n",
 				rm[i]->addr);
 			return -EINVAL;
 		}
@@ -2051,7 +2051,7 @@ static int rt_regmap_check(struct rt_regmap_device *rd)
 	for (i = 0; i < num - 1; i++) {
 		/* check register sequence */
 		if (rm[i]->addr >= rm[i + 1]->addr) {
-			pr_info("sequence format error at reg 0x%02x\n",
+			pr_debug("sequence format error at reg 0x%02x\n",
 				rm[i]->addr);
 			return -EINVAL;
 		}
@@ -2116,10 +2116,10 @@ struct rt_regmap_device *rt_regmap_device_register_ex
 		return NULL;
 	}
 
-	pr_info("regmap_device_register: name = %s\n", props->name);
+	pr_debug("regmap_device_register: name = %s\n", props->name);
 	rd = devm_kzalloc(parent, sizeof(struct rt_regmap_device), GFP_KERNEL);
 	if (!rd) {
-		pr_info("rt_regmap_device memory allocate fail\n");
+		pr_debug("rt_regmap_device memory allocate fail\n");
 		return NULL;
 	}
 
@@ -2137,14 +2137,14 @@ struct rt_regmap_device *rt_regmap_device_register_ex
 	/* check rt_registe_map format */
 	ret = rt_regmap_check(rd);
 	if (ret) {
-		pr_info("rt register map format error\n");
+		pr_debug("rt register map format error\n");
 		devm_kfree(parent, rd);
 		return NULL;
 	}
 
 	ret = device_register(&rd->dev);
 	if (ret) {
-		pr_info("rt-regmap dev register fail\n");
+		pr_debug("rt-regmap dev register fail\n");
 		devm_kfree(parent, rd);
 		return NULL;
 	}
@@ -2158,7 +2158,7 @@ struct rt_regmap_device *rt_regmap_device_register_ex
 	/* init cache data */
 	ret = rt_regmap_cache_init(rd);
 	if (ret < 0) {
-		pr_info(" rt cache data init fail\n");
+		pr_debug(" rt cache data init fail\n");
 		goto err_cacheinit;
 	}
 
@@ -2227,7 +2227,7 @@ EXPORT_SYMBOL(rt_regmap_device_unregister);
 
 static int __init regmap_plat_init(void)
 {
-	pr_info("Init Richtek RegMap %s\n", RT_REGMAP_VERSION);
+	pr_debug("Init Richtek RegMap %s\n", RT_REGMAP_VERSION);
 #ifdef CONFIG_DEBUG_FS
 	rt_regmap_dir = debugfs_create_dir("rt-regmap", 0);
 	if (IS_ERR(rt_regmap_dir)) {

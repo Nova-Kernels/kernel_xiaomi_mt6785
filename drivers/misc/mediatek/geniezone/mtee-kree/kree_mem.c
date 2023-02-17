@@ -26,8 +26,8 @@
 #define MAX_NUM_OF_PARAM 3
 
 #define KREE_DEBUG(fmt...) pr_debug("[KREE_MEM]" fmt)
-#define KREE_INFO(fmt...) pr_info("[KREE_MEM]" fmt)
-#define KREE_ERR(fmt...) pr_info("[KREE_MEM][ERR]" fmt)
+#define KREE_INFO(fmt...) pr_debug("[KREE_MEM]" fmt)
+#define KREE_ERR(fmt...) pr_debug("[KREE_MEM][ERR]" fmt)
 
 DEFINE_MUTEX(shared_mem_mutex_trusty);
 DEFINE_MUTEX(shared_mem_mutex_nebula);
@@ -458,7 +458,7 @@ static TZ_RESULT kree_register_sharedmem(KREE_SESSION_HANDLE session,
 
 	ret = KREE_SessionToTID(session, &tee_id);
 	if (ret != TZ_RESULT_SUCCESS)
-		pr_info("[%s] err %d, get default tee_id %d\n",
+		pr_debug("[%s] err %d, get default tee_id %d\n",
 			__func__, ret, tee_id);
 
 	/*FIXME: mutex should be removed after re-implement sending procedure */

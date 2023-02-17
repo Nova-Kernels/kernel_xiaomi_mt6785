@@ -49,7 +49,7 @@
 
 /****************************Modify Following Strings for Debug****************************/
 #define PFX "S5KHM2SP"
-#define LOG_INF_NEW(format, args...)    pr_info(PFX "[%s] " format, __func__, ##args)
+#define LOG_INF_NEW(format, args...)    pr_debug(PFX "[%s] " format, __func__, ##args)
 #define LOG_INF LOG_INF_NEW
 #define LOG_1 LOG_INF("S5KHM2SP,MIPI 4LANE\n")
 #define SENSORDB LOG_INF

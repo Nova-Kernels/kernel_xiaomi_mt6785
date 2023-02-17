@@ -129,7 +129,7 @@ void pmic_enable_interrupt(enum PMIC_IRQ_ENUM intNo, unsigned int en, char *str)
 	} else if (en == 0 && pmic_cb->has_requested)
 		disable_irq_nosync(irq);
 	desc = irq_to_desc(irq);
-	pr_info("[%s] intNo=%d, en=%d, depth=%d\n",
+	pr_debug("[%s] intNo=%d, en=%d, depth=%d\n",
 		__func__, intNo, en, desc->depth);
 }
 
@@ -139,10 +139,10 @@ void pmic_register_interrupt_callback(enum PMIC_IRQ_ENUM intNo,
 	struct legacy_pmic_callback *pmic_cb = &pmic_cbs[intNo];
 
 	if (intNo == INT_ENUM_MAX) {
-		pr_info(PMICTAG "[%s] disable intNo=%d\n", __func__, intNo);
+		pr_debug(PMICTAG "[%s] disable intNo=%d\n", __func__, intNo);
 		return;
 	}
-	pr_info("[%s] intNo=%d, callback=%pf\n",
+	pr_debug("[%s] intNo=%d, callback=%pf\n",
 		__func__, intNo, EINT_FUNC_PTR);
 	pmic_cb->callback = EINT_FUNC_PTR;
 }
@@ -216,7 +216,7 @@ static void md_oc_int_handler(enum PMIC_IRQ_ENUM intNo, const char *int_name)
 	pmic_enable_interrupt(intNo, 0, "PMIC");
 	pr_notice(PMICTAG "[PMIC_INT] disable OC interrupt: %s\n"
 		  , int_name);
-	pr_info("[%s]Send msg pass\n", __func__);
+	pr_debug("[%s]Send msg pass\n", __func__);
 }
 
 /* register general oc interrupt handler */

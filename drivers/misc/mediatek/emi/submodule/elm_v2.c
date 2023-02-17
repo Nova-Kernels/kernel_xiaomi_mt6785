@@ -71,7 +71,7 @@ void elm_init(struct platform_driver *emi_ctrl, struct platform_device *pdev)
 	unsigned int mbw_buf_h, mbw_buf_l;
 	phys_addr_t mbw_buf_start;
 
-	pr_info("[ELM] initialize EMI ELMv2\n");
+	pr_debug("[ELM] initialize EMI ELMv2\n");
 
 #if DBG_INFO_READY
 	LAST_EMI_BASE = get_dbg_info_base(0xE31C);
@@ -94,7 +94,7 @@ void elm_init(struct platform_driver *emi_ctrl, struct platform_device *pdev)
 #endif
 		mbw_dram_buf = ioremap_wc(mbw_buf_start, MBW_BUF_LEN);
 		elm_enabled = true;
-		pr_info("[ELM] enable mbw_buf dump\n");
+		pr_debug("[ELM] enable mbw_buf dump\n");
 	}
 
 	emi_mbw_dir = debugfs_create_dir("emi_mbw", NULL);

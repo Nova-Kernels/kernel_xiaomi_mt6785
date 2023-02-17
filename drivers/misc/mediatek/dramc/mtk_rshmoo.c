@@ -121,11 +121,11 @@ void dram_rshmoo_timer_callback(unsigned long data)
 #ifdef CONFIG_MTK_WATCHDOG
 	res = get_wd_api(&wd_api);
 	if (res < 0) {
-		pr_info("arch_reset, get wd api error %d\n", res);
+		pr_debug("arch_reset, get wd api error %d\n", res);
 		while (1)
 			cpu_relax();
 	} else {
-		pr_info("exception reboot\n");
+		pr_debug("exception reboot\n");
 		wd_api->wd_sw_reset(WD_SW_RESET_BYPASS_PWR_KEY);
 	}
 #else
@@ -142,69 +142,69 @@ static int dram_rshmoo_probe(struct platform_device *pdev)
 	ret = of_property_read_u32(pdev->dev.of_node, "rank",
 			&rshmoo_test_rank);
 	if (ret < 0) {
-		pr_info("Fail to find rank information\n");
+		pr_debug("Fail to find rank information\n");
 		return ret;
 	}
 
 	ret = of_property_read_u32(pdev->dev.of_node, "ch", &rshmoo_test_ch);
 	if (ret < 0) {
-		pr_info("Fail to find ch information\n");
+		pr_debug("Fail to find ch information\n");
 		return ret;
 	}
 
 	ret = of_property_read_u32(pdev->dev.of_node, "byte",
 			&rshmoo_test_byte);
 	if (ret < 0) {
-		pr_info("Fail to find byte information\n");
+		pr_debug("Fail to find byte information\n");
 		return ret;
 	}
 
 	ret = of_property_read_u32(pdev->dev.of_node, "txvrange",
 			&rshmoo_test_txvrange);
 	if (ret < 0) {
-		pr_info("Fail to find txvrange information\n");
+		pr_debug("Fail to find txvrange information\n");
 		return ret;
 	}
 
 	ret = of_property_read_u32(pdev->dev.of_node, "txvref",
 			&rshmoo_test_txvref);
 	if (ret < 0) {
-		pr_info("Fail to find txvref information\n");
+		pr_debug("Fail to find txvref information\n");
 		return ret;
 	}
 
 	ret = of_property_read_u32(pdev->dev.of_node, "delay",
 			&rshmoo_test_delay);
 	if (ret < 0) {
-		pr_info("Fail to find delay information\n");
+		pr_debug("Fail to find delay information\n");
 		return ret;
 	}
 
 	ret = of_property_read_u32(pdev->dev.of_node, "ongoing",
 			&rshmoo_test_ongoing);
 	if (ret < 0) {
-		pr_info("Fail to find ongoing information\n");
+		pr_debug("Fail to find ongoing information\n");
 		return ret;
 	}
 
 	ret = of_property_read_u32(pdev->dev.of_node, "done",
 			&rshmoo_test_done);
 	if (ret < 0) {
-		pr_info("Fail to find done information\n");
+		pr_debug("Fail to find done information\n");
 		return ret;
 	}
 
 	ret = driver_create_file(pdev->dev.driver,
 	&driver_attr_rshmoo_test_done);
 	if (ret) {
-		pr_info("fail to create the rshmoo_test_done sysfs files\n");
+		pr_debug("fail to create the rshmoo_test_done sysfs files\n");
 		return ret;
 	}
 
 	ret = driver_create_file(pdev->dev.driver,
 	&driver_attr_rshmoo_test_info);
 	if (ret) {
-		pr_info("fail to create the rshmoo_test_info sysfs files\n");
+		pr_debug("fail to create the rshmoo_test_info sysfs files\n");
 		return ret;
 	}
 
@@ -246,7 +246,7 @@ static int __init dram_rshmoo_init(void)
 
 	ret = platform_driver_register(&dram_rshmoo_drv);
 	if (ret) {
-		pr_info("[DRAMC] init fail, ret 0x%x\n", ret);
+		pr_debug("[DRAMC] init fail, ret 0x%x\n", ret);
 		return ret;
 	}
 

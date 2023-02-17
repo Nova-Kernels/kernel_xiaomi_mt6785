@@ -80,11 +80,11 @@
 #define CINST_TAG	 "[CINST]"
 
 #define cinst_err(fmt, args...)	\
-	pr_info(CINST_TAG"[ERROR][%s():%d]" fmt,\
+	pr_debug(CINST_TAG"[ERROR][%s():%d]" fmt,\
 	__func__, __LINE__, ##args)
 
 #define cinst_msg(fmt, args...)	\
-	pr_info(CINST_TAG"[INFO][%s():%d]" fmt,\
+	pr_debug(CINST_TAG"[INFO][%s():%d]" fmt,\
 	__func__, __LINE__, ##args)
 
 #ifdef CINST_DEBUG

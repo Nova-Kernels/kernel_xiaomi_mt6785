@@ -85,7 +85,7 @@ exit:
 long disp_dts_gpio_select_state(enum DTS_GPIO_STATE s)
 {
 	if (!((unsigned int)(s) < (unsigned int)(DTS_GPIO_STATE_MAX))) {
-		pr_info("GPIO STATE is invalid,state=%d\n", (unsigned int)s);
+		pr_debug("GPIO STATE is invalid,state=%d\n", (unsigned int)s);
 		return -1;
 	}
 	return _set_state(this_state_name[s]);

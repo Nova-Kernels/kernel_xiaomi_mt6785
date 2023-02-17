@@ -417,7 +417,7 @@ static void process_dbg_opt(const char *opt)
 
 		ret = kstrtouint(p, 0, &vfp);
 		if (ret) {
-			pr_info("error to parse cmd %s\n", opt);
+			pr_debug("error to parse cmd %s\n", opt);
 			return;
 		}
 
@@ -542,7 +542,7 @@ static void process_dbg_opt(const char *opt)
 			if (ret != 3) {
 				snprintf(buf, 50, "error to parse cmd %s\n",
 					opt);
-				pr_info("error to parse cmd %s\n", opt);
+				pr_debug("error to parse cmd %s\n", opt);
 				return;
 			}
 
@@ -773,9 +773,9 @@ static void process_dbg_opt(const char *opt)
 		test.count = para_cnt;
 		for (i = 0; i < 15; i++)
 			test.para_list[i] = para[i];
-		pr_info("set_dsi_cmd cmd=0x%x\n", cmd);
+		pr_debug("set_dsi_cmd cmd=0x%x\n", cmd);
 		for (i = 0; i < para_cnt; i++)
-			pr_info("para[%d] = 0x%x\n", i, para[i]);
+			pr_debug("para[%d] = 0x%x\n", i, para[i]);
 		set_lcm(&test, 1, hs);
 
 	} else if (strncmp(opt, "read_customer_cmd:", 18) == 0) {
@@ -791,11 +791,11 @@ static void process_dbg_opt(const char *opt)
 			snprintf(buf, 50, "error to parse cmd %s\n", opt);
 			return;
 		}
-		pr_info(" read_lcm: 0x%x, size= %d %d\n", cmd, size, sendhs);
+		pr_debug(" read_lcm: 0x%x, size= %d %d\n", cmd, size, sendhs);
 		read_lcm(cmd, para, size, sendhs);
 
 		for (i = 0; i < size; i++)
-			pr_info("para[%d] = 0x%x\n", i, para[i]);
+			pr_debug("para[%d] = 0x%x\n", i, para[i]);
 	} else {
 		dbg_buf[0] = '\0';
 		goto Error;

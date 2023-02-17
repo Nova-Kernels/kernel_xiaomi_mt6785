@@ -62,14 +62,14 @@ static int __init mtk_l3c_part_init(void)
 
 	ret = platform_driver_register(&l3c_part_drv);
 	if (ret) {
-		pr_info("%s: init fail, ret 0x%x\n", __func__, ret);
+		pr_debug("%s: init fail, ret 0x%x\n", __func__, ret);
 		return ret;
 	}
 
 	ret = driver_create_file(&l3c_part_drv.driver,
 		&driver_attr_l3c_part_ctrl);
 	if (ret) {
-		pr_info("%s: fail to create l3c_part_ctrl\n", __func__);
+		pr_debug("%s: fail to create l3c_part_ctrl\n", __func__);
 		return ret;
 	}
 

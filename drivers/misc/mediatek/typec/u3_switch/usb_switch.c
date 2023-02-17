@@ -40,7 +40,7 @@
 
 #define usbc_dbg(level, fmt, args...) do { \
 		if (debug_level & level) { \
-			pr_info("[USB_SWITCH]" fmt, ## args); \
+			pr_debug("[USB_SWITCH]" fmt, ## args); \
 		} \
 	} while (0)
 
@@ -381,12 +381,12 @@ static int usb_cc_smt_status(void *data, u64 *val)
 
 	tcpc_dev = tcpc_dev_get_by_name("type_c_port0");
 	if (!tcpc_dev) {
-		pr_info("[TYPEC] get device type_c_port0 fail\n");
+		pr_debug("[TYPEC] get device type_c_port0 fail\n");
 		return 0;
 	}
 
 	tcpm_inquire_remote_cc(tcpc_dev, &cc1, &cc2, false);
-	pr_info("[TYPEC] cc1=%d, cc2=%d\n", cc1, cc2);
+	pr_debug("[TYPEC] cc1=%d, cc2=%d\n", cc1, cc2);
 
 	if (cc1 == TYPEC_CC_VOLT_OPEN || cc1 == TYPEC_CC_DRP_TOGGLING)
 		*val = 0;

@@ -42,9 +42,9 @@
 	do {                                    \
 		thermal_diff_us = thermal_cTime_us - thermal_pTime_us;	\
 		if (thermal_diff_us > THERMAL_TIME_TH) {                \
-			pr_info(TSCPU_LOG_TAG "%s: %llu us\n", __func__, thermal_diff_us); \
+			pr_debug(TSCPU_LOG_TAG "%s: %llu us\n", __func__, thermal_diff_us); \
 		} else if (thermal_diff_us < 0) {	\
-			pr_info(TSCPU_LOG_TAG "Warning: tProfiling uses incorrect %s %d\n", __func__, __LINE__); \
+			pr_debug(TSCPU_LOG_TAG "Warning: tProfiling uses incorrect %s %d\n", __func__, __LINE__); \
 		}	\
 	} while (0)
 
@@ -206,11 +206,11 @@
 #define tscpu_dprintk(fmt, args...)   \
 do {                                    \
 	if (tscpu_debug_log == 1) {                \
-		pr_info(TSCPU_LOG_TAG fmt, ##args); \
+		pr_debug(TSCPU_LOG_TAG fmt, ##args); \
 	}                                   \
 } while (0)
 
-#define tscpu_printk(fmt, args...) pr_info(TSCPU_LOG_TAG fmt, ##args)
+#define tscpu_printk(fmt, args...) pr_debug(TSCPU_LOG_TAG fmt, ##args)
 #define tscpu_warn(fmt, args...)  pr_notice(TSCPU_LOG_TAG fmt, ##args)
 
 /*=============================================================

@@ -35,7 +35,7 @@ static unsigned int gDbgLevel = GPS_LOG_INFO;
 
 #define GPS_INFO_FUNC(fmt, arg...)	\
 do { if (gDbgLevel >= GPS_LOG_INFO)	\
-		pr_info(PFX "[I]%s: "  fmt, __func__, ##arg);	\
+		pr_debug(PFX "[I]%s: "  fmt, __func__, ##arg);	\
 } while (0)
 
 

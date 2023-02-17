@@ -1323,7 +1323,7 @@ static int cmdq_suspend(struct device *dev)
 	}
 
 	if (task_running) {
-		pr_info("exist running task(s) in suspend\n");
+		pr_debug("exist running task(s) in suspend\n");
 		schedule();
 	}
 

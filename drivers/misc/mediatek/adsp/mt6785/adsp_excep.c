@@ -178,7 +178,7 @@ static void adsp_exception_dump(struct adsp_exception_control *ctrl)
 	if (dump_flag) {
 		ret = dump_buffer(ctrl, coredump_id);
 		if (ret < 0)
-			pr_info("%s, excep dump fail ret(%d)", __func__, ret);
+			pr_debug("%s, excep dump fail ret(%d)", __func__, ret);
 	}
 	coredump = adsp_get_reserve_mem_virt(coredump_id);
 	coredump_size = adsp_get_reserve_mem_size(coredump_id);
@@ -197,7 +197,7 @@ static void adsp_exception_dump(struct adsp_exception_control *ctrl)
 		n += snprintf(detail + n, ADSP_AED_STR_LEN - n, "%s",
 			      coredump->assert_log);
 	}
-	pr_info("%s", detail);
+	pr_debug("%s", detail);
 
 	/* adsp aed api, only detail information available*/
 	aed_common_exception_api("adsp", (const int *)coredump, coredump_size,
@@ -241,13 +241,13 @@ void adsp_aed_worker(struct work_struct *ws)
 			break;
 
 		/* reset fail & retry */
-		pr_info("%s, reset retry.... (%d)", __func__, retry);
+		pr_debug("%s, reset retry.... (%d)", __func__, retry);
 		msleep(20);
 	}
 	adsp_disable_clock();
 
 	if (ret) {
-		pr_info("%s, adsp dead, wait dump dead body", __func__);
+		pr_debug("%s, adsp dead, wait dump dead body", __func__);
 		aee_kernel_exception_api(__FILE__,
 					 __LINE__,
 					 DB_OPT_DEFAULT,
@@ -278,7 +278,7 @@ bool adsp_aed_dispatch(enum adsp_excep_id type, void *data)
 static void adsp_wdt_counter_reset(unsigned long data)
 {
 	excep_ctrl.wdt_counter = 0;
-	pr_info("[ADSP] %s\n", __func__);
+	pr_debug("[ADSP] %s\n", __func__);
 }
 
 /*
@@ -307,7 +307,7 @@ void adsp_wdt_handler(int irq, void *data, int cid)
 	struct adsp_priv *pdata = (struct adsp_priv *)data;
 
 	if (!adsp_aed_dispatch(EXCEP_RUNTIME, data))
-		pr_info("%s, already resetting, ignore core%d wdt",
+		pr_debug("%s, already resetting, ignore core%d wdt",
 			__func__, pdata->id);
 }
 

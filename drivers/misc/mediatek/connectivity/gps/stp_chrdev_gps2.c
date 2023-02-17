@@ -71,19 +71,19 @@ do { if (g2DbgLevel >= GPS2_LOG_DBG)	\
 } while (0)
 #define GPS2_INFO_FUNC(fmt, arg...)	\
 do { if (g2DbgLevel >= GPS2_LOG_INFO)	\
-		pr_info(PFX2 "[I]%s: "  fmt, __func__, ##arg);	\
+		pr_debug(PFX2 "[I]%s: "  fmt, __func__, ##arg);	\
 } while (0)
 #define GPS2_WARN_FUNC(fmt, arg...)	\
 do { if (g2DbgLevel >= GPS2_LOG_WARN)	\
-		pr_info(PFX2 "[W]%s: "  fmt, __func__, ##arg);	\
+		pr_debug(PFX2 "[W]%s: "  fmt, __func__, ##arg);	\
 } while (0)
 #define GPS2_ERR_FUNC(fmt, arg...)	\
 do { if (g2DbgLevel >= GPS2_LOG_ERR)	\
-		pr_info(PFX2 "[E]%s: "  fmt, __func__, ##arg);	\
+		pr_debug(PFX2 "[E]%s: "  fmt, __func__, ##arg);	\
 } while (0)
 #define GPS2_TRC_FUNC(f)	\
 do { if (g2DbgLevel >= GPS2_LOG_DBG)	\
-		pr_info(PFX2 "<%s> <%d>\n", __func__, __LINE__);	\
+		pr_debug(PFX2 "<%s> <%d>\n", __func__, __LINE__);	\
 } while (0)
 
 struct wakeup_source gps2_wake_lock;
@@ -201,7 +201,7 @@ ssize_t GPS2_write(struct file *filp, const char __user *buf, size_t count, loff
 
 	/* GPS2_TRC_FUNC(); */
 
-	/*pr_info("%s: count %d pos %lld\n", __func__, count, *f_pos); */
+	/*pr_debug("%s: count %d pos %lld\n", __func__, count, *f_pos); */
 	if (count > 0) {
 		int copy_size = (count < STP_GPS_BUFFER_SIZE2) ? count : STP_GPS_BUFFER_SIZE2;
 
@@ -209,7 +209,7 @@ ssize_t GPS2_write(struct file *filp, const char __user *buf, size_t count, loff
 			retval = -EFAULT;
 			goto out;
 		}
-		/* pr_info("%02x ", val); */
+		/* pr_debug("%02x ", val); */
 #if GPS2_DEBUG_TRACE_GPIO
 		mtk_wcn_stp_debug_gpio_assert(IDX_GPS_TX, DBG_TIE_LOW);
 #endif
@@ -223,13 +223,13 @@ ssize_t GPS2_write(struct file *filp, const char __user *buf, size_t count, loff
 			unsigned char *buf_ptr = &o_buf2[0];
 			int k = 0;
 
-			pr_info("--[GPS2-WRITE]--");
+			pr_debug("--[GPS2-WRITE]--");
 			for (k = 0; k < 10; k++) {
 				if (k % 16 == 0)
-					pr_info("\n");
-				pr_info("0x%02x ", o_buf2[k]);
+					pr_debug("\n");
+				pr_debug("0x%02x ", o_buf2[k]);
 			}
-			pr_info("\n");
+			pr_debug("\n");
 		}
 #endif
 		if (written == 0) {
@@ -315,13 +315,13 @@ ssize_t GPS2_read(struct file *filp, char __user *buf, size_t count, loff_t *f_p
 		unsigned char *buf_ptr = &i_buf2[0];
 		int k = 0;
 
-		pr_info("--[GPS2-READ]--");
+		pr_debug("--[GPS2-READ]--");
 		for (k = 0; k < 10; k++) {
 			if (k % 16 == 0)
-				pr_info("\n");
-			pr_info("0x%02x ", i_buf2[k]);
+				pr_debug("\n");
+			pr_debug("0x%02x ", i_buf2[k]);
 		}
-		pr_info("--\n");
+		pr_debug("--\n");
 	}
 #endif
 
@@ -340,7 +340,7 @@ ssize_t GPS2_read(struct file *filp, char __user *buf, size_t count, loff_t *f_p
 
 OUT:
 	up(&rd_mtx2);
-/*    pr_info("GPS2_read(): retval = %d\n", retval);*/
+/*    pr_debug("GPS2_read(): retval = %d\n", retval);*/
 	return retval;
 }
 
@@ -501,7 +501,7 @@ long GPS2_unlocked_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	UINT32 fw_version = 0;
 	UINT32 gps_lna_pin = 0;
 
-	pr_info("GPS2_ioctl(): cmd (%d)\n", cmd);
+	pr_debug("GPS2_ioctl(): cmd (%d)\n", cmd);
 
 	switch (cmd) {
 	case 0:		/* enable/disable STP */
@@ -666,9 +666,9 @@ long GPS2_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	long ret;
 
-	pr_info("%s: cmd (%d)\n", __func__, cmd);
+	pr_debug("%s: cmd (%d)\n", __func__, cmd);
 	ret = GPS2_unlocked_ioctl(filp, cmd, arg);
-	pr_info("%s: cmd (%d)\n", __func__, cmd);
+	pr_debug("%s: cmd (%d)\n", __func__, cmd);
 	return ret;
 }
 
@@ -723,7 +723,7 @@ static void gps2_cdev_rst_cb(ENUM_WMTDRV_TYPE_T src,
 
 static int GPS2_open(struct inode *inode, struct file *file)
 {
-	pr_info("%s: major %d minor %d (pid %d)\n", __func__, imajor(inode), iminor(inode), current->pid);
+	pr_debug("%s: major %d minor %d (pid %d)\n", __func__, imajor(inode), iminor(inode), current->pid);
 	if (current->pid == 1)
 		return 0;
 	if (rstflag2 == 1) {
@@ -788,7 +788,7 @@ static int GPS2_close(struct inode *inode, struct file *file)
 {
 	int ret = 0;
 
-	pr_info("%s: major %d minor %d (pid %d)\n", __func__, imajor(inode), iminor(inode), current->pid);
+	pr_debug("%s: major %d minor %d (pid %d)\n", __func__, imajor(inode), iminor(inode), current->pid);
 	if (current->pid == 1)
 		return 0;
 

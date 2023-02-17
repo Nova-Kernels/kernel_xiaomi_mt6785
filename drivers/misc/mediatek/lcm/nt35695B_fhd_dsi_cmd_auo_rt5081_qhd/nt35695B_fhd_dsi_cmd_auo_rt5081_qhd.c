@@ -1631,7 +1631,7 @@ static void lcm_validate_roi(int *x, int *y, int *width, int *height)
 	/* check height again */
 	if (y1 >= FRAME_HEIGHT || y1 + h > FRAME_HEIGHT) {
 		/* assign full screen roi */
-		pr_info("%s calc error,assign full roi:y=%d,h=%d\n",
+		pr_debug("%s calc error,assign full roi:y=%d,h=%d\n",
 			__func__, *y, *height);
 		y1 = 0;
 		h = FRAME_HEIGHT;

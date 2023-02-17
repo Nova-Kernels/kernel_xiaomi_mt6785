@@ -1699,7 +1699,7 @@ int __pseudo_alloc_mva(struct m4u_client_t *client,
 	for_each_sg(table->sgl, s_dbg, table->nents, i) {
 		if (i > 0 && sg_dma_len(s_dbg) != 0) {
 			flag = 1;
-			pr_info("hc3 %s warning before, sz:0x%lx, i:%d--%u, dma_addr:0x%pa, 0x%lx+0x%lx, pa:0x%lx\n",
+			pr_debug("hc3 %s warning before, sz:0x%lx, i:%d--%u, dma_addr:0x%pa, 0x%lx+0x%lx, pa:0x%lx\n",
 				__func__, size, i, table->nents, &dma_addr_dbg,
 				(unsigned long)sg_dma_address(s_dbg),
 				(unsigned long)sg_dma_len(s_dbg),
@@ -1712,7 +1712,7 @@ int __pseudo_alloc_mva(struct m4u_client_t *client,
 
 	ts_end_dbg = sched_clock();
 	if (ts_end_dbg - ts_start_dbg > 1000000) //1ms
-		pr_info("hc3 %s before check sg_table time:%llu, nents:%u\n",
+		pr_debug("hc3 %s before check sg_table time:%llu, nents:%u\n",
 			__func__, (ts_end_dbg - ts_start_dbg), table->nents);
 }
 
@@ -1782,7 +1782,7 @@ int __pseudo_alloc_mva(struct m4u_client_t *client,
 	for_each_sg(sg_table->sgl, s1, sg_table->nents, i) {
 		if (sg_dma_address(s1) != expected1) {
 			flag = 1;
-			pr_info("hc3 %s after warn, sz:0x%lx, i:%d--%u, dma_addr:0x%pa--0x%pa, 0x%lx+0x%lx, pa:0x%lx(0x%lx), 0x%p--0x%p\n",
+			pr_debug("hc3 %s after warn, sz:0x%lx, i:%d--%u, dma_addr:0x%pa--0x%pa, 0x%lx+0x%lx, pa:0x%lx(0x%lx), 0x%p--0x%p\n",
 			       __func__, size, i, sg_table->nents,
 			       &dma_addr, &expected1,
 			       (unsigned long)sg_dma_address(s1),
@@ -1798,7 +1798,7 @@ int __pseudo_alloc_mva(struct m4u_client_t *client,
 
 	ts_end1 = sched_clock();
 	if (ts_end1 - ts_start1 > 1000000) //1ms
-		pr_info("hc3 %s check after sg_table time:%llu, nents:%u\n",
+		pr_debug("hc3 %s check after sg_table time:%llu, nents:%u\n",
 			__func__, (ts_end1 - ts_start1), sg_table->nents);
 }
 

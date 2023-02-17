@@ -34,7 +34,7 @@ int pmic_get_auxadc_value(u8 list)
 		value = mt_get_auxadc_value(list);
 		return value;
 	}
-	pr_info("%s Invalid AUXADC LIST\n", __func__);
+	pr_debug("%s Invalid AUXADC LIST\n", __func__);
 	return -EINVAL;
 }
 
@@ -198,7 +198,7 @@ static int mtk_auxadc_intf_probe(struct platform_device *pdev)
 {
 	int ret;
 
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 
 	platform_set_drvdata(pdev, auxadc_intf);
 	ret = create_sysfs_interface(&pdev->dev);

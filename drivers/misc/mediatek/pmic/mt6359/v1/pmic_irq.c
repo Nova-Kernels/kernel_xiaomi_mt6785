@@ -139,10 +139,10 @@ void pmic_register_interrupt_callback(enum PMIC_IRQ_ENUM intNo,
 	struct legacy_pmic_callback *pmic_cb = &pmic_cbs[intNo];
 
 	if (intNo == INT_ENUM_MAX) {
-		pr_info(PMICTAG "[%s] disable intNo=%d\n", __func__, intNo);
+		pr_debug(PMICTAG "[%s] disable intNo=%d\n", __func__, intNo);
 		return;
 	}
-	pr_info("[%s] intNo=%d, callback=%pf\n",
+	pr_debug("[%s] intNo=%d, callback=%pf\n",
 		__func__, intNo, EINT_FUNC_PTR);
 	pmic_cb->callback = EINT_FUNC_PTR;
 }
@@ -291,7 +291,7 @@ static void md_oc_int_handler(enum PMIC_IRQ_ENUM intNo, const char *int_name)
 	if (ret)
 		pr_notice("[%s] - exec_ccci_kern_func_by_md_id - msg fail\n"
 			  , __func__);
-	pr_info("[%s]Send msg pass\n", __func__);
+	pr_debug("[%s]Send msg pass\n", __func__);
 }
 
 /* register general oc interrupt handler */
@@ -353,7 +353,7 @@ static void vio18_oc_int_handler(void)
 	int len = 0;
 	char oc_str[30] = "";
 #endif
-	pr_info("[%s]\n", __func__);
+	pr_debug("[%s]\n", __func__);
 
 	pr_notice("VIO18_PG_DEB=%d,RGS_VIO18_PG_STATUS=%d\n",
 		pmic_get_register_value(PMIC_VIO18_PG_DEB),

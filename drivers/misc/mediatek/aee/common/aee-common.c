@@ -85,7 +85,7 @@ EXPORT_SYMBOL(aee_register_api);
 void aee_disable_api(void)
 {
 	if (g_aee_api) {
-		pr_info("disable aee kernel api");
+		pr_debug("disable aee kernel api");
 		g_aee_api = NULL;
 	}
 }

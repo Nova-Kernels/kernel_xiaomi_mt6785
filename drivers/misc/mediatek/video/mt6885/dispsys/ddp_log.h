@@ -93,7 +93,7 @@
 	do {						\
 		if (expr)				\
 			break;				\
-		pr_info("DDP ASSERT FAILED %s, %d\n", __FILE__, __LINE__); \
+		pr_debug("DDP ASSERT FAILED %s, %d\n", __FILE__, __LINE__); \
 		WARN_ON(1);\
 	} while (0)
 #endif
@@ -106,14 +106,14 @@
 		aee_kernel_warning_api(__FILE__, __LINE__,		\
 			DB_OPT_DEFAULT | DB_OPT_MMPROFILE_BUFFER, str, \
 			string, ##args);	\
-		pr_info("[DDP Error]"string, ##args);			\
+		pr_debug("[DDP Error]"string, ##args);			\
 	} while (0)
 #else
 #define DDPAEE(string, args...)						\
 	do {								\
 		char str[200];						\
 		snprintf(str, 199, "DDP:"string, ##args);		\
-		pr_info("[DDP Error]"string, ##args);			\
+		pr_debug("[DDP Error]"string, ##args);			\
 	} while (0)
 #endif
 

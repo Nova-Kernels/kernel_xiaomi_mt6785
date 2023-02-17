@@ -119,7 +119,7 @@ int mtee_set_mchunks_region(u64 pa, u32 size, int remote_region_type)
 #if TEE_NOTIFY_MTEE_CHUNK_REGION_INFO_SUPPORT
 	return mtee_directly_invoke_cmd(&cmd_params);
 #else
-	pr_info("TEE notify reg mem to MTEE is not supported, mchunk=%d\n",
+	pr_debug("TEE notify reg mem to MTEE is not supported, mchunk=%d\n",
 		(u32)cmd_params.param2);
 	return TMEM_OK;
 #endif

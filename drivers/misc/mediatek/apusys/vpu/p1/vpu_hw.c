@@ -112,7 +112,7 @@ static int vpu_xos_lock(struct vpu_device *vd)
 		t = VPU_TS_US(xos);
 
 		if (t >= XOS_TIMEOUT_US) {
-			pr_info("%s: vpu%d: xos lock timeout: %lld us\n",
+			pr_debug("%s: vpu%d: xos lock timeout: %lld us\n",
 				__func__, vd->id, t);
 			break;
 		}
@@ -196,7 +196,7 @@ int vpu_reg_lock(struct vpu_device *vd, bool boot, unsigned long *flags)
 				vd->id);
 		}
 	} else if (ret == -EAGAIN) {
-		pr_info("%s: vpu%d: failed caused by other thread\n",
+		pr_debug("%s: vpu%d: failed caused by other thread\n",
 			__func__, vd->id);
 	}
 
@@ -227,7 +227,7 @@ static int wait_idle(struct vpu_device *vd, uint32_t latency, uint32_t retry)
 			vpu_reg_read(vd, DEBUG_INFO05));
 	} while (count < retry);
 
-	pr_info("%s: vpu%d: %d us: done_st: 0x%x, pwaitmode: %d, info00: 0x%x, info25: 0x%x\n",
+	pr_debug("%s: vpu%d: %d us: done_st: 0x%x, pwaitmode: %d, info00: 0x%x, info25: 0x%x\n",
 		__func__, vd->id, (latency * retry), done_st, pwait,
 		vpu_reg_read(vd, XTENSA_INFO00),
 		vpu_reg_read(vd, XTENSA_INFO25));
@@ -248,11 +248,11 @@ start:
 		msecs_to_jiffies(vd->cmd_timeout));
 
 	if (ret == -ERESTARTSYS) {
-		pr_info("%s: vpu%d: interrupt by signal: ret=%d\n",
+		pr_debug("%s: vpu%d: interrupt by signal: ret=%d\n",
 			__func__, vd->id, ret);
 
 		if (retry) {
-			pr_info("%s: vpu%d: try wait again\n",
+			pr_debug("%s: vpu%d: try wait again\n",
 				__func__, vd->id);
 			retry = false;
 			goto start;
@@ -347,19 +347,19 @@ static int preload_iova_check(struct vpu_iova *i)
 #define is_align_4k(x)   ((x & 0xFFF))
 #define is_align_64k(x)  ((x & 0xFFFF))
 	if (is_align_64k(i->size) && i->addr) {
-		pr_info("%s: size(0x%x) not 64k aligned\n", __func__, i->size);
+		pr_debug("%s: size(0x%x) not 64k aligned\n", __func__, i->size);
 		return -EINVAL;
 	}
 
 	if (is_align_4k(i->addr) ||
 	    is_align_4k(i->size) ||
 	    is_align_4k(i->bin)) {
-		pr_info("%s: addr/size not 4k aligned\n", __func__);
+		pr_debug("%s: addr/size not 4k aligned\n", __func__);
 		return -EINVAL;
 	}
 
 	if ((i->bin + i->size) > bin_end) {
-		pr_info("%s: wrong size\n", __func__);
+		pr_debug("%s: wrong size\n", __func__);
 		return -EINVAL;
 	}
 #undef is_align_4k
@@ -384,7 +384,7 @@ dma_addr_t preload_iova_alloc(struct platform_device *pdev,
 	mva = vpu_iova_alloc(pdev, vi);
 
 	if (!mva)
-		pr_info("%s: vpu%d: iova allcation failed\n", __func__, vd->id);
+		pr_debug("%s: vpu%d: iova allcation failed\n", __func__, vd->id);
 
 	vpu_drv_debug(
 		"%s: vpu%d: addr:0x%X, size: 0x%X, bin: 0x%X, mva: 0x%lx\n",
@@ -444,7 +444,7 @@ static uint32_t vpu_init_dev_algo_preload_entry(
 		alg->a.entry_off = info->pAddr & 0xFFFF;
 	} else {
 		vi = &dummy_iova;
-		pr_info("%s: vpu%d: unexpected segment: flags: %x\n",
+		pr_debug("%s: vpu%d: unexpected segment: flags: %x\n",
 			__func__, vd->id, info->flag);
 	}
 
@@ -786,7 +786,7 @@ int vpu_dev_boot(struct vpu_device *vd)
 	int ret = 0;
 
 	if (vd->state <= VS_DOWN) {
-		pr_info("%s: unexpected state: %d\n", __func__, vd->state);
+		pr_debug("%s: unexpected state: %d\n", __func__, vd->state);
 		ret = -ENODEV;
 		goto err;
 	}
@@ -802,21 +802,21 @@ int vpu_dev_boot(struct vpu_device *vd)
 	/* VPU boot up sequence */
 	ret = vpu_dev_boot_sequence(vd);
 	if (ret) {
-		pr_info("%s: vpu_dev_boot_sequence: %d\n", __func__, ret);
+		pr_debug("%s: vpu_dev_boot_sequence: %d\n", __func__, ret);
 		goto err;
 	}
 
 	/* VPU set debug log  */
 	ret = vpu_dev_set_debug(vd);
 	if (ret) {
-		pr_info("%s: vpu_dev_set_debug: %d\n", __func__, ret);
+		pr_debug("%s: vpu_dev_set_debug: %d\n", __func__, ret);
 		goto err;
 	}
 
 	/* MET: ftrace setup */
 	ret = vpu_set_ftrace(vd);
 	if (ret) {
-		pr_info("%s: vpu_met_set_ftrace: %d\n", __func__, ret);
+		pr_debug("%s: vpu_met_set_ftrace: %d\n", __func__, ret);
 		goto err;
 	}
 
@@ -886,7 +886,7 @@ retry:
 	}
 
 	if (ret) {
-		pr_info("%s: vpu%d: \"%s\" was not found\n",
+		pr_debug("%s: vpu%d: \"%s\" was not found\n",
 			__func__, al->vd->id, req->algo);
 		goto err_alg;
 	}
@@ -962,7 +962,7 @@ int vpu_init_dev_hw(struct platform_device *pdev, struct vpu_device *vd)
 		vd->name, vd);
 
 	if (ret) {
-		pr_info("%s: %s: fail to request irq: %d\n",
+		pr_debug("%s: %s: fail to request irq: %d\n",
 			__func__, vd->name, ret);
 		goto out;
 	}
@@ -972,7 +972,7 @@ int vpu_init_dev_hw(struct platform_device *pdev, struct vpu_device *vd)
 	vpu_xos_unlock(vd);
 	ret = vpu_cmd_init(pdev, vd);
 	if (ret) {
-		pr_info("%s: %s: fail to init commands: %d\n",
+		pr_debug("%s: %s: fail to init commands: %d\n",
 			__func__, vd->name, ret);
 		goto out;
 	}
@@ -1041,7 +1041,7 @@ int vpu_dev_boot_sequence(struct vpu_device *vd)
 
 	vpu_run(vd, 0, 0);
 
-	pr_info("%s: vpu%d: ALTRESETVEC: 0x%x\n", __func__,
+	pr_debug("%s: vpu%d: ALTRESETVEC: 0x%x\n", __func__,
 		vd->id, vpu_reg_read(vd, XTENSA_ALTRESETVEC));
 
 	ret = wait_command(vd, 0);
@@ -1120,7 +1120,7 @@ int vpu_dev_set_debug(struct vpu_device *vd)
 	device_version = vpu_reg_read(vd, XTENSA_INFO20);
 
 	if ((int)device_version < (int)HOST_VERSION) {
-		pr_info("%s: vpu%d: incompatible ftrace version: vd: %x, host: %x\n",
+		pr_debug("%s: vpu%d: incompatible ftrace version: vd: %x, host: %x\n",
 			__func__, vd->id,
 			vpu_reg_read(vd, XTENSA_INFO20),
 			vpu_reg_read(vd, XTENSA_INFO29));
@@ -1144,7 +1144,7 @@ out:
 	trace_vpu_cmd(vd->id, 0, "", VPU_CMD_SET_DEBUG,
 		atomic_read(&vd->pw_boost), start_t, ret, 0, 0);
 	if (ret)
-		pr_info("%s: vpu%d: fail to set debug: %d\n",
+		pr_debug("%s: vpu%d: fail to set debug: %d\n",
 			__func__, vd->id, ret);
 
 	return ret;
@@ -1236,7 +1236,7 @@ out:
 	trace_vpu_cmd(vd->id, 0, "", VPU_CMD_SET_FTRACE_LOG,
 		atomic_read(&vd->pw_boost), start_t, ret, 0, 0);
 	if (ret)
-		pr_info("%s: vpu%d: fail to set ftrace: %d\n",
+		pr_debug("%s: vpu%d: fail to set ftrace: %d\n",
 			__func__, vd->id, ret);
 
 	return ret;

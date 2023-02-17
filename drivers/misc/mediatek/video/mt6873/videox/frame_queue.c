@@ -235,9 +235,9 @@ struct frame_queue_head_t *get_frame_queue_head(int session_id)
 		session_id);
 
 	for (i = 0; i < ARRAY_SIZE(frame_q_head); i++)
-		pr_info("0x%x,", frame_q_head[i].session_id);
+		pr_debug("0x%x,", frame_q_head[i].session_id);
 
-	pr_info("\n");
+	pr_debug("\n");
 
 out:
 	mutex_unlock(&frame_q_head_lock);

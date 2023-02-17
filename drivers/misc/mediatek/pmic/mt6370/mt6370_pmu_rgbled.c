@@ -2156,7 +2156,7 @@ static int mt6370_pmu_rgbled_probe(struct platform_device *pdev)
 	bool use_dt = pdev->dev.of_node, new = false;
 	int i = 0, ret = 0;
 
-	pr_info("%s: (%s)\n", __func__, MT6370_PMU_RGBLED_DRV_VERSION);
+	pr_debug("%s: (%s)\n", __func__, MT6370_PMU_RGBLED_DRV_VERSION);
 
 	rgbled_data = devm_kzalloc(&pdev->dev,
 				   sizeof(*rgbled_data), GFP_KERNEL);

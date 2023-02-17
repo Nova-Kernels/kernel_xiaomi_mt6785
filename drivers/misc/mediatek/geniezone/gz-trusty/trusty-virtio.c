@@ -606,7 +606,7 @@ static int trusty_set_tee_name(struct trusty_ctx *tctx,
 
 	of_property_read_string(node, "tee-name", (const char **)&str);
 	strncpy(cfg->dev_name.tee_name, str, MAX_MINOR_NAME_LEN - 1);
-	pr_info("[%s] set tee_name: %s\n", __func__, cfg->dev_name.tee_name);
+	pr_debug("[%s] set tee_name: %s\n", __func__, cfg->dev_name.tee_name);
 
 	return 0;
 }
@@ -698,7 +698,7 @@ static int trusty_parse_device_descr(struct trusty_ctx *tctx,
 	return 0;
 
 err_wrong_tee_id:
-	pr_info("Raise a panic, cannot resume.");
+	pr_debug("Raise a panic, cannot resume.");
 	return 0;
 }
 
@@ -822,7 +822,7 @@ static int trusty_task_kick(void *data)
 	if (task_idx > TRUSTY_TASK_KICK_NUM)
 		return -EINVAL;
 	complete(&tctx->task_info[TRUSTY_TASK_KICK_ID].rdy[task_idx-1]);
-	pr_info("tee%d/%s_%d ->\n", tctx->tee_id, __func__, task_idx);
+	pr_debug("tee%d/%s_%d ->\n", tctx->tee_id, __func__, task_idx);
 
 	while (!kthread_should_stop()) {
 		wait_for_completion_interruptible_timeout(
@@ -833,7 +833,7 @@ static int trusty_task_kick(void *data)
 		} else
 			timeout = msecs_to_jiffies(1000);
 	}
-	pr_info("tee%d/%s_%d -<\n", tctx->tee_id, __func__, task_idx);
+	pr_debug("tee%d/%s_%d -<\n", tctx->tee_id, __func__, task_idx);
 	return 2;
 }
 
@@ -851,7 +851,7 @@ static int trusty_task_chk(void *data)
 	if (task_idx > TRUSTY_TASK_CHK_NUM)
 		return -EINVAL;
 	complete(&tctx->task_info[TRUSTY_TASK_CHK_ID].rdy[task_idx-1]);
-	pr_info("tee%d/%s_%d ->\n", tctx->tee_id, __func__, task_idx);
+	pr_debug("tee%d/%s_%d ->\n", tctx->tee_id, __func__, task_idx);
 
 	while (!kthread_should_stop()) {
 		wait_for_completion_interruptible_timeout(
@@ -861,7 +861,7 @@ static int trusty_task_chk(void *data)
 		else
 			timeout = msecs_to_jiffies(1000);
 	}
-	pr_info("tee%d/%s_%d -<\n", tctx->tee_id, __func__, task_idx);
+	pr_debug("tee%d/%s_%d -<\n", tctx->tee_id, __func__, task_idx);
 	return 2;
 }
 
@@ -1153,7 +1153,7 @@ static int __init trusty_virtio_init(void)
 
 err_nebula_virtio_driver:
 err_trusty_virtio_driver:
-	pr_info("Platform driver register failed");
+	pr_debug("Platform driver register failed");
 	return -ENODEV;
 }
 

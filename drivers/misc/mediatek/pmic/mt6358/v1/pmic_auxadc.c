@@ -189,19 +189,19 @@ int wk_vbat_cali(int vbat_out, int precision_factor)
 	else
 		T_curr = mV_diff * 10000 / (signed int)(1681 - g_O_SLOPE * 10);
 	T_curr = (g_DEGC * 10 / 2) - T_curr;
-	/*pr_info("%d\n", T_curr);*/
+	/*pr_debug("%d\n", T_curr);*/
 
 	if (precision_factor > 1)
 		vbat_out *= precision_factor;
 	vbat_out_old = vbat_out;
 	if (g_AUXCALI_EN == 1) {
 		vbat_out = wk_aux_cali(T_curr, vbat_out);
-		/*pr_info("vbat_out_auxcali = %d\n", vbat_out);*/
+		/*pr_debug("vbat_out_auxcali = %d\n", vbat_out);*/
 	}
 
 	if (g_BGRCALI_EN == 1) {
 		vbat_out = wk_bgr_cali(T_curr, vbat_out);
-		/*pr_info("vbat_out_bgrcali = %d\n", vbat_out);*/
+		/*pr_debug("vbat_out_bgrcali = %d\n", vbat_out);*/
 	}
 
 	if (abs(vbat_out - vbat_out_old) > 1000) {
@@ -217,7 +217,7 @@ int wk_vbat_cali(int vbat_out, int precision_factor)
 		aee_kernel_warning("PMIC AUXADC CALI", "VBAT CALI");
 #endif
 	} else
-		pr_info("vbat_out_old=%d, vthr=%d, T_curr=%d, vbat_out=%d\n",
+		pr_debug("vbat_out_old=%d, vthr=%d, T_curr=%d, vbat_out=%d\n",
 			vbat_out_old, vthr, T_curr, vbat_out);
 
 	if (precision_factor > 1)
@@ -266,7 +266,7 @@ static void auxadc_cali_init(void)
 	g_TEMP_L_CALI = (efuse >> 10) & 0x7;
 	g_TEMP_H_CALI = (efuse >> 13) & 0x7;
 
-	pr_info("%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
+	pr_debug("%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n",
 		g_DEGC, g_O_VTS, g_O_SLOPE_SIGN, g_O_SLOPE,
 		g_CALI_FROM_EFUSE_EN, g_SIGN_AUX, g_SIGN_BGRL, g_SIGN_BGRH,
 		g_AUXCALI_EN, g_BGRCALI_EN,
@@ -779,7 +779,7 @@ int pmic_auxadc_chip_init(struct device *dev)
 						 &g_pmic_pad_vbif28_vol);
 		iio_channel_release(chan_vbif);
 	}
-	pr_info("****[%s] VBIF28 = %d, MDRT_ADC = 0x%x\n",
+	pr_debug("****[%s] VBIF28 = %d, MDRT_ADC = 0x%x\n",
 		__func__, pmic_get_vbif28_volt(), mdrt_adc);
 
 	return ret;

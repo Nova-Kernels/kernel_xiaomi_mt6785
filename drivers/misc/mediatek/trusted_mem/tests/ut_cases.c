@@ -79,7 +79,7 @@ static enum UT_RET_STATE tmem_basic_test(struct ut_params *params,
 	enum TRUSTED_MEM_TYPE mem_type = params->param1;
 	int reg_final_state = params->param2;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -94,7 +94,7 @@ static enum UT_RET_STATE tmem_alloc_simple_test(struct ut_params *params,
 	int reg_final_state = params->param2;
 	int un_order_size_cfg = params->param3;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -110,7 +110,7 @@ static enum UT_RET_STATE tmem_alloc_alignment_test(struct ut_params *params,
 	enum TRUSTED_MEM_TYPE mem_type = params->param1;
 	int reg_final_state = params->param2;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -127,7 +127,7 @@ static enum UT_RET_STATE tmem_alloc_saturation_test(struct ut_params *params,
 	int reg_final_state = params->param2;
 	int round = params->param3;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -150,7 +150,7 @@ tmem_regmgr_region_defer_off_test(struct ut_params *params, char *test_desc)
 	enum TRUSTED_MEM_TYPE mem_type = params->param1;
 	int reg_final_state = params->param2;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -166,7 +166,7 @@ tmem_regmgr_region_online_count_test(struct ut_params *params, char *test_desc)
 	enum TRUSTED_MEM_TYPE mem_type = params->param1;
 	int reg_final_state = params->param2;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -183,7 +183,7 @@ tmem_region_on_off_stress_test(struct ut_params *params, char *test_desc)
 	int reg_final_state = params->param2;
 	int round = params->param3;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -201,7 +201,7 @@ static enum UT_RET_STATE tmem_alloc_multithread_test(struct ut_params *params,
 
 	UNUSED(reg_final_state);
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -224,7 +224,7 @@ static enum UT_RET_STATE tmem_alloc_mixed_size(struct ut_params *params,
 
 	UNUSED(reg_final_state);
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -249,7 +249,7 @@ static enum UT_RET_STATE tmem_regmgr_run_all(struct ut_params *params,
 	enum TRUSTED_MEM_TYPE mem_type = params->param1;
 	int region_final_state = params->param2;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -312,7 +312,7 @@ static enum UT_RET_STATE mld_check_test(struct ut_params *params,
 
 	UNUSED(test_desc);
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -347,7 +347,7 @@ static enum UT_RET_STATE profile_dump_all(struct ut_params *params,
 	int mem_idx;
 	struct trusted_mem_device *mem_device;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -376,7 +376,7 @@ static enum UT_RET_STATE config_tee_prot_region_test(struct ut_params *params,
 {
 	int ret;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -425,7 +425,7 @@ static enum UT_RET_STATE config_tee_prot_region_test(struct ut_params *params,
 static enum UT_RET_STATE multiple_ssmr_region_request(struct ut_params *params,
 						      char *test_desc)
 {
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -473,7 +473,7 @@ static enum UT_RET_STATE multiple_ssmr_region_request(struct ut_params *params,
 static enum UT_RET_STATE
 multiple_region_multiple_thread_alloc(struct ut_params *params, char *test_desc)
 {
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -486,7 +486,7 @@ multiple_region_multiple_thread_alloc(struct ut_params *params, char *test_desc)
 static enum UT_RET_STATE
 mtee_mchunks_multiple_thread_alloc(struct ut_params *params, char *test_desc)
 {
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	if (ut_is_halt())
 		return UT_STATE_FAIL;
 
@@ -776,7 +776,7 @@ static int __init tmem_ut_cases_init(void)
 {
 	int idx;
 
-	pr_info("%s:%d\n", __func__, __LINE__);
+	pr_debug("%s:%d\n", __func__, __LINE__);
 	UNUSED(tmem_region_on_off_stress_test);
 	UNUSED(tmem_regmgr_run_all);
 
@@ -787,7 +787,7 @@ static int __init tmem_ut_cases_init(void)
 			test_cases[idx].param3, test_cases[idx].func);
 	}
 
-	pr_info("%s:%d (end)\n", __func__, __LINE__);
+	pr_debug("%s:%d (end)\n", __func__, __LINE__);
 	return TMEM_OK;
 }
 

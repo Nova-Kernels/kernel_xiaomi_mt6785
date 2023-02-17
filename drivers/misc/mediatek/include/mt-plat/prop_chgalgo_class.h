@@ -30,7 +30,7 @@
 #define PCA_INFO(fmt, ...) \
 	do { \
 		if (PCA_INFO_EN) \
-			pr_info("[PCA]%s " fmt, __func__, ##__VA_ARGS__); \
+			pr_debug("[PCA]%s " fmt, __func__, ##__VA_ARGS__); \
 	} while (0)
 
 #define PCA_ERR(fmt, ...) \

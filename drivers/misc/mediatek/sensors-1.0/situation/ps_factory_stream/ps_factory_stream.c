@@ -72,7 +72,7 @@ static int ps_strm_open_report_data(int open)
 {
 	int ret = 0;
 
-	pr_info("%s : enable=%d\n", __func__, open);
+	pr_debug("%s : enable=%d\n", __func__, open);
 #if defined CONFIG_MTK_SCP_SENSORHUB_V1
 	if (open == 1)
 		ret = sensor_set_delay_to_hub(ID_PS_FACTORY_STRM, 120);
@@ -89,7 +89,7 @@ static int ps_strm_open_report_data(int open)
 static int ps_strm_batch(int flag, int64_t samplingPeriodNs,
 		int64_t maxBatchReportLatencyNs)
 {
-	pr_info("%s : flag=%d\n", __func__, flag);
+	pr_debug("%s : flag=%d\n", __func__, flag);
 
 	return sensor_batch_to_hub(ID_PS_FACTORY_STRM, flag, samplingPeriodNs,
 			maxBatchReportLatencyNs);
@@ -156,7 +156,7 @@ static int __init ps_strm_init(void)
 
 static void __exit ps_strm_exit(void)
 {
-	pr_info("ps_strm exit\n");
+	pr_debug("ps_strm exit\n");
 }
 
 module_init(ps_strm_init);

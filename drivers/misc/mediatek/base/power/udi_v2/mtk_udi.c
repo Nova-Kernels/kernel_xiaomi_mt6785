@@ -65,11 +65,11 @@ static unsigned int func_lv_mask_udi;
 #define	UDI_TAG	  "[mt_udi] "
 #ifdef __KERNEL__
 #define udi_error(fmt, args...)		pr_err(UDI_TAG fmt,	##args)
-#define udi_info(fmt, args...)		pr_info(UDI_TAG	fmt, ##args)
+#define udi_info(fmt, args...)		pr_debug(UDI_TAG	fmt, ##args)
 #define udi_ver(fmt, args...)	\
 	do {	\
 		if (func_lv_mask_udi)	\
-			pr_info(UDI_TAG	fmt, ##args);	\
+			pr_debug(UDI_TAG	fmt, ##args);	\
 	} while (0)
 
 #else

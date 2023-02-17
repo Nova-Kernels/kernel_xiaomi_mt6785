@@ -4397,7 +4397,7 @@ static int pmic_regulator_ext2_enable(struct regulator_dev *rdev)
 	unsigned short ext_en = 0, ext_sel = 0;
 	int ret = 0;
 
-	pr_info("regulator ext_pmic2 enable\n");
+	pr_debug("regulator ext_pmic2 enable\n");
 	ext_en = pmic_get_register_value(PMIC_RG_STRUP_EXT_PMIC_EN);
 	if ((ext_en & 0x2) != 0x2)
 		ret |= pmic_set_register_value(PMIC_RG_STRUP_EXT_PMIC_EN,
@@ -4416,7 +4416,7 @@ static int pmic_regulator_ext2_disable(struct regulator_dev *rdev)
 	unsigned short ext_en = 0, ext_sel = 0;
 	int ret = 0;
 
-	pr_info("regulator ext_pmic2 disable\n");
+	pr_debug("regulator ext_pmic2 disable\n");
 	if (rdev->use_count == 0) {
 		pr_notice("regulator ext_pmic2 should not be disable\n");
 		return -1;
@@ -4441,7 +4441,7 @@ static int pmic_regulator_ext2_is_enabled(struct regulator_dev *rdev)
 
 	mreg = container_of(rdesc, struct mtk_regulator, desc);
 
-	pr_info("regulator ext_pmic2 is_enabled\n");
+	pr_debug("regulator ext_pmic2 is_enabled\n");
 	if (mreg->da_en_cb == NULL) {
 		pr_notice("regulator ext_pmic2 don't have da_en_cb\n");
 		return -1;
@@ -4468,7 +4468,7 @@ static int pmic_buck_set_mode(struct regulator_dev *rdev, unsigned int mode)
 	}
 	pmic_set_register_value(mreg->modeset_reg, val);
 	if (val == pmic_get_register_value(mreg->modeset_reg))
-		pr_info("BUCK %s set FPWM mode:%d pass\n"
+		pr_debug("BUCK %s set FPWM mode:%d pass\n"
 			, mreg->desc.name, val);
 	else {
 		pr_notice("BUCK %s set FPWM mode:%d fail\n"

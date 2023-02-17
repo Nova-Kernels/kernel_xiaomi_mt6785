@@ -191,7 +191,7 @@ static int mt6370_pmu_core_probe(struct platform_device *pdev)
 	bool use_dt = pdev->dev.of_node;
 	int ret = 0;
 
-	pr_info("%s: (%s)\n", __func__, MT6370_PMU_CORE_DRV_VERSION);
+	pr_debug("%s: (%s)\n", __func__, MT6370_PMU_CORE_DRV_VERSION);
 
 	core_data = devm_kzalloc(&pdev->dev, sizeof(*core_data), GFP_KERNEL);
 	if (!core_data)

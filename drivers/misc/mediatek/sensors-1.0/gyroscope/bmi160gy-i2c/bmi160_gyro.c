@@ -1336,7 +1336,7 @@ int gyroscope_operate(void *self, uint32_t command, void *buff_in, int size_in,
 				     &gyroscope_data->values[1],
 				     &gyroscope_data->values[2]);
 			if (err)
-				pr_info("get data failed, err = %d\n", err);
+				pr_debug("get data failed, err = %d\n", err);
 			gyroscope_data->status = SENSOR_STATUS_ACCURACY_MEDIUM;
 			gyroscope_data->value_divide = DEGREE_TO_RAD;
 		}
@@ -1590,7 +1590,7 @@ static int bmg_factory_set_cali(int32_t data[3])
 	cali[BMG_AXIS_Z] = data[2] * obj->sensitivity / BMI160_FS_250_LSB;
 	err = bmg_write_calibration(bmi160_acc_i2c_client, cali);
 	if (err) {
-		pr_info("bmg_WriteCalibration failed!\n");
+		pr_debug("bmg_WriteCalibration failed!\n");
 		return -1;
 	}
 	return 0;
@@ -1604,7 +1604,7 @@ static int bmg_factory_get_cali(int32_t data[3])
 
 	err = bmg_read_calibration(bmi160_acc_i2c_client, cali, raw_offset);
 	if (err) {
-		pr_info("bmg_ReadCalibration failed!\n");
+		pr_debug("bmg_ReadCalibration failed!\n");
 		return -1;
 	}
 	data[0] = cali[BMG_AXIS_X] * BMI160_FS_250_LSB / obj->sensitivity;

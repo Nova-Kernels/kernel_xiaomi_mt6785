@@ -54,20 +54,20 @@ static int lcm_get_vgp_supply(struct device *dev)
 	int ret;
 	struct regulator *lcm_vgp_ldo;
 
-	pr_info("LCM: %s enter\n", __func__);
+	pr_debug("LCM: %s enter\n", __func__);
 
 	lcm_vgp_ldo = devm_regulator_get(dev, "reg-lcm");
 	if (IS_ERR(lcm_vgp_ldo)) {
 		ret = PTR_ERR(lcm_vgp_ldo);
-		pr_info("failed to get reg-lcm LDO, %d\n", ret);
+		pr_debug("failed to get reg-lcm LDO, %d\n", ret);
 		return ret;
 	}
 
-	pr_info("LCM: lcm get supply ok.\n");
+	pr_debug("LCM: lcm get supply ok.\n");
 
 	/* get current voltage settings */
 	ret = regulator_get_voltage(lcm_vgp_ldo);
-	pr_info("lcm LDO voltage = %d in LK stage\n", ret);
+	pr_debug("lcm LDO voltage = %d in LK stage\n", ret);
 
 	lcm_vgp = lcm_vgp_ldo;
 
@@ -79,30 +79,30 @@ int lcm_vgp_supply_enable(void)
 	int ret;
 	unsigned int volt;
 
-	pr_info("LCM: %s enter\n", __func__);
+	pr_debug("LCM: %s enter\n", __func__);
 
 	if (!lcm_vgp)
 		return 0;
 
-	pr_info("LCM: set regulator voltage lcm_vgp voltage to 1.8V\n");
+	pr_debug("LCM: set regulator voltage lcm_vgp voltage to 1.8V\n");
 	/* set voltage to 1.8V */
 	ret = regulator_set_voltage(lcm_vgp, 1800000, 1800000);
 	if (ret != 0) {
-		pr_info("LCM: lcm failed to set lcm_vgp voltage: %d\n", ret);
+		pr_debug("LCM: lcm failed to set lcm_vgp voltage: %d\n", ret);
 		return ret;
 	}
 
 	/* get voltage settings again */
 	volt = regulator_get_voltage(lcm_vgp);
 	if (volt == 1800000)
-		pr_info("LCM: check regulator voltage=1800000 pass!\n");
+		pr_debug("LCM: check regulator voltage=1800000 pass!\n");
 	else
-		pr_info("LCM: check regulator voltage=1800000 fail! (voltage: %d)\n",
+		pr_debug("LCM: check regulator voltage=1800000 fail! (voltage: %d)\n",
 			volt);
 
 	ret = regulator_enable(lcm_vgp);
 	if (ret != 0) {
-		pr_info("LCM: Failed to enable lcm_vgp: %d\n", ret);
+		pr_debug("LCM: Failed to enable lcm_vgp: %d\n", ret);
 		return ret;
 	}
 
@@ -120,19 +120,19 @@ int lcm_vgp_supply_disable(void)
 	/* disable regulator */
 	isenable = regulator_is_enabled(lcm_vgp);
 
-	pr_info("LCM: lcm query regulator enable status[%d]\n", isenable);
+	pr_debug("LCM: lcm query regulator enable status[%d]\n", isenable);
 
 	if (isenable) {
 		ret = regulator_disable(lcm_vgp);
 		if (ret != 0) {
-			pr_info("LCM: lcm failed to disable lcm_vgp: %d\n",
+			pr_debug("LCM: lcm failed to disable lcm_vgp: %d\n",
 				ret);
 			return ret;
 		}
 		/* verify */
 		isenable = regulator_is_enabled(lcm_vgp);
 		if (!isenable)
-			pr_info("LCM: lcm regulator disable pass\n");
+			pr_debug("LCM: lcm regulator disable pass\n");
 	}
 
 	return ret;
@@ -187,7 +187,7 @@ static struct platform_driver lcm_driver = {
 static int __init lcm_init(void)
 {
 	if (platform_driver_register(&lcm_driver)) {
-		pr_info("LCM: failed to register this driver!\n");
+		pr_debug("LCM: failed to register this driver!\n");
 		return -ENODEV;
 	}
 

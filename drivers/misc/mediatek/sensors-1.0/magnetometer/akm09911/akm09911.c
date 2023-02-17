@@ -476,7 +476,7 @@ static int AKECS_CheckDevice(void)
 		return -ENXIO;
 
 	akm_device = buffer[1];
-	pr_info("srx--akm09911--checkdevice00buf0=%x,buf1=%x\n", buffer[0],
+	pr_debug("srx--akm09911--checkdevice00buf0=%x,buf1=%x\n", buffer[0],
 		buffer[1]);
 	if ((akm_device == 0x05) ||
 	    (akm_device == 0x04)) { /* ak09911 & ak09912 */
@@ -1731,7 +1731,7 @@ static int akm09911_i2c_probe(struct i2c_client *client,
 	strlcpy(ctl.libinfo.libname, "akm", sizeof(ctl.libinfo.libname));
 	ctl.libinfo.layout = AKECS_SetCert();
 	ctl.libinfo.deviceid = akm_device;
-	pr_info("srx--akm09911--layout=%d,did=%d\n", ctl.libinfo.layout,
+	pr_debug("srx--akm09911--layout=%d,did=%d\n", ctl.libinfo.layout,
 		ctl.libinfo.deviceid);
 	err = mag_register_control_path(&ctl);
 	if (err) {

@@ -329,14 +329,14 @@ static inline int eeprom_driver_register(struct i2c_client *client,
 	ret = snprintf(device_drv_name, DEV_NAME_STR_LEN_MAX - 1,
 		DEV_NAME_FMT, index);
 	if (ret < 0) {
-		pr_info(
+		pr_debug(
 		"[eeprom]%s error, ret = %d", __func__, ret);
 		return -EFAULT;
 	}
 	ret = snprintf(class_drv_name, DEV_NAME_STR_LEN_MAX - 1,
 		DEV_CLASS_NAME_FMT, index);
 	if (ret < 0) {
-		pr_info(
+		pr_debug(
 		"[eeprom]%s error, ret = %d", __func__, ret);
 		return -EFAULT;
 	}

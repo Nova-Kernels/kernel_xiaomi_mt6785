@@ -180,13 +180,13 @@ static u32 eem_irq_number;
 void __attribute__ ((weak))
 mt_ppm_ptpod_policy_activate(void)
 {
-	pr_info("%s not ready\n", __func__);
+	pr_debug("%s not ready\n", __func__);
 }
 
 void __attribute__ ((weak))
 mt_ppm_ptpod_policy_deactivate(void)
 {
-	pr_info("%s not ready\n", __func__);
+	pr_debug("%s not ready\n", __func__);
 }
 
 /*=============================================================

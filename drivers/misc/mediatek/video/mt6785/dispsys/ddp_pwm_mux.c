@@ -125,12 +125,12 @@ static int disp_pwm_get_muxbase(void)
 
 	node = of_find_compatible_node(NULL, NULL, DTSI_TOPCKGEN);
 	if (!node) {
-		pr_info("[PWM]DISP find TOPCKGEN node failed\n");
+		pr_debug("[PWM]DISP find TOPCKGEN node failed\n");
 		return -1;
 	}
 	disp_pmw_mux_base = of_iomap(node, 0);
 	if (!disp_pmw_mux_base) {
-		pr_info("[PWM]DISP TOPCKGEN base failed\n");
+		pr_debug("[PWM]DISP TOPCKGEN base failed\n");
 		return -1;
 	}
 	pr_debug("[PWM]find TOPCKGEN node");
@@ -144,7 +144,7 @@ static unsigned int disp_pwm_get_pwmmux(void)
 	if (MUX_DISPPWM_ADDR != NULL)
 		regsrc = clk_readl(MUX_DISPPWM_ADDR);
 	else
-		pr_info("[PWM]mux addr illegal");
+		pr_debug("[PWM]mux addr illegal");
 
 	return regsrc;
 }
@@ -213,12 +213,12 @@ static int get_ulposc_base(void)
 
 	node = of_find_compatible_node(NULL, NULL, "mediatek,sleep");
 	if (!node) {
-		pr_info("[PWM]DISP find SLEEP node failed\n");
+		pr_debug("[PWM]DISP find SLEEP node failed\n");
 		return -1;
 	}
 	disp_pmw_osc_base = of_iomap(node, 0);
 	if (!disp_pmw_osc_base) {
-		pr_info("[PWM]DISP find SLEEP base failed\n");
+		pr_debug("[PWM]DISP find SLEEP base failed\n");
 		return -1;
 	}
 
@@ -231,7 +231,7 @@ static int get_ulposc_status(void)
 	int ret = -1;
 
 	if (get_ulposc_base() == -1) {
-		pr_info("[PWM]get ULPOSC status fail");
+		pr_debug("[PWM]get ULPOSC status fail");
 		return ret;
 	}
 

@@ -1059,7 +1059,7 @@ static int SCP_sensorHub_report_raw_data(struct data_unit_t *data_t)
 		if (data_t->time_stamp > raw_enable_time)
 			err = obj->dispatch_data_cb[sensor_id](data_t, NULL);
 		else
-			pr_info("ac:%d, e:%lld, d:%lld\n", data_t->flush_action,
+			pr_debug("ac:%d, e:%lld, d:%lld\n", data_t->flush_action,
 				raw_enable_time, data_t->time_stamp);
 	} else if (data_t->flush_action == FLUSH_ACTION) {
 		mutex_lock(&flush_mtx);
@@ -1113,7 +1113,7 @@ static int SCP_sensorHub_report_alt_data(struct data_unit_t *data_t)
 		if (data_t->time_stamp > alt_enable_time)
 			err = obj->dispatch_data_cb[alt_id](data_t, NULL);
 		else
-			pr_info("ac:%d, e:%lld, d:%lld\n", data_t->flush_action,
+			pr_debug("ac:%d, e:%lld, d:%lld\n", data_t->flush_action,
 				alt_enable_time, data_t->time_stamp);
 	} else if (data_t->flush_action == FLUSH_ACTION) {
 		mutex_lock(&flush_mtx);
@@ -2141,7 +2141,7 @@ int sensor_set_cmd_to_hub(uint8_t sensorType,
 	case CUST_ACTION_GET_SENSOR_INFO:
 		if (req.set_cust_rsp.getInfo.action !=
 			CUST_ACTION_GET_SENSOR_INFO) {
-			pr_info("scp_sensorHub_req_send failed action!\n");
+			pr_debug("scp_sensorHub_req_send failed action!\n");
 			return -1;
 		}
 		memcpy((struct sensorInfo_t *)data,

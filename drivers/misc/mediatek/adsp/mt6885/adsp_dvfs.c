@@ -56,7 +56,7 @@
 #define pr_fmt(fmt)     "[adsp_dvfs]: " fmt
 
 #define ADSP_DBG(fmt, arg...) pr_debug(fmt, ##arg)
-#define ADSP_INFO(fmt, arg...) pr_info(fmt, ##arg)
+#define ADSP_INFO(fmt, arg...) pr_debug(fmt, ##arg)
 
 #define DRV_Reg32(addr)           readl(addr)
 #define DRV_WriteReg32(addr, val) writel(val, addr)

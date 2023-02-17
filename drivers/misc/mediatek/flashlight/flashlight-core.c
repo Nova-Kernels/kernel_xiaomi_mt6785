@@ -75,7 +75,7 @@ static int pt_is_low(int pt_low_vol, int pt_low_bat, int pt_over_cur);
 #ifdef CONFIG_MTK_FLASHLIGHT_DLPT
 void __attribute__ ((weak)) kicker_pbm_by_flash(bool status)
 {
-	pr_info("No dlpt support\n");
+	pr_debug("No dlpt support\n");
 }
 #endif
 
@@ -87,7 +87,7 @@ static int fl_set_level(struct flashlight_dev *fdev, int level)
 	struct flashlight_dev_arg fl_dev_arg;
 
 	if (!fdev || !fdev->ops) {
-		pr_info("Failed with no flashlight ops\n");
+		pr_debug("Failed with no flashlight ops\n");
 		return -EINVAL;
 	}
 
@@ -96,7 +96,7 @@ static int fl_set_level(struct flashlight_dev *fdev, int level)
 	if (pt_is_low(pt_low_vol, pt_low_bat, pt_over_cur))
 		if (fdev->low_pt_level >= 0 && level > fdev->low_pt_level) {
 			level = fdev->low_pt_level;
-			pr_info("Set level to (%d) since pt(%d,%d,%d), pt strict(%d)\n",
+			pr_debug("Set level to (%d) since pt(%d,%d,%d), pt strict(%d)\n",
 					level, pt_low_vol, pt_low_bat,
 					pt_over_cur, pt_strict);
 		}
@@ -104,7 +104,7 @@ static int fl_set_level(struct flashlight_dev *fdev, int level)
 	if (fdev->need_cooler)
 		if (fdev->cooler_level >= 0 && level > fdev->cooler_level) {
 			level = fdev->cooler_level;
-			pr_info("Set level to (%d) since thermal need cooler\n",
+			pr_debug("Set level to (%d) since thermal need cooler\n",
 					level);
 		}
 
@@ -128,7 +128,7 @@ static int fl_enable(struct flashlight_dev *fdev, int enable)
 	struct flashlight_dev_arg fl_dev_arg;
 
 	if (!fdev || !fdev->ops) {
-		pr_info("Failed with no flashlight ops\n");
+		pr_debug("Failed with no flashlight ops\n");
 		return -EINVAL;
 	}
 
@@ -140,14 +140,14 @@ static int fl_enable(struct flashlight_dev *fdev, int enable)
 	if (pt_is_low(pt_low_vol, pt_low_bat, pt_over_cur) == 2)
 		if (enable) {
 			enable = 0;
-			pr_info("Failed to enable since pt(%d,%d,%d), pt strict(%d)\n",
+			pr_debug("Failed to enable since pt(%d,%d,%d), pt strict(%d)\n",
 					pt_low_vol, pt_low_bat,
 					pt_over_cur, pt_strict);
 		}
 #endif
 
 	if (fdev->sw_disable_status == FLASHLIGHT_SW_DISABLE_ON) {
-		pr_info("Sw disable on\n");
+		pr_debug("Sw disable on\n");
 		return 0;
 	}
 
@@ -374,7 +374,7 @@ int flashlight_dev_register(
 				continue;
 			}
 
-			pr_info("%s %d %d %d\n", flashlight_id[i].name,
+			pr_debug("%s %d %d %d\n", flashlight_id[i].name,
 					type_index, ct_index, part_index);
 
 			mutex_lock(&fl_mutex);
@@ -420,7 +420,7 @@ int flashlight_dev_unregister(const char *name)
 				continue;
 			}
 
-			pr_info("%s %d %d %d\n", flashlight_id[i].name,
+			pr_debug("%s %d %d %d\n", flashlight_id[i].name,
 					type_index, ct_index, part_index);
 
 			mutex_lock(&fl_mutex);
@@ -459,7 +459,7 @@ int flashlight_dev_register_by_device_id(
 		return -EINVAL;
 	}
 
-	pr_info("Register device (%d,%d,%d)\n",
+	pr_debug("Register device (%d,%d,%d)\n",
 			dev_id->type, dev_id->ct, dev_id->part);
 
 	mutex_lock(&fl_mutex);
@@ -494,7 +494,7 @@ int flashlight_dev_unregister_by_device_id(struct flashlight_device_id *dev_id)
 		return -EINVAL;
 	}
 
-	pr_info("Unregister device (%d,%d,%d)\n",
+	pr_debug("Unregister device (%d,%d,%d)\n",
 			dev_id->type, dev_id->ct, dev_id->part);
 
 	mutex_lock(&fl_mutex);
@@ -533,7 +533,7 @@ int flashlight_get_max_duty(void)
 	}
 	mutex_unlock(&fl_mutex);
 
-	pr_info("get max duty:%d\n", duty_num - 1);
+	pr_debug("get max duty:%d\n", duty_num - 1);
 
 	return duty_num - 1;
 }
@@ -544,11 +544,11 @@ int flashlight_set_cooler_level(int level)
 	struct flashlight_dev *fdev;
 
 	if (level < 0) {
-		pr_info("Failed to set level:%d\n", level);
+		pr_debug("Failed to set level:%d\n", level);
 		return -1;
 	}
 
-	pr_info("cooler level:%d\n", level);
+	pr_debug("cooler level:%d\n", level);
 
 	mutex_lock(&fl_mutex);
 	list_for_each_entry(fdev, &flashlight_list, node) {
@@ -596,7 +596,7 @@ static int flashlight_update_charger_status(struct flashlight_dev *fdev)
 	struct flashlight_dev_arg fl_dev_arg;
 
 	if (!fdev || !fdev->ops) {
-		pr_info("Failed with no flashlight ops\n");
+		pr_debug("Failed with no flashlight ops\n");
 		return -EINVAL;
 	}
 
@@ -604,7 +604,7 @@ static int flashlight_update_charger_status(struct flashlight_dev *fdev)
 	fl_dev_arg.channel = fdev->dev_id.channel;
 	if (fdev->ops->flashlight_ioctl(FLASH_IOC_IS_CHARGER_READY,
 				(unsigned long)&fl_dev_arg))
-		pr_info("Failed to get charger status\n");
+		pr_debug("Failed to get charger status\n");
 	else
 		fdev->charger_status = fl_dev_arg.arg;
 
@@ -676,11 +676,11 @@ static int pt_trigger(void)
 		fdev->ops->flashlight_open();
 		fdev->ops->flashlight_set_driver(1);
 		if (pt_strict) {
-			pr_info_ratelimited("PT trigger(%d,%d,%d) disable flashlight\n",
+			pr_debug_ratelimited("PT trigger(%d,%d,%d) disable flashlight\n",
 				pt_low_vol, pt_low_bat, pt_over_cur);
 			fl_enable(fdev, 0);
 		} else {
-			pr_info_ratelimited("PT trigger(%d,%d,%d) decrease duty: %d\n",
+			pr_debug_ratelimited("PT trigger(%d,%d,%d) decrease duty: %d\n",
 				pt_low_vol, pt_low_bat,
 				pt_over_cur, fdev->low_pt_level);
 			fl_set_level(fdev, fdev->low_pt_level);
@@ -760,7 +760,7 @@ static long _flashlight_ioctl(
 			flashlight_get_ct_index(fl_arg.ct_id));
 	mutex_unlock(&fl_mutex);
 	if (!fdev) {
-		pr_info_ratelimited("Find no flashlight device\n");
+		pr_debug_ratelimited("Find no flashlight device\n");
 		return -EINVAL;
 	}
 
@@ -854,7 +854,7 @@ static long _flashlight_ioctl(
 					(unsigned long)&fl_dev_arg);
 			}
 		} else {
-			pr_info("Failed with no flashlight ops\n");
+			pr_debug("Failed with no flashlight ops\n");
 			return -EFAULT;
 		}
 		break;
@@ -868,7 +868,7 @@ static long _flashlight_ioctl(
 			ret = fdev->ops->flashlight_ioctl(
 					cmd, (unsigned long)&fl_dev_arg);
 		} else {
-			pr_info("Failed with no flashlight ops\n");
+			pr_debug("Failed with no flashlight ops\n");
 			return -EFAULT;
 		}
 		break;
@@ -914,12 +914,12 @@ static long _flashlight_ioctl(
 			fl_arg.arg = fl_dev_arg.arg;
 			if (copy_to_user((void __user *)arg, (void *)&fl_arg,
 					sizeof(struct flashlight_user_arg))) {
-				pr_info("Failed to copy arg to user cmd:%d\n",
+				pr_debug("Failed to copy arg to user cmd:%d\n",
 					_IOC_NR(cmd));
 				return -EFAULT;
 			}
 		} else {
-			pr_info("Failed with no flashlight ops\n");
+			pr_debug("Failed with no flashlight ops\n");
 			return -ENOTTY;
 		}
 		break;
@@ -929,7 +929,7 @@ static long _flashlight_ioctl(
 			ret = fdev->ops->flashlight_ioctl(
 					cmd, (unsigned long)&fl_dev_arg);
 		else {
-			pr_info("Failed with no flashlight ops\n");
+			pr_debug("Failed with no flashlight ops\n");
 			return -ENOTTY;
 		}
 		break;
@@ -1075,7 +1075,7 @@ static ssize_t flashlight_strobe_store(struct device *dev,
 			fl_arg.type, fl_arg.ct, fl_arg.part);
 	mutex_unlock(&fl_mutex);
 	if (!fdev) {
-		pr_info("Find no flashlight device\n");
+		pr_debug("Find no flashlight device\n");
 		ret = -1;
 		goto unlock;
 	}
@@ -1083,14 +1083,14 @@ static ssize_t flashlight_strobe_store(struct device *dev,
 	fl_arg.channel = fdev->dev_id.channel;
 	fl_arg.decouple = fdev->dev_id.decouple;
 
-	pr_info("channel:%d decouple:%d\n",
+	pr_debug("channel:%d decouple:%d\n",
 			fl_arg.channel, fl_arg.decouple);
 
 	if (fdev->ops) {
 		fdev->ops->flashlight_strobe_store(fl_arg);
 		ret = size;
 	} else {
-		pr_info("Failed with no flashlight ops\n");
+		pr_debug("Failed with no flashlight ops\n");
 		ret = -1;
 	}
 
@@ -1209,7 +1209,7 @@ static ssize_t flashlight_charger_show(
 				fdev->dev_id.ct, fdev->dev_id.part,
 				fdev->charger_status);
 		if (ret < 0)
-			pr_info("snprintf failed\n");
+			pr_debug("snprintf failed\n");
 
 		strncat(status, status_tmp,
 				FLASHLIGHT_CHARGER_STATUS_TMPBUF_SIZE);
@@ -1288,7 +1288,7 @@ static ssize_t flashlight_charger_store(struct device *dev,
 			fl_arg.type, fl_arg.ct, fl_arg.part);
 	mutex_unlock(&fl_mutex);
 	if (!fdev) {
-		pr_info("Find no flashlight device\n");
+		pr_debug("Find no flashlight device\n");
 		ret = -1;
 		goto unlock;
 	}
@@ -1350,7 +1350,7 @@ static ssize_t flashlight_capability_show(
 				fdev->dev_id.channel, fdev->dev_id.decouple,
 				hw_timeout, max_duty, max_torch_duty);
 		if (ret < 0)
-			pr_info("snprintf failed\n");
+			pr_debug("snprintf failed\n");
 		strncat(capability, capability_tmp,
 				FLASHLIGHT_CAPABILITY_TMPBUF_SIZE);
 	}
@@ -1396,7 +1396,7 @@ static ssize_t flashlight_current_show(
 				"%d %d %d %d ", fdev->dev_id.type,
 				fdev->dev_id.ct, fdev->dev_id.part, duty_num);
 		if (ret < 0)
-			pr_info("snprintf failed\n");
+			pr_debug("snprintf failed\n");
 
 		for (i = 0; i < duty_num; i++) {
 			fl_dev_arg.arg = i;
@@ -1417,7 +1417,7 @@ static ssize_t flashlight_current_show(
 				duty_current_arg.ct, duty_current_arg.part,
 				duty_num);
 		if (ret < 0)
-			pr_info("snprintf failed\n");
+			pr_debug("snprintf failed\n");
 	}
 
 	return scnprintf(buf, PAGE_SIZE,
@@ -1527,7 +1527,7 @@ static ssize_t flashlight_fault_show(
 				fdev->dev_id.channel, fdev->dev_id.decouple,
 				fault_flag1, fault_flag2);
 		if (ret < 0)
-			pr_info("snprintf failed\n");
+			pr_debug("snprintf failed\n");
 		strncat(fault, fault_tmp,
 				FLASHLIGHT_FAULT_TMPBUF_SIZE);
 	}
@@ -1562,7 +1562,7 @@ static ssize_t flashlight_sw_disable_show(
 				"%d %d\n", fdev->dev_id.type,
 				fdev->sw_disable_status);
 		if (ret < 0)
-			pr_info("snprintf failed\n");
+			pr_debug("snprintf failed\n");
 		strncat(status, status_tmp,
 				FLASHLIGHT_SW_DISABLE_STATUS_TMPBUF_SIZE);
 	}
@@ -1592,7 +1592,7 @@ static ssize_t flashlight_sw_disable_store(struct device *dev,
 		token = strsep(&cur, delim);
 		ret = kstrtos32(token, 10, &num);
 		if (ret) {
-			pr_info("Error arguments\n");
+			pr_debug("Error arguments\n");
 			goto unlock;
 		}
 
@@ -1610,13 +1610,13 @@ static ssize_t flashlight_sw_disable_store(struct device *dev,
 
 	/* verify data */
 	if (count != FLASHLIGHT_SW_DISABLE_NUM) {
-		pr_info("Error argument number: (%d)\n", count);
+		pr_debug("Error argument number: (%d)\n", count);
 		ret = -1;
 		goto unlock;
 	}
 	if (sw_disable_status_tmp < FLASHLIGHT_SW_DISABLE_OFF ||
 			sw_disable_status_tmp > FLASHLIGHT_SW_DISABLE_ON) {
-		pr_info("Error arguments sw disable status(%d)\n",
+		pr_debug("Error arguments sw disable status(%d)\n",
 				sw_disable_status_tmp);
 		ret = -1;
 		goto unlock;

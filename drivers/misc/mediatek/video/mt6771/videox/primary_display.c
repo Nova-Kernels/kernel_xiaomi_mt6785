@@ -3325,7 +3325,7 @@ static int init_decouple_buffers(void)
 	decouple_wdma_config.dstPitch = width * Bpp;
 	decouple_wdma_config.security = DISP_NORMAL_BUFFER;
 
-	pr_info("%s done\n", __func__);
+	pr_debug("%s done\n", __func__);
 	return 0;
 }
 
@@ -10221,7 +10221,7 @@ err0:
 
 int display_exit_tui(void)
 {
-	pr_info("[TUI-HAL] %s() start\n", __func__);
+	pr_debug("[TUI-HAL] %s() start\n", __func__);
 	mmprofile_log_ex(ddp_mmp_get_events()->tui, MMPROFILE_FLAG_PULSE, 1, 1);
 
 	_primary_path_lock(__func__);
@@ -10241,7 +10241,7 @@ int display_exit_tui(void)
 
 	mmprofile_log_ex(ddp_mmp_get_events()->tui, MMPROFILE_FLAG_END, 0, 0);
 	DISPMSG("TDDP: %s\n", __func__);
-	pr_info("[TUI-HAL] %s() done\n", __func__);
+	pr_debug("[TUI-HAL] %s() done\n", __func__);
 	return 0;
 }
 

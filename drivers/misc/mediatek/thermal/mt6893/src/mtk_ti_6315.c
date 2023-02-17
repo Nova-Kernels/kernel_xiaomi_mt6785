@@ -65,11 +65,11 @@ static struct platform_driver tpmic_intr_pdrv = {
 
 static irqreturn_t mt6315_6_temp_l_int_handler(int irq, void *data)
 {
-	pr_info("%s 6315_6 CPU under 110D, irq=%d\n", __func__, irq);
+	pr_debug("%s 6315_6 CPU under 110D, irq=%d\n", __func__, irq);
 	disable_irq_nosync(virq_tempL_6);
 	enable_irq(virq_tempH_6);
 #ifdef OT_THROTTLE_CPU
-	pr_info("%s release cpu limit\n", __func__);
+	pr_debug("%s release cpu limit\n", __func__);
 	apthermolmt_set_cpu_power_limit(&ap_6315ot, 0x7FFFFFFF);
 #endif
 	return IRQ_HANDLED;
@@ -77,11 +77,11 @@ static irqreturn_t mt6315_6_temp_l_int_handler(int irq, void *data)
 
 static irqreturn_t mt6315_6_temp_h_int_handler(int irq, void *data)
 {
-	pr_info("%s 6315_6 CPU over 125D, irq=%d\n", __func__, irq);
+	pr_debug("%s 6315_6 CPU over 125D, irq=%d\n", __func__, irq);
 	disable_irq_nosync(virq_tempH_6);
 	enable_irq(virq_tempL_6);
 #ifdef OT_THROTTLE_CPU
-	pr_info("%s set cpu limit=%d\n", __func__, cpu_limit);
+	pr_debug("%s set cpu limit=%d\n", __func__, cpu_limit);
 	apthermolmt_set_cpu_power_limit(&ap_6315ot, cpu_limit);
 #endif
 	return IRQ_HANDLED;
@@ -90,9 +90,9 @@ static irqreturn_t mt6315_6_temp_h_int_handler(int irq, void *data)
 #ifdef INTR_UT
 static irqreturn_t mt6315_6_rcs0_handler(int irq, void *data)
 {
-	pr_info("%s irq=%d\n", __func__, irq);
+	pr_debug("%s irq=%d\n", __func__, irq);
 #ifdef OT_THROTTLE_CPU
-	pr_info("%s set cpu limit=%d\n", __func__, cpu_limit);
+	pr_debug("%s set cpu limit=%d\n", __func__, cpu_limit);
 	apthermolmt_set_cpu_power_limit(&ap_6315ot, cpu_limit);
 #endif
 	return IRQ_HANDLED;
@@ -101,11 +101,11 @@ static irqreturn_t mt6315_6_rcs0_handler(int irq, void *data)
 
 static irqreturn_t mt6315_7_temp_l_int_handler(int irq, void *data)
 {
-	pr_info("%s 6315_7 GPU under 110D, irq=%d\n", __func__, irq);
+	pr_debug("%s 6315_7 GPU under 110D, irq=%d\n", __func__, irq);
 	disable_irq_nosync(virq_tempL_7);
 	enable_irq(virq_tempH_7);
 #ifdef OT_THROTTLE_GPU
-	pr_info("%s release gpu limit\n", __func__);
+	pr_debug("%s release gpu limit\n", __func__);
 	apthermolmt_set_gpu_power_limit(&ap_6315ot, 0x7FFFFFFF);
 #endif
 	return IRQ_HANDLED;
@@ -113,11 +113,11 @@ static irqreturn_t mt6315_7_temp_l_int_handler(int irq, void *data)
 
 static irqreturn_t mt6315_7_temp_h_int_handler(int irq, void *data)
 {
-	pr_info("%s 6315_7 GPU over 125D, irq=%d\n", __func__, irq);
+	pr_debug("%s 6315_7 GPU over 125D, irq=%d\n", __func__, irq);
 	disable_irq_nosync(virq_tempH_7);
 	enable_irq(virq_tempL_7);
 #ifdef OT_THROTTLE_GPU
-	pr_info("%s set gpu limit=%d\n", __func__, gpu_limit);
+	pr_debug("%s set gpu limit=%d\n", __func__, gpu_limit);
 	apthermolmt_set_gpu_power_limit(&ap_6315ot, gpu_limit);
 #endif
 	return IRQ_HANDLED;
@@ -126,9 +126,9 @@ static irqreturn_t mt6315_7_temp_h_int_handler(int irq, void *data)
 #ifdef INTR_UT
 static irqreturn_t mt6315_7_rcs0_handler(int irq, void *data)
 {
-	pr_info("%s irq=%d\n", __func__, irq);
+	pr_debug("%s irq=%d\n", __func__, irq);
 #ifdef OT_THROTTLE_GPU
-	pr_info("%s set gpu limit=%d\n", __func__, gpu_limit);
+	pr_debug("%s set gpu limit=%d\n", __func__, gpu_limit);
 	apthermolmt_set_gpu_power_limit(&ap_6315ot, gpu_limit);
 #endif
 	return IRQ_HANDLED;
@@ -142,7 +142,7 @@ static int tpmic6315_intr_probe(struct platform_device *pdev)
 
 	node = of_find_matching_node(NULL, tpmic_intr_of_match);
 	if (!node)
-		pr_info("@%s: find tpmic_intr node failed\n", __func__);
+		pr_debug("@%s: find tpmic_intr node failed\n", __func__);
 
 	virq_tempL_6 = platform_get_irq(pdev, 0);
 	virq_tempH_6 = platform_get_irq(pdev, 1);
@@ -160,33 +160,33 @@ static int tpmic6315_intr_probe(struct platform_device *pdev)
 	if (virq_tempL_6 <= 0 || virq_tempH_6 <= 0 ||
 		virq_tempL_7 <= 0 || virq_tempH_7 <= 0) {
 #endif
-		pr_info("%s: get irq error\n", __func__);
+		pr_debug("%s: get irq error\n", __func__);
 		return 0;
 	}
 
-	pr_info("%s: 6_temp_back_110D = %d(%d)\n"
+	pr_debug("%s: 6_temp_back_110D = %d(%d)\n"
 			, __func__
 			, platform_get_irq(pdev, 0)
 			, platform_get_irq_byname(pdev, "6315_6_temp_l"));
-	pr_info("%s: 6_temp_over_125D = %d(%d)\n"
+	pr_debug("%s: 6_temp_over_125D = %d(%d)\n"
 			, __func__
 			, platform_get_irq(pdev, 1)
 			, platform_get_irq_byname(pdev, "6315_6_temp_h"));
-	pr_info("%s: 7_temp_back_110D = %d(%d)\n"
+	pr_debug("%s: 7_temp_back_110D = %d(%d)\n"
 			, __func__
 			, platform_get_irq(pdev, 3)
 			, platform_get_irq_byname(pdev, "6315_7_temp_l"));
-	pr_info("%s: 7_temp_over_125D = %d(%d)\n"
+	pr_debug("%s: 7_temp_over_125D = %d(%d)\n"
 			, __func__
 			, platform_get_irq(pdev, 4)
 			, platform_get_irq_byname(pdev, "6315_7_temp_h"));
 
 #ifdef INTR_UT
-	pr_info("%s: 6_rcs0 = %d(%d)\n"
+	pr_debug("%s: 6_rcs0 = %d(%d)\n"
 			, __func__
 			, platform_get_irq(pdev, 2)
 			, platform_get_irq_byname(pdev, "6315_6_rcs0"));
-	pr_info("%s: 7_rcs0 = %d(%d)\n"
+	pr_debug("%s: 7_rcs0 = %d(%d)\n"
 			, __func__
 			, platform_get_irq(pdev, 5)
 			, platform_get_irq_byname(pdev, "6315_7_rcs0"));
@@ -263,7 +263,7 @@ struct file *file, const char __user *buffer, size_t count, loff_t *data)
 
 	desc[len] = '\0';
 	if (sscanf(desc, "%d %d", &c_limit, &g_limit) == 2) {
-		pr_info("[%s] set C/G limit = %d/%d\n",
+		pr_debug("[%s] set C/G limit = %d/%d\n",
 			__func__, c_limit, g_limit);
 		cpu_limit = (c_limit != 0) ? c_limit : 0x7FFFFFFF;
 		gpu_limit = (g_limit != 0) ? g_limit : 0x7FFFFFFF;
@@ -271,7 +271,7 @@ struct file *file, const char __user *buffer, size_t count, loff_t *data)
 		return count;
 	}
 
-	pr_info("%s bad argument\n", __func__);
+	pr_debug("%s bad argument\n", __func__);
 	return -EINVAL;
 }
 
@@ -296,7 +296,7 @@ static int __init mtk_ti_6315_init(void)
 	/* register platform driver */
 	ret = platform_driver_register(&tpmic_intr_pdrv);
 	if (ret) {
-		pr_info("fail to register %s driver ~~~\n", __func__);
+		pr_debug("fail to register %s driver ~~~\n", __func__);
 		goto end;
 	}
 
@@ -307,7 +307,7 @@ static int __init mtk_ti_6315_init(void)
 
 		dir_entry = mtk_thermal_get_proc_drv_therm_dir_entry();
 		if (!dir_entry) {
-			pr_info(
+			pr_debug(
 			"[%s]: mkdir /proc/driver/thermal failed\n", __func__);
 		} else {
 			entry = proc_create("cl6315ot_limit", 0664,
@@ -329,7 +329,7 @@ static void __exit mtk_ti_6315_exit(void)
 {
 	apthermolmt_unregister_user(&ap_6315ot);
 	platform_driver_unregister(&tpmic_intr_pdrv);
-	pr_info("%s\n", __func__);
+	pr_debug("%s\n", __func__);
 }
 
 late_initcall(mtk_ti_6315_init);

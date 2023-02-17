@@ -572,7 +572,7 @@ int ddp_module_clk_disable(enum DISP_MODULE_TYPE_ENUM module_t)
 	enum DISP_MODULE_ENUM module_id = DISP_MODULE_UNKNOWN;
 
 	number = ddp_get_module_num_by_t(module_t);
-	pr_info("[%s] module type = %d, module num on this type = %d\n",
+	pr_debug("[%s] module type = %d, module num on this type = %d\n",
 		__func__, module_t, number);
 	for (i = 0; i < number; i++) {
 		module_id = ddp_get_module_id_by_idx(module_t, i);

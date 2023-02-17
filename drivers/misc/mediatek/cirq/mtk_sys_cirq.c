@@ -570,12 +570,12 @@ void mt_cirq_clone_mask(void)
 #ifdef FAST_CIRQ_DEBUG
 static void dump_cirq_reg(struct cirq_reg *r)
 {
-	pr_info("[CIRQ] reg_num:%d, used:%d, m:0x%x, ",
+	pr_debug("[CIRQ] reg_num:%d, used:%d, m:0x%x, ",
 		r->reg_num, r->used, r->mask);
-	pr_info("p:0x%x, s:0x%x, pend:0x%lx, prev:%p,",
+	pr_debug("p:0x%x, s:0x%x, pend:0x%lx, prev:%p,",
 		r->pol, r->sen, r->pending,
 		r->the_link.prev);
-	pr_info("next:%p\n", r->the_link.next);
+	pr_debug("next:%p\n", r->the_link.next);
 }
 static void dump_cirq_events_mgr(struct cirq_events *events)
 {
@@ -584,12 +584,12 @@ static void dump_cirq_events_mgr(struct cirq_events *events)
 	struct cirq_reg *event;
 
 	if (events->num_of_events > 0) {
-		pr_info("[CIRQ]num of source %d",
+		pr_debug("[CIRQ]num of source %d",
 			events->num_of_events);
 		for (i = 0; i < events->num_of_events; i++)
-			pr_info(", %d",
+			pr_debug(", %d",
 				events->wakeup_events[i]);
-		pr_info("\n");
+		pr_debug("\n");
 	}
 
 	if (events->table != 0) {
@@ -616,13 +616,13 @@ static int setup_cirq_settings(void)
 		kcalloc(cirq_all_events.num_reg,
 			sizeof(struct cirq_reg), GFP_KERNEL);
 	if (cirq_all_events.table == NULL) {
-		pr_info("[CIRQ] failed to alloc table\n");
+		pr_debug("[CIRQ] failed to alloc table\n");
 		return -ENOSPC;
 	}
 	cirq_all_events.cirq_base = SYS_CIRQ_BASE;
 	cirq_all_events.dist_base = get_dist_base();
 	if (cirq_all_events.dist_base == NULL) {
-		pr_info("[CIRQ] get dist base failed\n");
+		pr_debug("[CIRQ] get dist base failed\n");
 		return -ENXIO;
 	}
 	mt_cirq_mask_all();
@@ -703,16 +703,16 @@ void debug_setting_dump(void)
 
 	list_for_each(cur, &cirq_all_events.used_reg_head) {
 		event = list_entry(cur, struct cirq_reg, the_link);
-		pr_info("[CIRQ] reg%d,  write cirq pol 0x%x, sen 0x%x, mask 0x%x",
+		pr_debug("[CIRQ] reg%d,  write cirq pol 0x%x, sen 0x%x, mask 0x%x",
 			 event->reg_num, event->pol, event->sen, event->mask);
-		pr_info("[CIRQ] &%p = 0x%x, &%p = 0x%x, &%p = 0x%x\n",
+		pr_debug("[CIRQ] &%p = 0x%x, &%p = 0x%x, &%p = 0x%x\n",
 			CIRQ_POL_SET_BASE + (event->reg_num << 2),
 			readl(CIRQ_POL_BASE + (event->reg_num << 2)),
 			CIRQ_SENS_CLR_BASE + (event->reg_num << 2),
 			readl(CIRQ_SENS_BASE + (event->reg_num << 2)),
 			CIRQ_MASK_CLR_BASE + (event->reg_num << 2),
 			readl(CIRQ_MASK_BASE + (event->reg_num << 2)));
-		pr_info("[CIRQ] CIRQ CON &%p = 0x%x\n",
+		pr_debug("[CIRQ] CIRQ CON &%p = 0x%x\n",
 			CIRQ_CON, readl(CIRQ_CON));
 	}
 }
@@ -737,7 +737,7 @@ static void __cirq_fast_clone(void)
 		for_each_set_bit(cur_bit, (unsigned long *) &event->mask, 32) {
 			cirq_id = (event->reg_num << 5) + cur_bit;
 #ifdef FAST_CIRQ_DEBUG
-			pr_info("[CIRQ] reg_num: %d, bit:%d, cirq_id %d\n",
+			pr_debug("[CIRQ] reg_num: %d, bit:%d, cirq_id %d\n",
 				event->reg_num, cur_bit, cirq_id);
 #endif
 			irq_id = CIRQ_TO_IRQ_NUM(cirq_id);
@@ -754,7 +754,7 @@ static void __cirq_fast_clone(void)
 			else
 				mt_cirq_mask(cirq_id);
 #ifdef FAST_CIRQ_DEBUG
-			pr_info("[CIRQ] c:%d,i:%d, irq pol:%d,m:%d\n",
+			pr_debug("[CIRQ] c:%d,i:%d, irq pol:%d,m:%d\n",
 				cirq_id, irq_id, pol, en);
 #endif
 		}

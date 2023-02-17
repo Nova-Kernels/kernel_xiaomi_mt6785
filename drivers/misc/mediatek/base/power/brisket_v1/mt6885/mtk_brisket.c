@@ -81,7 +81,7 @@
 
 #ifdef BRISKET_DEBUG
 #define brisket_debug(fmt, args...)	\
-	pr_info(BRISKET_TAG"[%s():%d]" fmt, __func__, __LINE__, ##args)
+	pr_debug(BRISKET_TAG"[%s():%d]" fmt, __func__, __LINE__, ##args)
 #else
 #define brisket_debug(fmt, args...)
 #endif

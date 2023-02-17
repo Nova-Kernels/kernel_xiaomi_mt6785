@@ -879,7 +879,7 @@ static int __init init_adf_fbdev(void)
 	}
 
 	adf_format_str(adf_fbdev_supported_format, format_str);
-	pr_info("Found usable fbdev device (%s):\n"
+	pr_debug("Found usable fbdev device (%s):\n"
 		"range (physical) = 0x%lx-0x%lx\n"
 		"range (virtual)  = %p-%p\n"
 		"size (bytes)     = 0x%x\n"

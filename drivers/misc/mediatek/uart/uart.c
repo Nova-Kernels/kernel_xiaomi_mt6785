@@ -2163,7 +2163,7 @@ static void mtk_uart_set_termios(struct uart_port *port,
 	baud = uart_get_baud_rate(port, termios, old, 0, uart->sysclk);
 	if (baud == 0) {
 		spin_unlock_irqrestore(&port->lock, flags);
-		pr_info("UART error baud\n");
+		pr_debug("UART error baud\n");
 		return;
 	}
 

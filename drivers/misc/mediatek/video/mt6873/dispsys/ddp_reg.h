@@ -203,7 +203,7 @@ static inline unsigned long disp_addr_convert(unsigned long va)
 		if (ddp_get_module_va(i) == (va & (~0xfffl)))
 			return ddp_get_module_pa(i) + (va & 0xfffl);
 	}
-	pr_info("DDP/can not find reg addr for va=0x%lx!\n", va);
+	pr_debug("DDP/can not find reg addr for va=0x%lx!\n", va);
 	ASSERT(0);
 	return 0;
 }

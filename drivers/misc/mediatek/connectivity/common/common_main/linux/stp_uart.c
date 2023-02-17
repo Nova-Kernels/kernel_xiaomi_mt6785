@@ -65,7 +65,7 @@ do { if (gDbgLevel >= UART_LOG_DBG)	\
 } while (0)
 #define UART_PR_INFO(fmt, arg...)	\
 do { if (gDbgLevel >= UART_LOG_INFO)	\
-		pr_info(PFX "%s: "  fmt, __func__, ##arg);	\
+		pr_debug(PFX "%s: "  fmt, __func__, ##arg);	\
 } while (0)
 #define UART_PR_WARN(fmt, arg...)	\
 do { if (gDbgLevel >= UART_LOG_WARN)	\

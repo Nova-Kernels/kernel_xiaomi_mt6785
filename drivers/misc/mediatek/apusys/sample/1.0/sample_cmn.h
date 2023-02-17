@@ -18,14 +18,14 @@
 
 #define APUSYS_SPL_PREFIX "[apusys_sample]"
 #define spl_drv_err(x, args...) \
-	pr_info(APUSYS_SPL_PREFIX "[error] %s " x, __func__, ##args)
+	pr_debug(APUSYS_SPL_PREFIX "[error] %s " x, __func__, ##args)
 #define spl_drv_warn(x, args...) \
-	pr_info(APUSYS_SPL_PREFIX "[warn] %s " x, __func__, ##args)
+	pr_debug(APUSYS_SPL_PREFIX "[warn] %s " x, __func__, ##args)
 #define spl_drv_info(x, args...) \
-	pr_info(APUSYS_SPL_PREFIX "%s " x, __func__, ##args)
+	pr_debug(APUSYS_SPL_PREFIX "%s " x, __func__, ##args)
 #if 0
 #define spl_drv_dbg(x, args...) \
-	pr_info(APUSYS_SPL_PREFIX "%s " x, __func__, ##args)
+	pr_debug(APUSYS_SPL_PREFIX "%s " x, __func__, ##args)
 #else
 #define spl_drv_dbg(x, args...)
 #endif

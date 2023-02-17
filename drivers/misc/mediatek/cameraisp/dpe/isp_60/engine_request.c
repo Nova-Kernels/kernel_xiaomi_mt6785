@@ -44,7 +44,7 @@ MODULE_PARM_DESC(dpe_egn_debug, " activates debug info");
 #define LOG_INF(format, args...)				 \
 	do {							 \
 		if (dpe_egn_debug >= 1)				 \
-			pr_info(MyTag "[%s] " format, __func__, ##args);\
+			pr_debug(MyTag "[%s] " format, __func__, ##args);\
 	} while (0)
 
 #define LOG_WRN(format, args...)				 \

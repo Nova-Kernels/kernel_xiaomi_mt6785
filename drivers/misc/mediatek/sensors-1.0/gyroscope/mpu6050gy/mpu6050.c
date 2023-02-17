@@ -160,7 +160,7 @@ static bool sensor_power;
 #if MPU6050GY_DEBUG
 #define GYRO_FUN(f)	pr_debug(GYRO_FLAG"%s\n", __func__)
 #define GYRO_DBG(fmt, args...)	pr_debug(GYRO_FLAG fmt, ##args)
-#define GYRO_INFO(fmt, args...) pr_info(GYRO_FLAG fmt, ##args)
+#define GYRO_INFO(fmt, args...) pr_debug(GYRO_FLAG fmt, ##args)
 #define GYRO_PR_ERR(fmt, args...)	pr_err(GYRO_FLAG fmt, ##args)
 #else
 #define GYRO_FUN(f)

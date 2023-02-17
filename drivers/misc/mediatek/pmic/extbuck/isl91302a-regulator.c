@@ -273,7 +273,7 @@ static int isl91302a_enable_ipi(struct mtk_simple_regulator_desc *mreg_desc)
 	}
 
 	ret = extbuck_ipi_enable(buck_id, 1);
-	pr_info_ratelimited("%s [%s] id(%d), ret(%d)\n", __func__,
+	pr_debug_ratelimited("%s [%s] id(%d), ret(%d)\n", __func__,
 				mreg_desc->rdesc.name, buck_id, ret);
 	dsb(sy);
 	mdelay(1);
@@ -295,7 +295,7 @@ static int isl91302a_disable_ipi(struct mtk_simple_regulator_desc *mreg_desc)
 	}
 
 	ret = extbuck_ipi_enable(buck_id, 0);
-	pr_info_ratelimited("%s [%s] id(%d), ret(%d)\n", __func__,
+	pr_debug_ratelimited("%s [%s] id(%d), ret(%d)\n", __func__,
 				mreg_desc->rdesc.name, buck_id, ret);
 	if (ret != 0)
 		return -EINVAL;
@@ -314,7 +314,7 @@ static int isl91302a_is_enabled_ipi(struct mtk_simple_regulator_desc *mreg_desc)
 	}
 
 	ret = extbuck_ipi_enable(buck_id, 0xF);
-	pr_info_ratelimited("%s [%s] id(%d), ret(%d)\n", __func__,
+	pr_debug_ratelimited("%s [%s] id(%d), ret(%d)\n", __func__,
 			mreg_desc->rdesc.name, buck_id, ret);
 	if (ret != 0 && ret != 1)
 		return -EINVAL;
@@ -402,7 +402,7 @@ static int isl91302a_buck_set_ramp_dly(
 
 	switch (ramp_dly) {
 	default:
-		pr_info("%s Invalid ramp delay, set to default 2.5 mV/us\n",
+		pr_debug("%s Invalid ramp delay, set to default 2.5 mV/us\n",
 			__func__);
 		ret = isl91302a_set_ramp_val(mreg_desc, 0, 0);
 		break;

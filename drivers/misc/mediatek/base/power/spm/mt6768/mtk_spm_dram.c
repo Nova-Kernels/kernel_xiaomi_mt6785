@@ -134,11 +134,11 @@ static int spm_dram_golden_setting_cmp(bool en)
 					ddrphy_setting[i].offset);
 		if ((value & ddrphy_setting[i].mask) !=
 				ddrphy_setting[i].value) {
-			pr_info(
+			pr_debug(
 				"[SPM] NO dramc mismatch addr: 0x%.2x, offset: 0x%.3x, ",
 				ddrphy_setting[i].base,
 				ddrphy_setting[i].offset);
-			pr_info(
+			pr_debug(
 				"mask: 0x%.8x, val: 0x%x, read: 0x%x\n",
 				ddrphy_setting[i].mask,
 				ddrphy_setting[i].value,
@@ -173,7 +173,7 @@ static void spm_dram_type_check(void)
 	else if (ddr_type == TYPE_LPDDR3 && ddr_hz == 1866)
 		spmfw_idx = SPMFW_LP3_1CH_1866;
 
-	pr_info("#@# %s(%d) __spmfw_idx 0x%x, ddr=[%d][%d]\n",
+	pr_debug("#@# %s(%d) __spmfw_idx 0x%x, ddr=[%d][%d]\n",
 		__func__, __LINE__, spmfw_idx, ddr_type, ddr_hz);
 }
 #endif /* CONFIG_MTK_DRAMC */

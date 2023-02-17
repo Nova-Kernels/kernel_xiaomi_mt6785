@@ -89,7 +89,7 @@ static int _wmt_alarm_start_timer_nolock(unsigned int sec)
 	alarm_start_relative(&g_wmt_alarm.alarm_timer, kt);
 	g_wmt_alarm.alarm_state = WMT_ALARM_STATE_ENABLE;
 
-	pr_info("[wmt_alarm] alarm timer enabled timeout=[%d]", g_wmt_alarm.alarm_sec);
+	pr_debug("[wmt_alarm] alarm timer enabled timeout=[%d]", g_wmt_alarm.alarm_sec);
 	return 0;
 }
 
@@ -117,7 +117,7 @@ int wmt_alarm_deinit(void)
 int _wmt_alarm_cancel_nolock(void)
 {
 	if (g_wmt_alarm.alarm_state == WMT_ALARM_STATE_ENABLE) {
-		pr_info("disable wmt_alarm");
+		pr_debug("disable wmt_alarm");
 		alarm_cancel(&g_wmt_alarm.alarm_timer);
 		g_wmt_alarm.alarm_state = WMT_ALARM_STATE_DISABLE;
 	}
