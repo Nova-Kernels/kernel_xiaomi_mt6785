@@ -72,7 +72,7 @@ static const char *ac_cpu_cond_name[NF_ANY_CORE_CPU_COND_INFO] = {
 static unsigned long long mcdi_heart_beat_log_prev;
 static DEFINE_SPINLOCK(mcdi_heart_beat_spin_lock);
 
-static unsigned int mcdi_heart_beat_log_dump_thd = 5000;          /* 5 sec */
+static unsigned int mcdi_heart_beat_log_dump_thd = 60000;          /* 1 minute */
 
 static bool mcdi_stress_en;
 static unsigned int mcdi_stress_us = 10 * 1000;
