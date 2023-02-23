@@ -86,29 +86,6 @@
 
 #define DISPPR_HWOP(string, args...)
 
-#ifndef CONFIG_MTK_AEE_FEATURE
-# define aee_kernel_warning_api(...)
-# define aee_kernel_exception(...)
-#endif
-
-#define disp_aee_print(string, args...)					\
-	do {								\
-		char disp_name[100];					\
-		snprintf(disp_name, 100, "[DISP]"string, ##args);	\
-		aee_kernel_warning_api(__FILE__, __LINE__,		\
-				DB_OPT_DEFAULT | DB_OPT_MMPROFILE_BUFFER | \
-				DB_OPT_DISPLAY_HANG_DUMP | DB_OPT_DUMP_DISPLAY,\
-				disp_name, "[DISP] error"string, ##args); \
-		pr_err("DISP error: "string, ##args);			\
-	} while (0)
-
-# define disp_aee_db_print(string, args...)				\
-	do {								\
-		pr_err("DISP error:"string, ##args);			\
-		aee_kernel_exception("DISP", "[DISP]error:%s, %d\n",	\
-					__FILE__, __LINE__);		\
-	} while (0)
-
 #define _DISP_PRINT_FENCE_OR_ERR(is_err, string, args...)		\
 	do {								\
 		if (is_err)						\

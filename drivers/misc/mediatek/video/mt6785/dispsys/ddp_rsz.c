@@ -259,8 +259,6 @@ static int rsz_config(enum DISP_MODULE_ENUM module,
 		if (!dump) {
 			dump = true;
 			primary_display_diagnose(__func__, __LINE__);
-			disp_aee_print("need rsz but input_w(%u) > limit(%u)\n",
-				       rsz_config->frm_in_w, RSZ_TILE_LENGTH);
 		}
 		return -EINVAL;
 	}
@@ -283,8 +281,6 @@ static int rsz_config(enum DISP_MODULE_ENUM module,
 		if (!dump) {
 			dump = true;
 			primary_display_diagnose(__func__, __LINE__);
-			disp_aee_print("NOT scaling-up,(%ux%u)>(%ux%u)\n",
-				       in_w, in_h, out_w, out_h);
 		}
 		return -EINVAL;
 	}

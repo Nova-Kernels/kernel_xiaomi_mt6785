@@ -1598,7 +1598,6 @@ int disp_lcm_is_video_mode(struct disp_lcm_handle *plcm)
 	if (_is_lcm_inited(plcm))
 		lcm_param = plcm->params;
 	else {
-		disp_aee_db_print("LCM isn't init\n");
 		return -1;
 	}
 
@@ -1628,8 +1627,6 @@ int disp_lcm_is_video_mode(struct disp_lcm_handle *plcm)
 		}
 	}
 
-	disp_aee_db_print(
-		"LCM parmas is error, type=%d\n", lcm_param->type);
 	return -1;
 }
 

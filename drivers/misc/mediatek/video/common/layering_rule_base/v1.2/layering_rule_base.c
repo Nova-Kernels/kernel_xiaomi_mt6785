@@ -775,15 +775,11 @@ static int rollback_to_GPU(struct disp_layer_info *info,
 
 	if (is_layer_id_valid(info, disp, info->gles_head[disp]) == false) {
 		dump_disp_info(info, DISP_DEBUG_LEVEL_CRITICAL);
-		disp_aee_print("invalid gles_head:%d, aval:%d\n",
-			info->gles_head[disp], available);
 		WARN_ON(1);
 	}
 
 	if (is_layer_id_valid(info, disp, info->gles_tail[disp]) == false) {
 		dump_disp_info(info, DISP_DEBUG_LEVEL_CRITICAL);
-		disp_aee_print("invalid gles_tail:%d, aval:%d\n",
-			info->gles_tail[disp], available);
 		WARN_ON(1);
 	}
 
