@@ -1179,8 +1179,6 @@ unsigned int psi_trigger_poll(void **trigger_ptr, struct file *file,
 	poll_wait(file, &t->event_wait, wait);
 
 	if (cmpxchg(&t->event, 1, 0) == 1) {
-		pr_info("%s: t:%p triggered!\n",
-			__func__, t);
 		ret |= POLLPRI;
 	}
 
