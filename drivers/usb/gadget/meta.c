@@ -1213,7 +1213,7 @@ static void do_android_usb_state_monitor_work(struct work_struct *work)
 	if (dev && dev->cdev && dev->cdev->config)
 		usb_state = "CONFIGURED";
 
-	pr_info("usb_state<%s>\n", usb_state);
+	pr_debug("usb_state<%s>\n", usb_state);
 	schedule_delayed_work(&android_usb_state_monitor_work,
 			msecs_to_jiffies(USB_STATE_MONITOR_DELAY));
 }
