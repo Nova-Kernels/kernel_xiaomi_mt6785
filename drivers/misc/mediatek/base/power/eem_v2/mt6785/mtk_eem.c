@@ -383,30 +383,6 @@ static int get_devinfo(void)
 	 * One-line
 	 */
 
-	/* CCI */
-	aee_rr_rec_ptp_devinfo_3((unsigned int) pi_efuse_idx[0].orig_mdes_bdes);
-	aee_rr_rec_ptp_devinfo_4((unsigned int) pi_efuse_idx[0].orig_mtdes);
-
-	/* Little: MDES and BDES */
-	aee_rr_rec_ptp_devinfo_5((unsigned int) pi_efuse_idx[1].orig_mdes_bdes);
-
-	/* Big and little: MTDES */
-	aee_rr_rec_ptp_devinfo_6((unsigned int) pi_efuse_idx[1].orig_mtdes);
-
-	/* Big: MDES and BDES */
-	aee_rr_rec_ptp_devinfo_7((unsigned int) pi_efuse_idx[2].orig_mdes_bdes);
-
-	/*
-	 * Two-line
-	 */
-
-#if ENABLE_LOO_B
-	/* Big_Hi */
-	aee_rr_rec_ptp_cpu_2_little_volt(pi_efuse_idx[3].orig_mbb);
-
-	/* Big_Low */
-	aee_rr_rec_ptp_cpu_2_little_volt_1(pi_efuse_idx[4].orig_mbb);
-#endif
 #endif
 
 #ifdef CONFIG_EEM_AEE_RR_REC

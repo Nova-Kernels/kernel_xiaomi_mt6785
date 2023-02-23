@@ -356,8 +356,6 @@ static void vpu_err_msg(int core, const char *msg)
 		if (hw_fail) { \
 			vpu_dmp_create_locked(core, req, fmt, ##args); \
 			apu_get_power_info(); \
-			aee_kernel_exception("VPU", \
-			"\nCRDISPATCH_KEY:" key "\n" fmt, ##args); \
 		} \
 	} while (0)
 #else
@@ -1967,10 +1965,6 @@ static int vpu_disable_regulator_and_clock(int core)
 
 		if ((int)smi_bus_vpu_value != 0) {
 			smi_debug_bus_hanging_detect_ext2(0x1ff, 1, 0, 1);
-			vpu_aee_warn("VPU SMI CHECK",
-				"core_%d fail to check smi, value=%d\n",
-				core,
-				smi_bus_vpu_value);
 		}
 	}
 #else
