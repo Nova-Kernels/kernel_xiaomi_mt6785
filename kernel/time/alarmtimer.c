@@ -171,7 +171,7 @@ static void alarmtimer_enqueue(struct alarm_base *base, struct alarm *alarm)
 
 	if (__ratelimit(&ratelimit)) {
 		ratelimit.begin = jiffies;
-		pr_notice("%s, %lld\n", __func__, alarm->node.expires);
+		pr_debug("%s, %lld\n", __func__, alarm->node.expires);
 	}
 
 	timerqueue_add(&base->timerqueue, &alarm->node);
