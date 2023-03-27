@@ -724,7 +724,7 @@ static void binder_print_delay(struct binder_transaction *t)
 	rtc_time_to_tm(t->tv.tv_sec, &tm);
 
 	spin_lock(&t->lock);
-	pr_info_ratelimited("%d: from %d:%d to %d:%d",
+	pr_debug_ratelimited("%d: from %d:%d to %d:%d",
 			t->debug_id,
 			t->from ? t->from->proc->pid : 0,
 			t->from ? t->from->pid : 0,
@@ -732,7 +732,7 @@ static void binder_print_delay(struct binder_transaction *t)
 			t->to_thread ? t->to_thread->pid : 0);
 	spin_unlock(&t->lock);
 
-	pr_info_ratelimited(" total %u.%03ld s code %u start %lu.%03ld android %d-%02d-%02d %02d:%02d:%02d.%03lu\n",
+	pr_debug_ratelimited(" total %u.%03ld s code %u start %lu.%03ld android %d-%02d-%02d %02d:%02d:%02d.%03lu\n",
 			(unsigned int)sub_t.tv_sec,
 			(sub_t.tv_nsec / NSEC_PER_MSEC),
 			t->code,
