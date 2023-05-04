@@ -21,6 +21,9 @@ drm-y       :=	drm_auth.o drm_bufs.o drm_cache.o \
 		drm_syncobj.o drm_writeback.o \
 		drm_notifier_mi.o
 
+drm-$(CONFIG_DRM_MEDIATEK_BOMB) += drm_sysfs.o
+drm-$(CONFIG_DRM_MEDIATEK_CANNON) += drm_sysfs_cannon.o
+
 drm-$(CONFIG_DRM_LIB_RANDOM) += lib/drm_random.o
 drm-$(CONFIG_DRM_VM) += drm_vm.o
 drm-$(CONFIG_COMPAT) += drm_ioc32.o
@@ -89,6 +92,8 @@ obj-$(CONFIG_DRM_TEGRA) += tegra/
 obj-$(CONFIG_DRM_STM) += stm/
 obj-$(CONFIG_DRM_STI) += sti/
 obj-$(CONFIG_DRM_IMX) += imx/
+obj-$(CONFIG_DRM_MEDIATEK_BOMB) += mediatek/
+obj-$(CONFIG_DRM_MEDIATEK_CANNON) += mediatek_cannon/
 obj-$(CONFIG_DRM_MESON)	+= meson/
 obj-y			+= i2c/
 obj-y			+= panel/
@@ -113,3 +118,7 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/dramc/$(MTK_PLATFORM)	\
              -I$(srctree)/drivers/misc/mediatek/include/mt-plat \
              -I$(srctree)/drivers/misc/mediatek/leds/ \
              -I$(srctree)/drivers/misc/mediatek/leds/$(MTK_PLATFORM)
+
+
+ccflags-$(CONFIG_DRM_MEDIATEK_BOMB) += -I$(srctree)/drivers/gpu/drm/mediatek/
+ccflags-$(CONFIG_DRM_MEDIATEK_CANNON) += -I$(srctree)/drivers/gpu/drm/mediatek_cannon/

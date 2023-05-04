@@ -64,6 +64,23 @@ config REGULATOR_88PM800
 	  It's suitable to support PXA988 chips to control VCC_MAIN and
 	  various voltages.
 
+config REGULATOR_FAN53870
+	bool "ON Semi Technologies Inc. FAN53870 regulator driver"
+	depends on I2C_MTK
+	help
+	  Say Y here to support the FAN53870 PMIC chip.
+	  This driver controls FAN53870 PMIC chip and the voltage
+	  regulators found in ON Semi Technologies Inc. FAN53870
+	  PMIC.
+
+config REGULATOR_PM8008
+	bool "ON Semi Technologies Inc. PM8008 regulator driver"
+	depends on I2C_MTK
+	help
+	  Say Y here to support the PM8008 PMIC chip.
+	  This driver controls QCOM_PM8008 PMIC chip and the voltage
+	  regulators found in ON Semi Technologies Inc. PM8008
+	  PMIC.
 
 config REGULATOR_88PM8607
 	tristate "Marvell 88PM8607 Power regulators"
@@ -551,12 +568,30 @@ config REGULATOR_MT6311
 	  This driver supports the control of different power rails of device
 	  through regulator interface.
 
+config REGULATOR_MT6315
+	tristate "MediaTek MT6315 PMIC"
+	depends on MTK_MFD_SPMI_PMIC
+	help
+	  Say y here to select this option to enable the power regulator of
+	  MediaTek MT6315 PMIC.
+	  This driver supports the control of different power rails of device
+	  through regulator interface.
+
 config REGULATOR_MT6323
 	tristate "MediaTek MT6323 PMIC"
 	depends on MFD_MT6397
 	help
 	  Say y here to select this option to enable the power regulator of
 	  MediaTek MT6323 PMIC.
+	  This driver supports the control of different power rails of device
+	  through regulator interface.
+
+config REGULATOR_MT6358
+	tristate "MediaTek MT6358 PMIC"
+	depends on MFD_MT6358
+	help
+	  Say y here to select this option to enable the power regulator of
+	  MediaTek MT6358 PMIC.
 	  This driver supports the control of different power rails of device
 	  through regulator interface.
 
@@ -569,12 +604,40 @@ config REGULATOR_MT6359
 	  This driver supports the control of different power rails of device
 	  through regulator interface.
 
+config REGULATOR_MT6359P
+	tristate "MediaTek MT6359P PMIC"
+	depends on MFD_MT6358
+	help
+	  Say y here to select this option to enable the power regulator of
+	  MediaTek MT6359P PMIC.
+	  This driver supports the control of different power rails of device
+	  through regulator interface.
+
+config REGULATOR_MT6362
+	tristate "MT6362 SPMI Regulator driver"
+	depends on MFD_MT6362
+	help
+	  Say yes here to have support for the MT6362 Regulator
+	  Include six BUCKs and seven LDOs.
+
+	  The driver can also be build as a module.
+	  If so, the module will be called mt6362_regulator
+
 config REGULATOR_MT6380
 	tristate "MediaTek MT6380 PMIC"
 	depends on MTK_PMIC_WRAP
 	help
 	  Say y here to select this option to enable the power regulator of
 	  MediaTek MT6380 PMIC.
+	  This driver supports the control of different power rails of device
+	  through regulator interface.
+
+config REGULATOR_MT6392
+	tristate "MediaTek MT6392 PMIC"
+	depends on MFD_MT6397
+	help
+	  Say y here to select this option to enable the power regulator of
+	  MediaTek MT6392 PMIC.
 	  This driver supports the control of different power rails of device
 	  through regulator interface.
 

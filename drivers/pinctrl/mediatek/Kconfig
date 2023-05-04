@@ -63,8 +63,27 @@ config PINCTRL_MT8127
 	select PINCTRL_MTK
 
 # For ARMv8 SoCs
+config PINCTRL_MT8167
+	bool "Mediatek MT8167 pin control" if COMPILE_TEST && !ARCH_MT8167
+	depends on OF
+	default ARCH_MT8167
+	select PINCTRL_MTK
+
+config PINCTRL_MT8168
+	bool "Mediatek MT8168 pin control" if COMPILE_TEST && !ARCH_MT8168
+	depends on OF
+	default ARCH_MT8168
+	select PINCTRL_MTK
+
 config PINCTRL_MT8173
 	bool "Mediatek MT8173 pin control"
+	depends on OF
+	depends on ARM64 || COMPILE_TEST
+	default ARM64 && ARCH_MEDIATEK
+	select PINCTRL_MTK
+
+config PINCTRL_MT8183
+	bool "Mediatek MT8183 pin control"
 	depends on OF
 	depends on ARM64 || COMPILE_TEST
 	default ARM64 && ARCH_MEDIATEK
@@ -92,6 +111,54 @@ config PINCTRL_MTK_DEBUG
 endif
 
 if !ARCH_MEDIATEK
+
+config PINCTRL_MT6739
+	bool "Mediatek MT6739 pin control"
+	default n
+	depends on MACH_MT6739
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT6765
+	bool "Mediatek MT6765 pin control"
+	default n
+	depends on MACH_MT6765
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT6768
+	bool "Mediatek MT6768 pin control"
+	default n
+	depends on MACH_MT6768
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT6771
+	bool "Mediatek MT6771 pin control"
+	default n
+	depends on MACH_MT6771
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT6833
+	bool "Mediatek MT6833 pin control"
+	default n
+	depends on MACH_MT6833
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT6853
+	bool "Mediatek MT6853 pin control"
+	default n
+	depends on MACH_MT6853
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT6873
+	bool "Mediatek MT6873 pin control"
+	default n
+	depends on MACH_MT6873
+	select PINCTRL_MTK_PARIS
+
+config PINCTRL_MT6885
+	bool "Mediatek MT6885 pin control"
+	default n
+	depends on MACH_MT6885 || MACH_MT6893
+	select PINCTRL_MTK_PARIS
 
 config PINCTRL_MT6785
 	bool "Mediatek MT6785 pin control"

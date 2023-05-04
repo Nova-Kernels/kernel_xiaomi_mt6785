@@ -20,12 +20,35 @@ unsigned long long big_cpu_eff_tp = 1024;
 #define cpu_isolated(cpu) 0
 #endif
 
+#if defined(CONFIG_MACH_MT6763) || defined(CONFIG_MACH_MT6758)
+/* cpu7 is L+ */
+int l_plus_cpu = 7;
+#else
 int l_plus_cpu = -1;
+#endif
+
 
 #ifdef CONFIG_MTK_SCHED_EAS_POWER_SUPPORT
 
+#if defined(CONFIG_MACH_MT6763) || defined(CONFIG_MACH_MT6758)
+/* MT6763: 2 gears. cluster 0 & 1 is buck shared. */
+static int share_buck[3] = {1, 0, 2};
+#elif defined(CONFIG_MACH_MT6799)
+/* MT6799: 3 gears. cluster 0 & 2 is buck shared. */
+static int share_buck[3] = {2, 1, 0};
+#elif defined(CONFIG_MACH_MT6765) || defined(CONFIG_MACH_MT6762)
+static int share_buck[3] = {1, 0, 2};
+#elif defined(CONFIG_MACH_MT6779)
+static int share_buck[2] = {2, 1};
+#define ARM_V8_2
+int l_plus_cpu = -1;
+#elif defined(CONFIG_MACH_MT6893) || \
+	(defined(CONFIG_MACH_MT6885) && defined(CONFIG_MTK_SCHED_MULTI_GEARS))
+static int share_buck[3] = {0, 2, 1};
+#else
 /* no buck shared */
 static int share_buck[3] = {0, 1, 2};
+#endif
 
 #endif
 

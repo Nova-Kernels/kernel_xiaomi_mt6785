@@ -2680,6 +2680,15 @@ int mtk_drm_ioctl_read_reg(struct drm_device *dev, void *data,
 			__func__, __LINE__);
 		rParams->val = readl(va) & rParams->mask;
 
+#if defined(CONFIG_MACH_MT6885) || defined(CONFIG_MACH_MT6873) \
+	|| defined(CONFIG_MACH_MT6893) || defined(CONFIG_MACH_MT6853) \
+	|| defined(CONFIG_MACH_MT6833)
+	// For 6885 CCORR COEF, real values need to right shift one bit
+	if (pa >= ccorr_comp->regs_pa + CCORR_REG(0) &&
+		pa <= ccorr_comp->regs_pa + CCORR_REG(4))
+		rParams->val = rParams->val >> 1;
+#endif
+
 		spin_unlock_irqrestore(&g_color_clock_lock, flags);
 	} else {
 		DDPINFO("%s @ %d......... Failed to spin_trylock_irqsave ",
@@ -2712,6 +2721,15 @@ int mtk_drm_ioctl_write_reg(struct drm_device *dev, void *data,
 		DDPPR_ERR("reg write, addr invalid, pa:0x%x\n", pa);
 		return -EFAULT;
 	}
+
+#if defined(CONFIG_MACH_MT6885) || defined(CONFIG_MACH_MT6873) \
+	|| defined(CONFIG_MACH_MT6893) || defined(CONFIG_MACH_MT6853) \
+	|| defined(CONFIG_MACH_MT6833)
+	// For 6885 CCORR COEF, real values need to left shift one bit
+	if (pa >= ccorr_comp->regs_pa + CCORR_REG(0) &&
+		pa <= ccorr_comp->regs_pa + CCORR_REG(4))
+		wParams->val = wParams->val << 1;
+#endif
 
 	return mtk_crtc_user_cmd(crtc, comp, WRITE_REG, data);
 }
@@ -2938,6 +2956,13 @@ static void mtk_color_prepare(struct mtk_ddp_comp *comp)
 		mtk_ddp_write_mask_cpu(comp, COLOR_BYPASS_SHADOW,
 			DISP_COLOR_SHADOW_CTRL, COLOR_BYPASS_SHADOW);
 	}
+#else
+#if defined(CONFIG_MACH_MT6873) || defined(CONFIG_MACH_MT6853) \
+	|| defined(CONFIG_MACH_MT6833)
+	/* Bypass shadow register and read shadow register */
+	mtk_ddp_write_mask_cpu(comp, COLOR_BYPASS_SHADOW,
+		DISP_COLOR_SHADOW_CTRL, COLOR_BYPASS_SHADOW);
+#endif
 #endif
 	// restore DISP_COLOR_CFG_MAIN register
 	ddp_color_restore(comp);

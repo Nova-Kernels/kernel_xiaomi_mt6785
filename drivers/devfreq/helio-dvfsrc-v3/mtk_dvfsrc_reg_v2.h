@@ -14,7 +14,9 @@
 #ifndef __MTK_DVFSRC_REG_V2_H
 #define __MTK_DVFSRC_REG_V2_H
 
-#if defined(CONFIG_MACH_MT6785)
+#if defined(CONFIG_MACH_MT6779)
+#define DVFSRC_IP_V2_1
+#elif defined(CONFIG_MACH_MT6785)
 #define DVFSRC_IP_V2_2
 #endif
 

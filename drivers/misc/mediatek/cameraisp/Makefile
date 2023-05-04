@@ -11,11 +11,34 @@
 # GNU General Public License for more details.
 #
 
+ifeq ($(CONFIG_MTK_PLATFORM), "mt6873")
+obj-y += mt6873/dip/
+obj-y += mt6873/src/
+obj-y += mt6873/owe/
+obj-y += mt6873/rsc/
+obj-y += mt6873/wpe/
+obj-y += mt6873/dpe/
+obj-y += mt6873/tsf/
+obj-y += mt6873/mfb/
+obj-y += mt6873/fdvt/
+else ifeq ($(CONFIG_MTK_PLATFORM), "mt6885")
+obj-y += mt6885/dip/
+obj-y += mt6885/src/
+obj-y += mt6885/owe/
+obj-y += mt6885/rsc/
+obj-y += mt6885/wpe/
+obj-y += mt6885/dpe/
+obj-y += mt6885/tsf/
+obj-y += mt6885/mfb/
+obj-y += mt6885/fdvt/
+else
 obj-y += dip/
 obj-y += src/
 obj-y += owe/
 obj-y += rsc/
 obj-y += wpe/
 obj-y += dpe/
+obj-y += tsf/
 obj-y += mfb/
 obj-y += fdvt/
+endif

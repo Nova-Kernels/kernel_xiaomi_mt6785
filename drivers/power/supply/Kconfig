@@ -619,6 +619,22 @@ config CUSTOM_BATTERY_EXTERNAL_CHANNEL
 	  Say Y to enable support for Customer external gauge.
 	  if unsure ,choose n.
 
+config MTK_CHARGER_BOMB
+	bool "MTK charger for BOMB"
+	help
+	  Say yes In MTK charger bomb. J7A/J7B
+
+config MTK_CHARGER_CEZANNE
+	bool "MTK charger for CEZANNE"
+	help
+	  Say yes In MTK charger cezanne. J10
+
+config MTK_CHARGER_CANNON
+	bool "MTK charger for CANNON"
+	help
+	  Say yes In MTK charger cannon. J22
+
+
 config MTK_CHARGER_BEGONIA
 	bool "MTK charger for BEGONIA"
 	help

@@ -36,8 +36,15 @@
 #define CMDQ_TICK_TO_US(_t)		(do_div(_t, 26))
 
 extern int gce_shift_bit;
+#if IS_ENABLED(CONFIG_MACH_MT6771) || IS_ENABLED(CONFIG_MACH_MT8168) || \
+	IS_ENABLED(CONFIG_MACH_MT6768) || IS_ENABLED(CONFIG_MACH_MT6739) || \
+	IS_ENABLED(CONFIG_MACH_MT8167)
+#define CMDQ_REG_SHIFT_ADDR(addr)	((addr) >> gce_shift_bit)
+#define CMDQ_REG_REVERT_ADDR(addr)	((addr) << gce_shift_bit)
+#else
 #define CMDQ_REG_SHIFT_ADDR(addr)	((addr) >> 3)
 #define CMDQ_REG_REVERT_ADDR(addr)	((addr) << 3)
+#endif
 
 
 /* GCE provide 32/64 bit General Purpose Register (GPR)

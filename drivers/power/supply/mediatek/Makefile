@@ -20,7 +20,13 @@ subdir-ccflags-y += -Werror -I$(srctree)/drivers/misc/mediatek/pmic/include
 
 ifneq ($(CONFIG_FPGA_EARLY_PORTING),y)
 ifeq ($(CONFIG_MTK_GAUGE_VERSION),30)
-ifeq ($(CONFIG_MTK_CHARGER_BEGONIA),y)
+ifeq ($(CONFIG_MTK_CHARGER_BOMB),y)
+	obj-y += battery_bomb/
+else ifeq ($(CONFIG_MTK_CHARGER_CEZANNE),y)
+	obj-y += battery_cezanne/
+else ifeq ($(CONFIG_MTK_CHARGER_CANNON),y)
+	obj-y += battery_cannon/
+else ifeq ($(CONFIG_MTK_CHARGER_BEGONIA),y)
 	obj-y += battery_begonia/
 else
 	obj-y += battery/
@@ -29,7 +35,13 @@ endif
 endif
 
 ifeq ($(CONFIG_MTK_GAUGE_VERSION),30)
-ifeq ($(CONFIG_MTK_CHARGER_BEGONIA),y)
+ifeq ($(CONFIG_MTK_CHARGER_BOMB),y)
+	obj-$(CONFIG_MTK_CHARGER) += charger_bomb/
+else ifeq ($(CONFIG_MTK_CHARGER_CEZANNE),y)
+	obj-$(CONFIG_MTK_CHARGER) += charger_cezanne/
+else ifeq ($(CONFIG_MTK_CHARGER_CANNON),y)
+	obj-$(CONFIG_MTK_CHARGER) += charger_cannon/
+else ifeq ($(CONFIG_MTK_CHARGER_BEGONIA),y)
 	obj-$(CONFIG_MTK_CHARGER) += charger_begonia/
 else
 	obj-$(CONFIG_MTK_CHARGER) += charger/
