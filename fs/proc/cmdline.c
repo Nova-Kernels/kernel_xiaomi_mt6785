@@ -6,9 +6,7 @@
 #include <linux/slab.h>
 #include <asm/setup.h>
 
-#ifdef CONFIG_PROC_BEGONIA_CMDLINE
 static char patched_cmdline[COMMAND_LINE_SIZE];
-#endif
 
 static int cmdline_proc_show(struct seq_file *m, void *v)
 {
@@ -32,7 +30,7 @@ static const struct file_operations cmdline_proc_fops = {
 	.release	= single_release,
 };
 
-#ifdef CONFIG_PROC_BEGONIA_CMDLINE
+#ifndef CONFIG_PROC_BEGONIA_CMDLINE
 static void append_cmdline(char *cmd, const char *flag_val) {
 	strncat(cmd, " ", 2);
 	strncat(cmd, flag_val, strlen(cmd) + 1);
@@ -69,7 +67,7 @@ static void patch_begonia_cmdline(char *cmdline)
 
 static int __init proc_cmdline_init(void)
 {
-#ifdef CONFIG_PROC_BEGONIA_CMDLINE
+#ifndef CONFIG_PROC_BEGONIA_CMDLINE
 	strcpy(patched_cmdline, saved_command_line);
 
 	patch_begonia_cmdline(patched_cmdline);
