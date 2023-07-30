@@ -159,7 +159,7 @@ enum {
  * Default minimum number of scheduling ticks before jobs are hard-stopped
  * during dumping
  */
-#define DEFAULT_JS_HARD_STOP_TICKS_DUMPING   (15000) /* 1500s */
+#define DEFAULT_JS_HARD_STOP_TICKS_DUMPING   (1000) /* 100s */
 
 /**
  * Default timeout for some software jobs, after which the software event wait
