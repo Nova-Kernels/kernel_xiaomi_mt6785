@@ -31,6 +31,7 @@
 #include <linux/workqueue.h>
 #include <linux/kthread.h>
 #include <mt-plat/aee.h>
+#include <linux/pm_qos.h>
 
 #ifdef GED_DEBUG_FS
 #include "ged_debugFS.h"
@@ -279,8 +280,7 @@ dispatch_exit:
 	return ret;
 }
 
-static long
-ged_ioctl(struct file *pFile, unsigned int ioctlCmd, unsigned long arg)
+static long __ged_ioctl(struct file *pFile, unsigned int ioctlCmd, unsigned long arg)
 {
 	int ret = -EFAULT;
 	struct GED_BRIDGE_PACKAGE *psBridgePackageKM;
@@ -298,6 +298,27 @@ ged_ioctl(struct file *pFile, unsigned int ioctlCmd, unsigned long arg)
 	ret = ged_dispatch(pFile, psBridgePackageKM);
 
 unlock_and_return:
+
+	return ret;
+}
+
+static long ged_ioctl(struct file *pFile, unsigned int ioctlCmd, unsigned long arg)
+{
+	/*
+	 * Optimistically assume the current task won't migrate to another CPU
+	 * and restrict the current CPU to shallow idle states so that it won't
+	 * take too long to finish running the ioctl whenever the ioctl runs a
+	 * command that sleeps, such as for an "atomic" commit.
+	 */
+	struct pm_qos_request req = {
+		.type = PM_QOS_REQ_AFFINE_CORES,
+		.cpus_affine = {BIT(raw_smp_processor_id())}
+	};
+	int ret;
+
+	pm_qos_add_request(&req, PM_QOS_CPU_DMA_LATENCY, 100);
+	ret = __ged_ioctl(pFile, ioctlCmd, arg);
+	pm_qos_remove_request(&req);
 
 	return ret;
 }
