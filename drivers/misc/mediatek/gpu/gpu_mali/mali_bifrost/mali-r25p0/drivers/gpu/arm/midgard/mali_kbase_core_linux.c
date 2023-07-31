@@ -1467,8 +1467,6 @@ static int kbase_api_tlstream_stats(struct kbase_context *kctx,
 	do {                                                   \
 		type param;                                        \
 		int err;										   \
-		if(cmd == KBASE_IOCTL_JOB_SUBMIT)				   \
-			devfreq_boost_kick(DEVFREQ_CPU_LLCC_DDR_BW);   \
 		BUILD_BUG_ON(_IOC_DIR(cmd) != _IOC_WRITE);         \
 		BUILD_BUG_ON(sizeof(param) != _IOC_SIZE(cmd));     \
 		err = copy_from_user(&param, uarg, sizeof(param)); \
@@ -1542,6 +1540,7 @@ static long __kbase_ioctl(struct file *filp, unsigned int cmd, unsigned long arg
 				kbase_api_job_submit,
 				struct kbase_ioctl_job_submit,
 				kctx);
+		devfreq_boost_kick(DEVFREQ_CPU_LLCC_DDR_BW);
 		break;
 	case KBASE_IOCTL_GET_GPUPROPS:
 		KBASE_HANDLE_IOCTL_IN(KBASE_IOCTL_GET_GPUPROPS,
