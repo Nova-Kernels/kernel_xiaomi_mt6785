@@ -39,7 +39,7 @@
 vmalloc=400M swiotlb=noforce \
 cgroup.memory=nosocket,nokmem \
 firmware_class.path=/vendor/firmware \
-page_owner=on quiet nodebugmon loop.max_part=16";
+page_owner=on quiet nodebugmon loop.max_part=7";
 		kaslr-seed = <0 0>;
 	};
 
