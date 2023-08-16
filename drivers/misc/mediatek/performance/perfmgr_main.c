@@ -55,7 +55,9 @@ static int perfmgr_remove(struct platform_device *dev)
 	/*TODO: workaround for k414
 	 * topo_ctrl_exit();
 	 */
+#ifdef CONFIG_MTK_CPU_CTRL
 	cpu_ctrl_exit();
+#endif
 #ifdef CONFIG_MTK_SYSLIMITER
 	syslimiter_exit();
 #endif
@@ -73,6 +75,7 @@ static struct platform_driver perfmgr_driver = {
 	},
 };
 
+#ifdef CONFIG_MTK_TOPO_CTRL
 static int perfmgr_main_data_init(void)
 {
 
@@ -81,6 +84,7 @@ static int perfmgr_main_data_init(void)
 
 	return 0;
 }
+#endif
 
 /*--------------------INIT------------------------*/
 
@@ -96,7 +100,9 @@ static int __init init_perfmgr(void)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_MTK_TOPO_CTRL
 	perfmgr_main_data_init();
+#endif
 
 	perfmgr_root = proc_mkdir("perfmgr", NULL);
 	pr_debug("MTK_TOUCH_BOOST function init_perfmgr_touch\n");

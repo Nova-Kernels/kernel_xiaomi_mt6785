@@ -8,9 +8,17 @@ config MTK_LOAD_TRACKER
 	  information. User can register callback and config polling
 	  duration to get CPU loading.
 
+config MTK_TOPO_CTRL
+	bool "MediaTek Topology information driver"
+	help
+	  Say Y here to enable MediaTek Topology information driver.
+	  This driver provides the topology information of the system
+	  to userspace and kernel modules.
+
 config MTK_CPU_CTRL
 	bool "CPU CTRL support"
 	depends on MTK_CPU_FREQ
+	depends on MTK_TOPO_CTRL
 	depends on !MTK_GKI_COMPAT
 	help
 	  Say Y here to enable MediaTeks custom CPU controller.
@@ -28,6 +36,13 @@ config MTK_CPU_CTRL_CFP
 	  Ceiling-Fool-Proof Mechanism designed by MTK. CPU controller
 	  will free CPU frequency ceiling during heavy CPU loading.
 	  This function depends on MTK_LOAD_TRACKER.
+
+config MTK_EAS_CTRL
+	bool "MediaTek EAS control"
+	depends on MTK_CPU_CTRL
+	help
+	  Say Y here to enable MediaTeks EAS control driver.
+	  This driver provides the EAS control interface to userspace.
 
 config MTK_SYSLIMITER
 	bool "MTK system limiter support"
