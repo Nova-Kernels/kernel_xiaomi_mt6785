@@ -13,6 +13,7 @@
 #ifndef _MTK_USB_BOOST_H
 #define _MTK_USB_BOOST_H
 
+#ifdef CONFIG_MTK_USB_BOOST
 enum{
 	TYPE_CPU_FREQ,
 	TYPE_CPU_CORE,
@@ -52,5 +53,7 @@ void register_usb_boost_act(int type_id, int action_id,
 #else
 #define USB_BOOST_DBG(fmt, args...) do {} while (0)
 #endif
-
+#else
+static inline void usb_boost(void) {}
+#endif
 #endif

@@ -150,7 +150,7 @@ obj-$(CONFIG_MACH_MT8167)+= power/
 endif
 obj-y += log_store/
 obj-$(CONFIG_MTK_ECCCI_C2K) += c2k_usb/
-obj-$(CONFIG_USB) += usb_boost/
+obj-$(CONFIG_MTK_USB_BOOST) += usb_boost/
 obj-$(CONFIG_MTK_USB_TYPEC) += typec/
 ifneq ($(wildcard $(srctree)/../vendor/mediatek/internal/selinux_warning_enable),)
 obj-$(CONFIG_MTK_SELINUX_AEE_WARNING) += selinux_warning/

@@ -351,6 +351,7 @@ config MTK_SKB_OWNER
 	  which helps identify network latency between client and server.
 
 source "drivers/misc/mediatek/task_turbo/Kconfig"
+source "drivers/misc/mediatek/usb_boost/Kconfig"
 endmenu # PPT
 
 menu "Memory configs"

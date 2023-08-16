@@ -56,8 +56,9 @@ static int perfmgr_remove(struct platform_device *dev)
 	 * topo_ctrl_exit();
 	 */
 	cpu_ctrl_exit();
+#ifdef CONFIG_MTK_SYSLIMITER
 	syslimiter_exit();
-
+#endif
 	return 0;
 }
 static struct platform_driver perfmgr_driver = {
@@ -103,7 +104,9 @@ static int __init init_perfmgr(void)
 #ifdef CONFIG_MTK_BASE_POWER
 	init_tchbst(perfmgr_root);
 	init_boostctrl(perfmgr_root);
+#ifdef CONFIG_MTK_SYSLIMITER
 	syslimiter_init(perfmgr_root);
+#endif
 #endif
 	init_perfctl(perfmgr_root);
 

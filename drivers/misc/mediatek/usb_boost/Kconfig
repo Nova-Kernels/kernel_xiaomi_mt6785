@@ -1,0 +1,7 @@
+config MTK_USB_BOOST
+    bool "MediaTek USB boost driver"
+    depends on USB && MTK_CPU_CTRL
+    help
+      Say Y here if you want to enable USB boost driver.
+      This driver is used to boost CPU frequency and DRAM voltage
+      when USB is plugged in.

@@ -19,7 +19,7 @@ obj-y += perfmgr_main.o
 obj-y += base/
 obj-y += boost_ctrl/
 obj-y += tchbst/
-obj-y += syslimiter/
+obj-$(CONFIG_MTK_SYSLIMITER) += syslimiter/
 obj-$(CONFIG_MTK_PERF_OBSERVER) += observer/
 obj-$(CONFIG_MTK_RESYM) += resym/
 
