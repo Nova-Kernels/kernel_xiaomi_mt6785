@@ -102,7 +102,9 @@ static int __init init_perfmgr(void)
 	pr_debug("MTK_TOUCH_BOOST function init_perfmgr_touch\n");
 
 #ifdef CONFIG_MTK_BASE_POWER
+#ifdef CONFIG_MTK_PERFMGR_TOUCH_BOOST
 	init_tchbst(perfmgr_root);
+#endif
 	init_boostctrl(perfmgr_root);
 #ifdef CONFIG_MTK_SYSLIMITER
 	syslimiter_init(perfmgr_root);

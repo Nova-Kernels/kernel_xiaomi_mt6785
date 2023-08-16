@@ -66,6 +66,7 @@ config MTK_RESYM
 config MTK_FPSGO_V3
 	bool "Support FPSGO_V3 framework"
 	depends on MTK_CPU_CTRL
+	depends on MTK_PERFMGR_TOUCH_BOOST
 	help
 	  Support FPSGO_V3 framework for most FPS performance and
 	  low power balance. As a perquisite to ensure FPS performance,

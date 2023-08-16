@@ -10,12 +10,14 @@
 # GNU General Public License for more details.
 #
 
-
-obj-y += tchbst_main.o
-
+ifeq ($(CONFIG_MTK_PERFMGR_TOUCH_BOOST),y)
 obj-$(CONFIG_MTK_FPSGO) += user/
 obj-$(CONFIG_MTK_FPSGO_V3) += user/
+obj-y += tchbst_main.o
 
-#ifeq ($(CONFIG_MTK_PERFMGR_TOUCH_BOOST),y)
+ifneq ($(CONFIG_MTK_FPSGO_V3),y)
+ifneq ($(CONFIG_MTK_FPSGO),y)
 obj-y += kernel/
-#endif # CONFIG_MTK_PERFMGR_TOUCH_BOOST
+endif
+endif
+endif
