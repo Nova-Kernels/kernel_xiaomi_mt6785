@@ -10,6 +10,6 @@
 # GNU General Public License for more details.
 #
 
-
-obj-y += utility.o
-
+ifeq ($(or $(CONFIG_MTK_CPU_CTRL),$(CONFIG_MTK_TOPO_CTRL),$(CONFIG_MTK_EAS_CTRL)),y)
+    obj-y += utility.o
+endif
