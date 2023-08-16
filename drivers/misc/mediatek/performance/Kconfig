@@ -18,8 +18,19 @@ config MTK_LOAD_TRACKER
 	  information. User can register callback and config polling
 	  duration to get CPU loading.
 
+config MTK_CPU_CTRL
+	bool "CPU CTRL support"
+	depends on MTK_CPU_FREQ
+	depends on !MTK_GKI_COMPAT
+	help
+	  Say Y here to enable MediaTeks custom CPU controller.
+	  This will prevent the standard cpufreq target interface
+	  from working, so it should only be used on devices that
+	  are using MediaTeks Power HAL.
+
 config MTK_CPU_CTRL_CFP
 	tristate "CPU CTRL Ceiling-Fool-Proof"
+	depends on MTK_CPU_CTRL
 	depends on MTK_LOAD_TRACKER
 	default n
 	help
