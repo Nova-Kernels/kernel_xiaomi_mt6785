@@ -175,7 +175,9 @@ static int handle_all_switch_task(void)
 
 		vfree(entry);
 
+#ifdef CONFIG_MICROTRUST_TZ_LOG
 		teei_notify_log_fn();
+#endif
 	}
 
 	return 0;
