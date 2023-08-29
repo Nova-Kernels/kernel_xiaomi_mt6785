@@ -6,7 +6,7 @@
 
 SECONDS=0 # builtin bash timer
 KERNEL_PATH=$PWD
-AK3_DIR="$HOME/tc/AnyKernel3"
+AK3_DIR="$HOME/tc/Anykernel"
 DEFCONFIG="begonia_user_defconfig"
 export KBUILD_BUILD_USER=Abdul7852
 export KBUILD_BUILD_HOST=NoVA
@@ -67,7 +67,7 @@ if [[ $1 = "-b" || $1 = "--build" ]]; then
 	if [ -f "$kernel" ]; then
 		rm *.zip 2>/dev/null
 		# Set kernel name and version
-		SUBREV="4.14.$(cat "$MainPath/Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')"
+		SUBREV="4.14.$(cat "Makefile" | grep "SUBLEVEL =" | sed 's/SUBLEVEL = *//g')"
 		REVISION=NoVA-Begonia
   		ZIPNAME=""$REVISION"-"$SUBREV".zip"
 		echo -e ""
@@ -78,13 +78,13 @@ if [[ $1 = "-b" || $1 = "--build" ]]; then
 		echo -e ""
 		echo -e ""
 	if [ -d "$AK3_DIR" ]; then
-		cp -r $AK3_DIR AnyKernel3
-	elif ! git clone -q  https://github.com/Wahid7852/Anykernel; then
-			echo -e "\nAnyKernel3 repo not found locally and couldn't clone from GitHub! Aborting..."
+		cp -r $AK3_DIR Anykernel
+	elif ! git clone -q https://github.com/Wahid7852/Anykernel; then
+			echo -e "\nAnyKernel repo not found locally and couldn't clone from GitHub! Aborting..."
 	fi
-		cp $kernel AnyKernel3
+		cp $kernel Anykernel
   		rm -rf out/arch/arm64/boot
-		cd AnyKernel3
+		cd Anykernel
 		git checkout master &> /dev/null
 		zip -r9 "../$ZIPNAME" * -x .git README.md *placeholder
 		cd ..
