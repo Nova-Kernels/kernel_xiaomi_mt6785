@@ -2,7 +2,6 @@
  * mtu3_gadget_ep0.c - MediaTek USB3 DRD peripheral driver ep0 handling
  *
  * Copyright (c) 2016 MediaTek Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * Author:  Chunfeng.Yun <chunfeng.yun@mediatek.com>
  *
@@ -18,6 +17,7 @@
  */
 
 #include <linux/usb/composite.h>
+
 #include "mtu3.h"
 
 /* ep0 is always mtu3->in_eps[0] */
@@ -65,36 +65,18 @@ static void ep0_req_giveback(struct mtu3 *mtu, struct usb_request *req)
 	mtu3_req_complete(mtu->ep0, req, 0);
 }
 
-static void musb_sync_with_chg(struct mtu3 *mtu, int usb_state)
-{
-	dev_dbg(mtu->dev, "%s.\n", __func__);
-
-	/*chargr get usb_state*/
-	BATTERY_SetUSBState(usb_state);
-}
-
 static int
 forward_to_driver(struct mtu3 *mtu, const struct usb_ctrlrequest *setup)
 __releases(mtu->lock)
 __acquires(mtu->lock)
 {
 	int ret;
-	int usb_state;
 
-	if (!mtu->gadget_driver || !mtu->softconnect) {
-		pr_info("%s !softconnect\n", __func__);
+	if (!mtu->gadget_driver)
 		return -EOPNOTSUPP;
-	}
 
 	spin_unlock(&mtu->lock);
 	ret = mtu->gadget_driver->setup(&mtu->g, setup);
-	if (setup->bRequest == USB_REQ_SET_CONFIGURATION) {
-		if (setup->wValue & 0xff)
-			usb_state = USB_CONFIGURED;
-		else
-			usb_state = USB_UNCONFIGURED;
-		musb_sync_with_chg(mtu, usb_state);
-	}
 	spin_lock(&mtu->lock);
 
 	dev_dbg(mtu->dev, "%s ret %d\n", __func__, ret);
@@ -170,6 +152,7 @@ static void ep0_stall_set(struct mtu3_ep *mep0, bool set, u32 pktrdy)
 		csr = (csr & ~EP0_SENDSTALL) | EP0_SENTSTALL;
 	mtu3_writel(mtu->mac_base, U3D_EP0CSR, csr);
 
+	mtu->delayed_status = false;
 	mtu->ep0_state = MU3D_EP0_STATE_SETUP;
 
 	dev_dbg(mtu->dev, "ep0: %s STALL, ep0_state: %s\n",
@@ -318,16 +301,6 @@ static int handle_test_mode(struct mtu3 *mtu, struct usb_ctrlrequest *setup)
 	if (mtu->test_mode_nr == TEST_PACKET_MODE)
 		ep0_load_test_packet(mtu);
 
-	mtu3_writel(mbase, U3D_EP0CSR,
-				(mtu3_readl(mbase, U3D_EP0CSR) & EP0_W1C_BITS)
-				| EP0_SETUPPKTRDY | EP0_DATAEND);
-	mtu->ep0_state = MU3D_EP0_STATE_SETUP;
-
-	while ((mtu3_readl(mbase, U3D_EP0CSR) & EP0_DATAEND) != 0) {
-		/* Need to wait for status really loaded by host */
-		mdelay(1);/* Without this delay, it will fail. */
-	}
-
 	mtu3_writel(mbase, U3D_USB2_TEST_MODE, mtu->test_mode_nr);
 
 	mtu->ep0_state = MU3D_EP0_STATE_SETUP;
@@ -360,9 +333,6 @@ static int ep0_handle_feature_dev(struct mtu3 *mtu,
 			mtu->g.state != USB_STATE_CONFIGURED)
 			break;
 
-		if (mtu->ssusb->u1u2_disable)
-			break;
-
 		lpc = mtu3_readl(mbase, U3D_LINK_POWER_CONTROL);
 		if (set)
 			lpc |= SW_U1_REQUEST_ENABLE;
@@ -376,9 +346,6 @@ static int ep0_handle_feature_dev(struct mtu3 *mtu,
 	case USB_DEVICE_U2_ENABLE:
 		if (mtu->g.speed != USB_SPEED_SUPER ||
 			mtu->g.state != USB_STATE_CONFIGURED)
-			break;
-
-		if (mtu->ssusb->u1u2_disable)
 			break;
 
 		lpc = mtu3_readl(mbase, U3D_LINK_POWER_CONTROL);
@@ -588,7 +555,7 @@ static void ep0_tx_state(struct mtu3 *mtu)
 	struct usb_request *req;
 	u32 csr;
 	u8 *src;
-	u16 count;
+	u8 count;
 	u32 maxp;
 
 	dev_dbg(mtu->dev, "%s\n", __func__);
@@ -692,6 +659,9 @@ stall:
 finish:
 	if (mtu->test_mode) {
 		;	/* nothing to do */
+	} else if (handled == USB_GADGET_DELAYED_STATUS) {
+		/* handle the delay STATUS phase till receive ep_queue on ep0 */
+		mtu->delayed_status = true;
 	} else if (le16_to_cpu(setup.wLength) == 0) { /* no data stage */
 
 		mtu3_writel(mbase, U3D_EP0CSR,
@@ -820,6 +790,17 @@ static int ep0_queue(struct mtu3_ep *mep, struct mtu3_request *mreq)
 		dev_err(mtu->dev, "%s, error in ep0 state %s\n", __func__,
 			decode_ep0_state(mtu));
 		return -EINVAL;
+	}
+
+	if (mtu->delayed_status) {
+		u32 csr;
+
+		mtu->delayed_status = false;
+		csr = mtu3_readl(mtu->mac_base, U3D_EP0CSR) & EP0_W1C_BITS;
+		csr |= EP0_SETUPPKTRDY | EP0_DATAEND;
+		mtu3_writel(mtu->mac_base, U3D_EP0CSR, csr);
+		/* needn't giveback the request for handling delay STATUS */
+		return 0;
 	}
 
 	if (!list_empty(&mep->req_list))

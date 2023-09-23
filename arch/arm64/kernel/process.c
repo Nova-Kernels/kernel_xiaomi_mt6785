@@ -61,7 +61,6 @@
 #include <asm/processor.h>
 #include <asm/scs.h>
 #include <asm/stacktrace.h>
-#include <asm/esr.h>
 
 #ifdef CONFIG_CC_STACKPROTECTOR
 #include <linux/stackprotector.h>
@@ -187,7 +186,7 @@ static void show_data(unsigned long addr, int nbytes, const char *name)
 	 * don't attempt to dump non-kernel addresses or
 	 * values that are probably just small negative numbers
 	 */
-	if (addr < VA_START || addr > -256UL)
+	if (addr < PAGE_OFFSET || addr > -256UL)
 		return;
 
 	printk("\n%s: %pS:\n", name, addr);
@@ -238,24 +237,6 @@ static void show_extra_register_data(struct pt_regs *regs, int nbytes)
 	set_fs(fs);
 }
 
-static unsigned int is_external_abort(void)
-{
-	unsigned int esr_el1 = 0;
-
-	asm volatile ("mrs %0, esr_el1\n\t"
-		      "dsb sy\n\t"
-		      : "=r"(esr_el1) : : "memory");
-
-	if ((ESR_ELx_EC(esr_el1) == ESR_ELx_EC_IABT_LOW) ||
-			(ESR_ELx_EC(esr_el1) == ESR_ELx_EC_IABT_CUR) ||
-			(ESR_ELx_EC(esr_el1) == ESR_ELx_EC_DABT_LOW) ||
-			(ESR_ELx_EC(esr_el1) == ESR_ELx_EC_DABT_CUR))
-		if ((esr_el1 & ESR_ELx_FSC) == ESR_ELx_FSC_EXTABT)
-			return 1;
-
-	return 0;
-}
-
 void __show_regs(struct pt_regs *regs)
 {
 	int i, top_reg;
@@ -289,7 +270,7 @@ void __show_regs(struct pt_regs *regs)
 
 		pr_cont("\n");
 	}
-	if (!user_mode(regs) && !is_external_abort())
+	if (!user_mode(regs))
 		show_extra_register_data(regs, 128);
 	printk("\n");
 }
@@ -432,6 +413,7 @@ void uao_thread_switch(struct task_struct *next)
 			asm(ALTERNATIVE("nop", SET_PSTATE_UAO(0), ARM64_HAS_UAO));
 	}
 }
+
 /*
  * Force SSBS state on context-switch, since it may be lost after migrating
  * from a CPU which treats the bit as RES0 in a heterogeneous system.

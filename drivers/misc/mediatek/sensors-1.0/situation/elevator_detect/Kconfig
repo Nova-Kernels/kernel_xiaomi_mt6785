@@ -1,3 +1,0 @@
-config ELEVATOR_DETECT
-	bool "elevator detect hub for MediaTek package"
-	default n

@@ -88,11 +88,3 @@ config PROC_UID
 	depends on PROC_FS && RT_MUTEXES
 	help
 	Provides aggregated per-uid information under /proc/uid.
-
-config PROC_BEGONIA_CMDLINE
-	default n
-	depends on PROC_FS
-	bool "Patch /proc/cmdline for begonia" if EXPERT
-	help
-	  Patch cmdline for various Redmi Note 8 Pro variants, helps mark variants
-	  with different SKU values

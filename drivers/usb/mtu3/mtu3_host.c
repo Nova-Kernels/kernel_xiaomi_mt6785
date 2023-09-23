@@ -143,10 +143,6 @@ static void host_ports_num_get(struct ssusb_mtk *ssusb)
 
 	dev_dbg(ssusb->dev, "host - u2_ports:%d, u3_ports:%d\n",
 		 ssusb->u2_ports, ssusb->u3_ports);
-
-	/* skip u3_ports if need disable all u3ports */
-	if (ssusb->u3ports_disable)
-		ssusb->u3_ports = 0;
 }
 
 /* only configure ports will be used later */
@@ -236,8 +232,7 @@ static void ssusb_host_setup(struct ssusb_mtk *ssusb)
 	ssusb_host_enable(ssusb);
 
 	/* if port0 supports dual-role, works as host mode by default */
-	if (ssusb->dr_mode == USB_DR_MODE_HOST)
-		ssusb_set_vbus(&ssusb->otg_switch, 1);
+	ssusb_set_vbus(&ssusb->otg_switch, 1);
 }
 
 static void ssusb_host_cleanup(struct ssusb_mtk *ssusb)
@@ -263,8 +258,8 @@ int ssusb_host_init(struct ssusb_mtk *ssusb, struct device_node *parent_dn)
 
 	ret = of_platform_populate(parent_dn, NULL, NULL, parent_dev);
 	if (ret) {
-		dev_dbg(parent_dev, "failed to create child devices at %s\n",
-				parent_dn->full_name);
+		dev_dbg(parent_dev, "failed to create child devices at %pOF\n",
+				parent_dn);
 		return ret;
 	}
 

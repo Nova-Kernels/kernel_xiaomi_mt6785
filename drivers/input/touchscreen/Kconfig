@@ -9,12 +9,6 @@ menuconfig INPUT_TOUCHSCREEN
 
 	  If unsure, say Y.
 
-source "drivers/input/touchscreen/mediatek/Kconfig"
-source "drivers/input/touchscreen/xiaomi-spi-tp/Kconfig"
-source "drivers/input/touchscreen/xiaomi/Kconfig"
-source "drivers/input/touchscreen/NT36672A/Kconfig"
-source "drivers/input/touchscreen/fts8719/Kconfig"
-
 if INPUT_TOUCHSCREEN
 
 config TOUCHSCREEN_PROPERTIES
@@ -1251,20 +1245,5 @@ config TOUCHSCREEN_ROHM_BU21023
 
 	  To compile this driver as a module, choose M here: the
 	  module will be called bu21023_ts.
-
-config TOUCHSCREEN_MTK_TOUCH
-       string "Touch IC name for Mediatek package"
-       help
-         Set touch IC name if you have touch panel.
-
-         To compile this dirver for used touch IC.
-
-config I2C_STATUS_FOR_TOUCH
-	bool "I2C Status for touch"
-	help
-	  Say Y here if you use touch driver detect system i2c status when exit suspend state.
-	  If unsure, say N.
-
-source "drivers/input/touchscreen/GT9896/Kconfig"
 
 endif

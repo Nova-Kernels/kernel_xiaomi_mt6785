@@ -53,8 +53,6 @@
 
 #include "workqueue_internal.h"
 
-#include <linux/delay.h>
-
 enum {
 	/*
 	 * worker_pool flags
@@ -291,7 +289,7 @@ static bool wq_disable_numa;
 module_param_named(disable_numa, wq_disable_numa, bool, 0444);
 
 /* see the comment above the definition of WQ_POWER_EFFICIENT */
-bool wq_power_efficient = IS_ENABLED(CONFIG_WQ_POWER_EFFICIENT_DEFAULT);
+static bool wq_power_efficient = IS_ENABLED(CONFIG_WQ_POWER_EFFICIENT_DEFAULT);
 module_param_named(power_efficient, wq_power_efficient, bool, 0444);
 
 static bool wq_online;			/* can kworkers be created yet? */
@@ -1302,15 +1300,6 @@ fail:
 	if (work_is_canceling(work))
 		return -ENOENT;
 	cpu_relax();
-	/*
-	 * if queueing is in progress in another context,
-	 * pool->lock may be in a busy loop,
-	 * if pool->lock is in busy loop,
-	 * the other context may never get the lock.
-	 * just for this case if queueing is in progress,
-	 * give 1 usec delay to avoid live lock problem.
-	 */
-	udelay(1);
 	return -EAGAIN;
 }
 
@@ -2924,9 +2913,6 @@ bool flush_work(struct work_struct *work)
 	struct wq_barrier barr;
 
 	if (WARN_ON(!wq_online))
-		return false;
-
-	if (WARN_ON(!work->func))
 		return false;
 
 	lock_map_acquire(&work->lockdep_map);
@@ -5688,7 +5674,7 @@ int __init workqueue_init_early(void)
 	WARN_ON(__alignof__(struct pool_workqueue) < __alignof__(long long));
 
 	BUG_ON(!alloc_cpumask_var(&wq_unbound_cpumask, GFP_KERNEL));
-	cpumask_copy(wq_unbound_cpumask, cpu_lp_mask);
+	cpumask_copy(wq_unbound_cpumask, cpu_possible_mask);
 
 	pwq_cache = KMEM_CACHE(pool_workqueue, SLAB_PANIC);
 

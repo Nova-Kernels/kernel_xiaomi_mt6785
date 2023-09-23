@@ -6,9 +6,9 @@
 #include <linux/mutex.h>
 
 #include "sched.h"
-#include "../../drivers/misc/mediatek/base/power/include/mtk_upower.h"
 
 DEFINE_MUTEX(sched_domains_mutex);
+
 /* Protected by sched_domains_mutex: */
 cpumask_var_t sched_domains_tmpmask;
 cpumask_var_t sched_domains_tmpmask2;
@@ -152,6 +152,9 @@ static inline bool sched_debug(void)
 static int sd_degenerate(struct sched_domain *sd)
 {
 	if (cpumask_weight(sched_domain_span(sd)) == 1) {
+		if (sd->groups->sge)
+			sd->flags &= ~SD_LOAD_BALANCE;
+		else
 			return 1;
 	}
 
@@ -199,6 +202,10 @@ sd_parent_degenerate(struct sched_domain *sd, struct sched_domain *parent)
 				SD_PREFER_SIBLING |
 				SD_SHARE_POWERDOMAIN |
 				SD_SHARE_CAP_STATES);
+		if (parent->groups->sge) {
+			parent->flags &= ~SD_LOAD_BALANCE;
+			return 0;
+		}
 		if (nr_node_ids == 1)
 			pflags &= ~SD_SERIALIZE;
 	}
@@ -967,17 +974,16 @@ build_sched_groups(struct sched_domain *sd, int cpu)
  * group having more cpu_capacity will pickup more load compared to the
  * group having less cpu_capacity.
  */
-void init_sched_groups_capacity(int cpu, struct sched_domain *sd)
+static void init_sched_groups_capacity(int cpu, struct sched_domain *sd)
 {
 	struct sched_group *sg = sd->groups;
-	cpumask_t avail_mask;
+
 	WARN_ON(!sg);
 
 	do {
 		int cpu, max_cpu = -1;
-		cpumask_andnot(&avail_mask, sched_group_span(sg),
-							cpu_isolated_mask);
-		sg->group_weight = cpumask_weight(&avail_mask);
+
+		sg->group_weight = cpumask_weight(sched_group_span(sg));
 
 		if (!(sd->flags & SD_ASYM_PACKING))
 			goto next;
@@ -1000,12 +1006,7 @@ next:
 	update_group_capacity(sd, cpu);
 }
 
-#ifndef CONFIG_MTK_UNIFY_POWER
 #define cap_state_power(s,i) (s->cap_states[i].power)
-#else
-#define cap_state_power(s, i) \
-	(s->cap_states[i].dyn_pwr + s->cap_states[i].lkg_pwr[0])
-#endif
 #define cap_state_cap(s,i) (s->cap_states[i].cap)
 #define idle_state_power(s,i) (s->idle_states[i].power)
 
@@ -1040,16 +1041,8 @@ static inline int sched_group_energy_equal(const struct sched_group_energy *a,
 	return true;
 }
 
-#ifndef CONFIG_MTK_UNIFY_POWER
 #define energy_eff(e, n) \
-	((e->cap_states[n].cap << SCHED_CAPACITY_SHIFT)/cap_state_power(e, n))
-#else
-	/* to enlarge the difference of energy_eff */
-#define CPU_CAP_HIGH_RES 6
-#define energy_eff(e, n) \
-	((e->cap_states[n].cap << (SCHED_CAPACITY_SHIFT + CPU_CAP_HIGH_RES)) \
-		/cap_state_power(e, n))
-#endif
+    ((e->cap_states[n].cap << SCHED_CAPACITY_SHIFT)/e->cap_states[n].power)
 
 static void init_sched_groups_energy(int cpu, struct sched_domain *sd,
 				     sched_domain_energy_f fn)
@@ -1100,18 +1093,14 @@ static void init_sched_groups_energy(int cpu, struct sched_domain *sd,
 	 * decreasing in the capacity state vector with higher indexes
 	 */
 	for (i = 0; i < (sge->nr_cap_states - 1); i++) {
-#ifdef CONFIG_MTK_UNIFY_POWER
-		if (cap_state_power(sge, i) == 0)
-			continue;
-#endif
 		if (energy_eff(sge, i) > energy_eff(sge, i+1))
 			continue;
 #ifdef CONFIG_SCHED_DEBUG
-		pr_warn_once("WARN: cpu=%d, domain=%s: incr. energy eff %lu[%d]->%lu[%d]\n",
+		pr_warn("WARN: cpu=%d, domain=%s: incr. energy eff %lu[%d]->%lu[%d]\n",
 			cpu, sd->name, energy_eff(sge, i), i,
 			energy_eff(sge, i+1), i+1);
 #else
-		pr_warn_once("WARN: cpu=%d: incr. energy eff %lu[%d]->%lu[%d]\n",
+		pr_warn("WARN: cpu=%d: incr. energy eff %lu[%d]->%lu[%d]\n",
 			cpu, energy_eff(sge, i), i, energy_eff(sge, i+1), i+1);
 #endif
 	}
@@ -1281,8 +1270,8 @@ sd_init(struct sched_domain_topology_level *tl,
 	*sd = (struct sched_domain){
 		.min_interval		= sd_weight,
 		.max_interval		= 2*sd_weight,
-		.busy_factor		= 16,
-		.imbalance_pct		= 117,
+		.busy_factor		= 32,
+		.imbalance_pct		= 125,
 
 		.cache_nice_tries	= 0,
 		.busy_idx		= 0,

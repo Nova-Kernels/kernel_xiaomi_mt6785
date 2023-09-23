@@ -19,8 +19,6 @@
 #include <linux/overflow.h>
 #include <linux/uio.h>
 
-#include <uapi/linux/magic.h>
-
 #include "fscrypt_private.h"
 
 struct fscrypt_blk_crypto_key {
@@ -280,81 +278,18 @@ bool fscrypt_inode_uses_fs_layer_crypto(const struct inode *inode)
 }
 EXPORT_SYMBOL_GPL(fscrypt_inode_uses_fs_layer_crypto);
 
-/*
- * Specially for backward compatible to MTK HWFBE projects upgraded from
- *   Android Q or before. These projects use different iv from Goolge inline
- *   encryption v2.
- *   1. F2FS: iv is mixure of file logical block number (based on block device
- *      sector size) and inode number as iv.
- *   2. EXT4: iv is logical block address (based on block device sector size).
- *      We set dun as 128bit 1's as indication for MMC and UFS layer to set iv
- *      as logical block address.
- */
-static void fscrypt_generate_iv_spec(union fscrypt_iv *iv, u64 lblk_num,
-			 const struct fscrypt_info *ci)
-{
-	u8 flags = fscrypt_policy_flags(&ci->ci_policy);
-	unsigned int bz_bits;
-
-	memset(iv, 0, ci->ci_mode->ivsize);
-
-	if (WARN_ON_ONCE(flags & FSCRYPT_POLICY_FLAG_IV_INO_LBLK_64))
-		pr_notice("Ignore FSCRYPT_POLICY_FLAG_IV_INO_LBLK_64 flag\n");
-	else if (WARN_ON_ONCE(flags & FSCRYPT_POLICY_FLAG_DIRECT_KEY))
-		pr_notice("Ignore FSCRYPT_POLICY_FLAG_DIRECT_KEY flag\n");
-
-	if (ci->ci_inode->i_sb->s_magic == F2FS_SUPER_MAGIC) {
-		bz_bits = blksize_bits(queue_physical_block_size(
-				ci->ci_inode->i_sb->s_bdev->bd_queue));
-
-		if (bz_bits < PAGE_SHIFT)
-			lblk_num = lblk_num << (PAGE_SHIFT - bz_bits);
-		else
-			lblk_num = lblk_num >> (bz_bits - PAGE_SHIFT);
-
-		lblk_num = (((u64)ci->ci_inode->i_ino & 0xFFFFFFFF) << 32)
-				| (lblk_num & 0xFFFFFFFF);
-
-		/* eMMC + F2FS security OTA only */
-		if (flags & FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32)
-			lblk_num = (u32)(((u64)(ci->ci_hashed_info) & 0xFFFFFFFF) + lblk_num);
-
-		if (!lblk_num)
-			lblk_num = ~lblk_num;
-
-		iv->lblk_num = cpu_to_le64(lblk_num);
-	} else if (ci->ci_inode->i_sb->s_magic == EXT4_SUPER_MAGIC) {
-		lblk_num = (((u64)ci->ci_inode->i_ino) << 32)
-				| (lblk_num & 0xFFFFFFFF);
-		iv->lblk_num = cpu_to_le64(lblk_num);
-	}
-}
-
 static void fscrypt_generate_dun(const struct fscrypt_info *ci, u64 lblk_num,
 				 u64 dun[BLK_CRYPTO_DUN_ARRAY_SIZE])
 {
 	union fscrypt_iv iv;
 	int i;
 
-	if (ci->ci_policy.version == FSCRYPT_POLICY_V1)
-		fscrypt_generate_iv_spec(&iv, lblk_num, ci);
-	else
-		fscrypt_generate_iv(&iv, lblk_num, ci);
+	fscrypt_generate_iv(&iv, lblk_num, ci);
 
 	BUILD_BUG_ON(FSCRYPT_MAX_IV_SIZE > BLK_CRYPTO_MAX_IV_SIZE);
 	memset(dun, 0, BLK_CRYPTO_MAX_IV_SIZE);
 	for (i = 0; i < ci->ci_mode->ivsize/sizeof(dun[0]); i++)
 		dun[i] = le64_to_cpu(iv.dun[i]);
-}
-
-static void fscrypt_check_hie_ext4(struct bio *bio, const struct inode *inode)
-{
-	const struct fscrypt_info *ci = inode->i_crypt_info;
-	struct bio_crypt_ctx *bc = bio->bi_crypt_context;
-
-	if ((ci->ci_policy.version == FSCRYPT_POLICY_V1) &&
-	    (ci->ci_inode->i_sb->s_magic == EXT4_SUPER_MAGIC))
-		bc->hie_ext4 = true;
 }
 
 /**
@@ -389,7 +324,6 @@ void fscrypt_set_bio_crypt_ctx(struct bio *bio, const struct inode *inode,
 
 	fscrypt_generate_dun(ci, first_lblk, dun);
 	bio_crypt_set_ctx(bio, &ci->ci_key.blk_key->base, dun, gfp_mask);
-	fscrypt_check_hie_ext4(bio, inode);
 }
 EXPORT_SYMBOL_GPL(fscrypt_set_bio_crypt_ctx);
 
@@ -482,7 +416,6 @@ bool fscrypt_mergeable_bio(struct bio *bio, const struct inode *inode,
 		return false;
 
 	fscrypt_generate_dun(inode->i_crypt_info, next_lblk, next_dun);
-	fscrypt_check_hie_ext4(bio, inode);
 	return bio_crypt_dun_is_contiguous(bc, bio->bi_iter.bi_size, next_dun);
 }
 EXPORT_SYMBOL_GPL(fscrypt_mergeable_bio);
@@ -566,7 +499,6 @@ int fscrypt_limit_dio_pages(const struct inode *inode, loff_t pos, int nr_pages)
 	if (nr_pages <= 1)
 		return nr_pages;
 
-	/* It should be work normally with eMMC + F2FS security fix */
 	if (!(fscrypt_policy_flags(&ci->ci_policy) &
 	      FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32))
 		return nr_pages;
@@ -579,12 +511,8 @@ int fscrypt_limit_dio_pages(const struct inode *inode, loff_t pos, int nr_pages)
 		return 1;
 
 	/* With IV_INO_LBLK_32, the DUN can wrap around from U32_MAX to 0. */
-	if (ci->ci_policy.version == FSCRYPT_POLICY_V1
-		&& (fscrypt_policy_flags(&ci->ci_policy) &
-		FSCRYPT_POLICY_FLAG_IV_INO_LBLK_32))
-		dun = ci->ci_hashed_info + (pos >> inode->i_blkbits);
-	else
-		dun = ci->ci_hashed_ino + (pos >> inode->i_blkbits);
+
+	dun = ci->ci_hashed_ino + (pos >> inode->i_blkbits);
 
 	return min_t(u64, nr_pages, (u64)U32_MAX + 1 - dun);
 }

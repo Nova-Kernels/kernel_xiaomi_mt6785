@@ -16,7 +16,7 @@
 #include "helpline.h"
 #include "keysyms.h"
 #include "../color.h"
-#include <linux/ctype.h>
+#include "sane_ctype.h"
 
 static int ui_browser__percent_color(struct ui_browser *browser,
 				     double percent, bool current)

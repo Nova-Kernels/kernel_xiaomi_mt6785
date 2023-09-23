@@ -236,8 +236,6 @@ void nf_reinject(struct nf_queue_entry *entry, unsigned int verdict)
 	int err;
 	u8 pf;
 
-	rcu_read_lock();
-
 	net = entry->state.net;
 	pf = entry->state.pf;
 
@@ -247,7 +245,6 @@ void nf_reinject(struct nf_queue_entry *entry, unsigned int verdict)
 
 	i = entry->hook_index;
 	if (WARN_ON_ONCE(i >= hooks->num_hook_entries)) {
-		rcu_read_unlock();
 		kfree_skb(skb);
 		kfree(entry);
 		return;
@@ -289,7 +286,6 @@ next_hook:
 		kfree_skb(skb);
 	}
 
-	rcu_read_unlock();
 	kfree(entry);
 }
 EXPORT_SYMBOL(nf_reinject);

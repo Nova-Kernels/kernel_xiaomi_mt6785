@@ -30,7 +30,6 @@
 
 #include "drm_trace.h"
 #include "drm_internal.h"
-#include "mtk_debug.h"
 
 /**
  * DOC: vblank handling
@@ -967,11 +966,6 @@ static int drm_vblank_get(struct drm_device *dev, unsigned int pipe)
 
 	if (WARN_ON(pipe >= dev->num_crtcs))
 		return -EINVAL;
-
-	/* Kick display idle manager here to ensure SODI is disabled,
-	 *  when screen update begin.
-	 */
-	mtk_drm_idlemgr_kick_ext(__func__);
 
 	spin_lock_irqsave(&dev->vbl_lock, irqflags);
 	/* Going from 0->1 means we have to enable interrupts again */

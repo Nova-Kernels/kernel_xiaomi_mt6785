@@ -35,8 +35,6 @@
 
 #include "power.h"
 
-#define MTK_SOLUTION 1
-
 const char * const pm_labels[] = {
 	[PM_SUSPEND_TO_IDLE] = "freeze",
 	[PM_SUSPEND_STANDBY] = "standby",
@@ -71,8 +69,6 @@ void s2idle_set_ops(const struct platform_s2idle_ops *ops)
 	s2idle_ops = ops;
 	unlock_system_sleep();
 }
-
-extern void thaw_fingerprintd(void);
 
 static void s2idle_begin(void)
 {
@@ -329,7 +325,7 @@ static int suspend_test(int level)
 {
 #ifdef CONFIG_PM_DEBUG
 	if (pm_test_level == level) {
-		pr_debug("suspend debug: Waiting for %d second(s).\n",
+		pr_info("suspend debug: Waiting for %d second(s).\n",
 				pm_test_delay);
 		mdelay(pm_test_delay * 1000);
 		return 1;
@@ -467,8 +463,6 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
 	enable_nonboot_cpus();
 
  Platform_wake:
-	thaw_fingerprintd();
-
 	platform_resume_noirq(state);
 	dpm_resume_noirq(PMSG_RESUME);
 
@@ -505,8 +499,9 @@ int suspend_devices_and_enter(suspend_state_t state)
 	suspend_test_start();
 	error = dpm_suspend_start(PMSG_SUSPEND);
 	if (error) {
-		pr_debug("Some devices failed to suspend, or early wake event detected\n");
-		log_suspend_abort_reason("Some devices failed to suspend, or early wake event detected");
+		pr_err("Some devices failed to suspend, or early wake event detected\n");
+		log_suspend_abort_reason(
+				"Some devices failed to suspend, or early wake event detected");
 		goto Recover_platform;
 	}
 	suspend_test_finish("suspend devices");
@@ -548,60 +543,6 @@ static void suspend_finish(void)
 	pm_restore_console();
 }
 
-#if MTK_SOLUTION
-
-#define SYS_SYNC_TIMEOUT 2000
-
-static int sys_sync_ongoing;
-
-static void suspend_sys_sync(struct work_struct *work);
-static struct workqueue_struct *suspend_sys_sync_work_queue;
-DECLARE_WORK(suspend_sys_sync_work, suspend_sys_sync);
-
-static void suspend_sys_sync(struct work_struct *work)
-{
-	pr_debug("++\n");
-	sys_sync();
-	sys_sync_ongoing = 0;
-	pr_debug("--\n");
-}
-
-int suspend_syssync_enqueue(void)
-{
-	int timeout = 0;
-
-	if (suspend_sys_sync_work_queue == NULL) {
-		suspend_sys_sync_work_queue =
-			create_singlethread_workqueue("fs_suspend_syssync");
-		if (suspend_sys_sync_work_queue == NULL) {
-			pr_err("fs_suspend_syssync workqueue create failed\n");
-			return -EBUSY;
-		}
-	}
-
-	while (timeout < SYS_SYNC_TIMEOUT) {
-		if (!sys_sync_ongoing)
-			break;
-		msleep(100);
-		timeout += 100;
-	}
-
-	if (!sys_sync_ongoing) {
-		sys_sync_ongoing = 1;
-		queue_work(suspend_sys_sync_work_queue, &suspend_sys_sync_work);
-		while (timeout < SYS_SYNC_TIMEOUT) {
-			if (!sys_sync_ongoing)
-				return 0;
-			msleep(100);
-			timeout += 100;
-		}
-	}
-
-	return -EBUSY;
-}
-
-#endif
-
 /**
  * enter_state - Do common work needed to enter system sleep state.
  * @state: System sleep state to enter.
@@ -628,22 +569,13 @@ static int enter_state(suspend_state_t state)
 	if (!mutex_trylock(&pm_mutex))
 		return -EBUSY;
 
-	pm_wakeup_clear(true);
 	if (state == PM_SUSPEND_TO_IDLE)
 		s2idle_begin();
 
 #ifndef CONFIG_SUSPEND_SKIP_SYNC
 	trace_suspend_resume(TPS("sync_filesystems"), 0, true);
 	pr_info("Syncing filesystems ... ");
-#if MTK_SOLUTION
-	error = suspend_syssync_enqueue();
-	if (error) {
-		pr_err("sys_sync timeout.\n");
-		goto Unlock;
-	}
-#else
 	sys_sync();
-#endif
 	pr_cont("done.\n");
 	trace_suspend_resume(TPS("sync_filesystems"), 0, false);
 #endif
@@ -686,7 +618,7 @@ int pm_suspend(suspend_state_t state)
 	if (state <= PM_SUSPEND_ON || state >= PM_SUSPEND_MAX)
 		return -EINVAL;
 
-	pr_debug("suspend entry (%s)\n", mem_sleep_labels[state]);
+	pr_info("suspend entry (%s)\n", mem_sleep_labels[state]);
 	error = enter_state(state);
 	if (error) {
 		suspend_stats.fail++;
@@ -694,7 +626,7 @@ int pm_suspend(suspend_state_t state)
 	} else {
 		suspend_stats.success++;
 	}
-	pr_debug("suspend exit\n");
+	pr_info("suspend exit\n");
 	return error;
 }
 EXPORT_SYMBOL(pm_suspend);

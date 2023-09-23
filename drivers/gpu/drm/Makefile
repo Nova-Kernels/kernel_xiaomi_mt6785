@@ -3,13 +3,12 @@
 # Makefile for the drm device driver.  This driver provides support for the
 # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
 
-ccflags-y += -O3
 drm-y       :=	drm_auth.o drm_bufs.o drm_cache.o \
 		drm_context.o drm_dma.o \
 		drm_file.o drm_gem.o drm_ioctl.o drm_irq.o \
 		drm_lock.o drm_memory.o drm_drv.o \
 		drm_scatter.o drm_pci.o \
-		drm_hashtab.o drm_mm.o \
+		drm_sysfs.o drm_hashtab.o drm_mm.o \
 		drm_crtc.o drm_fourcc.o drm_modes.o drm_edid.o \
 		drm_info.o drm_encoder_slave.o \
 		drm_trace_points.o drm_global.o drm_prime.o \
@@ -19,11 +18,7 @@ drm-y       :=	drm_auth.o drm_bufs.o drm_cache.o \
 		drm_encoder.o drm_mode_object.o drm_property.o \
 		drm_plane.o drm_color_mgmt.o drm_print.o \
 		drm_dumb_buffers.o drm_mode_config.o drm_vblank.o \
-		drm_syncobj.o drm_writeback.o \
-		drm_notifier_mi.o
-
-drm-$(CONFIG_DRM_MEDIATEK_BOMB) += drm_sysfs.o
-drm-$(CONFIG_DRM_MEDIATEK_CANNON) += drm_sysfs_cannon.o
+		drm_syncobj.o
 
 drm-$(CONFIG_DRM_LIB_RANDOM) += lib/drm_random.o
 drm-$(CONFIG_DRM_VM) += drm_vm.o
@@ -93,8 +88,7 @@ obj-$(CONFIG_DRM_TEGRA) += tegra/
 obj-$(CONFIG_DRM_STM) += stm/
 obj-$(CONFIG_DRM_STI) += sti/
 obj-$(CONFIG_DRM_IMX) += imx/
-obj-$(CONFIG_DRM_MEDIATEK_BOMB) += mediatek/
-obj-$(CONFIG_DRM_MEDIATEK_CANNON) += mediatek_cannon/
+obj-$(CONFIG_DRM_MEDIATEK) += mediatek/
 obj-$(CONFIG_DRM_MESON)	+= meson/
 obj-y			+= i2c/
 obj-y			+= panel/
@@ -107,19 +101,3 @@ obj-$(CONFIG_DRM_ZTE)	+= zte/
 obj-$(CONFIG_DRM_MXSFB)	+= mxsfb/
 obj-$(CONFIG_DRM_TINYDRM) += tinydrm/
 obj-$(CONFIG_DRM_PL111) += pl111/
-
-ccflags-y += -I$(srctree)/drivers/misc/mediatek/dramc/$(MTK_PLATFORM)	\
-             -I$(srctree)/drivers/misc/mediatek/smi/			\
-             -I$(srctree)/drivers/misc/mediatek/mmp/			\
-             -I$(srctree)/drivers/misc/mediatek/mmdvfs/			\
-             -I$(srctree)/drivers/iommu/				\
-             -I$(srctree)/drivers/devfreq/				\
-             -I$(srctree)/drivers/gpu/drm/				\
-             -I$(srctree)/drivers/misc/mediatek/include/mt-plat/$(MTK_PLATFORM)/include/mach/				\
-             -I$(srctree)/drivers/misc/mediatek/include/mt-plat \
-             -I$(srctree)/drivers/misc/mediatek/leds/ \
-             -I$(srctree)/drivers/misc/mediatek/leds/$(MTK_PLATFORM)
-
-
-ccflags-$(CONFIG_DRM_MEDIATEK_BOMB) += -I$(srctree)/drivers/gpu/drm/mediatek/
-ccflags-$(CONFIG_DRM_MEDIATEK_CANNON) += -I$(srctree)/drivers/gpu/drm/mediatek_cannon/

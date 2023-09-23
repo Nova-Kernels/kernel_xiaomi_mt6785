@@ -471,7 +471,6 @@ int nf_hook_slow(struct sk_buff *skb, struct nf_hook_state *state,
 			break;
 		case NF_DROP:
 			kfree_skb(skb);
-                    	printk(KERN_ERR "ADDLOG %s:%d %pS:%u drop",__func__,__LINE__,e->hooks[s].hook,s);
 			ret = NF_DROP_GETERR(verdict);
 			if (ret == 0)
 				ret = -EPERM;

@@ -2,7 +2,6 @@
  * kernel/power/main.c - PM subsystem core functionality.
  *
  * Copyright (c) 2003 Patrick Mochel
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (c) 2003 Open Source Development Lab
  *
  * This file is released under the GPLv2
@@ -20,12 +19,6 @@
 #include "power.h"
 
 DEFINE_MUTEX(pm_mutex);
-
-extern u64 sum_wakeup_time;
-extern u64 sum_wakeup_times;
-extern u64 last_wake_time;
-extern void exclude_screen_on_time(void);
-extern void reset_all_statistics(void);
 
 #ifdef CONFIG_PM_SLEEP
 
@@ -134,8 +127,6 @@ static ssize_t mem_sleep_store(struct kobject *kobj, struct kobj_attribute *attr
 	suspend_state_t state;
 	int error;
 
-	/* Don't allow userspace to select s2idle */
-	return n;
 	error = pm_autosleep_lock();
 	if (error)
 		return error;
@@ -607,70 +598,6 @@ static ssize_t state_store(struct kobject *kobj, struct kobj_attribute *attr,
 
 power_attr(state);
 
-static ssize_t sum_wakeup_time_show(struct kobject *kobj, struct kobj_attribute *attr,
-			  char *buf)
-{
-	return snprintf(buf, 20, "%llu\n", sum_wakeup_time/1000);
-}
-
-static ssize_t sum_wakeup_time_store(struct kobject *kobj, struct kobj_attribute *attr,
-			   const char *buf, size_t n)
-{
-	int error = 0;
-	return error ? error : n;
-}
-
-power_attr_tmp(sum_wakeup_time);
-
-static ssize_t last_wake_time_show(struct kobject *kobj, struct kobj_attribute *attr,
-			  char *buf)
-{
-	return snprintf(buf, 20, "%llu\n", last_wake_time);
-}
-
-static ssize_t last_wake_time_store(struct kobject *kobj, struct kobj_attribute *attr,
-			   const char *buf, size_t n)
-{
-	int error = 0;
-	return error ? error : n;
-}
-
-power_attr_tmp(last_wake_time);
-
-static ssize_t wake_times_show(struct kobject *kobj, struct kobj_attribute *attr,
-			  char *buf)
-{
-	return snprintf(buf, 20, "%llu\n", sum_wakeup_times);
-}
-
-static ssize_t wake_times_store(struct kobject *kobj, struct kobj_attribute *attr,
-			   const char *buf, size_t n)
-{
-	int error = 0;
-	return error ? error : n;
-}
-
-power_attr_tmp(wake_times);
-
-static ssize_t screen_off_flag_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
-{
-	return 0;
-}
-
-static ssize_t screen_off_flag_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t n)
-{
-	int val = -1;
-
-	val = simple_strtol(buf, NULL, 10);
-	if (val == 111)
-		exclude_screen_on_time();
-	else if (val == 222)
-		reset_all_statistics();
-	return n;
-}
-
-power_attr_tmp(screen_off_flag);
-
 #ifdef CONFIG_PM_SLEEP
 /*
  * The 'wakeup_count' attribute, along with the functions defined in
@@ -874,9 +801,6 @@ static ssize_t pm_freeze_timeout_store(struct kobject *kobj,
 {
 	unsigned long val;
 
-	if (IS_ENABLED(CONFIG_ANDROID))
-		return n;
-
 	if (kstrtoul(buf, 10, &val))
 		return -EINVAL;
 
@@ -917,10 +841,6 @@ static struct attribute * g[] = {
 #ifdef CONFIG_FREEZER
 	&pm_freeze_timeout_attr.attr,
 #endif
-	&wake_times_attr.attr,
-	&last_wake_time_attr.attr,
-	&sum_wakeup_time_attr.attr,
-	&screen_off_flag_attr.attr,
 	NULL,
 };
 

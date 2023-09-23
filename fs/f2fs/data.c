@@ -556,7 +556,6 @@ static void __f2fs_submit_read_bio(struct f2fs_sb_info *sbi,
 		struct page *first_page = bio->bi_io_vec[0].bv_page;
 
 		if (first_page != NULL &&
-			first_page->mapping != NULL &&
 			__read_io_type(first_page) == F2FS_RD_DATA) {
 			char *path, pathbuf[MAX_TRACE_PATHBUF_LEN];
 
@@ -1021,7 +1020,6 @@ next:
 	     !f2fs_crypt_mergeable_bio(io->bio, fio->page->mapping->host,
 				       fio->page->index, fio)))
 		__submit_merged_bio(io);
-
 alloc_new:
 	if (io->bio == NULL) {
 		if (F2FS_IO_ALIGNED(sbi) &&
@@ -1130,7 +1128,6 @@ static int f2fs_submit_page_read(struct inode *inode, struct page *page,
 		bio_put(bio);
 		return -EFAULT;
 	}
-
 	ClearPageError(page);
 	inc_page_count(sbi, F2FS_RD_DATA);
 	f2fs_update_iostat(sbi, FS_DATA_READ_IO, F2FS_BLKSIZE);

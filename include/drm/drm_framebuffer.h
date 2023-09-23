@@ -158,7 +158,7 @@ struct drm_framebuffer {
 	 * buffers. For userspace created object this is copied from
 	 * drm_mode_fb_cmd2.
 	 */
-	uint64_t modifier[4];
+	uint64_t modifier;
 	/**
 	 * @width: Logical width of the visible area of the framebuffer, in
 	 * pixels.
@@ -174,10 +174,6 @@ struct drm_framebuffer {
 	 * DRM_MODE_FB_MODIFIERS.
 	 */
 	int flags;
-	/**
-	 * @pixel_format: DRM FOURCC code describing the pixel format.
-	 */
-	uint32_t pixel_format; /* fourcc format */
 	/**
 	 * @hot_x: X coordinate of the cursor hotspot. Used by the legacy cursor
 	 * IOCTL when the driver supports cursor through a DRM_PLANE_TYPE_CURSOR
@@ -209,7 +205,6 @@ int drm_framebuffer_init(struct drm_device *dev,
 			 struct drm_framebuffer *fb,
 			 const struct drm_framebuffer_funcs *funcs);
 struct drm_framebuffer *drm_framebuffer_lookup(struct drm_device *dev,
-					       struct drm_file *file_priv,
 					       uint32_t id);
 void drm_framebuffer_remove(struct drm_framebuffer *fb);
 void drm_framebuffer_cleanup(struct drm_framebuffer *fb);

@@ -5,9 +5,6 @@
 
 # Each configuration option enables a list of files.
 
-
-obj-$(CONFIG_INPUT_AW8697_HAPTIC)	+= aw8697_haptic/
-obj-$(CONFIG_AW8624_XM_HAPTIC)	+= aw8624_haptic_xm/
 obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
 obj-$(CONFIG_INPUT_88PM80X_ONKEY)	+= 88pm80x_onkey.o
 obj-$(CONFIG_INPUT_AB8500_PONKEY)	+= ab8500-ponkey.o

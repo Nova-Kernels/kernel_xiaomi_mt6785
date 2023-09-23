@@ -1,1 +1,0 @@
-obj-y += gc5035sunny_mipi_Sensor.o

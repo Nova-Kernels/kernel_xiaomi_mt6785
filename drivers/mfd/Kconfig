@@ -761,37 +761,6 @@ config MFD_MAX8998
 	  additional drivers must be enabled in order to use the functionality
 	  of the device.
 
-config MFD_MT6358
-	tristate "MediaTek MT6358 PMIC Support"
-	select MFD_CORE
-	select IRQ_DOMAIN
-	help
-	  Say yes here to add support for MediaTek MT6358 PMIC. This is
-	  a Power Management IC. This driver provides common support for
-	  accessing the device; additional drivers must be enabled in order
-	  to use the functionality of the device.
-
-config MFD_MT6362
-	tristate "MT6362 SPMI PMIC"
-	depends on OF
-	depends on SPMI
-	select REGMAP_SPMI
-	select REGMAP_IRQ
-	help
-	  This enables support for the Mediatek SPMI PMICs.
-	  These PMICs are currently used with the Mediatek series of
-	  SoCs.  Note, that this will only be useful paired with descriptions
-	  of the independent functions as children nodes in the device tree.
-
-config MT6358_MISC
-	tristate "MediaTek MT6358 MISC FUNCTIONS Support"
-	depends on MFD_MT6358
-	help
-	  Say yes here to add support for MediaTek MT6358 misc functions
-	  support. And this driver only provides some additional functions
-	  and depends on PMIC rtc module. it can be provide some APIs to
-	  other modules and store some misc information to rtc registers.
-
 config MFD_MT6397
 	tristate "MediaTek MT6397 PMIC Support"
 	select MFD_CORE
@@ -801,16 +770,6 @@ config MFD_MT6397
 	  a Power Management IC. This driver provides common support for
 	  accessing the device; additional drivers must be enabled in order
 	  to use the functionality of the device.
-
-config MT6397_MISC
-	tristate "MediaTek MT6397 MISC FUNCTIONS Support"
-	depends on MFD_MT6397
-	help
-	  Say yes here to add support for MediaTek MT6323/MT6397/MT6392 misc
-	  functions support. And this driver only provides some additional
-	  functions and depends on PMIC rtc module. it can be provide some
-	  APIs to other modules and store some misc information to rtc
-	  registers.
 
 config MFD_MENF21BMC
 	tristate "MEN 14F021P00 Board Management Controller Support"
@@ -947,20 +906,6 @@ config MFD_SPMI_PMIC
 
 	  Say M here if you want to include support for the SPMI PMIC
 	  series as a module.  The module will be called "qcom-spmi-pmic".
-
-config MTK_MFD_SPMI_PMIC
-	tristate "Mediatek SPMI PMICs"
-	depends on OF
-	depends on SPMI
-	select REGMAP_SPMI
-	help
-	  This enables support for the Mediatek SPMI PMICs.
-	  These PMICs are currently used with the MT63xx series of
-	  SoCs.  Note, that this will only be useful paired with descriptions
-	  of the independent functions as children nodes in the device tree.
-
-	  Say M here if you want to include support for the SPMI PMIC
-	  series as a module.  The module will be called "mtk-spmi-pmic".
 
 config MFD_RDC321X
 	tristate "RDC R-321x southbridge"

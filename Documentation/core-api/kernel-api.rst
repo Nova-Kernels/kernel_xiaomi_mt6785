@@ -56,24 +56,9 @@ Bitmap Operations
 -----------------
 
 .. kernel-doc:: lib/bitmap.c
-   :doc: bitmap introduction
-
-.. kernel-doc:: include/linux/bitmap.h
-   :doc: declare bitmap
-
-.. kernel-doc:: include/linux/bitmap.h
-   :doc: bitmap overview
-
-.. kernel-doc:: include/linux/bitmap.h
-   :doc: bitmap bitops
-
-.. kernel-doc:: lib/bitmap.c
    :export:
 
 .. kernel-doc:: lib/bitmap.c
-   :internal:
-
-.. kernel-doc:: include/linux/bitmap.h
    :internal:
 
 Command-line Parsing

@@ -49,12 +49,6 @@ struct page **iommu_dma_alloc(struct device *dev, size_t size, gfp_t gfp,
 		void (*flush_page)(struct device *, const void *, phys_addr_t));
 void iommu_dma_free(struct device *dev, struct page **pages, size_t size,
 		dma_addr_t *handle);
-struct page **
-iommu_dma_alloc_fix_iova(struct device *dev, size_t size, gfp_t gfp,
-		unsigned long attrs, int prot, dma_addr_t handle,
-		void (*flush_page)(struct device *, const void *, phys_addr_t));
-void iommu_dma_free_from_reserved_range(struct device *dev,
-		struct page **pages, size_t size, dma_addr_t *handle);
 
 int iommu_dma_mmap(struct page **pages, size_t size, struct vm_area_struct *vma);
 
@@ -80,12 +74,7 @@ int iommu_dma_mapping_error(struct device *dev, dma_addr_t dma_addr);
 /* The DMA API isn't _quite_ the whole story, though... */
 void iommu_dma_map_msi_msg(int irq, struct msi_msg *msg);
 void iommu_dma_get_resv_regions(struct device *dev, struct list_head *list);
-#ifdef CONFIG_MTK_IOMMU_V2
-void iommu_dma_dump_iovad(struct iommu_domain *domain,
-		unsigned long target);
-int iommu_dma_get_iovad_info(struct device *dev,
-	unsigned long *base, unsigned long *max);
-#endif
+
 #else
 
 struct iommu_domain;

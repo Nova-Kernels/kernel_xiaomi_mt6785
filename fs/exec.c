@@ -72,8 +72,6 @@
 
 #include <trace/events/sched.h>
 
-#include <mt-plat/mtk_pidmap.h>
-
 int suid_dumpable = 0;
 
 static LIST_HEAD(formats);
@@ -313,7 +311,7 @@ static int __bprm_mm_init(struct linux_binprm *bprm)
 	vma->vm_start = vma->vm_end - PAGE_SIZE;
 	vma->vm_flags = VM_SOFTDIRTY | VM_STACK_FLAGS | VM_STACK_INCOMPLETE_SETUP;
 	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-	INIT_VMA(vma);
+	INIT_LIST_HEAD(&vma->anon_vma_chain);
 
 	err = insert_vm_struct(mm, vma);
 	if (err)
@@ -1240,23 +1238,6 @@ char *__get_task_comm(char *buf, size_t buf_size, struct task_struct *tsk)
 }
 EXPORT_SYMBOL_GPL(__get_task_comm);
 
-#ifdef CONFIG_BLOCK_UNWANTED_APPS
-struct task_kill_info {
-	struct task_struct *task;
-	struct work_struct work;
-};
-
-static void proc_kill_task(struct work_struct *work)
-{
-	struct task_kill_info *kinfo = container_of(work, typeof(*kinfo), work);
-	struct task_struct *task = kinfo->task;
-
-	send_sig(SIGKILL, task, 0);
-	put_task_struct(task);
-	kfree(kinfo);
-}
-#endif
-
 /*
  * These functions flushes out all traces of the currently running executable
  * so that a new one can be started
@@ -1269,22 +1250,6 @@ void __set_task_comm(struct task_struct *tsk, const char *buf, bool exec)
 	strlcpy(tsk->comm, buf, sizeof(tsk->comm));
 	task_unlock(tsk);
 	perf_event_comm(tsk, exec);
-	mtk_pidmap_update(tsk);
-
-#ifdef CONFIG_BLOCK_UNWANTED_APPS
-	if (unlikely(strstr(tsk->comm, "lspeed")) ||
-		unlikely(strstr(tsk->comm, "fde"))) {
-		struct task_kill_info *kinfo;
-		pr_info("%s: blocking %s\n", __func__, tsk->comm);
-		kinfo = kmalloc(sizeof(*kinfo), GFP_KERNEL);
-		if (kinfo) {
-			get_task_struct(tsk);
-			kinfo->task = tsk;
-			INIT_WORK(&kinfo->work, proc_kill_task);
-			schedule_work(&kinfo->work);
-		}
-	}
-#endif
 }
 
 /*

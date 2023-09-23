@@ -39,7 +39,6 @@
 #include <linux/sched/signal.h>
 #include <linux/mm_inline.h>
 #include <trace/events/writeback.h>
-#include <mt-plat/mtk_blocktag.h>
 
 #include "internal.h"
 
@@ -89,7 +88,7 @@ int vm_highmem_is_dirtyable;
 /*
  * The generator of dirty data starts writeback at this percentage
  */
-int vm_dirty_ratio = 40;
+int vm_dirty_ratio = 20;
 
 /*
  * vm_dirty_bytes starts at 0 (disabled) so that it is a function of
@@ -2429,13 +2428,6 @@ void account_page_dirtied(struct page *page, struct address_space *mapping)
 		task_io_account_write(PAGE_SIZE);
 		current->nr_dirtied++;
 		this_cpu_inc(bdp_ratelimits);
-
-		/*
-		 * Dirty pages may be written by writeback thread later.
-		 * To get real i/o owner of this page, we shall keep it
-		 * before writeback takes over.
-		 */
-		mtk_btag_pidlog_set_pid(page);
 	}
 }
 EXPORT_SYMBOL(account_page_dirtied);

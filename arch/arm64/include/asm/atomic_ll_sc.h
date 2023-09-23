@@ -21,14 +21,8 @@
 #ifndef __ASM_ATOMIC_LL_SC_H
 #define __ASM_ATOMIC_LL_SC_H
 
-#include <linux/stringify.h>
-
 #ifndef __ARM64_IN_ATOMIC_IMPL
 #error "please don't include this file directly"
-#endif
-
-#ifndef CONFIG_CC_HAS_K_CONSTRAINT
-#define K
 #endif
 
 /*
@@ -57,7 +51,7 @@ __LL_SC_PREFIX(atomic_##op(int i, atomic_t *v))				\
 "	stxr	%w1, %w0, %2\n"						\
 "	cbnz	%w1, 1b"						\
 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
-	: __stringify(constraint) "r" (i));				\
+	: #constraint "r" (i));						\
 }									\
 __LL_SC_EXPORT(atomic_##op);
 
@@ -76,7 +70,7 @@ __LL_SC_PREFIX(atomic_##op##_return##name(int i, atomic_t *v))		\
 "	cbnz	%w1, 1b\n"						\
 "	" #mb								\
 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
-	: __stringify(constraint) "r" (i)				\
+	: #constraint "r" (i)						\
 	: cl);								\
 									\
 	return result;							\
@@ -98,7 +92,7 @@ __LL_SC_PREFIX(atomic_fetch_##op##name(int i, atomic_t *v))		\
 "	cbnz	%w2, 1b\n"						\
 "	" #mb								\
 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
-	: __stringify(constraint) "r" (i)				\
+	: #constraint "r" (i)						\
 	: cl);								\
 									\
 	return result;							\
@@ -127,15 +121,10 @@ ATOMIC_OPS(sub, sub, J)
 	ATOMIC_FETCH_OP (_acquire,        , a,  , "memory", __VA_ARGS__)\
 	ATOMIC_FETCH_OP (_release,        ,  , l, "memory", __VA_ARGS__)
 
-ATOMIC_OPS(and, and, K)
-ATOMIC_OPS(or, orr, K)
-ATOMIC_OPS(xor, eor, K)
-/*
- * GAS converts the mysterious and undocumented BIC (immediate) alias to
- * an AND (immediate) instruction with the immediate inverted. We don't
- * have a constraint for this, so fall back to register.
- */
+ATOMIC_OPS(and, and, )
 ATOMIC_OPS(andnot, bic, )
+ATOMIC_OPS(or, orr, )
+ATOMIC_OPS(xor, eor, )
 
 #undef ATOMIC_OPS
 #undef ATOMIC_FETCH_OP
@@ -156,7 +145,7 @@ __LL_SC_PREFIX(atomic64_##op(long i, atomic64_t *v))			\
 "	stxr	%w1, %0, %2\n"						\
 "	cbnz	%w1, 1b"						\
 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
-	: __stringify(constraint) "r" (i));				\
+	: #constraint "r" (i));						\
 }									\
 __LL_SC_EXPORT(atomic64_##op);
 
@@ -175,7 +164,7 @@ __LL_SC_PREFIX(atomic64_##op##_return##name(long i, atomic64_t *v))	\
 "	cbnz	%w1, 1b\n"						\
 "	" #mb								\
 	: "=&r" (result), "=&r" (tmp), "+Q" (v->counter)		\
-	: __stringify(constraint) "r" (i)				\
+	: #constraint "r" (i)						\
 	: cl);								\
 									\
 	return result;							\
@@ -197,7 +186,7 @@ __LL_SC_PREFIX(atomic64_fetch_##op##name(long i, atomic64_t *v))	\
 "	cbnz	%w2, 1b\n"						\
 "	" #mb								\
 	: "=&r" (result), "=&r" (val), "=&r" (tmp), "+Q" (v->counter)	\
-	: __stringify(constraint) "r" (i)				\
+	: #constraint "r" (i)						\
 	: cl);								\
 									\
 	return result;							\
@@ -227,14 +216,9 @@ ATOMIC64_OPS(sub, sub, J)
 	ATOMIC64_FETCH_OP (_release,,  , l, "memory", __VA_ARGS__)
 
 ATOMIC64_OPS(and, and, L)
+ATOMIC64_OPS(andnot, bic, )
 ATOMIC64_OPS(or, orr, L)
 ATOMIC64_OPS(xor, eor, L)
-/*
- * GAS converts the mysterious and undocumented BIC (immediate) alias to
- * an AND (immediate) instruction with the immediate inverted. We don't
- * have a constraint for this, so fall back to register.
- */
-ATOMIC64_OPS(andnot, bic, )
 
 #undef ATOMIC64_OPS
 #undef ATOMIC64_FETCH_OP
@@ -284,7 +268,7 @@ __LL_SC_PREFIX(__cmpxchg_case_##name##sz(volatile void *ptr,		\
 	"2:"								\
 	: [tmp] "=&r" (tmp), [oldval] "=&r" (oldval),			\
 	  [v] "+Q" (*(u##sz *)ptr)					\
-	: [old] __stringify(constraint) "r" (old), [new] "r" (new)	\
+	: [old] #constraint "r" (old), [new] "r" (new)			\
 	: cl);								\
 									\
 	return oldval;							\
@@ -296,21 +280,21 @@ __LL_SC_EXPORT(__cmpxchg_case_##name##sz);
  * handle the 'K' constraint for the value 4294967295 - thus we use no
  * constraint for 32 bit operations.
  */
-__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         , K)
-__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         , K)
-__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         , K)
+__CMPXCHG_CASE(w, b,     ,  8,        ,  ,  ,         , )
+__CMPXCHG_CASE(w, h,     , 16,        ,  ,  ,         , )
+__CMPXCHG_CASE(w,  ,     , 32,        ,  ,  ,         , )
 __CMPXCHG_CASE( ,  ,     , 64,        ,  ,  ,         , L)
-__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory", K)
-__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory", K)
-__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory", K)
+__CMPXCHG_CASE(w, b, acq_,  8,        , a,  , "memory", )
+__CMPXCHG_CASE(w, h, acq_, 16,        , a,  , "memory", )
+__CMPXCHG_CASE(w,  , acq_, 32,        , a,  , "memory", )
 __CMPXCHG_CASE( ,  , acq_, 64,        , a,  , "memory", L)
-__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory", K)
-__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory", K)
-__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory", K)
+__CMPXCHG_CASE(w, b, rel_,  8,        ,  , l, "memory", )
+__CMPXCHG_CASE(w, h, rel_, 16,        ,  , l, "memory", )
+__CMPXCHG_CASE(w,  , rel_, 32,        ,  , l, "memory", )
 __CMPXCHG_CASE( ,  , rel_, 64,        ,  , l, "memory", L)
-__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory", K)
-__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory", K)
-__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory", K)
+__CMPXCHG_CASE(w, b,  mb_,  8, dmb ish,  , l, "memory", )
+__CMPXCHG_CASE(w, h,  mb_, 16, dmb ish,  , l, "memory", )
+__CMPXCHG_CASE(w,  ,  mb_, 32, dmb ish,  , l, "memory", )
 __CMPXCHG_CASE( ,  ,  mb_, 64, dmb ish,  , l, "memory", L)
 
 #undef __CMPXCHG_CASE
@@ -348,6 +332,5 @@ __CMPXCHG_DBL(   ,        ,  ,         )
 __CMPXCHG_DBL(_mb, dmb ish, l, "memory")
 
 #undef __CMPXCHG_DBL
-#undef K
 
 #endif	/* __ASM_ATOMIC_LL_SC_H */

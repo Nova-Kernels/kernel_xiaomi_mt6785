@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0
-subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
 # common clock types
 obj-$(CONFIG_HAVE_CLK)		+= clk-devres.o clk-bulk.o
 obj-$(CONFIG_CLKDEV_LOOKUP)	+= clkdev.o
@@ -69,7 +68,7 @@ obj-$(CONFIG_MACH_INGENIC)		+= ingenic/
 obj-$(CONFIG_ARCH_K3)			+= keystone/
 obj-$(CONFIG_ARCH_KEYSTONE)		+= keystone/
 obj-$(CONFIG_MACH_LOONGSON32)		+= loongson1/
-obj-$(CONFIG_COMMON_CLK_MEDIATEK)	+= mediatek/
+obj-$(CONFIG_ARCH_MEDIATEK)		+= mediatek/
 obj-$(CONFIG_COMMON_CLK_AMLOGIC)	+= meson/
 obj-$(CONFIG_MACH_PIC32)		+= microchip/
 ifeq ($(CONFIG_COMMON_CLK), y)

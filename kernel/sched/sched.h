@@ -25,7 +25,6 @@
 #include <linux/u64_stats_sync.h>
 #include <linux/kernel_stat.h>
 #include <linux/binfmts.h>
-#include <linux/bitops.h>
 #include <linux/mutex.h>
 #include <linux/psi.h>
 #include <linux/spinlock.h>
@@ -336,11 +335,6 @@ struct task_group {
 #endif
 
 	struct cfs_bandwidth cfs_bandwidth;
-
-#ifdef CONFIG_UCLAMP_TASK_GROUP
-	struct			uclamp_se uclamp[UCLAMP_CNT];
-#endif
-
 };
 
 #ifdef CONFIG_FAIR_GROUP_SCHED
@@ -648,8 +642,6 @@ struct root_domain {
 	 */
 	int overload;
 
-	int			overutilized;
-
 	/*
 	 * The bit corresponding to a CPU gets set here if such CPU has more
 	 * than one runnable -deadline task (as it is below for RT tasks).
@@ -701,62 +693,6 @@ extern void rto_push_irq_work_func(struct irq_work *work);
 #endif
 #endif /* CONFIG_SMP */
 
-#ifdef CONFIG_UCLAMP_TASK
-/**
- * struct uclamp_group - Utilization clamp Group
- * @value: utilization clamp value for tasks on this clamp group
- * @tasks: number of RUNNABLE tasks on this clamp group
- *
- * Keep track of how many tasks are RUNNABLE for a given utilization
- * clamp value.
- */
-struct uclamp_group {
-	unsigned long value : SCHED_CAPACITY_SHIFT + 1;
-	unsigned long tasks : BITS_PER_LONG - SCHED_CAPACITY_SHIFT - 1;
-};
-
-/**
- * struct uclamp_cpu - CPU's utilization clamp
- * @value: currently active clamp values for a CPU
- * @group: utilization clamp groups affecting a CPU
- *
- * Keep track of RUNNABLE tasks on a CPUs to aggregate their clamp values.
- * A clamp value is affecting a CPU where there is at least one task RUNNABLE
- * (or actually running) with that value.
- *
- * We have up to UCLAMP_CNT possible different clamp value, which are
- * currently only two: minmum utilization and maximum utilization.
- *
- * All utilization clamping values are MAX aggregated, since:
- * - for util_min: we want to run the CPU at least at the max of the minimum
- *   utilization required by its currently RUNNABLE tasks.
- * - for util_max: we want to allow the CPU to run up to the max of the
- *   maximum utilization allowed by its currently RUNNABLE tasks.
- *
- * Since on each system we expect only a limited number of different
- * utilization clamp values (CONFIG_UCLAMP_GROUPS_COUNT), we use a simple
- * array to track the metrics required to compute all the per-CPU utilization
- * clamp values. The additional slot is used to track the default clamp
- * values, i.e. no min/max clamping at all.
- */
-struct uclamp_cpu {
-	struct uclamp_group group[UCLAMP_CNT][UCLAMP_GROUPS];
-	int value[UCLAMP_CNT];
-
-/*
- * Idle clamp holding
- * Whenever a CPU is idle, we enforce the util_max clamp value of the last
- * task running on that CPU. This bit is used to flag a clamp holding
- * currently active for a CPU. This flag is:
- * - set when we update the clamp value of a CPU at the time of dequeuing the
- *   last before entering idle
- * - reset when we enqueue the first task after a CPU wakeup from IDLE
- */
-#define UCLAMP_FLAG_IDLE 0x01
-	int flags;
-};
-#endif /* CONFIG_UCLAMP_TASK */
-
 /*
  * This is the main, per-CPU runqueue data structure.
  *
@@ -793,11 +729,6 @@ struct rq {
 	struct load_weight load;
 	unsigned long nr_load_updates;
 	u64 nr_switches;
-
-#ifdef CONFIG_UCLAMP_TASK
-	/* Utilization clamp values based on CPU's RUNNABLE tasks */
-	struct uclamp_cpu	uclamp ____cacheline_aligned;
-#endif
 
 	struct cfs_rq cfs;
 	struct rt_rq rt;
@@ -844,9 +775,6 @@ struct rq {
 	int active_balance;
 	int push_cpu;
 	struct cpu_stop_work active_balance_work;
-#if defined(CONFIG_SCHED_HMP) || defined(CONFIG_MTK_IDLE_BALANCE_ENHANCEMENT)
-	struct task_struct *migrate_task;
-#endif
 	/* cpu of this runqueue: */
 	int cpu;
 	int online;
@@ -1194,8 +1122,8 @@ enum numa_faults_stats {
 };
 extern void sched_setnuma(struct task_struct *p, int node);
 extern int migrate_task_to(struct task_struct *p, int cpu);
+extern int migrate_swap(struct task_struct *, struct task_struct *);
 #endif /* CONFIG_NUMA_BALANCING */
-extern int migrate_swap(struct task_struct *src, struct task_struct *dst);
 
 #ifdef CONFIG_SMP
 
@@ -1315,16 +1243,6 @@ struct sched_group {
 	unsigned long cpumask[0];
 };
 
-static inline struct cpumask *sched_group_cpus(struct sched_group *sg)
-{
-	return to_cpumask(sg->cpumask);
-}
-
-static inline struct cpumask *sched_group_mask(struct sched_group *sg)
-{
-	return to_cpumask(sg->sgc->cpumask);
-}
-
 static inline struct cpumask *sched_group_span(struct sched_group *sg)
 {
 	return to_cpumask(sg->cpumask);
@@ -1365,12 +1283,11 @@ static inline void unregister_sched_domain_sysctl(void)
 }
 #endif
 
-extern void flush_smp_call_function_from_idle(void);
+#else
 
-#else /* !CONFIG_SMP: */
-static inline void flush_smp_call_function_from_idle(void) { }
 static inline void sched_ttwu_pending(void) { }
-#endif
+
+#endif /* CONFIG_SMP */
 
 #include "stats.h"
 #include "autogroup.h"
@@ -1575,8 +1492,7 @@ static inline void finish_lock_switch(struct rq *rq, struct task_struct *prev)
  */
 #define WF_SYNC		0x01		/* waker goes to sleep after wakeup */
 #define WF_FORK		0x02		/* child wakeup after fork */
-#define WF_MIGRATED	0x04		/* internal use, task got migrated */
-#define WF_ON_RQ	0x08		/* wakee is on_rq */
+#define WF_MIGRATED	0x4		/* internal use, task got migrated */
 
 /*
  * To aid in avoiding the subversion of "niceness" due to uneven distribution
@@ -1634,10 +1550,6 @@ extern const u32 sched_prio_to_wmult[40];
 
 struct sched_class {
 	const struct sched_class *next;
-
-#ifdef CONFIG_UCLAMP_TASK
-	int uclamp_enabled;
-#endif
 
 	void (*enqueue_task) (struct rq *rq, struct task_struct *p, int flags);
 	void (*dequeue_task) (struct rq *rq, struct task_struct *p, int flags);
@@ -1736,7 +1648,6 @@ extern const struct sched_class idle_sched_class;
 extern void update_group_capacity(struct sched_domain *sd, int cpu);
 
 extern void trigger_load_balance(struct rq *rq);
-extern void nohz_balance_clear_nohz_mask(int cpu);
 
 extern void set_cpus_allowed_common(struct task_struct *p, const struct cpumask *new_mask);
 
@@ -1845,29 +1756,9 @@ static inline void sched_update_tick_dependency(struct rq *rq)
 static inline void sched_update_tick_dependency(struct rq *rq) { }
 #endif
 
-#ifdef CONFIG_MTK_SCHED_RQAVG_KS
-extern void sched_update_nr_prod(int cpu, unsigned long nr_running, int inc);
-extern void sched_max_util_task(int *cpu, int *pid, int *util, int *boost);
-extern void sched_max_util_task_tracking(void);
-#endif
-
-#ifdef CONFIG_MTK_SCHED_RQAVG_US
-extern int
-inc_nr_heavy_running(int invoker, struct task_struct *p, int inc, bool ack_cap);
-
-#ifdef CONFIG_MTK_SCHED_CPULOAD
-extern void cal_cpu_load(int cpu);
-#endif
-
-#endif
-
 static inline void add_nr_running(struct rq *rq, unsigned count)
 {
 	unsigned prev_nr = rq->nr_running;
-
-#ifdef CONFIG_MTK_SCHED_RQAVG_KS
-	sched_update_nr_prod(cpu_of(rq), rq->nr_running, count);
-#endif
 
 	rq->nr_running = prev_nr + count;
 
@@ -1883,9 +1774,6 @@ static inline void add_nr_running(struct rq *rq, unsigned count)
 
 static inline void sub_nr_running(struct rq *rq, unsigned count)
 {
-#ifdef CONFIG_MTK_SCHED_RQAVG_KS
-	sched_update_nr_prod(cpu_of(rq), rq->nr_running, -count);
-#endif
 	rq->nr_running -= count;
 	/* Check if we still need preemption */
 	sched_update_tick_dependency(rq);
@@ -1986,14 +1874,6 @@ extern unsigned int walt_ravg_window;
 extern bool walt_disabled;
 
 #endif /* CONFIG_SMP */
-
-#ifdef CONFIG_MEDIATEK_SOLUTION
-extern void update_sched_hint(int sys_util, int sys_cap);
-extern void sched_hint_check(u64 wallclock);
-#else
-#define update_sched_hint(sys_util, sys_cap) {}
-#define sched_hint_check(wallclock) {}
-#endif
 
 static inline void sched_rt_avg_update(struct rq *rq, u64 rt_delta)
 {
@@ -2153,6 +2033,7 @@ static inline void double_rq_unlock(struct rq *rq1, struct rq *rq2)
 extern void set_rq_online (struct rq *rq);
 extern void set_rq_offline(struct rq *rq);
 extern bool sched_smp_initialized;
+
 #else /* CONFIG_SMP */
 
 /*
@@ -2290,13 +2171,6 @@ static inline u64 irq_time_read(int cpu)
 }
 #endif /* CONFIG_IRQ_TIME_ACCOUNTING */
 
-/* sched:  add for print aee log */
-#ifdef CONFIG_SMP
-static inline int rq_cpu(const struct rq *rq) { return rq->cpu; }
-#else
-static inline int rq_cpu(const struct rq *rq) { return 0; }
-#endif
-
 #ifdef CONFIG_CPU_FREQ
 DECLARE_PER_CPU(struct update_util_data *, cpufreq_update_util_data);
 
@@ -2335,71 +2209,6 @@ static inline void cpufreq_update_util(struct rq *rq, unsigned int flags)
 static inline void cpufreq_update_util(struct rq *rq, unsigned int flags) {}
 #endif /* CONFIG_CPU_FREQ */
 
-extern unsigned int uclamp_task_effective_util(struct task_struct *p,
-					unsigned int clamp_id);
-extern unsigned int uclamp_task_util(struct task_struct *p,
-					unsigned int clamp_id);
-
-#if defined(CONFIG_UCLAMP_TASK_GROUP) && defined(CONFIG_SCHED_TUNE)
-extern void schedtune_init_uclamp(void);
-extern struct uclamp_se *task_schedtune_uclamp(struct task_struct *tsk,
-		int clamp_id);
-#endif
-
-/**
- * uclamp_none: default value for a clamp
- *
- * This returns the default value for each clamp
- * - 0 for a min utilization clamp
- * - SCHED_CAPACITY_SCALE for a max utilization clamp
- *
- * Return: the default value for a given utilization clamp
- */
-static inline unsigned int uclamp_none(int clamp_id)
-{
-	if (clamp_id == UCLAMP_MIN)
-		return 0;
-	return SCHED_CAPACITY_SCALE;
-}
-
-#ifdef CONFIG_UCLAMP_TASK
-static inline unsigned int uclamp_value(unsigned int cpu, int clamp_id)
-{
-	return cpu_rq(cpu)->uclamp.value[clamp_id];
-}
-
-/**
- * uclamp_util: clamp a utilization value for a specified CPU
- * @rq: the CPU's RQ to get the clamp values from
- * @util: the utilization signal to clamp
- *
- * Each CPU tracks util_{min,max} clamp values depending on the set of its
- * currently RUNNABLE tasks. Given a utilization signal, i.e a signal in
- * the [0..SCHED_CAPACITY_SCALE] range, this function returns a clamped
- * utilization signal considering the current clamp values for the
- * specified CPU.
- *
- * Return: a clamped utilization signal for a given CPU.
- */
-static inline unsigned int uclamp_util(struct rq *rq, unsigned int util)
-{
-	unsigned int min_util = rq->uclamp.value[UCLAMP_MIN];
-	unsigned int max_util = rq->uclamp.value[UCLAMP_MAX];
-
-	return clamp(util, min_util, max_util);
-}
-#else /* CONFIG_UCLAMP_TASK */
-static inline unsigned int uclamp_value(unsigned int cpu, int clamp_id)
-{
-	return uclamp_none(clamp_id);
-}
-
-static inline unsigned int uclamp_util(struct rq *rq, unsigned int util)
-{
-	return util;
-}
-#endif /* CONFIG_UCLAMP_TASK */
-
 #ifdef CONFIG_SCHED_WALT
 
 static inline bool
@@ -2418,5 +2227,3 @@ walt_task_in_cum_window_demand(struct rq *rq, struct task_struct *p)
 #else /* arch_scale_freq_capacity */
 #define arch_scale_freq_invariant()	(false)
 #endif
-
-#include "sched_plus.h"

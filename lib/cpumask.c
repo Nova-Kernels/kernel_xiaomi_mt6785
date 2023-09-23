@@ -33,11 +33,10 @@ EXPORT_SYMBOL(cpumask_next);
 int cpumask_next_and(int n, const struct cpumask *src1p,
 		     const struct cpumask *src2p)
 {
-	/* -1 is a legal arg here. */
-	if (n != -1)
-		cpumask_check(n);
-	return find_next_and_bit(cpumask_bits(src1p), cpumask_bits(src2p),
-		nr_cpumask_bits, n + 1);
+	while ((n = cpumask_next(n, src1p)) < nr_cpu_ids)
+		if (cpumask_test_cpu(n, src2p))
+			break;
+	return n;
 }
 EXPORT_SYMBOL(cpumask_next_and);
 

@@ -22,7 +22,7 @@
 #include <unistd.h>
 #include <linux/string.h>
 
-#include <linux/ctype.h>
+#include "sane_ctype.h"
 
 #define MAXNAME (256)
 

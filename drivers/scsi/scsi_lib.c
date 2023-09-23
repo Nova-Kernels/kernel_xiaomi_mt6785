@@ -252,36 +252,11 @@ int scsi_execute(struct scsi_device *sdev, const unsigned char *cmd,
 	struct scsi_request *rq;
 	int ret = DRIVER_ERROR << 24;
 
-	/*
-	 * MTK PATCH
-	 *
-	 * While suspending normal IO request can not be issued.
-	 * But when async queue is full, sd_sync_cache() will wait
-	 * for async request to be done. But since it is request_queue is
-	 * in suspending state and no request is in LLD.
-	 * So this will cause hang.
-	 *
-	 * Use REQ_NOWAIT to avoid queue full durinig pm progress.
-	 *
-	 */
-	unsigned int op = (data_direction == DMA_TO_DEVICE ?
-		REQ_OP_SCSI_OUT : REQ_OP_SCSI_IN);
-
-	if (rq_flags & RQF_PM)
-		op |= REQ_NOWAIT;
-
 	req = blk_get_request(sdev->request_queue,
-		op, __GFP_RECLAIM);
-	if (IS_ERR(req)) {
-		/*
-		 * MTK PATCH
-		 * pass the error code to the
-		 * generic layer
-		 */
-		if (req == ERR_PTR(-EAGAIN))
-			ret = -EAGAIN;
+			data_direction == DMA_TO_DEVICE ?
+			REQ_OP_SCSI_OUT : REQ_OP_SCSI_IN, __GFP_RECLAIM);
+	if (IS_ERR(req))
 		return ret;
-	}
 	rq = scsi_req(req);
 
 	if (bufflen &&	blk_rq_map_kern(sdev->request_queue, req,
@@ -2195,9 +2170,6 @@ void __scsi_init_queue(struct Scsi_Host *shost, struct request_queue *q)
 
 	if (!shost->use_clustering)
 		q->limits.cluster = 0;
-
-	if (shost->use_inline_crypt)
-		queue_flag_set_unlocked(QUEUE_FLAG_INLINECRYPT, q);
 
 	/*
 	 * Set a reasonable default alignment:  The larger of 32-byte (dword),

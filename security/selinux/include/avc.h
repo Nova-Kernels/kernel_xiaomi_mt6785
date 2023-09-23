@@ -131,7 +131,6 @@ static inline int avc_audit(struct selinux_state *state,
 			    struct common_audit_data *a,
 			    int flags)
 {
-#ifdef CONFIG_AUDIT
 	u32 audited, denied;
 	audited = avc_audit_required(requested, avd, result, 0, &denied);
 	if (likely(!audited))
@@ -139,9 +138,6 @@ static inline int avc_audit(struct selinux_state *state,
 	return slow_avc_audit(state, ssid, tsid, tclass,
 			      requested, audited, denied, result,
 			      a, flags);
-#else
-	return 0;
-#endif
 }
 
 #define AVC_STRICT 1 /* Ignore permissive mode. */
@@ -193,11 +189,6 @@ void avc_disable(void);
 
 #ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
 DECLARE_PER_CPU(struct avc_cache_stats, avc_cache_stats);
-#endif
-
-#ifdef CONFIG_MTK_SELINUX_AEE_WARNING
-extern struct sk_buff *audit_get_skb(struct audit_buffer *ab);
-extern void __attribute__((weak)) mtk_audit_hook(char *data);
 #endif
 
 #endif /* _SELINUX_AVC_H_ */

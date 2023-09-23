@@ -29,13 +29,11 @@
 #include <linux/cpu.h>
 #include <linux/pm_opp.h>
 #include <linux/platform_device.h>
-#include "energy_plus.h"
 
 #include "sched.h"
 
 struct sched_group_energy *sge_array[NR_CPUS][NR_SD_LEVELS];
 
-#ifndef CONFIG_MTK_UNIFY_POWER
 static void free_resources(void)
 {
 	int cpu, sd_level;
@@ -306,7 +304,3 @@ static int __init sched_energy_init(void)
 	return ret;
 }
 subsys_initcall(sched_energy_init);
-
-#endif
-
-#include "energy_plus.c"

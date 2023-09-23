@@ -55,7 +55,7 @@ struct fault_info {
 	const char *name;
 };
 
-static struct fault_info fault_info[];
+static const struct fault_info fault_info[];
 
 static inline const struct fault_info *esr_to_fault_info(unsigned int esr)
 {
@@ -454,14 +454,6 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
 	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, addr);
 
 	/*
-	 * let's try a speculative page fault without grabbing the
-	 * mmap_sem.
-	 */
-	fault = handle_speculative_fault(mm, addr, mm_flags, vm_flags);
-	if (fault != VM_FAULT_RETRY)
-		goto done;
-
-	/*
 	 * As per x86, we may deadlock here. However, since the kernel only
 	 * validly references user space from well defined areas of the code,
 	 * we can bug out early if this is from code which shouldn't.
@@ -510,8 +502,6 @@ retry:
 		}
 	}
 	up_read(&mm->mmap_sem);
-
-done:
 
 	/*
 	 * Handle the "normal" (no error) case first.
@@ -666,7 +656,7 @@ static int do_sea(unsigned long addr, unsigned int esr, struct pt_regs *regs)
 	return ret;
 }
 
-static struct fault_info fault_info[] = {
+static const struct fault_info fault_info[] = {
 	{ do_bad,		SIGBUS,  0,		"ttbr address size fault"	},
 	{ do_bad,		SIGBUS,  0,		"level 1 address size fault"	},
 	{ do_bad,		SIGBUS,  0,		"level 2 address size fault"	},
@@ -849,7 +839,7 @@ void __init hook_debug_fault_code(int nr,
 				  int (*fn)(unsigned long, unsigned int, struct pt_regs *),
 				  int sig, int code, const char *name)
 {
-	WARN_ON(nr < 0 || nr >= ARRAY_SIZE(debug_fault_info));
+	BUG_ON(nr < 0 || nr >= ARRAY_SIZE(debug_fault_info));
 
 	debug_fault_info[nr].fn		= fn;
 	debug_fault_info[nr].sig	= sig;
@@ -857,21 +847,7 @@ void __init hook_debug_fault_code(int nr,
 	debug_fault_info[nr].name	= name;
 }
 
-#ifdef CONFIG_MEDIATEK_SOLUTION
-void hook_fault_code(int nr,
-		     int (*fn)(unsigned long, unsigned int, struct pt_regs *),
-		     int sig, int code, const char *name)
-{
-	WARN_ON(nr < 0 || nr >= ARRAY_SIZE(fault_info));
-
-	fault_info[nr].fn   = fn;
-	fault_info[nr].sig  = sig;
-	fault_info[nr].code = code;
-	fault_info[nr].name = name;
-}
-#endif
-
-asmlinkage int __exception do_debug_exception(unsigned long addr,
+asmlinkage int __exception do_debug_exception(unsigned long addr_if_watchpoint,
 					      unsigned int esr,
 					      struct pt_regs *regs)
 {
@@ -890,16 +866,16 @@ asmlinkage int __exception do_debug_exception(unsigned long addr,
 	if (user_mode(regs) && !is_ttbr0_addr(pc))
 		arm64_apply_bp_hardening();
 
-	if (!inf->fn(addr, esr, regs)) {
+	if (!inf->fn(addr_if_watchpoint, esr, regs)) {
 		rv = 1;
 	} else {
 		pr_alert("Unhandled debug exception: %s (0x%08x) at 0x%016lx\n",
-			 inf->name, esr, addr);
+			 inf->name, esr, pc);
 
 		info.si_signo = inf->sig;
 		info.si_errno = 0;
 		info.si_code  = inf->code;
-		info.si_addr  = (void __user *)addr;
+		info.si_addr  = (void __user *)pc;
 		arm64_notify_die("", regs, &info, 0);
 		rv = 0;
 	}

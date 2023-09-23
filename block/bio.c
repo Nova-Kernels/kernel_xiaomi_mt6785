@@ -580,15 +580,6 @@ inline int bio_phys_segments(struct request_queue *q, struct bio *bio)
 }
 EXPORT_SYMBOL(bio_phys_segments);
 
-#if defined(CONFIG_MTK_HW_FDE)
-static inline void bio_clone_crypt_info(struct bio *dst, const struct bio *src)
-{
-	/* for FDE */
-	dst->bi_hw_fde = src->bi_hw_fde;
-	dst->bi_key_idx = src->bi_key_idx;
-}
-#endif
-
 /**
  * 	__bio_clone_fast - clone a bio that shares the original bio's biovec
  * 	@bio: destination bio
@@ -618,10 +609,6 @@ void __bio_clone_fast(struct bio *bio, struct bio *bio_src)
 	bio->bi_iter = bio_src->bi_iter;
 	bio->bi_io_vec = bio_src->bi_io_vec;
 
-#if defined(CONFIG_MTK_HW_FDE)
-	bio_clone_crypt_info(bio, bio_src);
-#endif
-
 	bio_clone_blkcg_association(bio, bio_src);
 }
 EXPORT_SYMBOL(__bio_clone_fast);
@@ -632,7 +619,7 @@ EXPORT_SYMBOL(__bio_clone_fast);
  *	@gfp_mask: allocation priority
  *	@bs: bio_set to allocate from
  *
- *	Like __bio_clone_fast, only also allocates the returned bio
+ * 	Like __bio_clone_fast, only also allocates the returned bio
  */
 struct bio *bio_clone_fast(struct bio *bio, gfp_t gfp_mask, struct bio_set *bs)
 {
@@ -728,10 +715,6 @@ struct bio *bio_clone_bioset(struct bio *bio_src, gfp_t gfp_mask,
 			return NULL;
 		}
 	}
-
-#if defined(CONFIG_MTK_HW_FDE)
-	bio_clone_crypt_info(bio, bio_src);
-#endif
 
 	bio_clone_blkcg_association(bio, bio_src);
 

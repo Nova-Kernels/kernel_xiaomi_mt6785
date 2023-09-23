@@ -2,7 +2,6 @@
  * core.c  --  Voltage/Current Regulator framework.
  *
  * Copyright 2007, 2008 Wolfson Microelectronics PLC.
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright 2008 SlimLogic Ltd.
  *
  * Author: Liam Girdwood <lrg@slimlogic.co.uk>
@@ -1644,15 +1643,9 @@ struct regulator *_regulator_get(struct device *dev, const char *id,
 			 * enabled, even if it isn't hooked up, and just
 			 * provide a dummy.
 			 */
-#ifdef _XIAOMI_
 			dev_warn(dev,
 				 "%s supply %s not found, using dummy regulator\n",
 				 devname, id);
-#else
-			dev_dbg(dev,
-				 "%s supply %s not found, using dummy regulator\n",
-				 devname, id);
-#endif
 			rdev = dummy_regulator_rdev;
 			get_device(&rdev->dev);
 			break;
@@ -4423,49 +4416,49 @@ static void regulator_summary_show_subtree(struct seq_file *s,
 		return;
 
 	seq_printf(s, "%*s%-*s %3d %4d %6d ",
-			   level * 3 + 1, "",
-	   		   30 - level * 3, rdev_get_name(rdev),
-	   		   rdev->use_count, rdev->open_count, rdev->bypass_count);
+		   level * 3 + 1, "",
+		   30 - level * 3, rdev_get_name(rdev),
+		   rdev->use_count, rdev->open_count, rdev->bypass_count);
 
 	seq_printf(s, "%5dmV ", _regulator_get_voltage(rdev) / 1000);
 	seq_printf(s, "%5dmA ", _regulator_get_current_limit(rdev) / 1000);
 
 	c = rdev->constraints;
 	if (c) {
-			switch (rdev->desc->type) {
-			case REGULATOR_VOLTAGE:
-					seq_printf(s, "%5dmV %5dmV ",
-							   c->min_uV / 1000, c->max_uV / 1000);
-		   			break;
-			case REGULATOR_CURRENT:
-					seq_printf(s, "%5dmA %5dmA ",
-							   c->min_uA / 1000, c->max_uA / 1000);
-		   			break;
-			}
+		switch (rdev->desc->type) {
+		case REGULATOR_VOLTAGE:
+			seq_printf(s, "%5dmV %5dmV ",
+				   c->min_uV / 1000, c->max_uV / 1000);
+			break;
+		case REGULATOR_CURRENT:
+			seq_printf(s, "%5dmA %5dmA ",
+				   c->min_uA / 1000, c->max_uA / 1000);
+			break;
+		}
 	}
 
 	seq_puts(s, "\n");
 
 	list_for_each_entry(consumer, &rdev->consumer_list, list) {
-			if (consumer->dev && consumer->dev->class == &regulator_class)
-					continue;
+		if (consumer->dev && consumer->dev->class == &regulator_class)
+			continue;
 
-			seq_printf(s, "%*s%-*s ",
-					   (level + 1) * 3 + 1, "",
-					   30 - (level + 1) * 3,
-		   			   consumer->dev ? dev_name(consumer->dev) : "deviceless");
+		seq_printf(s, "%*s%-*s ",
+			   (level + 1) * 3 + 1, "",
+			   30 - (level + 1) * 3,
+			   consumer->dev ? dev_name(consumer->dev) : "deviceless");
 
-	  		switch (rdev->desc->type) {
-			case REGULATOR_VOLTAGE:
-				seq_printf(s, "%37dmV %5dmV",
-						   consumer->min_uV / 1000,
-						   consumer->max_uV / 1000);
-	  			break;
-			case REGULATOR_CURRENT:
-				break;
-			}
+		switch (rdev->desc->type) {
+		case REGULATOR_VOLTAGE:
+			seq_printf(s, "%37dmV %5dmV",
+				   consumer->min_uV / 1000,
+				   consumer->max_uV / 1000);
+			break;
+		case REGULATOR_CURRENT:
+			break;
+		}
 
-			seq_puts(s, "\n");
+		seq_puts(s, "\n");
 	}
 
 	summary_data.s = s;

@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2014 Red Hat
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2014 Intel Corp.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -31,15 +30,10 @@
 #include <drm/drm_plane_helper.h>
 #include <drm/drm_crtc_helper.h>
 #include <drm/drm_atomic_helper.h>
-#include <drm/drm_writeback.h>
 #include <linux/dma-fence.h>
 
 #include "drm_crtc_helper_internal.h"
 #include "drm_crtc_internal.h"
-
-
-
-
 
 /**
  * DOC: overview
@@ -1056,29 +1050,6 @@ void drm_atomic_helper_commit_modeset_disables(struct drm_device *dev,
 }
 EXPORT_SYMBOL(drm_atomic_helper_commit_modeset_disables);
 
-static void drm_atomic_helper_commit_writebacks(struct drm_device *dev,
-					struct drm_atomic_state *old_state)
-{
-	struct drm_connector *connector;
-	struct drm_connector_state *new_conn_state;
-	int i;
-
-	for_each_new_connector_in_state(old_state, connector,
-						new_conn_state, i) {
-		const struct drm_connector_helper_funcs *funcs;
-
-		funcs = connector->helper_private;
-
-		if (new_conn_state->writeback_job &&
-				new_conn_state->writeback_job->fb) {
-			WARN_ON(connector->connector_type !=
-					DRM_MODE_CONNECTOR_WRITEBACK);
-			funcs->atomic_commit(connector,
-					new_conn_state->writeback_job);
-		}
-	}
-}
-
 /**
  * drm_atomic_helper_commit_modeset_enables - modeset commit to enable outputs
  * @dev: DRM device
@@ -1102,8 +1073,6 @@ void drm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 	struct drm_connector *connector;
 	struct drm_connector_state *new_conn_state;
 	int i;
-	int index;
-	pr_debug("%s +\n", __func__);
 
 	for_each_oldnew_crtc_in_state(old_state, crtc, old_crtc_state, new_crtc_state, i) {
 		const struct drm_crtc_helper_funcs *funcs;
@@ -1149,21 +1118,17 @@ void drm_atomic_helper_commit_modeset_enables(struct drm_device *dev,
 		 * Each encoder has at most one connector (since we always steal
 		 * it away), so we won't call enable hooks twice.
 		 */
-		pr_debug("drm_bridge_pre_enable begin");
 		drm_bridge_pre_enable(encoder->bridge);
-		pr_debug("drm_bridge_pre_enable end");
+
 		if (funcs) {
-			if (funcs->enable) {
+			if (funcs->enable)
 				funcs->enable(encoder);
-			}
 			else if (funcs->commit)
 				funcs->commit(encoder);
 		}
 
 		drm_bridge_enable(encoder->bridge);
 	}
-	pr_debug("%s -\n", __func__);
-	drm_atomic_helper_commit_writebacks(dev, old_state);
 }
 EXPORT_SYMBOL(drm_atomic_helper_commit_modeset_enables);
 
@@ -3164,8 +3129,7 @@ struct drm_encoder *
 drm_atomic_helper_best_encoder(struct drm_connector *connector)
 {
 	WARN_ON(connector->encoder_ids[1]);
-	return drm_encoder_find(connector->dev,
-			NULL, connector->encoder_ids[0]);
+	return drm_encoder_find(connector->dev, connector->encoder_ids[0]);
 }
 EXPORT_SYMBOL(drm_atomic_helper_best_encoder);
 
@@ -3456,9 +3420,6 @@ __drm_atomic_helper_connector_duplicate_state(struct drm_connector *connector,
 	memcpy(state, connector->state, sizeof(*state));
 	if (state->crtc)
 		drm_connector_get(connector);
-
-	/* Don't copy over a writeback job, they are used only once */
-	state->writeback_job = NULL;
 }
 EXPORT_SYMBOL(__drm_atomic_helper_connector_duplicate_state);
 

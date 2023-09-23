@@ -19,7 +19,6 @@
 #include <linux/sched_clock.h>
 #include <linux/seqlock.h>
 #include <linux/bitops.h>
-#include <mt-plat/mtk_sys_timer.h>
 
 /**
  * struct clock_read_data - data required to read from sched_clock()
@@ -75,18 +74,6 @@ static int irqtime = -1;
 
 core_param(irqtime, irqtime, int, 0400);
 
-//POWER ADD
-static u64 first_cycle = 1;
-u64 sum_wakeup_time;
-u64 sum_wakeup_times;
-u64 last_wake_time;
-static u64 off_resume_ns;
-static bool off_flag;
-static u64 suspend_ns;
-static u64 resume_ns;
-static u64 suspend_cycles;
-static u64 resume_cycles;
-
 static u64 notrace jiffy_sched_clock_read(void)
 {
 	/*
@@ -121,32 +108,6 @@ unsigned long long notrace sched_clock(void)
 		      rd->sched_clock_mask;
 		res = rd->epoch_ns + cyc_to_ns(cyc, rd->mult, rd->shift);
 	} while (read_seqcount_retry(&cd.seq, seq));
-
-	return res;
-}
-
-/*
- * alternative sched_clock to get arch_timer cycle as well
- */
-unsigned long long notrace sched_clock_get_cyc(unsigned long long *cyc_ret)
-{
-	u64 cyc, cyc_cur, res;
-	unsigned long seq;
-	struct clock_read_data *rd;
-
-	do {
-		seq = raw_read_seqcount(&cd.seq);
-		rd = cd.read_data + (seq & 1);
-
-		cyc_cur = rd->read_sched_clock();
-
-		cyc = (cyc_cur - rd->epoch_cyc) &
-		      rd->sched_clock_mask;
-		res = rd->epoch_ns + cyc_to_ns(cyc, rd->mult, rd->shift);
-	} while (read_seqcount_retry(&cd.seq, seq));
-
-	if (cyc_ret)
-		*cyc_ret = cyc_cur;
 
 	return res;
 }
@@ -200,11 +161,6 @@ static enum hrtimer_restart sched_clock_poll(struct hrtimer *hrt)
 {
 	update_sched_clock();
 	hrtimer_forward_now(hrt, cd.wrap_kt);
-
-	/* snchronize new sched_clock base to co-processors */
-#ifndef CONFIG_FPGA_EARLY_PORTING
-	sys_timer_timesync_sync_base(SYS_TIMER_TIMESYNC_FLAG_ASYNC);
-#endif
 
 	return HRTIMER_RESTART;
 }
@@ -319,75 +275,24 @@ static u64 notrace suspended_sched_clock_read(void)
 	return cd.read_data[seq & 1].epoch_cyc;
 }
 
-void exclude_screen_on_time(void)
+static int sched_clock_suspend(void)
 {
 	struct clock_read_data *rd = &cd.read_data[0];
 
 	update_sched_clock();
-	off_flag = true;
-	off_resume_ns = rd->epoch_ns;
-}
-
-void reset_all_statistics(void)
-{
-	sum_wakeup_time = 0;
-	sum_wakeup_times = 0;
-	last_wake_time = 0;
-}
-
-int sched_clock_suspend(void)
-{
-	struct clock_read_data *rd = &cd.read_data[0];
-
-	update_sched_clock();
-	//POWER ADD
-	suspend_ns = rd->epoch_ns;
-	suspend_cycles = rd->epoch_cyc;
-	if (first_cycle) {
-		last_wake_time = 0;
-		sum_wakeup_time = 0;
-		sum_wakeup_times = 0;
-		first_cycle = 0;
-	} else if (off_flag) {
-		off_flag = false;
-		last_wake_time = abs(suspend_ns-off_resume_ns)/1000000;
-		sum_wakeup_time += last_wake_time;
-	} else {
-		sum_wakeup_times += 1;
-		last_wake_time = abs(suspend_ns-resume_ns)/1000000;
-		sum_wakeup_time += last_wake_time;
-	}
 	hrtimer_cancel(&sched_clock_timer);
 	rd->read_sched_clock = suspended_sched_clock_read;
-
-	/* snchronize new sched_clock base to co-processors */
-#ifndef CONFIG_FPGA_EARLY_PORTING
-	sys_timer_timesync_sync_base(SYS_TIMER_TIMESYNC_FLAG_SYNC |
-		SYS_TIMER_TIMESYNC_FLAG_FREEZE);
-#endif
 
 	return 0;
 }
 
-void sched_clock_resume(void)
+static void sched_clock_resume(void)
 {
 	struct clock_read_data *rd = &cd.read_data[0];
 
 	rd->epoch_cyc = cd.actual_read_sched_clock();
-	resume_cycles = rd->epoch_cyc;
-	pr_info("resume cycles:%17llu\n", rd->epoch_cyc);
-
 	hrtimer_start(&sched_clock_timer, cd.wrap_kt, HRTIMER_MODE_REL);
 	rd->read_sched_clock = cd.actual_read_sched_clock;
-
-	/* snchronize new sched_clock base to co-processors */
-#ifndef CONFIG_FPGA_EARLY_PORTING
-	sys_timer_timesync_sync_base(SYS_TIMER_TIMESYNC_FLAG_SYNC |
-		SYS_TIMER_TIMESYNC_FLAG_UNFREEZE);
-#endif
-
-	update_sched_clock();
-	resume_ns = rd->epoch_ns;
 }
 
 static struct syscore_ops sched_clock_ops = {

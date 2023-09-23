@@ -3,12 +3,6 @@
 # Makefile for the linux kernel.
 #
 
-subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include
-subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/mt-plat
-subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/mtprof
-subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/sched
-subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/mcdi/include
-
 obj-y     = fork.o exec_domain.o panic.o \
 	    cpu.o exit.o softirq.o resource.o \
 	    sysctl.o sysctl_binary.o capability.o ptrace.o user.o \
@@ -125,7 +119,7 @@ obj-$(CONFIG_HAS_IOMEM) += memremap.o
 $(obj)/configs.o: $(obj)/config_data.h
 
 targets += config_data.gz
-$(obj)/config_data.gz: arch/arm64/configs/stock_defconfig FORCE
+$(obj)/config_data.gz: $(KCONFIG_CONFIG) FORCE
 	$(call if_changed,gzip)
 
       filechk_ikconfiggz = (echo "static const char kernel_config_data[] __used = MAGIC_START"; cat $< | scripts/basic/bin2c; echo "MAGIC_END;")

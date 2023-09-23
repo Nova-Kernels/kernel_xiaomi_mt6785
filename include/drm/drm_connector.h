@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2016 Intel Corporation
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
  * documentation for any purpose is hereby granted without fee, provided that
@@ -364,19 +363,6 @@ struct drm_connector_state {
 	 * upscaling, mostly used for built-in panels.
 	 */
 	unsigned int scaling_mode;
-
-	/**
-	 * @writeback_job: Writeback job for writeback connectors
-	 *
-	 * Holds the framebuffer and out-fence for a writeback connector. As
-	 * the writeback completion may be asynchronous to the normal commit
-	 * cycle, the writeback job lifetime is managed separately from the
-	 * normal atomic state by this object.
-	 *
-	 * See also: drm_writeback_queue_job() and
-	 * drm_writeback_signal_completion()
-	 */
-	struct drm_writeback_job *writeback_job;
 };
 
 /**
@@ -919,14 +905,6 @@ struct drm_connector {
 	uint8_t num_h_tile, num_v_tile;
 	uint8_t tile_h_loc, tile_v_loc;
 	uint16_t tile_h_size, tile_v_size;
-
-	uint fod_ui_ready;
-	uint brightness_clone;
-	uint8_t panel_id;
-	int panel_event;
-	int read_flag;
-
-	u8 panel_read_data[256];
 };
 
 #define obj_to_connector(x) container_of(x, struct drm_connector, base)
@@ -956,12 +934,10 @@ static inline unsigned drm_connector_index(struct drm_connector *connector)
  * add takes a reference to it.
  */
 static inline struct drm_connector *drm_connector_lookup(struct drm_device *dev,
-		struct drm_file *file_priv,
 		uint32_t id)
 {
 	struct drm_mode_object *mo;
-	mo = drm_mode_object_find(dev,
-			file_priv, id, DRM_MODE_OBJECT_CONNECTOR);
+	mo = drm_mode_object_find(dev, id, DRM_MODE_OBJECT_CONNECTOR);
 	return mo ? obj_to_connector(mo) : NULL;
 }
 

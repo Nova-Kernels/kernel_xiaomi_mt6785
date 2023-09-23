@@ -31,11 +31,6 @@ extern unsigned int sysctl_sched_use_walt_task_util;
 extern unsigned int sysctl_sched_walt_init_task_load_pct;
 extern unsigned int sysctl_sched_walt_cpu_high_irqload;
 #endif
-#ifdef CONFIG_MTK_SCHED_BOOST
-extern unsigned int sysctl_sched_isolation_hint_enable;
-#endif
-
-extern unsigned int sysctl_sched_rotation_enable;
 
 enum sched_tunable_scaling {
 	SCHED_TUNABLESCALING_NONE,
@@ -69,20 +64,8 @@ int sched_proc_update_handler(struct ctl_table *table, int write,
 extern unsigned int sysctl_sched_rt_period;
 extern int sysctl_sched_rt_runtime;
 
-#ifdef CONFIG_UCLAMP_TASK
-extern unsigned int sysctl_sched_uclamp_util_min;
-extern unsigned int sysctl_sched_uclamp_util_max;
-#endif
-
 #ifdef CONFIG_CFS_BANDWIDTH
 extern unsigned int sysctl_sched_cfs_bandwidth_slice;
-#endif
-
-#ifdef CONFIG_SCHED_TUNE
-extern int stune_task_threshold;
-extern int sched_stune_task_threshold_handler(struct ctl_table *table,
-					int write, void __user *buffer,
-					size_t *length, loff_t *ppos);
 #endif
 
 #ifdef CONFIG_SCHED_AUTOGROUP
@@ -100,12 +83,6 @@ extern int sched_rt_handler(struct ctl_table *table, int write,
 		void __user *buffer, size_t *lenp,
 		loff_t *ppos);
 
-#ifdef CONFIG_UCLAMP_TASK
-extern int sched_uclamp_handler(struct ctl_table *table, int write,
-				void __user *buffer, size_t *lenp,
-				loff_t *ppos);
-#endif
-
 extern int sysctl_numa_balancing(struct ctl_table *table, int write,
 				 void __user *buffer, size_t *lenp,
 				 loff_t *ppos);
@@ -113,10 +90,5 @@ extern int sysctl_numa_balancing(struct ctl_table *table, int write,
 extern int sysctl_schedstats(struct ctl_table *table, int write,
 				 void __user *buffer, size_t *lenp,
 				 loff_t *ppos);
-
-#define LIB_PATH_LENGTH 512
-extern char sched_lib_name[LIB_PATH_LENGTH];
-extern unsigned int sched_lib_mask_force;
-extern bool is_sched_lib_based_app(pid_t pid);
 
 #endif /* _LINUX_SCHED_SYSCTL_H */

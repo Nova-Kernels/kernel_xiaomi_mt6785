@@ -4,7 +4,7 @@
 #include <linux/string.h>
 #include <stdlib.h>
 
-#include <linux/ctype.h>
+#include "sane_ctype.h"
 
 #define K 1024LL
 /*

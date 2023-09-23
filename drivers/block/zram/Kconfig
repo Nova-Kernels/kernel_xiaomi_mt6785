@@ -3,7 +3,6 @@ config ZRAM
 	tristate "Compressed RAM block device support"
 	depends on BLOCK && SYSFS && ZSMALLOC && CRYPTO
 	select CRYPTO_LZO
-	select CRYPTO_LZ4
 	default n
 	help
 	  Creates virtual block devices called /dev/zramX (X = 0, 1, ...).
@@ -31,16 +30,6 @@ config ZRAM_WRITEBACK
 
 	 See Documentation/blockdev/zram.txt for more information.
 
-config ZRAM_FIXED_COMP_ALGORITHM
-	bool "Make ZRAM compression algorithm immutable"
-	depends on ZRAM
-	default n
-	help
-	  With this feature, userspace will never be able to modify the default
-	  ZRAM compression.
-
-	  If unsure, say N.
-
 config ZRAM_MEMORY_TRACKING
 	bool "Track zRam block status"
 	depends on ZRAM && DEBUG_FS
@@ -50,12 +39,3 @@ config ZRAM_MEMORY_TRACKING
 	  /sys/kernel/debug/zram/zramX/block_state.
 
 	  See Documentation/blockdev/zram.txt for more information.
-
-config ZRAM_DEFAULT_COMP_ALGORITHM
-	string "Default ZRAM compression algorithm"
-	default "lz4"
-
-config ZRAM_SIZE_OVERRIDE
-	int "zram size to set from kernel"
-	range 1 8
-	default 2

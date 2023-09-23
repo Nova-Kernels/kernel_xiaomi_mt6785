@@ -27,11 +27,7 @@
 DEFINE_PER_CPU(unsigned long, freq_scale) = SCHED_CAPACITY_SCALE;
 DEFINE_PER_CPU(unsigned long, max_cpu_freq);
 DEFINE_PER_CPU(unsigned long, max_freq_scale) = SCHED_CAPACITY_SCALE;
-DEFINE_PER_CPU(unsigned long, min_freq_scale) = 0;
 
-#ifdef CONFIG_NONLINEAR_FREQ_CTL
-#include "arch_topology_plus.c"
-#else
 void arch_set_freq_scale(struct cpumask *cpus, unsigned long cur_freq,
 			 unsigned long max_freq)
 {
@@ -64,26 +60,6 @@ void arch_set_max_freq_scale(struct cpumask *cpus,
 	for_each_cpu(cpu, cpus)
 		per_cpu(max_freq_scale, cpu) = scale;
 }
-
-void arch_set_min_freq_scale(struct cpumask *cpus,
-			     unsigned long policy_min_freq)
-{
-	unsigned long scale, max_freq;
-	int cpu = cpumask_first(cpus);
-
-	if (cpu > nr_cpu_ids)
-		return;
-
-	max_freq = per_cpu(max_cpu_freq, cpu);
-	if (!max_freq)
-		return;
-
-	scale = (policy_min_freq << SCHED_CAPACITY_SHIFT) / max_freq;
-
-	for_each_cpu(cpu, cpus)
-		per_cpu(min_freq_scale, cpu) = scale;
-}
-#endif
 
 static DEFINE_MUTEX(cpu_scale_mutex);
 DEFINE_PER_CPU(unsigned long, cpu_scale) = SCHED_CAPACITY_SCALE;
@@ -189,8 +165,7 @@ subsys_initcall(register_cpu_capacity_sysctl);
 enum asym_cpucap_type { no_asym, asym_thread, asym_core, asym_die };
 static enum asym_cpucap_type asym_cpucap = no_asym;
 enum share_cap_type { no_share_cap, share_cap_thread, share_cap_core, share_cap_die};
-/* static enum share_cap_type share_cap = no_share_cap; */
-static enum share_cap_type share_cap = share_cap_core;
+static enum share_cap_type share_cap = no_share_cap;
 
 #ifdef CONFIG_CPU_FREQ
 int detect_share_cap_flag(void)

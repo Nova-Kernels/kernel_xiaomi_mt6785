@@ -1,3 +1,0 @@
-config ALS_FACTORY_STRM
-	bool "als getting raw data to report"
-	default n

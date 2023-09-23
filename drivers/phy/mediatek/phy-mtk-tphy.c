@@ -771,7 +771,6 @@ static void phy_v1_banks_init(struct mtk_tphy *tphy,
 	}
 }
 
-static struct mtk_phy_instance *bc11_instance;
 static void phy_v2_banks_init(struct mtk_tphy *tphy,
 			      struct mtk_phy_instance *instance)
 {
@@ -795,9 +794,6 @@ static void phy_v2_banks_init(struct mtk_tphy *tphy,
 		dev_err(tphy->dev, "incompatible PHY type\n");
 		return;
 	}
-
-	if ((tphy->phys[0] == instance) && (instance->type == PHY_TYPE_USB2))
-		bc11_instance = instance;
 }
 
 static int mtk_phy_init(struct phy *phy)
@@ -836,9 +832,6 @@ static int mtk_phy_init(struct phy *phy)
 		return -EINVAL;
 	}
 
-	clk_disable_unprepare(instance->ref_clk);
-	clk_disable_unprepare(tphy->u3phya_ref);
-
 	return 0;
 }
 
@@ -846,19 +839,6 @@ static int mtk_phy_power_on(struct phy *phy)
 {
 	struct mtk_phy_instance *instance = phy_get_drvdata(phy);
 	struct mtk_tphy *tphy = dev_get_drvdata(phy->dev.parent);
-	int ret;
-
-	ret = clk_prepare_enable(tphy->u3phya_ref);
-	if (ret) {
-		dev_err(tphy->dev, "failed to enable u3phya_ref\n");
-		return ret;
-	}
-
-	ret = clk_prepare_enable(instance->ref_clk);
-	if (ret) {
-		dev_err(tphy->dev, "failed to enable ref_clk\n");
-		return ret;
-	}
 
 	if (instance->type == PHY_TYPE_USB2) {
 		u2_phy_instance_power_on(tphy, instance);
@@ -880,9 +860,6 @@ static int mtk_phy_power_off(struct phy *phy)
 	else if (instance->type == PHY_TYPE_PCIE)
 		pcie_phy_instance_power_off(tphy, instance);
 
-	clk_disable_unprepare(instance->ref_clk);
-	clk_disable_unprepare(tphy->u3phya_ref);
-
 	return 0;
 }
 
@@ -890,19 +867,6 @@ static int mtk_phy_exit(struct phy *phy)
 {
 	struct mtk_phy_instance *instance = phy_get_drvdata(phy);
 	struct mtk_tphy *tphy = dev_get_drvdata(phy->dev.parent);
-	int ret;
-
-	ret = clk_prepare_enable(tphy->u3phya_ref);
-	if (ret) {
-		dev_err(tphy->dev, "failed to enable u3phya_ref\n");
-		return ret;
-	}
-
-	ret = clk_prepare_enable(instance->ref_clk);
-	if (ret) {
-		dev_err(tphy->dev, "failed to enable ref_clk\n");
-		return ret;
-	}
 
 	if (instance->type == PHY_TYPE_USB2)
 		u2_phy_instance_exit(tphy, instance);
@@ -1078,6 +1042,10 @@ static int mtk_tphy_probe(struct platform_device *pdev)
 		phy_set_drvdata(phy, instance);
 		port++;
 
+		/* if deprecated clock is provided, ignore instance's one */
+		if (tphy->u3phya_ref)
+			continue;
+
 		instance->ref_clk = devm_clk_get(&phy->dev, "ref");
 		if (IS_ERR(instance->ref_clk)) {
 			dev_err(dev, "failed to get ref_clk(id-%d)\n", port);
@@ -1103,85 +1071,6 @@ static struct platform_driver mtk_tphy_driver = {
 };
 
 module_platform_driver(mtk_tphy_driver);
-
-void Charger_Detect_Init(void)
-{
-	struct u2phy_banks *u2_banks;
-	void __iomem *com;
-	u32 tmp;
-
-	if (!bc11_instance)
-		return;
-
-	u2_banks = &bc11_instance->u2_banks;
-	com = u2_banks->com;
-	tmp = readl(com + U3P_USBPHYACR6);
-	tmp |= PA6_RG_U2_BC11_SW_EN;   /* DP/DM BC1.1 path Disable */
-	writel(tmp, com + U3P_USBPHYACR6);
-}
-EXPORT_SYMBOL_GPL(Charger_Detect_Init);
-
-void Charger_Detect_Release(void)
-{
-	struct u2phy_banks *u2_banks;
-	void __iomem *com;
-	u32 tmp;
-
-	if (!bc11_instance)
-		return;
-
-	u2_banks = &bc11_instance->u2_banks;
-	com = u2_banks->com;
-	tmp = readl(com + U3P_USBPHYACR6);
-	tmp &= ~PA6_RG_U2_BC11_SW_EN;   /* DP/DM BC1.1 path Disable */
-	writel(tmp, com + U3P_USBPHYACR6);
-}
-EXPORT_SYMBOL_GPL(Charger_Detect_Release);
-
-#ifdef CONFIG_MTK_USB2JTAG_SUPPORT
-int usb2jtag_usb_init(void)
-{
-	struct device_node *node;
-	void __iomem *usb_phy_base;
-	unsigned int temp;
-
-	pr_notice("[USB2JTAG] %s ++\n", __func__);
-
-	node = of_find_compatible_node(NULL, NULL, "mediatek,generic-tphy-v2");
-	if (!node) {
-		pr_err("[USB2JTAG] node mediatek,generic-tphy-v2 not found\n");
-		return -1;
-	}
-
-	node = of_get_child_by_name(node, "u2port0");
-	if (!node) {
-		pr_err("[USB2JTAG] node u2port0 not found\n");
-		return -2;
-	}
-
-	usb_phy_base = of_iomap(node, 1);
-	if (!usb_phy_base) {
-		pr_err("[USB2JTAG] iomap usb_phy_base failed\n");
-		return -3;
-	}
-
-	temp = readl(usb_phy_base + 0x320);
-	writel(temp | (1 << 9), usb_phy_base + 0x320);
-
-	temp = readl(usb_phy_base + 0x318);
-	writel(temp & ~(1 << 23), usb_phy_base + 0x318);
-
-	temp = readl(usb_phy_base + 0x300);
-	writel(temp | 0x21, usb_phy_base + 0x300);
-
-	/* wait stable */
-	mdelay(1);
-
-	iounmap(usb_phy_base);
-
-	return 0;
-}
-#endif
 
 MODULE_AUTHOR("Chunfeng Yun <chunfeng.yun@mediatek.com>");
 MODULE_DESCRIPTION("MediaTek T-PHY driver");

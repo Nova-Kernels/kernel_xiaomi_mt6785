@@ -12,7 +12,7 @@
 #include "../keysyms.h"
 #include "map.h"
 
-#include <linux/ctype.h>
+#include "sane_ctype.h"
 
 struct map_browser {
 	struct ui_browser b;

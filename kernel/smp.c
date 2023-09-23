@@ -20,9 +20,6 @@
 #include <linux/sched/idle.h>
 #include <linux/hypervisor.h>
 
-#if 1
-#include <linux/of.h>
-#endif
 #include "smpboot.h"
 
 enum {
@@ -136,8 +133,6 @@ static __always_inline void csd_unlock(struct __call_single_data *csd)
 
 static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
 
-extern void send_call_function_single_ipi(int cpu);
-
 /*
  * Insert a previously allocated call_single_data_t element
  * for execution on the given CPU. data must already have
@@ -181,7 +176,7 @@ static int generic_exec_single(int cpu, struct __call_single_data *csd,
 	 * equipped to do the right thing...
 	 */
 	if (llist_add(&csd->llist, &per_cpu(call_single_queue, cpu)))
-		send_call_function_single_ipi(cpu);
+		arch_send_call_function_single_ipi(cpu);
 
 	return 0;
 }
@@ -260,18 +255,6 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 	 * for them.
 	 */
 	irq_work_run();
-}
-
-void flush_smp_call_function_from_idle(void)
-{
-	unsigned long flags;
-
-	if (llist_empty(this_cpu_ptr(&call_single_queue)))
-		return;
-
-	local_irq_save(flags);
-	flush_smp_call_function_queue(true);
-	local_irq_restore(flags);
 }
 
 /*
@@ -581,10 +564,7 @@ void __init smp_init(void)
 {
 	int num_nodes, num_cpus;
 	unsigned int cpu;
-#if 1
-	struct device_node *dn = 0;
-	const char *smp_method = 0;
-#endif
+
 	idle_threads_init();
 	cpuhp_threads_init();
 
@@ -594,20 +574,8 @@ void __init smp_init(void)
 	for_each_present_cpu(cpu) {
 		if (num_online_cpus() >= setup_max_cpus)
 			break;
-		if (!cpu_online(cpu)) {
-#if 1
-			dn = of_get_cpu_node(cpu, NULL);
-			smp_method = of_get_property(dn, "smp-method", NULL);
-			if (smp_method != NULL) {
-				if (!strcmp("disabled", smp_method)) {
-					pr_info("CPU_%d SMP disabled!\n", cpu);
-					/*set_cpu_possible(cpu, false);*/
-					continue;
-				}
-			}
-#endif
+		if (!cpu_online(cpu))
 			cpu_up(cpu);
-		}
 	}
 
 	num_nodes = num_online_nodes();

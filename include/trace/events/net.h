@@ -223,15 +223,6 @@ DEFINE_EVENT(net_dev_rx_verbose_template, netif_receive_skb_entry,
 	TP_ARGS(skb)
 );
 
-
-DEFINE_EVENT(net_dev_rx_verbose_template, netif_receive_skb_list_entry,
-
-	TP_PROTO(const struct sk_buff *skb),
-
-	TP_ARGS(skb)
-);
-
-
 DEFINE_EVENT(net_dev_rx_verbose_template, netif_rx_entry,
 
 	TP_PROTO(const struct sk_buff *skb),

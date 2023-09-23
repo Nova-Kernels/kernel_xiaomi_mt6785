@@ -41,7 +41,6 @@
 #include <asm/tls.h>
 #include <asm/system_misc.h>
 #include <asm/opcodes.h>
-#include <mt-plat/aee.h>
 
 
 static const char *handler[]= {
@@ -439,24 +438,9 @@ int call_undef_hook(struct pt_regs *regs, unsigned int instr)
 
 asmlinkage void __exception do_undefinstr(struct pt_regs *regs)
 {
-	struct thread_info *thread = current_thread_info();
 	unsigned int instr;
 	siginfo_t info;
 	void __user *pc;
-
-	if (!user_mode(regs)) {
-		thread->cpu_excp++;
-		if (thread->cpu_excp == 1) {
-			thread->regs_on_excp = (void *)regs;
-#ifdef CONFIG_MTK_AEE_IPANIC
-			aee_excp_regs = (void *)regs;
-#endif
-		}
-#ifdef CONFIG_MTK_AEE_IPANIC
-		if (thread->cpu_excp >= 2)
-			aee_stop_nested_panic(regs);
-#endif
-	}
 
 	pc = (void __user *)instruction_pointer(regs);
 
@@ -489,11 +473,8 @@ asmlinkage void __exception do_undefinstr(struct pt_regs *regs)
 		instr = __mem_to_opcode_arm(instr);
 	}
 
-	if (call_undef_hook(regs, instr) == 0) {
-		if (!user_mode(regs))
-			thread->cpu_excp--;
+	if (call_undef_hook(regs, instr) == 0)
 		return;
-	}
 
 die_sig:
 #ifdef CONFIG_DEBUG_USER

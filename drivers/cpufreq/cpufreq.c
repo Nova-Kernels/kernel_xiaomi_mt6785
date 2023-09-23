@@ -30,7 +30,6 @@
 #include <linux/suspend.h>
 #include <linux/syscore_ops.h>
 #include <linux/tick.h>
-#include <linux/sched/sysctl.h>
 #include <trace/events/power.h>
 
 static LIST_HEAD(cpufreq_policy_list);
@@ -378,10 +377,10 @@ static void cpufreq_notify_post_transition(struct cpufreq_policy *policy,
 	cpufreq_notify_transition(policy, freqs, CPUFREQ_POSTCHANGE);
 }
 
-extern int update_cpu_capacity_cpumask(struct cpumask *cpus);
 void cpufreq_freq_transition_begin(struct cpufreq_policy *policy,
 		struct cpufreq_freqs *freqs)
 {
+
 	/*
 	 * Catch double invocations of _begin() which lead to self-deadlock.
 	 * ASYNC_NOTIFICATION drivers are left out because the cpufreq core
@@ -407,11 +406,6 @@ wait:
 	policy->transition_task = current;
 
 	spin_unlock(&policy->transition_lock);
-
-	arch_set_freq_scale(policy->cpus, freqs->new, policy->cpuinfo.max_freq);
-	arch_set_max_freq_scale(policy->cpus, policy->max);
-	arch_set_min_freq_scale(policy->cpus, policy->min);
-	update_cpu_capacity_cpumask(policy->cpus);
 
 	cpufreq_notify_transition(policy, freqs, CPUFREQ_PRECHANGE);
 }
@@ -661,39 +655,10 @@ static ssize_t show_##file_name				\
 }
 
 show_one(cpuinfo_min_freq, cpuinfo.min_freq);
+show_one(cpuinfo_max_freq, cpuinfo.max_freq);
 show_one(cpuinfo_transition_latency, cpuinfo.transition_latency);
 show_one(scaling_min_freq, min);
 show_one(scaling_max_freq, max);
-
-unsigned int cpuinfo_max_freq_cached;
-
-static bool should_use_cached_freq(int cpu)
-{
-	/* This is a safe check. may not be needed */
-	if (!cpuinfo_max_freq_cached)
-		return false;
-
-	/*
-	 * perfd already configure sched_lib_mask_force to
-	 * 0xf0 from user space. so re-using it.
-	 */
-	if (!(BIT(cpu) & sched_lib_mask_force))
-		return false;
-
-	return is_sched_lib_based_app(current->pid);
-}
-
-static ssize_t show_cpuinfo_max_freq(struct cpufreq_policy *policy, char *buf)
-{
-	unsigned int freq = policy->cpuinfo.max_freq;
-
-	if (should_use_cached_freq(policy->cpu))
-		freq = cpuinfo_max_freq_cached << 1;
-	else
-		freq = policy->cpuinfo.max_freq;
-
-	return scnprintf(buf, PAGE_SIZE, "%u\n", freq);
-}
 
 __weak unsigned int arch_freq_get_on_cpu(int cpu)
 {
@@ -2258,7 +2223,7 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 	* because new_policy is a copy of policy with one field updated.
 	*/
 	if (new_policy->min > new_policy->max)
-		new_policy->min = new_policy->max;
+		return -EINVAL;
 
 	/* verify the cpu speed can be set within this limit */
 	ret = cpufreq_driver->verify(new_policy);
@@ -2268,10 +2233,6 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 	/* adjust if necessary - all reasons */
 	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
 			CPUFREQ_ADJUST, new_policy);
-
-	/* the adjusted frequency should not exceed thermal limit*/
-	blocking_notifier_call_chain(&cpufreq_policy_notifier_list,
-			CPUFREQ_THERMAL, new_policy);
 
 	/*
 	 * verify the cpu speed can be set within this limit, which might be
@@ -2289,7 +2250,6 @@ static int cpufreq_set_policy(struct cpufreq_policy *policy,
 	policy->max = new_policy->max;
 
 	arch_set_max_freq_scale(policy->cpus, policy->max);
-	arch_set_min_freq_scale(policy->cpus, policy->min);
 
 	trace_cpu_frequency_limits(policy->max, policy->min, policy->cpu);
 
@@ -2507,11 +2467,6 @@ __weak void arch_set_max_freq_scale(struct cpumask *cpus,
 }
 EXPORT_SYMBOL_GPL(arch_set_max_freq_scale);
 
-__weak void arch_set_min_freq_scale(struct cpumask *cpus,
-				    unsigned long policy_min_freq)
-{
-}
-EXPORT_SYMBOL_GPL(arch_set_min_freq_scale);
 /*********************************************************************
  *               REGISTER / UNREGISTER CPUFREQ DRIVER                *
  *********************************************************************/

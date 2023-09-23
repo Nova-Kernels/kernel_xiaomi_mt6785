@@ -2,7 +2,6 @@
  * LED Class Core
  *
  * Copyright (C) 2005 John Lenz <lenz@cs.wisc.edu>
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2005-2007 Richard Purdie <rpurdie@openedhand.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -55,10 +54,9 @@ static ssize_t brightness_store(struct device *dev,
 	if (ret)
 		goto unlock;
 
-	if (state == LED_OFF && !(led_cdev->flags & LED_KEEP_TRIGGER))
+	if (state == LED_OFF)
 		led_trigger_remove(led_cdev);
 	led_set_brightness(led_cdev, state);
-	led_cdev->usr_brightness_req = state;
 
 	ret = size;
 unlock:
@@ -74,27 +72,7 @@ static ssize_t max_brightness_show(struct device *dev,
 
 	return sprintf(buf, "%u\n", led_cdev->max_brightness);
 }
-
-static ssize_t max_brightness_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t size)
-{
-	struct led_classdev *led_cdev = dev_get_drvdata(dev);
-	unsigned long state;
-	ssize_t ret = -EINVAL;
-
-	ret = kstrtoul(buf, 10, &state);
-	if (ret)
-		return ret;
-
-	if (state <= LED_FULL) {
-		led_cdev->max_brightness = state;
-		if (led_cdev->usr_brightness_req > 0)
-			led_set_brightness(led_cdev, led_cdev->usr_brightness_req);
-	}
-
-	return size;
-}
-static DEVICE_ATTR_RW(max_brightness);
+static DEVICE_ATTR_RO(max_brightness);
 
 #ifdef CONFIG_LEDS_TRIGGERS
 static DEVICE_ATTR(trigger, 0644, led_trigger_show, led_trigger_store);

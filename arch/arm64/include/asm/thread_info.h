@@ -46,15 +46,12 @@ struct thread_info {
 #ifdef CONFIG_SHADOW_CALL_STACK
 	void			*shadow_call_stack;
 #endif
-	void			*regs_on_excp;	/* aee */
-	int			cpu_excp;	/* aee */
 };
 
 #define INIT_THREAD_INFO(tsk)						\
 {									\
 	.preempt_count	= INIT_PREEMPT_COUNT,				\
 	.addr_limit	= KERNEL_DS,					\
-	.cpu_excp = 0,	/* aee */					\
 }
 
 #define init_stack		(init_thread_union.stack)

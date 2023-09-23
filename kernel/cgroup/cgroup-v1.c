@@ -15,9 +15,6 @@
 #include <linux/cgroupstats.h>
 
 #include <trace/events/cgroup.h>
-#ifdef CONFIG_MTK_TASK_TURBO
-#include <mt-plat/turbo_common.h>
-#endif
 
 /*
  * pidlists linger the following amount before being destroyed.  The goal
@@ -29,9 +26,6 @@
 
 /* Controllers blocked by the commandline in v1 */
 static u16 cgroup_no_v1_mask;
-
-/* disable named v1 mounts */
-static bool cgroup_no_v1_named;
 
 /*
  * pidlist destructions need to be flushed on cgroup destruction.  Use a
@@ -342,6 +336,22 @@ static struct cgroup_pidlist *cgroup_pidlist_find_create(struct cgroup *cgrp,
 	return l;
 }
 
+/**
+ * cgroup_task_count - count the number of tasks in a cgroup.
+ * @cgrp: the cgroup in question
+ */
+int cgroup_task_count(const struct cgroup *cgrp)
+{
+	int count = 0;
+	struct cgrp_cset_link *link;
+
+	spin_lock_irq(&css_set_lock);
+	list_for_each_entry(link, &cgrp->cset_links, cset_link)
+		count += link->cset->nr_tasks;
+	spin_unlock_irq(&css_set_lock);
+	return count;
+}
+
 /*
  * Load a cgroup's pidarray with either procs' tgids or tasks' pids
  */
@@ -372,12 +382,6 @@ static int pidlist_array_load(struct cgroup *cgrp, enum cgroup_filetype type,
 	while ((tsk = css_task_iter_next(&it))) {
 		if (unlikely(n == length))
 			break;
-
-		/* mtk: don't get pid when proc/task killed */
-		if ((SIGNAL_GROUP_EXIT & tsk->signal->flags) ||
-			(PF_EXITING & tsk->flags))
-			continue;
-
 		/* get tgid or pid for procs or tasks file respectively */
 		if (type == CGROUP_FILE_PROCS)
 			pid = task_tgid_vnr(tsk);
@@ -549,10 +553,6 @@ static ssize_t __cgroup1_procs_write(struct kernfs_open_file *of,
 		goto out_finish;
 
 	ret = cgroup_attach_task(cgrp, task, threadgroup);
-#ifdef CONFIG_MTK_TASK_TURBO
-	if (!ret)
-		cgroup_set_turbo_task(task);
-#endif
 
 out_finish:
 	cgroup_procs_write_finish(task);
@@ -992,10 +992,6 @@ static int parse_cgroupfs_options(char *data, struct cgroup_sb_opts *opts)
 		}
 		if (!strncmp(token, "name=", 5)) {
 			const char *name = token + 5;
-
-			/* blocked by boot param? */
-			if (cgroup_no_v1_named)
-				return -ENOENT;
 			/* Can't specify an empty name */
 			if (!strlen(name))
 				return -EINVAL;
@@ -1149,11 +1145,13 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 			     void *data, unsigned long magic,
 			     struct cgroup_namespace *ns)
 {
+	struct super_block *pinned_sb = NULL;
 	struct cgroup_sb_opts opts;
 	struct cgroup_root *root;
 	struct cgroup_subsys *ss;
 	struct dentry *dentry;
 	int i, ret;
+	bool new_root = false;
 
 	cgroup_lock_and_drain_offline(&cgrp_dfl_root.cgrp);
 
@@ -1215,6 +1213,29 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 		if (root->flags ^ opts.flags)
 			pr_warn("new mount options do not match the existing superblock, will be ignored\n");
 
+		/*
+		 * We want to reuse @root whose lifetime is governed by its
+		 * ->cgrp.  Let's check whether @root is alive and keep it
+		 * that way.  As cgroup_kill_sb() can happen anytime, we
+		 * want to block it by pinning the sb so that @root doesn't
+		 * get killed before mount is complete.
+		 *
+		 * With the sb pinned, tryget_live can reliably indicate
+		 * whether @root can be reused.  If it's being killed,
+		 * drain it.  We can use wait_queue for the wait but this
+		 * path is super cold.  Let's just sleep a bit and retry.
+		 */
+		pinned_sb = kernfs_pin_sb(root->kf_root, NULL);
+		if (IS_ERR(pinned_sb) ||
+		    !percpu_ref_tryget_live(&root->cgrp.self.refcnt)) {
+			mutex_unlock(&cgroup_mutex);
+			if (!IS_ERR_OR_NULL(pinned_sb))
+				deactivate_super(pinned_sb);
+			msleep(10);
+			ret = restart_syscall();
+			goto out_free;
+		}
+
 		ret = 0;
 		goto out_unlock;
 	}
@@ -1249,20 +1270,15 @@ struct dentry *cgroup1_mount(struct file_system_type *fs_type, int flags,
 		ret = -ENOMEM;
 		goto out_unlock;
 	}
+	new_root = true;
 
 	init_cgroup_root(root, &opts);
 
-	ret = cgroup_setup_root(root, opts.subsys_mask);
+	ret = cgroup_setup_root(root, opts.subsys_mask, PERCPU_REF_INIT_DEAD);
 	if (ret)
 		cgroup_free_root(root);
 
 out_unlock:
-	if (!ret && !percpu_ref_tryget_live(&root->cgrp.self.refcnt)) {
-		mutex_unlock(&cgroup_mutex);
-		msleep(10);
-		ret = restart_syscall();
-		goto out_free;
-	}
 	mutex_unlock(&cgroup_mutex);
 out_free:
 	kfree(opts.release_agent);
@@ -1274,13 +1290,25 @@ out_free:
 	dentry = cgroup_do_mount(&cgroup_fs_type, flags, root,
 				 CGROUP_SUPER_MAGIC, ns);
 
-	if (!IS_ERR(dentry) && percpu_ref_is_dying(&root->cgrp.self.refcnt)) {
-		struct super_block *sb = dentry->d_sb;
-		dput(dentry);
-		deactivate_locked_super(sb);
-		msleep(10);
-		dentry = ERR_PTR(restart_syscall());
+	/*
+	 * There's a race window after we release cgroup_mutex and before
+	 * allocating a superblock. Make sure a concurrent process won't
+	 * be able to re-use the root during this window by delaying the
+	 * initialization of root refcnt.
+	 */
+	if (new_root) {
+		mutex_lock(&cgroup_mutex);
+		percpu_ref_reinit(&root->cgrp.self.refcnt);
+		mutex_unlock(&cgroup_mutex);
 	}
+
+	/*
+	 * If @pinned_sb, we're reusing an existing root and holding an
+	 * extra ref on its sb.  Mount is complete.  Put the extra ref.
+	 */
+	if (pinned_sb)
+		deactivate_super(pinned_sb);
+
 	return dentry;
 }
 
@@ -1309,12 +1337,7 @@ static int __init cgroup_no_v1(char *str)
 
 		if (!strcmp(token, "all")) {
 			cgroup_no_v1_mask = U16_MAX;
-			continue;
-		}
-
-		if (!strcmp(token, "named")) {
-			cgroup_no_v1_named = true;
-			continue;
+			break;
 		}
 
 		for_each_subsys(ss, i) {

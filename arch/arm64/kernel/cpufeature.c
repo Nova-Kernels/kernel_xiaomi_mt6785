@@ -2,7 +2,6 @@
  * Contains CPU feature definitions
  *
  * Copyright (C) 2015 ARM Ltd.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 as
@@ -1160,15 +1159,6 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
 		.cpu_enable = cpu_enable_ssbs,
 	},
 #endif
-	{
-		.desc = "CRC32 instructions",
-		.capability = ARM64_HAS_CRC32,
-		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
-		.matches = has_cpuid_feature,
-		.sys_reg = SYS_ID_AA64ISAR0_EL1,
-		.field_pos = ID_AA64ISAR0_CRC32_SHIFT,
-		.min_field_value = 1,
-	},
 	{},
 };
 

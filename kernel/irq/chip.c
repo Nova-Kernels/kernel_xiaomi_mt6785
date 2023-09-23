@@ -263,10 +263,7 @@ int irq_startup(struct irq_desc *desc, bool resend, bool force)
 		switch (__irq_startup_managed(desc, aff, force)) {
 		case IRQ_STARTUP_NORMAL:
 			ret = __irq_startup(desc);
-			if (irqd_has_set(&desc->irq_data, IRQD_PERF_CRITICAL))
-				setup_perf_irq_locked(desc, desc->action->flags);
-			else
-				irq_setup_affinity(desc);
+			irq_setup_affinity(desc);
 			break;
 		case IRQ_STARTUP_MANAGED:
 			irq_do_set_affinity(d, aff, false);
@@ -478,24 +475,36 @@ static bool irq_check_poll(struct irq_desc *desc)
 
 static bool irq_may_run(struct irq_desc *desc)
 {
-	/* Proceed if the IRQ isn't in progress and isn't a wakeup interrupt */
-	if (!irqd_has_set(&desc->irq_data, IRQD_IRQ_INPROGRESS |
-			  IRQD_WAKEUP_ARMED | IRQD_WAKEUP_STATE))
+	unsigned int mask = IRQD_IRQ_INPROGRESS | IRQD_WAKEUP_ARMED;
+
+	/*
+	 * If the interrupt is not in progress and is not an armed
+	 * wakeup interrupt, proceed.
+	 */
+	if (!irqd_has_set(&desc->irq_data, mask)) {
+#ifdef CONFIG_PM_SLEEP
+		if (unlikely(desc->no_suspend_depth &&
+			     irqd_is_wakeup_set(&desc->irq_data))) {
+			unsigned int irq = irq_desc_get_irq(desc);
+			const char *name = "(unnamed)";
+
+			if (desc->action && desc->action->name)
+				name = desc->action->name;
+
+			log_abnormal_wakeup_reason("misconfigured IRQ %u %s",
+						   irq, name);
+		}
+#endif
 		return true;
+	}
 
 	/*
 	 * If the interrupt is an armed wakeup source, mark it pending
 	 * and suspended, disable it and notify the pm core about the
-	 * event. If it's a wakeup interrupt and has yet to be armed
-	 * but suspend is in progress, do a wakeup to cancel suspend.
-	 * The IRQ will be allowed to run via the check right below.
+	 * event.
 	 */
 	if (irq_pm_check_wakeup(desc))
 		return false;
-
-	/* Run the IRQ as usual if it's a wakeup source and isn't yet armed */
-	if (irqd_is_wakeup_set(&desc->irq_data))
-		return true;
 
 	/*
 	 * Handle a potential concurrent poll on a different core.

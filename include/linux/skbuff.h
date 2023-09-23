@@ -41,10 +41,6 @@
 #include <linux/if_packet.h>
 #include <net/flow.h>
 
-
-#define NET_RX_BATCH_SOLUTION 1
-
-
 /* The interface for checksum offload between the stack and networking drivers
  * is as follows...
  *
@@ -574,8 +570,6 @@ enum {
 	SKB_GSO_ESP = 1 << 15,
 
 	SKB_GSO_UDP = 1 << 16,
-
-	SKB_GSO_UDP_L4 = 1 << 17,
 };
 
 #if BITS_PER_LONG > 32
@@ -678,9 +672,7 @@ struct sk_buff {
 			};
 		};
 		struct rb_node		rbnode; /* used in netem, ip4 defrag, and tcp stack */
-#ifndef NET_RX_BATCH_SOLUTION
 		struct list_head	list;
-#endif
 	};
 
 	union {
@@ -699,9 +691,7 @@ struct sk_buff {
 	 * first. This is owned by whoever has the skb queued ATM.
 	 */
 	char			cb[48] __aligned(8);
-#ifdef NET_RX_BATCH_SOLUTION
-	struct list_head list;
-#endif
+
 	unsigned long		_skb_refdst;
 	void			(*destructor)(struct sk_buff *skb);
 #ifdef CONFIG_XFRM

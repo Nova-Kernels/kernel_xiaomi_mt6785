@@ -201,7 +201,6 @@ const char * const *v4l2_ctrl_get_menu(u32 id)
 	static const char * const mpeg_video_bitrate_mode[] = {
 		"Variable Bitrate",
 		"Constant Bitrate",
-		"Constant Quality",
 		NULL
 	};
 	static const char * const mpeg_stream_type[] = {
@@ -341,28 +340,6 @@ const char * const *v4l2_ctrl_get_menu(u32 id)
 		"5.1",
 		NULL,
 	};
-	static const char * const mpeg_hevc_level[] = {
-		"1",
-		"2.0",
-		"2.1",
-		"3.0",
-		"3.1",
-		"4.0",
-		"4.1",
-		"5.0",
-		"5.1",
-		"5.2",
-		"6.0",
-		"6.1",
-		"6.2",
-		NULL,
-	};
-	static const char * const mpeg_hevc_tier[] = {
-		"Main",
-		"High",
-		NULL,
-	};
-
 	static const char * const h264_loop_filter[] = {
 		"Enabled",
 		"Disabled",
@@ -387,12 +364,6 @@ const char * const *v4l2_ctrl_get_menu(u32 id)
 		"Scalable High Intra",
 		"Stereo High",
 		"Multiview High",
-		NULL,
-	};
-	static const char * const hevc_profile[] = {
-		"Main",
-		"Still Pic",
-		"Main10",
 		NULL,
 	};
 	static const char * const vui_sar_idc[] = {
@@ -576,16 +547,10 @@ const char * const *v4l2_ctrl_get_menu(u32 id)
 		return entropy_mode;
 	case V4L2_CID_MPEG_VIDEO_H264_LEVEL:
 		return mpeg_h264_level;
-	case V4L2_CID_MPEG_VIDEO_HEVC_LEVEL:
-		return mpeg_hevc_level;
-	case V4L2_CID_MPEG_VIDEO_HEVC_TIER:
-		return mpeg_hevc_tier;
 	case V4L2_CID_MPEG_VIDEO_H264_LOOP_FILTER_MODE:
 		return h264_loop_filter;
 	case V4L2_CID_MPEG_VIDEO_H264_PROFILE:
 		return h264_profile;
-	case V4L2_CID_MPEG_VIDEO_HEVC_PROFILE:
-		return hevc_profile;
 	case V4L2_CID_MPEG_VIDEO_H264_VUI_SAR_IDC:
 		return vui_sar_idc;
 	case V4L2_CID_MPEG_VIDEO_H264_SEI_FP_ARRANGEMENT_TYPE:
@@ -753,16 +718,10 @@ const char *v4l2_ctrl_get_name(u32 id)
 	case V4L2_CID_MPEG_VIDEO_H264_ENTROPY_MODE:		return "H264 Entropy Mode";
 	case V4L2_CID_MPEG_VIDEO_H264_I_PERIOD:			return "H264 I-Frame Period";
 	case V4L2_CID_MPEG_VIDEO_H264_LEVEL:			return "H264 Level";
-	case V4L2_CID_MPEG_VIDEO_HEVC_LEVEL:
-		return "HEVC Level";
-	case V4L2_CID_MPEG_VIDEO_HEVC_TIER:
-		return "HEVC Tier";
 	case V4L2_CID_MPEG_VIDEO_H264_LOOP_FILTER_ALPHA:	return "H264 Loop Filter Alpha Offset";
 	case V4L2_CID_MPEG_VIDEO_H264_LOOP_FILTER_BETA:		return "H264 Loop Filter Beta Offset";
 	case V4L2_CID_MPEG_VIDEO_H264_LOOP_FILTER_MODE:		return "H264 Loop Filter Mode";
 	case V4L2_CID_MPEG_VIDEO_H264_PROFILE:			return "H264 Profile";
-	case V4L2_CID_MPEG_VIDEO_HEVC_PROFILE:
-		return "HEVC Profile";
 	case V4L2_CID_MPEG_VIDEO_H264_VUI_EXT_SAR_HEIGHT:	return "Vertical Size of SAR";
 	case V4L2_CID_MPEG_VIDEO_H264_VUI_EXT_SAR_WIDTH:	return "Horizontal Size of SAR";
 	case V4L2_CID_MPEG_VIDEO_H264_VUI_SAR_ENABLE:		return "Aspect Ratio VUI Enable";
@@ -909,8 +868,6 @@ const char *v4l2_ctrl_get_name(u32 id)
 	case V4L2_CID_JPEG_RESTART_INTERVAL:	return "Restart Interval";
 	case V4L2_CID_JPEG_COMPRESSION_QUALITY:	return "Compression Quality";
 	case V4L2_CID_JPEG_ACTIVE_MARKER:	return "Active Markers";
-	case V4L2_CID_JPEG_ENABLE_EXIF:		return "Enable Exif";
-	case V4L2_CID_JPEG_DST_OFFSET:		return "Dst Offset";
 
 	/* Image source controls */
 	/* Keep the order of the 'case's the same as in v4l2-controls.h! */
@@ -973,32 +930,6 @@ const char *v4l2_ctrl_get_name(u32 id)
 	case V4L2_CID_DETECT_MD_GLOBAL_THRESHOLD: return "MD Global Threshold";
 	case V4L2_CID_DETECT_MD_THRESHOLD_GRID:	return "MD Threshold Grid";
 	case V4L2_CID_DETECT_MD_REGION_GRID:	return "MD Region Grid";
-
-	/* Mediatek control */
-	case V4L2_CID_MPEG_MTK_FRAME_INTERVAL:	return "Video frame interval";
-	case V4L2_CID_MPEG_MTK_ERRORMB_MAP:	return "Video error map";
-	case V4L2_CID_MPEG_MTK_DECODE_MODE:	return "Video decode mode";
-	case V4L2_CID_MPEG_MTK_FRAME_SIZE:	return "Video frame size";
-	case V4L2_CID_MPEG_MTK_FIXED_MAX_FRAME_BUFFER:
-		return "Video fixed maximum frame size";
-	case V4L2_CID_MPEG_MTK_CRC_PATH:	return "Video crc path";
-	case V4L2_CID_MPEG_MTK_GOLDEN_PATH:	return "Video golden path";
-	case V4L2_CID_MPEG_MTK_SET_WAIT_KEY_FRAME: return "Wait key frame";
-	case V4L2_CID_MPEG_MTK_OPERATING_RATE: return "Vdec Operating Rate";
-	case V4L2_CID_MPEG_MTK_ASPECT_RATIO:	return "Video aspect ratio";
-	case V4L2_CID_MPEG_MTK_SEC_DECODE:	return "Video Sec Decode path";
-	case V4L2_CID_MPEG_MTK_SEC_ENCODE:	return "Video Sec Encode path";
-	case V4L2_CID_MPEG_MTK_FIX_BUFFERS:	return "Video fix buffers";
-	case V4L2_CID_MPEG_MTK_FIX_BUFFERS_SVP:
-		return "Video fix buffers for svp";
-	case V4L2_CID_MPEG_MTK_QUEUED_FRAMEBUF_COUNT:
-		return "Video queued frame buf count";
-	case V4L2_CID_MPEG_MTK_ENCODE_RC_I_FRAME_QP:
-		return "I-Frame QP Value";
-	case V4L2_CID_MPEG_MTK_ENCODE_RC_P_FRAME_QP:
-		return "P-Frame QP Value";
-	case V4L2_CID_MPEG_MTK_ENCODE_RC_B_FRAME_QP:
-		return "B-Frame QP Value";
 	default:
 		return NULL;
 	}
@@ -1012,30 +943,6 @@ void v4l2_ctrl_fill(u32 id, const char **name, enum v4l2_ctrl_type *type,
 	*flags = 0;
 
 	switch (id) {
-	case V4L2_CID_MPEG_MTK_FRAME_INTERVAL:
-	case V4L2_CID_MPEG_MTK_ERRORMB_MAP:
-	case V4L2_CID_MPEG_MTK_ASPECT_RATIO:
-	case V4L2_CID_MPEG_MTK_FIX_BUFFERS:
-	case V4L2_CID_MPEG_MTK_FIX_BUFFERS_SVP:
-		*type = V4L2_CTRL_TYPE_INTEGER;
-		*flags |= V4L2_CTRL_FLAG_READ_ONLY;
-		break;
-	case V4L2_CID_MPEG_MTK_DECODE_MODE:
-	case V4L2_CID_MPEG_MTK_FRAME_SIZE:
-	case V4L2_CID_MPEG_MTK_FIXED_MAX_FRAME_BUFFER:
-	case V4L2_CID_MPEG_MTK_SET_WAIT_KEY_FRAME:
-	case V4L2_CID_MPEG_MTK_OPERATING_RATE:
-	case V4L2_CID_MPEG_MTK_SEC_DECODE:
-	case V4L2_CID_MPEG_MTK_SEC_ENCODE:
-	case V4L2_CID_MPEG_MTK_QUEUED_FRAMEBUF_COUNT:
-		*type = V4L2_CTRL_TYPE_INTEGER;
-		*flags |= V4L2_CTRL_FLAG_WRITE_ONLY;
-		break;
-	case V4L2_CID_MPEG_MTK_CRC_PATH:
-	case V4L2_CID_MPEG_MTK_GOLDEN_PATH:
-		*type = V4L2_CTRL_TYPE_STRING;
-		*flags |= V4L2_CTRL_FLAG_WRITE_ONLY;
-		break;
 	case V4L2_CID_AUDIO_MUTE:
 	case V4L2_CID_AUDIO_LOUDNESS:
 	case V4L2_CID_AUTO_WHITE_BALANCE:
@@ -1142,11 +1049,8 @@ void v4l2_ctrl_fill(u32 id, const char **name, enum v4l2_ctrl_type *type,
 	case V4L2_CID_MPEG_VIDEO_MULTI_SLICE_MODE:
 	case V4L2_CID_MPEG_VIDEO_H264_ENTROPY_MODE:
 	case V4L2_CID_MPEG_VIDEO_H264_LEVEL:
-	case V4L2_CID_MPEG_VIDEO_HEVC_LEVEL:
-	case V4L2_CID_MPEG_VIDEO_HEVC_TIER:
 	case V4L2_CID_MPEG_VIDEO_H264_LOOP_FILTER_MODE:
 	case V4L2_CID_MPEG_VIDEO_H264_PROFILE:
-	case V4L2_CID_MPEG_VIDEO_HEVC_PROFILE:
 	case V4L2_CID_MPEG_VIDEO_H264_VUI_SAR_IDC:
 	case V4L2_CID_MPEG_VIDEO_H264_SEI_FP_ARRANGEMENT_TYPE:
 	case V4L2_CID_MPEG_VIDEO_H264_FMO_MAP_TYPE:

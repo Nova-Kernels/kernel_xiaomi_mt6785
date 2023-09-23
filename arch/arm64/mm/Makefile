@@ -1,5 +1,4 @@
 # SPDX-License-Identifier: GPL-2.0
-ccflags-y += -O3
 obj-y				:= dma-mapping.o extable.o fault.o init.o \
 				   cache.o copypage.o flush.o \
 				   ioremap.o mmap.o pgd.o mmu.o \
@@ -12,6 +11,4 @@ obj-$(CONFIG_DEBUG_VIRTUAL)	+= physaddr.o
 KASAN_SANITIZE_physaddr.o	+= n
 
 obj-$(CONFIG_KASAN)		+= kasan_init.o
-obj-$(CONFIG_MEDIATEK_SOLUTION) += cache-mtk-v8.o
 KASAN_SANITIZE_kasan_init.o	:= n
-KBUILD_CPPFLAGS += -I$(srctree)/drivers/misc/mediatek/include

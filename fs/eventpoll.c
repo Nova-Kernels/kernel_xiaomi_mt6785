@@ -1396,7 +1396,7 @@ static int ep_create_wakeup_source(struct epitem *epi)
 	if (!epi->ep->ws) {
 		epi->ep->ws = wakeup_source_register(NULL, "eventpoll");
 		if (!epi->ep->ws)
-				return -ENOMEM;
+			return -ENOMEM;
 	}
 
 	take_dentry_name_snapshot(&n, epi->ffd.file->f_path.dentry);

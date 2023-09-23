@@ -246,6 +246,7 @@ static void xfrm4_dst_destroy(struct dst_entry *dst)
 	struct xfrm_dst *xdst = (struct xfrm_dst *)dst;
 
 	dst_destroy_metrics_generic(dst);
+
 	xfrm_dst_destroy(xdst);
 }
 

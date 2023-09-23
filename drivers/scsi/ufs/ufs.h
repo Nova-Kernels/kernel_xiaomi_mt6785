@@ -73,16 +73,6 @@ enum {
 	UFS_UPIU_RPMB_WLUN		= 0xC4,
 };
 
-/**
- * ufs_is_valid_unit_desc_lun - checks if the given LUN has a unit descriptor
- * @lun: LU number to check
- * @return: true if the lun has a matching unit descriptor, false otherwise
- */
-static inline bool ufs_is_valid_unit_desc_lun(u8 lun)
-{
-	return (lun == UFS_UPIU_RPMB_WLUN || (lun < UFS_UPIU_MAX_GENERAL_LUN));
-}
-
 /*
  * UFS Protocol Information Unit related definitions
  */
@@ -143,47 +133,14 @@ enum flag_idn {
 	QUERY_FLAG_IDN_FDEVICEINIT      = 0x01,
 	QUERY_FLAG_IDN_PWR_ON_WPE	= 0x03,
 	QUERY_FLAG_IDN_BKOPS_EN         = 0x04,
-	/* MTK PATCH: flag for fw update feasibility check */
-	QUERY_FLAG_IDN_PERMANENTLY_DISABLE_FW_UPDATE = 0xB,
-#if defined(CONFIG_UFSTW)
-	QUERY_FLAG_IDN_TW_EN				= 0x0E,
-	QUERY_FLAG_IDN_TW_BUF_FLUSH_EN			= 0x0F,
-	QUERY_FLAG_IDN_TW_FLUSH_DURING_HIBERN = 0x10,
-#endif
-#if defined(CONFIG_SCSI_SKHPB)
-	QUERY_FLAG_IDN_HPB_RESET	= 0x11,  /* JEDEC version */
-#endif
 };
 
 /* Attribute idn for Query requests */
 enum attr_idn {
-	/* MTK PATCH: attribute for BootLUN configuration */
-	QUERY_ATTR_IDN_BOOT_LUN_EN	= 0x00,
 	QUERY_ATTR_IDN_ACTIVE_ICC_LVL	= 0x03,
 	QUERY_ATTR_IDN_BKOPS_STATUS	= 0x05,
 	QUERY_ATTR_IDN_EE_CONTROL	= 0x0D,
 	QUERY_ATTR_IDN_EE_STATUS	= 0x0E,
-	/* MTK PATCH: attribute for FFU status check */
-	QUERY_ATTR_IDN_DEVICE_FFU_STATUS = 0x14,
-#if defined(CONFIG_UFSTW)
-	QUERY_ATTR_IDN_TW_FLUSH_STATUS		= 0x1C,
-	QUERY_ATTR_IDN_TW_BUF_SIZE		= 0x1D,
-	QUERY_ATTR_IDN_TW_BUF_LIFETIME_EST	= 0x1E,
-	QUERY_ATTR_CUR_TW_BUF_SIZE		= 0x1F,
-#endif
-#if defined(CONFIG_UFSFEATURE)
-	QUERY_ATTR_IDN_SUP_VENDOR_OPTIONS	= 0xFF,
-#endif
-};
-
-/* MTK PATCH: status of FFU */
-enum ufs_ffu_status {
-	UFS_FFU_STATUS_NO_INFORMATION   = 0x0,
-	UFS_FFU_STATUS_OK               = 0x1,
-	UFS_FFU_STATUS_CORRUPTION       = 0x2,
-	UFS_FFU_STATUS_INTERNAL_ERROR   = 0x3,
-	UFS_FFU_STATUS_VERSION_MISMATCH = 0x4,
-	UFS_FFU_STATUS_GENERAL_ERROR    = 0xFF,
 };
 
 /* Descriptor idn for Query requests */
@@ -197,7 +154,6 @@ enum desc_idn {
 	QUERY_DESC_IDN_RFU_1		= 0x6,
 	QUERY_DESC_IDN_GEOMETRY		= 0x7,
 	QUERY_DESC_IDN_POWER		= 0x8,
-	QUERY_DESC_IDN_HEALTH		= 0x9,/* MTK PATCH */
 	QUERY_DESC_IDN_MAX,
 };
 
@@ -211,18 +167,8 @@ enum ufs_desc_def_size {
 	QUERY_DESC_CONFIGURATION_DEF_SIZE	= 0x90,
 	QUERY_DESC_UNIT_DEF_SIZE		= 0x23,
 	QUERY_DESC_INTERCONNECT_DEF_SIZE	= 0x06,
-
-	/* MTK PATCH: Geometry Descriptor size shall be 0x48 since UFS 2.1 */
-	QUERY_DESC_GEOMETRY_DEF_SIZE		= 0x48,
+	QUERY_DESC_GEOMETRY_DEF_SIZE		= 0x44,
 	QUERY_DESC_POWER_DEF_SIZE		= 0x62,
-	QUERY_DESC_HEALTH_MAX_SIZE		= 0x25, /* MTK PATCH */
-};
-
-/* MTK PATCH: Read Geometry Descriptor for RPMB initialization */
-enum geometry_desc_param_offset {
-	GEOMETRY_DESC_LEN		= 0x0,
-	GEOMETRY_DESC_TYPE		= 0x1,
-	GEOMETRY_DESC_RPMB_RW_SIZE	= 0x17,
 };
 
 /* Unit descriptor parameters offsets in bytes*/
@@ -243,14 +189,6 @@ enum unit_desc_param {
 	UNIT_DESC_PARAM_PHY_MEM_RSRC_CNT	= 0x18,
 	UNIT_DESC_PARAM_CTX_CAPABILITIES	= 0x20,
 	UNIT_DESC_PARAM_LARGE_UNIT_SIZE_M1	= 0x22,
-#if defined(CONFIG_UFSHPB) || defined(CONFIG_SCSI_SKHPB)
-	UNIT_DESC_HPB_LU_MAX_ACTIVE_REGIONS		= 0x23,
-	UNIT_DESC_HPB_LU_PIN_REGION_START_OFFSET	= 0x25,
-	UNIT_DESC_HPB_LU_NUM_PIN_REGIONS		= 0x27,
-#endif
-#if defined(CONFIG_UFSTW)
-	UNIT_DESC_TW_LU_MAX_BUF_SIZE			= 0x29,
-#endif
 };
 
 /* Device descriptor parameters offsets in bytes*/
@@ -282,39 +220,6 @@ enum device_desc_param {
 	DEVICE_DESC_PARAM_UD_LEN		= 0x1B,
 	DEVICE_DESC_PARAM_RTT_CAP		= 0x1C,
 	DEVICE_DESC_PARAM_FRQ_RTC		= 0x1D,
-	DEVICE_DESC_PARAM_FEAT_SUP		= 0x1F,
-	/* MTK PATCH: Product Revision Level index in String Descriptor */
-	DEVICE_DESC_PARAM_PRDCT_REV		= 0x2A,
-#if defined(CONFIG_UFSHPB) || defined(CONFIG_SCSI_SKHPB)
-	DEVICE_DESC_PARAM_HPB_VER		= 0x40,
-	DEVICE_DESC_PARAM_HPB_CONTROL		= 0x42, /* JEDEC version */
-#endif
-#if defined(CONFIG_UFSFEATURE)
-	DEVICE_DESC_PARAM_EX_FEAT_SUP		= 0x4F,
-#endif
-#if defined(CONFIG_UFSTW)
-	DEVICE_DESC_PARAM_TW_RETURN_TO_USER	= 0x53,
-	DEVICE_DESC_PARAM_TW_BUF_TYPE		= 0x54,
-	DEVICE_DESC_PARAM_NUM_SHARED_WB_BUF_AU	= 0x55, /* JEDEC version */
-#endif
-};
-
-enum geometry_desc_param {
-	GEOMETRY_DESC_SEGMENT_SIZE = 0x0D,
-#if defined(CONFIG_UFSHPB) || defined(CONFIG_SCSI_SKHPB)
-	GEOMETRY_DESC_HPB_REGION_SIZE			= 0x48,
-	GEOMETRY_DESC_HPB_NUMBER_LU			= 0x49,
-	GEOMETRY_DESC_HPB_SUBREGION_SIZE		= 0x4A,
-	GEOMETRY_DESC_HPB_DEVICE_MAX_ACTIVE_REGIONS	= 0x4B,
-#endif
-#if defined(CONFIG_UFSTW)
-	GEOMETRY_DESC_TW_MAX_SIZE			= 0x4F,
-	GEOMETRY_DESC_TW_NUMBER_LU			= 0x53,
-	GEOMETRY_DESC_TW_CAP_ADJ_FAC			= 0x54,
-	GEOMETRY_DESC_TW_SUPPORT_USER_REDUCTION_TYPES	= 0x55,
-	GEOMETRY_DESC_TW_SUPPORT_BUF_TYPE		= 0x56,
-	GEOMETRY_DESC_TW_GROUP_NUM_CAP			= 0x57,
-#endif
 };
 
 /*
@@ -358,18 +263,7 @@ enum power_desc_param_offset {
 enum {
 	MASK_EE_STATUS		= 0xFFFF,
 	MASK_EE_URGENT_BKOPS	= (1 << 2),
-#if defined(CONFIG_UFSTW)
-	MASK_EE_TW		= (1 << 5),
-#endif
 };
-
-#if defined(CONFIG_UFSTW)
-/* TW buffer type */
-enum {
-	WB_LU_DEDICATED_BUFFER_TYPE	= 0x0,
-	WB_SINGLE_SHARE_BUFFER_TYPE	= 0x1
-};
-#endif
 
 /* Background operation status */
 enum bkops_status {
@@ -429,9 +323,6 @@ enum {
 	MASK_RSP_UPIU_DATA_SEG_LEN	= 0xFFFF,
 	MASK_RSP_EXCEPTION_EVENT        = 0x10000,
 	MASK_TM_SERVICE_RESP		= 0xFF,
-#if defined(CONFIG_UFSHPB) || defined(CONFIG_SCSI_SKHPB)
-	MASK_RSP_UPIU_HPB_UPDATE_ALERT	= 0x20000, /* JEDEC version */
-#endif
 };
 
 /* Task management service response */
@@ -613,22 +504,11 @@ struct ufs_vreg {
 	int max_uA;
 };
 
-/* MTK PATCH */
-enum ufs_vreg_state {
-	UFS_REG_HBA_INIT,
-	UFS_REG_HBA_EXIT,
-	UFS_REG_SUSPEND_SET_LPM,
-	UFS_REG_SUSPEND_SET_HPM,
-	UFS_REG_RESUME_SET_LPM,
-	UFS_REG_RESUME_SET_HPM,
-};
-
 struct ufs_vreg_info {
 	struct ufs_vreg *vcc;
 	struct ufs_vreg *vccq;
 	struct ufs_vreg *vccq2;
 	struct ufs_vreg *vdd_hba;
-	enum ufs_vreg_state state; /* MTK PATCH */
 };
 
 struct ufs_dev_info {
@@ -638,8 +518,6 @@ struct ufs_dev_info {
 };
 
 #define MAX_MODEL_LEN 16
-#define MAX_PRL_LEN   5 /* MTK PATCH */
-
 /**
  * ufs_dev_desc - ufs device details from the device descriptor
  *
@@ -649,7 +527,6 @@ struct ufs_dev_info {
 struct ufs_dev_desc {
 	u16 wmanufacturerid;
 	char model[MAX_MODEL_LEN + 1];
-	char prl[MAX_PRL_LEN + 1]; /* MTK PATCH */
 };
 
 #endif /* End of Header */

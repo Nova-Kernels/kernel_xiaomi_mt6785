@@ -5,7 +5,6 @@
 #include <linux/topology.h>
 
 #include <linux/sched/idle.h>
-#include <linux/sched/sched.h>
 
 /*
  * sched-domains (multiprocessor balancing) declarations:
@@ -68,32 +67,21 @@ struct sched_domain_attr {
 
 extern int sched_domain_level_max;
 
-#ifndef CONFIG_MTK_UNIFY_POWER
 struct capacity_state {
 	unsigned long cap;	/* compute capacity */
 	unsigned long frequency;/* frequency */
 	unsigned long power;	/* power consumption at this compute capacity */
 };
-#endif
 
 struct idle_state {
 	unsigned long power;	 /* power consumption in this idle state */
 };
 
 struct sched_group_energy {
-#ifdef CONFIG_MTK_SCHED_EAS_POWER_SUPPORT
-	idle_power_func idle_power;
-	busy_power_func busy_power;
-#endif
 	unsigned int nr_idle_states;	/* number of idle states */
 	struct idle_state *idle_states;	/* ptr to idle state array */
 	unsigned int nr_cap_states;	/* number of capacity states */
-#ifdef CONFIG_MTK_UNIFY_POWER
-	struct upower_tbl_row *cap_states;
-	unsigned int lkg_idx;
-#else
 	struct capacity_state *cap_states; /* ptr to capacity state array */
-#endif
 };
 
 struct sched_group;

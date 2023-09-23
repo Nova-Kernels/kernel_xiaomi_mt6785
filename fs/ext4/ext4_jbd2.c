@@ -4,7 +4,6 @@
  */
 
 #include "ext4_jbd2.h"
-#include <linux/jiffies.h>
 
 #include <trace/events/ext4.h>
 
@@ -88,26 +87,11 @@ int __ext4_journal_stop(const char *where, unsigned int line, handle_t *handle)
 	struct super_block *sb;
 	int err;
 	int rc;
-	unsigned int duration;
 
 	if (!ext4_handle_valid(handle)) {
 		ext4_put_nojournal(handle);
 		return 0;
 	}
-
-	/*
-	  * if handle runtime lasts more than 500ms, print detailed handle info for debug
-	  */
-	duration = jiffies_to_msecs(jiffies - handle->h_start_jiffies);
-	if (duration > 500)
-		printk(KERN_WARNING
-				"ext4_journal_stop: h_run_time %ums, h_type %u, h_start_line_no %u, "
-				"h_stop_func_name %s, h_stop_line_no %u",
-				duration,
-				handle->h_type,
-				handle->h_line_no,
-				where,
-				line);
 
 	err = handle->h_err;
 	if (!handle->h_transaction) {

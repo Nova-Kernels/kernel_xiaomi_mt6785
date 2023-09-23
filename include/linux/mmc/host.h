@@ -79,19 +79,6 @@ struct mmc_ios {
 	bool enhanced_strobe;			/* hs400es selection */
 };
 
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-struct mmc_cmdq_host_ops {
-	int (*init)(struct mmc_host *host);
-	int (*enable)(struct mmc_host *host);
-	void (*disable)(struct mmc_host *host, bool soft);
-	int (*request)(struct mmc_host *host, struct mmc_request *mrq);
-	void (*post_req)(struct mmc_host *host, int tag, int err);
-	int (*halt)(struct mmc_host *host, bool halt);
-	void (*reset)(struct mmc_host *host, bool soft);
-	void (*dumpstate)(struct mmc_host *host, bool more);
-};
-#endif
-
 struct mmc_host;
 
 struct mmc_host_ops {
@@ -166,7 +153,6 @@ struct mmc_host_ops {
 					 int card_drv, int *drv_type);
 	void	(*hw_reset)(struct mmc_host *host);
 	void	(*card_event)(struct mmc_host *host);
-	void	(*remove_bad_sdcard)(struct mmc_host *host);
 
 	/*
 	 * Optional callback to support controllers with HW issues for multiple
@@ -220,87 +206,14 @@ struct mmc_cqe_ops {
 	void	(*cqe_recovery_finish)(struct mmc_host *host);
 };
 
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-struct mmc_cmdq_req {
-	unsigned int cmd_flags;
-	u32 blk_addr;
-	/* active mmc request */
-	struct mmc_request	mrq;
-	struct mmc_data		data;
-	struct mmc_command	cmd;
-#define DCMD		(1 << 0)
-#define QBR		(1 << 1)
-#define DIR		(1 << 2)
-#define PRIO		(1 << 3)
-#define REL_WR		(1 << 4)
-#define DAT_TAG	(1 << 5)
-#define FORCED_PRG	(1 << 6)
-	unsigned int		cmdq_req_flags;
-
-	unsigned int		resp_idx;
-	unsigned int		resp_arg;
-	unsigned int		dev_pend_tasks;
-	bool			resp_err;
-	bool			skip_err_handling;
-	bool			skip_dump; /* for skip dump info */
-	bool			skip_reset; /* for skip autok */
-	int			tag; /* used for command queuing */
-	u8			ctx_id;
-};
-#endif
-
-struct keyslot_mgmt_ll_ops;
-struct mmc_crypto_variant_ops {
-	void (*setup_rq_keyslot_manager)(struct mmc_host *host,
-					 struct request_queue *q);
-	void (*destroy_rq_keyslot_manager)(struct mmc_host *host,
-					   struct request_queue *q);
-	int (*init_crypto)(struct mmc_host *host,
-			       const struct keyslot_mgmt_ll_ops *ksm_ops);
-	void (*enable)(struct mmc_host *host);
-	void (*disable)(struct mmc_host *host);
-	int (*suspend)(struct mmc_host *host);
-	int (*resume)(struct mmc_host *host);
-	int (*debug)(struct mmc_host *host);
-	void (*host_init_crypto)(struct mmc_host *host);
-	int (*get_crypto_capabilities)(struct mmc_host *host);
-	int (*prepare_mqr_crypto)(struct mmc_host *host,
-		u64 data_unit_num, int ddir, int slot);
-	void (*host_program_key)(struct mmc_host *host,
-			u32 *key, u32 *tkey, u32 config);
-	int (*complete_mqr_crypto)(struct mmc_host *host);
-	void (*msdc_crypto_keyslot_evict)(struct mmc_host *host);
-	void *priv;
-};
-
 struct mmc_async_req {
 	/* active mmc request */
 	struct mmc_request	*mrq;
-#ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
-	struct mmc_request	*mrq_que;
-#endif
 	/*
 	 * Check error status of completed mmc request.
 	 * Returns 0 if success otherwise non zero.
 	 */
 	enum mmc_blk_status (*err_check)(struct mmc_card *, struct mmc_async_req *);
-#ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
-#define MMC_QUEUE_BEFORE_ENQ	(0)	/* mrq is entered in driver */
-#define MMC_QUEUE_ENQ		(1)	/* mrq is enqueued in device */
-#define MMC_QUEUE_BEFORE_QRDY	(2)	/* mrq is 44/45 issue & wait for qrdy */
-	/* mrq is checking qrdy & ready to transfer */
-#define MMC_QUEUE_BEFORE_TRAN	(3)
-#define MMC_QUEUE_TRAN		(4)	/* mrq is transfer */
-	/* mrq is transfer done & cheking busy in case of write */
-#define MMC_QUEUE_BUSY		(5)
-	/* mrq is terminated transfer
-	 * including busy check & ready to post process
-	 */
-#define MMC_QUEUE_BEFORE_POST	(7)
-	unsigned long		state;
-	unsigned int		prio;
-#endif
-
 };
 
 /**
@@ -320,36 +233,6 @@ struct mmc_slot {
 	void *handler_priv;
 };
 
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-/**
- * mmc_cmdq_context_info - describes the contexts of cmdq
- * @active_reqs		requests being processed
- * @data_active_reqs	data requests being processed
- * @curr_state		state of cmdq engine
- * @cmdq_ctx_lock	acquire this before accessing this structure
- * @queue_empty_wq	workqueue for waiting for all
- *			the outstanding requests to be completed
- * @wait		waiting for all conditions described in
- *			mmc_cmdq_ready_wait to be satisified before
- *			issuing the new request to LLD.
- * @err_rwsem	synchronizes issue/completion/error-handler ctx
- */
-struct mmc_cmdq_context_info {
-	unsigned long	active_reqs; /* in-flight requests */
-	unsigned long	data_active_reqs; /* in-flight data requests */
-	unsigned long	curr_state;
-#define	CMDQ_STATE_ERR 0
-#define	CMDQ_STATE_DCMD_ACTIVE 1
-#define	CMDQ_STATE_HALT 2
-#define	CMDQ_STATE_CQ_DISABLE 3
-#define	CMDQ_STATE_REQ_TIMED_OUT 4
-	wait_queue_head_t	queue_empty_wq;
-	wait_queue_head_t	wait;
-	int active_small_sector_read_reqs;
-	struct rw_semaphore err_rwsem;
-};
-#endif
-
 /**
  * mmc_context_info - synchronization details for mmc context
  * @is_done_rcv		wake up reason was done request
@@ -364,76 +247,12 @@ struct mmc_context_info {
 	wait_queue_head_t	wait;
 };
 
-#ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
-#define EMMC_MAX_QUEUE_DEPTH		(32)
-#define EMMC_MIN_RT_CLASS_TAG_COUNT	(4)
-#endif
-
 struct regulator;
 struct mmc_pwrseq;
 
 struct mmc_supply {
 	struct regulator *vmmc;		/* Card power supply */
 	struct regulator *vqmmc;	/* Optional Vccq supply */
-};
-
-/* CCAP - Crypto Capability 100h */
-union swcqhci_crypto_capabilities {
-	__le32 reg_val;
-	struct {
-		u8 num_crypto_cap;
-		u8 config_count;
-		u8 reserved;
-		u8 config_array_ptr;
-	};
-};
-
-enum swcqhci_crypto_key_size {
-	SWCQHCI_CRYPTO_KEY_SIZE_128		= 0,
-	SWCQHCI_CRYPTO_KEY_SIZE_192		= 1,
-	SWCQHCI_CRYPTO_KEY_SIZE_256		= 2,
-	SWCQHCI_CRYPTO_KEY_SIZE_512		= 3,
-	SWCQHCI_CRYPTO_KEY_SIZE_INVALID	= 4,
-};
-
-enum swcqhci_crypto_alg {
-	SWCQHCI_CRYPTO_ALG_AES_XTS				= 4,
-	SWCQHCI_CRYPTO_ALG_BITLOCKER_AES_CBC	= 3,
-	SWCQHCI_CRYPTO_ALG_AES_ECB				= 2,
-	SWCQHCI_CRYPTO_ALG_ESSIV_AES_CBC		= 1,
-	SWCQHCI_CRYPTO_ALG_INVALID				= 0,
-};
-
-/* x-CRYPTOCAP - Crypto Capability X */
-union swcqhci_crypto_cap_entry {
-	__le32 reg_val;
-	struct {
-		u8 algorithm_id;
-		u8 sdus_mask; /* Supported data unit size mask */
-		u8 key_size;
-		u8 reserved;
-	};
-};
-
-/* Please note that enable bit @ bit15 for spec */
-#define MMC_CRYPTO_CONFIGURATION_ENABLE (1 << 7)
-#define MMC_CRYPTO_KEY_MAX_SIZE 64
-/* x-CRYPTOCFG - Crypto Configuration X */
-/* key info will be fill in here, find slot will use, # of array == # of slot */
-union swcqhci_crypto_cfg_entry {
-	__le32 reg_val[32];
-	struct {
-		u8 crypto_key[MMC_CRYPTO_KEY_MAX_SIZE];
-		/* 4KB/512 = 8 */
-		u8 data_unit_size;
-		u8 crypto_cap_idx;
-		u8 reserved_1;
-		u8 config_enable;
-		u8 reserved_multi_host;
-		u8 reserved_2;
-		u8 vsb[2];
-		u8 reserved_3[56];
-	};
 };
 
 struct mmc_host {
@@ -530,7 +349,6 @@ struct mmc_host {
 #define MMC_CAP2_NO_MMC		(1 << 22)	/* Do not send (e)MMC commands during initialization */
 #define MMC_CAP2_CQE		(1 << 23)	/* Has eMMC command queue engine */
 #define MMC_CAP2_CQE_DCMD	(1 << 24)	/* CQE can issue a direct command */
-#define MMC_CAP2_NMCARD		(1 << 26)
 #define MMC_CAP2_CRYPTO		(1 << 27)	/* Host supports inline encryption */
 
 	mmc_pm_flag_t		pm_caps;	/* supported pm features */
@@ -548,7 +366,6 @@ struct mmc_host {
 	spinlock_t		lock;		/* lock for claim and bus ops */
 
 	struct mmc_ios		ios;		/* current io bus settings */
-	struct mmc_ios		cached_ios;
 
 	/* group bitfields together to minimize padding */
 	unsigned int		use_spi_crc:1;
@@ -605,52 +422,6 @@ struct mmc_host {
 	/* Ongoing data transfer that allows commands during transfer */
 	struct mmc_request	*ongoing_mrq;
 
-#ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
-	struct mmc_async_req	*areq_que[EMMC_MAX_QUEUE_DEPTH];
-	struct mmc_async_req	*areq_cur;
-	atomic_t		areq_cnt;
-
-	spinlock_t		cmd_que_lock;
-	spinlock_t		dat_que_lock;
-	spinlock_t		que_lock;
-	struct list_head	cmd_que;
-	struct list_head	dat_que;
-
-	unsigned long		state;
-	wait_queue_head_t	cmp_que;
-	wait_queue_head_t	cmdq_que;
-	struct mmc_request	*done_mrq;
-	struct mmc_command	chk_cmd;
-	struct mmc_request	chk_mrq;
-	struct mmc_command	que_cmd;
-	struct mmc_request	que_mrq;
-	struct mmc_command	deq_cmd;
-	struct mmc_request	deq_mrq;
-
-	struct mmc_queue_req	*mqrq_cur;
-	struct mmc_queue_req	*mqrq_prev;
-	struct mmc_request	*prev_mrq;
-
-	struct task_struct	*cmdq_thread;
-	atomic_t		cq_rw;
-	atomic_t		cq_w;
-	unsigned int		wp_error;
-	atomic_t		cq_wait_rdy;
-	atomic_t		cq_rdy_cnt;
-	unsigned long		task_id_index;
-	int			cur_rw_task;
-#define CQ_TASK_IDLE 99
-
-	atomic_t		is_data_dma;
-	atomic_t		cq_tuning_now;
-#ifdef CONFIG_MMC_FFU
-	atomic_t		stop_queue;
-#endif
-	unsigned int		data_mrq_queued[32];
-	unsigned int		cmdq_support_changed;
-	int			align_size;
-#endif
-
 #ifdef CONFIG_FAIL_MMC_REQUEST
 	struct fault_attr	fail_mmc_request;
 #endif
@@ -668,33 +439,10 @@ struct mmc_host {
 	int			cqe_qdepth;
 	bool			cqe_enabled;
 	bool			cqe_on;
-
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-	const struct mmc_cmdq_host_ops *cmdq_ops;
-	struct mmc_cmdq_context_info	cmdq_ctx;
-	int num_cq_slots;
-	int dcmd_cq_slot;
-	bool			cmdq_thist_enabled;
-	/*
-	 * several cmdq supporting host controllers are extensions
-	 * of legacy controllers. This variable can be used to store
-	 * a reference to the cmdq extension of the existing host
-	 * controller.
-	 */
-	void *cmdq_private;
-	struct mmc_request	*err_mrq;
-#endif
-
 #ifdef CONFIG_MMC_CRYPTO
-	/* crypto */
-	const struct mmc_crypto_variant_ops *crypto_vops;
-	union swcqhci_crypto_capabilities crypto_capabilities;
-	union swcqhci_crypto_cap_entry *crypto_cap_array;
-	u8 crypto_cfg_register;
-	union swcqhci_crypto_cfg_entry *crypto_cfgs;
-	struct keyslot_manager *ksm;
+	struct keyslot_manager	*ksm;
+	void *crypto_DO_NOT_USE[7];
 #endif /* CONFIG_MMC_CRYPTO */
-
 
 #ifdef CONFIG_MMC_EMBEDDED_SDIO
 	struct {
@@ -704,6 +452,7 @@ struct mmc_host {
 		int				num_funcs;
 	} embedded_sdio_data;
 #endif
+
 	unsigned long		private[0] ____cacheline_aligned;
 };
 
@@ -729,13 +478,6 @@ static inline void *mmc_priv(struct mmc_host *host)
 	return (void *)host->private;
 }
 
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-static inline void *mmc_cmdq_private(struct mmc_host *host)
-{
-	return host->cmdq_private;
-}
-#endif
-
 #define mmc_host_is_spi(host)	((host)->caps & MMC_CAP_SPI)
 
 #define mmc_dev(x)	((x)->parent)
@@ -748,14 +490,6 @@ int mmc_power_restore_host(struct mmc_host *host);
 void mmc_detect_change(struct mmc_host *, unsigned long delay);
 void mmc_request_done(struct mmc_host *, struct mmc_request *);
 void mmc_command_done(struct mmc_host *host, struct mmc_request *mrq);
-
-#ifdef CONFIG_MTK_EMMC_CQ_SUPPORT
-int mmc_blk_end_queued_req(struct mmc_host *host,
-	struct mmc_async_req *areq_active, int index, int status);
-/* add for emmc reset when error happen */
-extern int current_mmc_part_type;
-extern int emmc_resetting_when_cmdq;
-#endif
 
 static inline void mmc_signal_sdio_irq(struct mmc_host *host)
 {
@@ -811,38 +545,6 @@ static inline int mmc_card_wake_sdio_irq(struct mmc_host *host)
 {
 	return host->pm_flags & MMC_PM_WAKE_SDIO_IRQ;
 }
-
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-static inline void mmc_host_set_halt(struct mmc_host *host)
-{
-	set_bit(CMDQ_STATE_HALT, &host->cmdq_ctx.curr_state);
-}
-
-static inline void mmc_host_clr_halt(struct mmc_host *host)
-{
-	clear_bit(CMDQ_STATE_HALT, &host->cmdq_ctx.curr_state);
-}
-
-static inline int mmc_host_halt(struct mmc_host *host)
-{
-	return test_bit(CMDQ_STATE_HALT, &host->cmdq_ctx.curr_state);
-}
-
-static inline void mmc_host_set_cq_disable(struct mmc_host *host)
-{
-	set_bit(CMDQ_STATE_CQ_DISABLE, &host->cmdq_ctx.curr_state);
-}
-
-static inline void mmc_host_clr_cq_disable(struct mmc_host *host)
-{
-	clear_bit(CMDQ_STATE_CQ_DISABLE, &host->cmdq_ctx.curr_state);
-}
-
-static inline int mmc_host_cq_disable(struct mmc_host *host)
-{
-	return test_bit(CMDQ_STATE_CQ_DISABLE, &host->cmdq_ctx.curr_state);
-}
-#endif
 
 /* TODO: Move to private header */
 static inline int mmc_card_hs(struct mmc_card *card)

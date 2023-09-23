@@ -20,7 +20,6 @@
 #include <linux/of.h>
 #include <linux/of_device.h>
 #include <linux/platform_device.h>
-#include <linux/proc_fs.h>
 #include <linux/iopoll.h>
 #include <linux/io.h>
 #include <linux/iio/iio.h>
@@ -28,8 +27,6 @@
 /* Register definitions */
 #define MT6577_AUXADC_CON0                    0x00
 #define MT6577_AUXADC_CON1                    0x04
-#define MT6577_AUXADC_CON1_SET                0x08
-#define MT6577_AUXADC_CON1_CLR                0x0C
 #define MT6577_AUXADC_CON2                    0x10
 #define MT6577_AUXADC_STA                     BIT(0)
 
@@ -45,26 +42,10 @@
 #define MT6577_AUXADC_POWER_READY_MS          1
 #define MT6577_AUXADC_SAMPLE_READY_US         25
 
-struct mtk_auxadc_compatible {
-	bool sample_data_cali;
-	bool check_global_idle;
-};
-
 struct mt6577_auxadc_device {
 	void __iomem *reg_base;
 	struct clk *adc_clk;
 	struct mutex lock;
-	const struct mtk_auxadc_compatible *dev_comp;
-};
-
-static const struct mtk_auxadc_compatible mt8173_compat = {
-	.sample_data_cali = false,
-	.check_global_idle = true,
-};
-
-static const struct mtk_auxadc_compatible mt6768_compat = {
-	.sample_data_cali = true,
-	.check_global_idle = false,
 };
 
 #define MT6577_AUXADC_CHANNEL(idx) {				    \
@@ -93,113 +74,6 @@ static const struct iio_chan_spec mt6577_auxadc_iio_channels[] = {
 	MT6577_AUXADC_CHANNEL(15),
 };
 
-/* For calibration */
-#define ADC_GE_OE_MASK          0x000003ff
-#define ADC_GE_OE_EN_MASK       0x00000001
-
-struct adc_cali_info {
-	u32 efuse_en_bs;        /* dt efuse en bit shift */
-	u32 efuse_ge_bs;        /* dt efuse ge bit shift */
-	u32 efuse_oe_bs;        /* dt efuse oe bit shift */
-	u32 efuse_idx;          /* dt efuse index */
-	u32 efuse_reg_value;    /* efuse reg value */
-	u32 efuse_en;           /* efuse en value */
-	u32 efuse_ge;           /* efuse ge value */
-	u32 efuse_oe;           /* efuse oe value */
-	s32 cali_ge;            /* cali ge value */
-	s32 cali_oe;            /* cali oe value */
-	u32 gain;               /* gain value */
-};
-
-static struct adc_cali_info adc_cali;
-
-extern u32 __attribute__((weak)) get_devinfo_with_index(u32 index)
-{
-	return 0;
-}
-
-static void mt_auxadc_update_cali(struct device *dev)
-{
-	struct device_node *np = dev->of_node;
-	u32 reg;
-	int ret = 0;
-
-	if (np) {
-		ret = of_property_read_u32(np, "mediatek,cali-en-bit",
-			&adc_cali.efuse_en_bs);
-		if (ret == 0)
-			pr_info("find node mediatek,cali-en-bit:%d\n",
-				adc_cali.efuse_en_bs);
-		else
-			return;
-
-		ret = of_property_read_u32(np, "mediatek,cali-ge-bit",
-			&adc_cali.efuse_ge_bs);
-		if (ret == 0)
-			pr_info("find node mediatek,cali-ge-bit:%d\n",
-				adc_cali.efuse_ge_bs);
-		else
-			return;
-
-		ret = of_property_read_u32(np, "mediatek,cali-oe-bit",
-			&adc_cali.efuse_oe_bs);
-		if (ret == 0)
-			pr_info("find node mediatek,cali-oe-bit:%d\n",
-				adc_cali.efuse_oe_bs);
-		else
-			return;
-
-		ret = of_property_read_u32(np, "mediatek,cali-efuse-index",
-			&adc_cali.efuse_idx);
-		if (ret == 0)
-			pr_info("find node mediatek,cali-efuse-index:%d\n",
-				adc_cali.efuse_idx);
-		else
-			return;
-
-		reg = get_devinfo_with_index(adc_cali.efuse_idx);
-		adc_cali.efuse_reg_value = reg;
-
-		adc_cali.efuse_en = (reg >> adc_cali.efuse_en_bs) &
-			ADC_GE_OE_EN_MASK;
-
-		if (adc_cali.efuse_en) {
-			adc_cali.efuse_oe =
-				(reg >> adc_cali.efuse_oe_bs) & ADC_GE_OE_MASK;
-			adc_cali.efuse_ge =
-				(reg >> adc_cali.efuse_ge_bs) & ADC_GE_OE_MASK;
-
-			/* In sw implement guide, ge should div 4096.
-			 * But we don't do that now due to it
-			 * will multi 4096 later
-			 */
-			adc_cali.cali_ge = adc_cali.efuse_ge - 512;
-			adc_cali.cali_oe = adc_cali.efuse_oe - 512;
-			adc_cali.gain = 1 + adc_cali.cali_ge;
-			/* In sw implement guide, gain = 1 + GE =
-			 * 1 + cali_ge / 4096,
-			 * we doen't use the variable here
-			 */
-		}
-	}
-}
-
-static int mt_auxadc_get_cali_data(unsigned int rawdata, bool enable_cali)
-{
-	unsigned int data;
-
-	/* In sw implement guide, 4096 * gain = 4096 * (1 + GE)
-	 * = 4096 * (1 + cali_ge / 4096) = 4096 + cali_ge)
-	 */
-	if (enable_cali)
-		data = (4096 * (rawdata - adc_cali.cali_oe)) /
-			(4096 + adc_cali.cali_ge);
-	else
-		data = rawdata;
-
-	return data;
-}
-
 static inline void mt6577_auxadc_mod_reg(void __iomem *reg,
 					 u32 or_mask, u32 and_mask)
 {
@@ -224,7 +98,8 @@ static int mt6577_auxadc_read(struct iio_dev *indio_dev,
 
 	mutex_lock(&adc_dev->lock);
 
-	writel(1 << chan->channel, adc_dev->reg_base + MT6577_AUXADC_CON1_CLR);
+	mt6577_auxadc_mod_reg(adc_dev->reg_base + MT6577_AUXADC_CON1,
+			      0, 1 << chan->channel);
 
 	/* read channel and make sure old ready bit == 0 */
 	ret = readl_poll_timeout(reg_channel, val,
@@ -239,22 +114,21 @@ static int mt6577_auxadc_read(struct iio_dev *indio_dev,
 	}
 
 	/* set bit to trigger sample */
-	writel(1 << chan->channel, adc_dev->reg_base + MT6577_AUXADC_CON1_SET);
+	mt6577_auxadc_mod_reg(adc_dev->reg_base + MT6577_AUXADC_CON1,
+			      1 << chan->channel, 0);
 
 	/* we must delay here for hardware sample channel data */
 	udelay(MT6577_AUXADC_SAMPLE_READY_US);
 
-	if (adc_dev->dev_comp->check_global_idle) {
-		/* check MTK_AUXADC_CON2 if auxadc is idle */
-		ret = readl_poll_timeout(adc_dev->reg_base + MT6577_AUXADC_CON2,
-					 val, ((val & MT6577_AUXADC_STA) == 0),
-					 MT6577_AUXADC_SLEEP_US,
-					 MT6577_AUXADC_TIMEOUT_US);
-		if (ret < 0) {
-			dev_err(indio_dev->dev.parent,
-				"wait for auxadc idle time out\n");
-			goto err_timeout;
-		}
+	/* check MTK_AUXADC_CON2 if auxadc is idle */
+	ret = readl_poll_timeout(adc_dev->reg_base + MT6577_AUXADC_CON2, val,
+				 ((val & MT6577_AUXADC_STA) == 0),
+				 MT6577_AUXADC_SLEEP_US,
+				 MT6577_AUXADC_TIMEOUT_US);
+	if (ret < 0) {
+		dev_err(indio_dev->dev.parent,
+			"wait for auxadc idle time out\n");
+		goto err_timeout;
 	}
 
 	/* read channel and make sure ready bit == 1 */
@@ -289,9 +163,6 @@ static int mt6577_auxadc_read_raw(struct iio_dev *indio_dev,
 				  int *val2,
 				  long info)
 {
-	struct mt6577_auxadc_device *adc_dev = iio_priv(indio_dev);
-	int raw_val;
-
 	switch (info) {
 	case IIO_CHAN_INFO_PROCESSED:
 		*val = mt6577_auxadc_read(indio_dev, chan);
@@ -301,10 +172,6 @@ static int mt6577_auxadc_read_raw(struct iio_dev *indio_dev,
 				chan->channel);
 			return *val;
 		}
-		raw_val = *val;
-		if (adc_dev->dev_comp->sample_data_cali)
-			*val = mt_auxadc_get_cali_data(*val, true);
-
 		return IIO_VAL_INT;
 
 	default:
@@ -346,60 +213,6 @@ static int __maybe_unused mt6577_auxadc_suspend(struct device *dev)
 	clk_disable_unprepare(adc_dev->adc_clk);
 
 	return 0;
-}
-
-static int proc_utilization_show(struct seq_file *m, void *v)
-{
-	int raw, raw_cali;
-
-	seq_puts(m, "********** Auxadc status dump **********\n");
-
-	seq_printf(m, "ADC_CALI_EN_MASK:0x%x ADC_CALI_EN_SHIFT:%d\n",
-		ADC_GE_OE_EN_MASK, adc_cali.efuse_en_bs);
-	seq_printf(m, "ADC_GE_MASK:0x%x ADC_GE_SHIFT:%d\n",
-		ADC_GE_OE_MASK, adc_cali.efuse_ge_bs);
-	seq_printf(m, "ADC_OE_MASK:0x%x ADC_OE_SHIFT:%d\n",
-		ADC_GE_OE_MASK, adc_cali.efuse_oe_bs);
-
-	seq_printf(m, "reg_value=0x%x efuse_en=%d, efuse_ge=%d, efuse_oe=%d\n",
-		adc_cali.efuse_reg_value, adc_cali.efuse_en,
-		adc_cali.efuse_ge, adc_cali.efuse_oe);
-
-	seq_printf(m, "cali_ge:%d cali_oe:%d gain:0x%x\n",
-		adc_cali.cali_ge, adc_cali.cali_oe, adc_cali.gain);
-
-	for (raw = 100; raw <= 4500; raw = raw + 100) {
-		raw_cali = mt_auxadc_get_cali_data(raw, true);
-
-		seq_printf(m, "raw without cali : %d, with cali : %d\n",
-			raw, raw_cali);
-	}
-
-	return 0;
-}
-
-static int proc_utilization_open(struct inode *inode, struct file *file)
-{
-	return single_open(file, proc_utilization_show, NULL);
-}
-
-static const struct file_operations auxadc_debug_proc_fops = {
-	.open = proc_utilization_open,
-	.read = seq_read,
-};
-
-static void adc_debug_init(void)
-{
-	struct proc_dir_entry *mt_auxadc_dir;
-
-	mt_auxadc_dir = proc_mkdir("mt-auxadc", NULL);
-	if (!mt_auxadc_dir) {
-		pr_debug("fail to mkdir /proc/mt-auxadc\n");
-		return;
-	}
-	proc_create("dump_auxadc_status", 0644, mt_auxadc_dir,
-		&auxadc_debug_proc_fops);
-	pr_debug("proc_create auxadc_debug_proc_fops\n");
 }
 
 static int mt6577_auxadc_probe(struct platform_device *pdev)
@@ -448,16 +261,6 @@ static int mt6577_auxadc_probe(struct platform_device *pdev)
 		goto err_disable_clk;
 	}
 
-	adc_dev->dev_comp = of_device_get_match_data(&pdev->dev);
-	if (!adc_dev->dev_comp) {
-		ret = -EINVAL;
-		dev_err(&pdev->dev, "null dev_comp\n");
-		goto err_disable_clk;
-	}
-
-	if (adc_dev->dev_comp->sample_data_cali)
-		mt_auxadc_update_cali(&pdev->dev);
-
 	mutex_init(&adc_dev->lock);
 
 	mt6577_auxadc_mod_reg(adc_dev->reg_base + MT6577_AUXADC_MISC,
@@ -471,8 +274,6 @@ static int mt6577_auxadc_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed to register iio device\n");
 		goto err_power_off;
 	}
-
-	adc_debug_init();
 
 	return 0;
 
@@ -499,16 +300,14 @@ static int mt6577_auxadc_remove(struct platform_device *pdev)
 	return 0;
 }
 
-static const struct dev_pm_ops mt6577_auxadc_pm_ops = {
-	SET_LATE_SYSTEM_SLEEP_PM_OPS(mt6577_auxadc_suspend,
-		mt6577_auxadc_resume)
-};
+static SIMPLE_DEV_PM_OPS(mt6577_auxadc_pm_ops,
+			 mt6577_auxadc_suspend,
+			 mt6577_auxadc_resume);
 
 static const struct of_device_id mt6577_auxadc_of_match[] = {
-	{ .compatible = "mediatek,mt2701-auxadc", .data = &mt8173_compat},
-	{ .compatible = "mediatek,mt7622-auxadc", .data = &mt8173_compat},
-	{ .compatible = "mediatek,mt8173-auxadc", .data = &mt8173_compat},
-	{ .compatible = "mediatek,mt6768-auxadc", .data = &mt6768_compat},
+	{ .compatible = "mediatek,mt2701-auxadc", },
+	{ .compatible = "mediatek,mt7622-auxadc", },
+	{ .compatible = "mediatek,mt8173-auxadc", },
 	{ }
 };
 MODULE_DEVICE_TABLE(of, mt6577_auxadc_of_match);
@@ -522,19 +321,7 @@ static struct platform_driver mt6577_auxadc_driver = {
 	.probe	= mt6577_auxadc_probe,
 	.remove	= mt6577_auxadc_remove,
 };
-
-static int __init mt6577_auxadc_init(void)
-{
-	return platform_driver_register(&mt6577_auxadc_driver);
-}
-
-static void __exit mt6577_auxadc_exit(void)
-{
-	platform_driver_unregister(&mt6577_auxadc_driver);
-}
-
-subsys_initcall(mt6577_auxadc_init);
-module_exit(mt6577_auxadc_exit);
+module_platform_driver(mt6577_auxadc_driver);
 
 MODULE_AUTHOR("Zhiyong Tao <zhiyong.tao@mediatek.com>");
 MODULE_DESCRIPTION("MTK AUXADC Device Driver");

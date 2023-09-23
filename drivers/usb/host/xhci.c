@@ -91,25 +91,6 @@ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, u64 timeout_us)
 	return ret;
 }
 
-int xhci_handshake_check_state(struct xhci_hcd *xhci,
-		void __iomem *ptr, u32 mask, u32 done, int usec)
-{
-	u32	result;
-
-	do {
-		result = readl_relaxed(ptr);
-		if (result == ~(u32)0 ||
-		xhci->xhc_state == XHCI_STATE_REMOVING)	/* card removed */
-			return -ENODEV;
-		result &= mask;
-		if (result == done)
-			return 0;
-		udelay(1);
-		usec--;
-	} while (usec > 0);
-	return -ETIMEDOUT;
-}
-
 /*
  * Disable interrupts and begin the xHCI halting process.
  */
@@ -3677,10 +3658,6 @@ static void xhci_free_dev(struct usb_hcd *hcd, struct usb_device *udev)
 	 */
 	if (xhci->quirks & XHCI_RESET_ON_RESUME)
 		pm_runtime_put_noidle(hcd->self.controller);
-
-#if IS_ENABLED(CONFIG_MTK_UAC_POWER_SAVING)
-	xhci->quirks &= ~XHCI_DEV_WITH_SYNC_EP;
-#endif
 
 	ret = xhci_check_args(hcd, udev, NULL, 0, true, __func__);
 	/* If the host is halted due to driver unload, we still need to free the

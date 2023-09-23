@@ -38,7 +38,7 @@
 #include "asm/bug.h"
 #include "tool.h"
 
-#include <linux/ctype.h>
+#include "sane_ctype.h"
 
 /*
  * magic2 = "PERFILE2"

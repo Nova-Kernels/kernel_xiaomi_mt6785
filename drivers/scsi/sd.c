@@ -787,7 +787,6 @@ static int sd_setup_unmap_cmnd(struct scsi_cmnd *cmd)
 	cmd->allowed = SD_MAX_RETRIES;
 	cmd->transfersize = data_len;
 	rq->timeout = SD_TIMEOUT;
-
 	scsi_req(rq)->resid_len = data_len;
 
 	return scsi_init_io(cmd);
@@ -1588,20 +1587,8 @@ static unsigned int sd_check_events(struct gendisk *disk, unsigned int clearing)
 	if (scsi_block_when_processing_errors(sdp)) {
 		struct scsi_sense_hdr sshdr = { 0, };
 
-		/*
-		 * It may cause some issue when sending test unit ready
-		 * while suspending. So get and put pm_runtime before
-		 * and after call scsi_test_unit_ready().
-		 *
-		 */
-		retval = scsi_autopm_get_device(sdp);
-		if (retval)
-			goto out;
-
 		retval = scsi_test_unit_ready(sdp, SD_TIMEOUT, SD_MAX_RETRIES,
 					      &sshdr);
-
-		scsi_autopm_put_device(sdp);
 
 		/* failed to execute TUR, assume media not present */
 		if (host_byte(retval)) {
@@ -1664,14 +1651,6 @@ static int sd_sync_cache(struct scsi_disk *sdkp, struct scsi_sense_hdr *sshdr)
 
 	if (res) {
 		sd_print_result(sdkp, "Synchronize Cache(10) failed", res);
-
-		/*
-		 * MTK PATCH
-		 * pass the error code to the
-		 * generic layer
-		 */
-		if (res == -EAGAIN)
-			return res;
 
 		if (driver_byte(res) & DRIVER_SENSE)
 			sd_print_sense_hdr(sdkp, sshdr);
@@ -3231,8 +3210,8 @@ static int sd_revalidate_disk(struct gendisk *disk)
 	q->limits.max_dev_sectors = logical_to_sectors(sdp, dev_max);
 
 	if (sd_validate_opt_xfer_size(sdkp, dev_max)) {
-		rw_max = q->limits.io_opt =
-			sdkp->opt_xfer_blocks * sdp->sector_size;
+		q->limits.io_opt = logical_to_bytes(sdp, sdkp->opt_xfer_blocks);
+		rw_max = logical_to_sectors(sdp, sdkp->opt_xfer_blocks);
 	} else {
 		q->limits.io_opt = 0;
 		rw_max = min_not_zero(logical_to_sectors(sdp, dev_max),
@@ -3371,17 +3350,6 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
 	}
 
 	blk_pm_runtime_init(sdp->request_queue, dev);
-
-	/*
-	 * MTK PATCH:
-	 * Set autosuspend delay for scsi device with runtime PM enabled.
-	 *
-	 * Note. autosuspend delay default value is -1 for all scsi devices,
-	 *       i.e., disabled by default.
-	 */
-	if (sdp->autosuspend_delay >= 0)
-		pm_runtime_set_autosuspend_delay(dev, sdp->autosuspend_delay);
-
 	device_add_disk(dev, gd);
 	if (sdkp->capacity)
 		sd_dif_config_host(sdkp);
@@ -3614,15 +3582,6 @@ static int sd_start_stop_device(struct scsi_disk *sdkp, int start)
 			SD_TIMEOUT, SD_MAX_RETRIES, 0, RQF_PM, NULL);
 	if (res) {
 		sd_print_result(sdkp, "Start/Stop Unit failed", res);
-
-		/*
-		 * MTK PATCH
-		 * scsi_execute() will return -EAGAIN if failed to
-		 * alloc request form get_request()
-		 */
-		if (res == -EAGAIN)
-			return res;
-
 		if (driver_byte(res) & DRIVER_SENSE)
 			sd_print_sense_hdr(sdkp, &sshdr);
 		if (scsi_sense_valid(&sshdr) &&
@@ -3667,7 +3626,7 @@ static void sd_shutdown(struct device *dev)
 static int sd_suspend_common(struct device *dev, bool ignore_stop_errors)
 {
 	struct scsi_disk *sdkp = dev_get_drvdata(dev);
-	struct scsi_sense_hdr sshdr = {0};
+	struct scsi_sense_hdr sshdr;
 	int ret = 0;
 
 	if (!sdkp)	/* E.g.: runtime suspend following sd_remove() */

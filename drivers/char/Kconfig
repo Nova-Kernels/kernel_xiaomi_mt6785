@@ -588,8 +588,6 @@ config TILE_SROM
 
 source "drivers/char/xillybus/Kconfig"
 
-source "drivers/char/rpmb/Kconfig"
-
 config RANDOM_TRUST_CPU
 	bool "Initialize RNG using CPU RNG instructions"
 	default y
@@ -628,4 +626,3 @@ config RANDOM_TRUST_BOOTLOADER
 	  at boot time with "random.trust_bootloader=on/off".
 
 endmenu
-

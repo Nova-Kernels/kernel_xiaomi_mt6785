@@ -649,65 +649,6 @@ config HAVE_UNSTABLE_SCHED_CLOCK
 config GENERIC_SCHED_CLOCK
 	bool
 
-menu "Scheduler features"
-
-config UCLAMP_TASK
-	bool "Enable utilization clamping for RT/FAIR tasks"
-	depends on CPU_FREQ_GOV_SCHEDUTIL
-	default n
-	help
-	  This feature enables the scheduler to track the clamped utilization
-	  of each CPU based on RUNNABLE tasks currently scheduled on that CPU.
-
-	  When this option is enabled, the user can specify a min and max CPU
-          bandwidth which is allowed for a task.
-	  The max bandwidth allows to clamp the maximum frequency a task can
-	  use, while the min bandwidth allows to define a minimum frequency a
-          task will always use.
-
-	  If in doubt, say N.
-
-config UCLAMP_GROUPS_COUNT
-	int "Number of different utilization clamp values supported"
-	range 0 32
-	default 5
-	depends on UCLAMP_TASK
-	help
-	  This defines the maximum number of different utilization clamp
-	  values which can be concurrently enforced for each utilization
-	  clamp index (i.e. minimum and maximum utilization).
-
-	  Only a limited number of clamp values are supported because:
-	    1. there are usually only few classes of workloads for which it
-	       makes sense to boost/cap for different frequencies,
-	       e.g. background vs foreground, interactive vs low-priority.
-	    2. it allows a simpler and more memory/time efficient tracking of
-	       the per-CPU clamp values.
-
-	  If in doubt, use the default value.
-
-config UCLAMP_MAP_OPP
-	bool "Map utilization clamping to opp corresponding capacity"
-	depends on UCLAMP_TASK
-	depends on MTK_UNIFY_POWER
-	default n
-	help
-	  This feature map utilization clamping value to cpu opp capacity.
-
-	  If in doubt, say N.
-
-config NONLINEAR_FREQ_CTL
-	bool "Non-linear frequency control"
-	depends on MTK_CPU_FREQ
-	depends on MTK_UNIFY_POWER
-	default n
-	help
-	  Use power table capacity to control DVFS, cpu capacity/
-	  loading tracking/opp calculation will be affected.
-	  If unsure, say N.
-
-endmenu
-
 menu "FAIR Scheuler tunables"
 
 choice
@@ -910,28 +851,6 @@ config RT_GROUP_SCHED
 	  See Documentation/scheduler/sched-rt-group.txt for more information.
 
 endif #CGROUP_SCHED
-
-config UCLAMP_TASK_GROUP
-	bool "Utilization clamping per group of tasks"
-	depends on CGROUP_SCHED
-	depends on UCLAMP_TASK
-	default n
-	help
-	  This feature enables the scheduler to track the clamped utilization
-	  of each CPU based on RUNNABLE tasks currently scheduled on that CPU.
-
-	  When this option is enabled, the user can specify a min and max
-	  CPU bandwidth which is allowed for each single task in a group.
-	  The max bandwidth allows to clamp the maximum frequency a task
-	  can use, while the min bandwidth allows to define a minimum
-	  frequency a task will always use.
-
-	  When task group based utilization clamping is enabled, an eventually
-          specified task-specific clamp value is constrained by the cgroup
-	  specified clamp value. Both minimum and maximum task clamping cannot
-          be bigger than the corresponding clamping defined at task group level.
-
-	  If in doubt, say N.
 
 config CGROUP_PIDS
 	bool "PIDs controller"
@@ -1264,33 +1183,6 @@ config CC_OPTIMIZE_FOR_SIZE
 
 endchoice
 
-config HAVE_LD_DEAD_CODE_DATA_ELIMINATION
-	bool
-	help
-	  This requires that the arch annotates or otherwise protects
-	  its external entry points from being discarded. Linker scripts
-	  must also merge .text.*, .data.*, and .bss.* correctly into
-	  output sections. Care must be taken not to pull in unrelated
-	  sections (e.g., '.text.init'). Typically '.' in section names
-	  is used to distinguish them from label names / C identifiers.
-
-config LD_DEAD_CODE_DATA_ELIMINATION
-	bool "Dead code and data elimination (EXPERIMENTAL)"
-	depends on HAVE_LD_DEAD_CODE_DATA_ELIMINATION
-	depends on EXPERT
-	help
-	  Select this if the architecture wants to do dead code and
-	  data elimination with the linker by compiling with
-	  -ffunction-sections -fdata-sections, and linking with
-	  --gc-sections.
-
-	  This can reduce on disk and in-memory size of the kernel
-	  code and static data, particularly for small configs and
-	  on small systems. This has the possibility of introducing
-	  silently broken kernel if the required annotations are not
-	  present. This option is not well tested yet, so use at your
-	  own risk.
-
 config SYSCTL
 	bool
 
@@ -1440,7 +1332,7 @@ config KALLSYMS_ABSOLUTE_PERCPU
 	default X86_64 && SMP
 
 config KALLSYMS_BASE_RELATIVE
-	bool "Enable KALLSYMS_BASE_RELATIVE or not"
+	bool
 	depends on KALLSYMS
 	default !IA64 && !(TILE && 64BIT)
 	help

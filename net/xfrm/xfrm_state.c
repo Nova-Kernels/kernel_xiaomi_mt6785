@@ -31,16 +31,6 @@
 #define xfrm_state_deref_prot(table, net) \
 	rcu_dereference_protected((table), lockdep_is_held(&(net)->xfrm.xfrm_state_lock))
 
-static char dmsg[128];
-#define format_trace_info()				\
-do {							\
-	int ret;					\
-	memset(dmsg, 0, sizeof(dmsg));			\
-	ret = snprintf(dmsg, sizeof(dmsg) - 1, "%s:%d", __func__, __LINE__);	\
-	if (ret < 0)								\
-		pr_info("[mtk_net][xfrm_state] snprintf return error code :%d\n", ret);	\
-} while (0)
-
 static void xfrm_state_gc_task(struct work_struct *work);
 
 /* Each xfrm_state may be linked to two tables:
@@ -111,9 +101,7 @@ static void xfrm_hash_transfer(struct hlist_head *list,
 			h = __xfrm_spi_hash(&x->id.daddr, x->id.spi,
 					    x->id.proto, x->props.family,
 					    nhashmask);
-			format_trace_info();
 			hlist_add_head_rcu(&x->byspi, nspitable + h);
-			format_trace_info();
 		}
 	}
 }
@@ -578,6 +566,7 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
 	struct xfrm_state *x;
 
 	x = kzalloc(sizeof(struct xfrm_state), GFP_ATOMIC);
+
 	if (x) {
 		write_pnet(&x->xs_net, net);
 		refcount_set(&x->refcnt, 1);
@@ -600,11 +589,6 @@ struct xfrm_state *xfrm_state_alloc(struct net *net)
 		x->inner_mode = NULL;
 		x->inner_mode_iaf = NULL;
 		spin_lock_init(&x->lock);
-		x->xfrm_alloc_trace.count = 0;
-		x->xfrm_free_trace.count = 0;
-		x->xfrm_transfer_trace.count = 0;
-		x->xfrm_find_trace.count = 0;
-		x->xfrm_insert_trace.count = 0;
 	}
 	return x;
 }
@@ -632,9 +616,8 @@ int __xfrm_state_delete(struct xfrm_state *x)
 		list_del(&x->km.all);
 		hlist_del_rcu(&x->bydst);
 		hlist_del_rcu(&x->bysrc);
-		if (x->id.spi) {
+		if (x->id.spi)
 			hlist_del_rcu(&x->byspi);
-		}
 		net->xfrm.state_num--;
 		spin_unlock(&net->xfrm.xfrm_state_lock);
 
@@ -1052,9 +1035,7 @@ found:
 			hlist_add_head_rcu(&x->bysrc, net->xfrm.state_bysrc + h);
 			if (x->id.spi) {
 				h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, encap_family);
-				format_trace_info();
 				hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
-				format_trace_info();
 			}
 			x->lft.hard_add_expires_seconds = net->xfrm.sysctl_acq_expires;
 			tasklet_hrtimer_start(&x->mtimer, ktime_set(net->xfrm.sysctl_acq_expires, 0), HRTIMER_MODE_REL);
@@ -1165,9 +1146,8 @@ static void __xfrm_state_insert(struct xfrm_state *x)
 	if (x->id.spi) {
 		h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto,
 				  x->props.family);
-		format_trace_info();
+
 		hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
-		format_trace_info();
 	}
 
 	tasklet_hrtimer_start(&x->mtimer, ktime_set(1, 0), HRTIMER_MODE_REL);
@@ -1867,9 +1847,7 @@ int xfrm_alloc_spi(struct xfrm_state *x, u32 low, u32 high)
 		spin_lock_bh(&net->xfrm.xfrm_state_lock);
 		x->id.spi = newspi;
 		h = xfrm_spi_hash(net, &x->id.daddr, x->id.spi, x->id.proto, x->props.family);
-		format_trace_info();
 		hlist_add_head_rcu(&x->byspi, net->xfrm.state_byspi + h);
-		format_trace_info();
 		spin_unlock_bh(&net->xfrm.xfrm_state_lock);
 
 		err = 0;

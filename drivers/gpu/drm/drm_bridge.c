@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2014 Samsung Electronics Co., Ltd
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -251,7 +250,6 @@ EXPORT_SYMBOL(drm_bridge_mode_valid);
  */
 void drm_bridge_disable(struct drm_bridge *bridge)
 {
-	pr_info("%s +\n", __func__);
 	if (!bridge)
 		return;
 
@@ -259,7 +257,6 @@ void drm_bridge_disable(struct drm_bridge *bridge)
 
 	if (bridge->funcs->disable)
 		bridge->funcs->disable(bridge);
-	pr_info("%s -\n", __func__);
 }
 EXPORT_SYMBOL(drm_bridge_disable);
 
@@ -275,13 +272,12 @@ EXPORT_SYMBOL(drm_bridge_disable);
  */
 void drm_bridge_post_disable(struct drm_bridge *bridge)
 {
-	pr_info("%s +\n", __func__);
 	if (!bridge)
 		return;
 
 	if (bridge->funcs->post_disable)
 		bridge->funcs->post_disable(bridge);
-	pr_info("%s -\n", __func__);
+
 	drm_bridge_post_disable(bridge->next);
 }
 EXPORT_SYMBOL(drm_bridge_post_disable);
@@ -325,7 +321,6 @@ EXPORT_SYMBOL(drm_bridge_mode_set);
  */
 void drm_bridge_pre_enable(struct drm_bridge *bridge)
 {
-	pr_info("%s +\n", __func__);
 	if (!bridge)
 		return;
 
@@ -333,7 +328,6 @@ void drm_bridge_pre_enable(struct drm_bridge *bridge)
 
 	if (bridge->funcs->pre_enable)
 		bridge->funcs->pre_enable(bridge);
-	pr_info("%s -\n", __func__);
 }
 EXPORT_SYMBOL(drm_bridge_pre_enable);
 
@@ -349,13 +343,12 @@ EXPORT_SYMBOL(drm_bridge_pre_enable);
  */
 void drm_bridge_enable(struct drm_bridge *bridge)
 {
-	pr_info("%s +\n", __func__);
 	if (!bridge)
 		return;
 
 	if (bridge->funcs->enable)
 		bridge->funcs->enable(bridge);
-	pr_info("%s -\n", __func__);
+
 	drm_bridge_enable(bridge->next);
 }
 EXPORT_SYMBOL(drm_bridge_enable);

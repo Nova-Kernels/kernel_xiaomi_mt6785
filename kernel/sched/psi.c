@@ -532,7 +532,6 @@ static u64 update_triggers(struct psi_group *group, u64 now)
 
 		/* Calculate growth since last update */
 		growth = window_update(&t->win, now, total[t->state]);
-
 		if (growth < t->threshold)
 			continue;
 
@@ -541,11 +540,8 @@ static u64 update_triggers(struct psi_group *group, u64 now)
 			continue;
 
 		/* Generate an event */
-		if (cmpxchg(&t->event, 0, 1) == 0) {
-			pr_info("%s: group:%p t:%p triggered!\n",
-				__func__, group, t);
+		if (cmpxchg(&t->event, 0, 1) == 0)
 			wake_up_interruptible(&t->event_wait);
-		}
 		t->last_event_time = now;
 	}
 
@@ -577,11 +573,8 @@ static void psi_schedule_poll_work(struct psi_group *group, unsigned long delay)
 	 * kworker might be NULL in case psi_trigger_destroy races with
 	 * psi_task_change (hotpath) which can't use locks
 	 */
-	if (likely(kworker)) {
-		lockdep_off();
+	if (likely(kworker))
 		kthread_queue_delayed_work(kworker, &group->poll_work, delay);
-		lockdep_on();
-	}
 	else
 		atomic_set(&group->poll_scheduled, 0);
 
@@ -1158,8 +1151,6 @@ void psi_trigger_destroy(struct psi_trigger *t)
 
 		kthread_destroy_worker(kworker_to_destroy);
 	}
-
-	pr_info("update_trigger:%s, old:%p\n", __func__, t);
 	kfree(t);
 }
 
@@ -1178,9 +1169,8 @@ unsigned int psi_trigger_poll(void **trigger_ptr, struct file *file,
 
 	poll_wait(file, &t->event_wait, wait);
 
-	if (cmpxchg(&t->event, 1, 0) == 1) {
+	if (cmpxchg(&t->event, 1, 0) == 1)
 		ret |= POLLPRI;
-	}
 
 	return ret;
 }
@@ -1224,8 +1214,6 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
 
 	smp_store_release(&seq->private, new);
 	mutex_unlock(&seq->lock);
-
-	pr_info("%s: new:%p\n", __func__, new);
 
 	return nbytes;
 }

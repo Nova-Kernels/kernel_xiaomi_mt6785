@@ -106,8 +106,7 @@ IF_HAVE_PG_MLOCK(PG_mlocked,		"mlocked"	)		\
 IF_HAVE_PG_UNCACHED(PG_uncached,	"uncached"	)		\
 IF_HAVE_PG_HWPOISON(PG_hwpoison,	"hwpoison"	)		\
 IF_HAVE_PG_IDLE(PG_young,		"young"		)		\
-IF_HAVE_PG_IDLE(PG_idle,		"idle"		),		\
-	{1UL << PG_iommu,		"iommu"		}
+IF_HAVE_PG_IDLE(PG_idle,		"idle"		)
 
 #define show_page_flags(flags)						\
 	(flags) ? __print_flags(flags, "|",				\

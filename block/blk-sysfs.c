@@ -505,11 +505,6 @@ static ssize_t queue_dax_show(struct request_queue *q, char *page)
 	return queue_var_show(blk_queue_dax(q), page);
 }
 
-static ssize_t queue_inline_crypt_show(struct request_queue *q, char *page)
-{
-	return queue_var_show(blk_queue_inline_crypt(q), page);
-}
-
 static struct queue_sysfs_entry queue_requests_entry = {
 	.attr = {.name = "nr_requests", .mode = S_IRUGO | S_IWUSR },
 	.show = queue_requests_show,
@@ -644,7 +639,7 @@ static struct queue_sysfs_entry queue_rq_affinity_entry = {
 };
 
 static struct queue_sysfs_entry queue_iostats_entry = {
-	.attr = {.name = "iostats", .mode = S_IRUGO },
+	.attr = {.name = "iostats", .mode = S_IRUGO | S_IWUSR },
 	.show = queue_show_iostats,
 	.store = queue_store_iostats,
 };
@@ -665,11 +660,6 @@ static struct queue_sysfs_entry queue_poll_delay_entry = {
 	.attr = {.name = "io_poll_delay", .mode = S_IRUGO | S_IWUSR },
 	.show = queue_poll_delay_show,
 	.store = queue_poll_delay_store,
-};
-
-static struct queue_sysfs_entry queue_inline_crypt_entry = {
-	.attr = {.name = "inline_crypt", .mode = S_IRUGO },
-	.show = queue_inline_crypt_show,
 };
 
 static struct queue_sysfs_entry queue_wc_entry = {
@@ -730,7 +720,6 @@ static struct attribute *default_attrs[] = {
 	&queue_dax_entry.attr,
 	&queue_wb_lat_entry.attr,
 	&queue_poll_delay_entry.attr,
-	&queue_inline_crypt_entry.attr,
 #ifdef CONFIG_BLK_DEV_THROTTLING_LOW
 	&throtl_sample_time_entry.attr,
 #endif

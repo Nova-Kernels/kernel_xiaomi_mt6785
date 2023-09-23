@@ -125,11 +125,9 @@ endmenu
 endif # BLOCK
 
 if BLOCK
-menu "DOS/FAT/EXFAT/NT Filesystems"
+menu "DOS/FAT/NT Filesystems"
 
 source "fs/fat/Kconfig"
-source "fs/exfat/Kconfig"
-source "fs/sdfat/Kconfig"
 source "fs/ntfs/Kconfig"
 
 endmenu
@@ -314,13 +312,5 @@ endif # NETWORK_FILESYSTEMS
 source "fs/nls/Kconfig"
 source "fs/dlm/Kconfig"
 source "fs/unicode/Kconfig"
-
-config BLOCK_UNWANTED_APPS
-	bool "Enable blocking of unwanted apps"
-	depends on ANDROID
-	help
-	   This option allows you to block a set of apps/binaries (by name)
-	   from running on devices with your kernel installed. May be useful
-	   if your users are uneducated.
 
 endmenu

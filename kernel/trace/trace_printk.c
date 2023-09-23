@@ -190,11 +190,6 @@ void trace_printk_control(bool enabled)
 	trace_printk_enabled = enabled;
 }
 
-#if defined(CONFIG_DISABLE_TRACE_PRINTK)
-void trace_printk(const char *fmt, ...) { }
-EXPORT_SYMBOL_GPL(trace_printk);
-#endif
-
 __initdata_or_module static
 struct notifier_block module_trace_bprintk_format_nb = {
 	.notifier_call = module_trace_bprintk_format_notify,
@@ -309,7 +304,7 @@ static int t_show(struct seq_file *m, void *v)
 	if (!*fmt)
 		return 0;
 
-	seq_printf(m, "0x%pK : \"", *(void **)fmt);
+	seq_printf(m, "0x%lx : \"", *(unsigned long *)fmt);
 
 	/*
 	 * Tabs and new lines need to be converted.

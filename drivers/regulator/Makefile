@@ -3,9 +3,6 @@
 # Makefile for regulator drivers.
 #
 
-ifeq ($(CONFIG_MTK_GCOV_KERNEL),y)
-GCOV_PROFILE_mt6359p-regulator.o := y
-endif
 
 obj-$(CONFIG_REGULATOR) += core.o dummy.o fixed-helper.o helpers.o devres.o
 obj-$(CONFIG_OF) += of_regulator.o
@@ -40,7 +37,6 @@ obj-$(CONFIG_REGULATOR_DA9211) += da9211-regulator.o
 obj-$(CONFIG_REGULATOR_DBX500_PRCMU) += dbx500-prcmu.o
 obj-$(CONFIG_REGULATOR_DB8500_PRCMU) += db8500-prcmu.o
 obj-$(CONFIG_REGULATOR_FAN53555) += fan53555.o
-obj-$(CONFIG_REGULATOR_PM8008) += pm8008.o
 obj-$(CONFIG_REGULATOR_GPIO) += gpio-regulator.o
 obj-$(CONFIG_REGULATOR_HI6421) += hi6421-regulator.o
 obj-$(CONFIG_REGULATOR_HI6421V530) += hi6421v530-regulator.o
@@ -76,14 +72,8 @@ obj-$(CONFIG_REGULATOR_MC13783) += mc13783-regulator.o
 obj-$(CONFIG_REGULATOR_MC13892) += mc13892-regulator.o
 obj-$(CONFIG_REGULATOR_MC13XXX_CORE) +=  mc13xxx-regulator-core.o
 obj-$(CONFIG_REGULATOR_MT6311) += mt6311-regulator.o
-obj-$(CONFIG_REGULATOR_MT6315) += mt6315-regulator.o mt6315-misc.o
 obj-$(CONFIG_REGULATOR_MT6323)	+= mt6323-regulator.o
-obj-$(CONFIG_REGULATOR_MT6358)	+= mt6358-regulator.o
-obj-$(CONFIG_REGULATOR_MT6359)	+= mt6359-regulator.o
-obj-$(CONFIG_REGULATOR_MT6359P)	+= mt6359p-regulator.o
-obj-$(CONFIG_REGULATOR_MT6362) += mt6362-regulator.o
 obj-$(CONFIG_REGULATOR_MT6380)	+= mt6380-regulator.o
-obj-$(CONFIG_REGULATOR_MT6392)	+= mt6392-regulator.o
 obj-$(CONFIG_REGULATOR_MT6397)	+= mt6397-regulator.o
 obj-$(CONFIG_REGULATOR_QCOM_RPM) += qcom_rpm-regulator.o
 obj-$(CONFIG_REGULATOR_QCOM_SMD_RPM) += qcom_smd-regulator.o
@@ -132,6 +122,6 @@ obj-$(CONFIG_REGULATOR_WM831X) += wm831x-ldo.o
 obj-$(CONFIG_REGULATOR_WM8350) += wm8350-regulator.o
 obj-$(CONFIG_REGULATOR_WM8400) += wm8400-regulator.o
 obj-$(CONFIG_REGULATOR_WM8994) += wm8994-regulator.o
-obj-$(CONFIG_REGULATOR_FAN53870) += fan53870.o
+
 
 ccflags-$(CONFIG_REGULATOR_DEBUG) += -DDEBUG

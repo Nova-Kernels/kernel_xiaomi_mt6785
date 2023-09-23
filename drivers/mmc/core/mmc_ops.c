@@ -428,46 +428,6 @@ static int mmc_switch_status_error(struct mmc_host *host, u32 status)
 	return 0;
 }
 
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-/**
- *	mmc_prepare_switch - helper; prepare to modify EXT_CSD register
- *	@card: the MMC card associated with the data transfer
- *	@set: cmd set values
- *	@index: EXT_CSD register index
- *	@value: value to program into EXT_CSD register
- *	@tout_ms: timeout (ms) for operation performed by register write,
- *                   timeout of zero implies maximum possible timeout
- *	@use_busy_signal: use the busy signal as response type
- *
- *	Helper to prepare to modify EXT_CSD register for selected card.
- */
-static inline void mmc_prepare_switch(struct mmc_command *cmd, u8 index,
-				      u8 value, u8 set, unsigned int tout_ms,
-				      bool use_busy_signal)
-{
-	cmd->opcode = MMC_SWITCH;
-	cmd->arg = (MMC_SWITCH_MODE_WRITE_BYTE << 24) |
-		  (index << 16) |
-		  (value << 8) |
-		  set;
-	cmd->flags = MMC_CMD_AC;
-	cmd->busy_timeout = tout_ms;
-	if (use_busy_signal)
-		cmd->flags |= MMC_RSP_SPI_R1B | MMC_RSP_R1B;
-	else
-		cmd->flags |= MMC_RSP_SPI_R1 | MMC_RSP_R1;
-}
-
-int __mmc_switch_cmdq_mode(struct mmc_command *cmd, u8 set, u8 index, u8 value,
-			   unsigned int timeout_ms, bool use_busy_signal,
-			   bool ignore_timeout)
-{
-	mmc_prepare_switch(cmd, index, value, set, timeout_ms, use_busy_signal);
-	return 0;
-}
-EXPORT_SYMBOL(__mmc_switch_cmdq_mode);
-#endif
-
 /* Caller must hold re-tuning */
 int __mmc_switch_status(struct mmc_card *card, bool crc_err_fatal)
 {
@@ -1073,33 +1033,20 @@ int mmc_flush_cache(struct mmc_card *card)
 }
 EXPORT_SYMBOL(mmc_flush_cache);
 
-#ifdef CONFIG_MTK_EMMC_HW_CQ
-int mmc_discard_queue(struct mmc_host *host, u32 tasks)
-{
-	struct mmc_command cmd = {0};
-
-	cmd.opcode = MMC_CMDQ_TASK_MGMT;
-	if (tasks) {
-		cmd.arg = DISCARD_TASK;
-		cmd.arg |= (tasks << 16);
-	} else {
-		cmd.arg = DISCARD_QUEUE;
-	}
-
-	cmd.flags = MMC_RSP_R1B | MMC_CMD_AC;
-
-	return mmc_wait_for_cmd(host, &cmd, 0);
-}
-EXPORT_SYMBOL(mmc_discard_queue);
-#endif
-
 static int mmc_cmdq_switch(struct mmc_card *card, bool enable)
 {
-#if defined(CONFIG_MTK_EMMC_CQ_SUPPORT) || defined(CONFIG_MTK_EMMC_HW_CQ)
-	return mmc_blk_cmdq_switch(card, enable);
-#else
-	return 0;
-#endif
+	u8 val = enable ? EXT_CSD_CMDQ_MODE_ENABLED : 0;
+	int err;
+
+	if (!card->ext_csd.cmdq_support)
+		return -EOPNOTSUPP;
+
+	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_CMDQ_MODE_EN,
+			 val, card->ext_csd.generic_cmd6_time);
+	if (!err)
+		card->ext_csd.cmdq_en = enable;
+
+	return err;
 }
 
 int mmc_cmdq_enable(struct mmc_card *card)

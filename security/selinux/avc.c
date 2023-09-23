@@ -129,7 +129,6 @@ static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
 	return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
 }
 
-#ifdef CONFIG_AUDIT
 /**
  * avc_dump_av - Display an access vector in human-readable form.
  * @tclass: target security class
@@ -198,7 +197,6 @@ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
 	BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
 	audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
 }
-#endif
 
 /**
  * avc_init - Initialize the AVC.
@@ -492,7 +490,6 @@ static inline int avc_xperms_audit(struct selinux_state *state,
 				   u8 perm, int result,
 				   struct common_audit_data *ad)
 {
-#ifdef CONFIG_AUDIT
 	u32 audited, denied;
 
 	audited = avc_xperms_audit_required(
@@ -501,9 +498,6 @@ static inline int avc_xperms_audit(struct selinux_state *state,
 		return 0;
 	return slow_avc_audit(state, ssid, tsid, tclass, requested,
 			audited, denied, result, ad, 0);
-#else
-	return 0;
-#endif
 }
 
 static void avc_node_free(struct rcu_head *rhead)
@@ -696,41 +690,43 @@ static struct avc_node *avc_insert(struct selinux_avc *avc,
 	struct avc_node *pos, *node = NULL;
 	int hvalue;
 	unsigned long flag;
-	spinlock_t *lock;
-	struct hlist_head *head;
 
 	if (avc_latest_notif_update(avc, avd->seqno, 1))
-		return NULL;
+		goto out;
 
 	node = avc_alloc_node(avc);
-	if (!node)
-		return NULL;
+	if (node) {
+		struct hlist_head *head;
+		spinlock_t *lock;
+		int rc = 0;
 
-	avc_node_populate(node, ssid, tsid, tclass, avd);
-	if (avc_xperms_populate(node, xp_node)) {
-		avc_node_kill(avc, node);
-		return NULL;
-	}
-
-	hvalue = avc_hash(ssid, tsid, tclass);
-	head = &avc->avc_cache.slots[hvalue];
-	lock = &avc->avc_cache.slots_lock[hvalue];
-	spin_lock_irqsave(lock, flag);
-	hlist_for_each_entry(pos, head, list) {
-		if (pos->ae.ssid == ssid &&
-			pos->ae.tsid == tsid &&
-			pos->ae.tclass == tclass) {
-			avc_node_replace(avc, node, pos);
-			goto found;
+		hvalue = avc_hash(ssid, tsid, tclass);
+		avc_node_populate(node, ssid, tsid, tclass, avd);
+		rc = avc_xperms_populate(node, xp_node);
+		if (rc) {
+			kmem_cache_free(avc_node_cachep, node);
+			return NULL;
 		}
-	}
-	hlist_add_head_rcu(&node->list, head);
+		head = &avc->avc_cache.slots[hvalue];
+		lock = &avc->avc_cache.slots_lock[hvalue];
+
+		spin_lock_irqsave(lock, flag);
+		hlist_for_each_entry(pos, head, list) {
+			if (pos->ae.ssid == ssid &&
+			    pos->ae.tsid == tsid &&
+			    pos->ae.tclass == tclass) {
+				avc_node_replace(avc, node, pos);
+				goto found;
+			}
+		}
+		hlist_add_head_rcu(&node->list, head);
 found:
-	spin_unlock_irqrestore(lock, flag);
+		spin_unlock_irqrestore(lock, flag);
+	}
+out:
 	return node;
 }
 
-#ifdef CONFIG_AUDIT
 /**
  * avc_audit_pre_callback - SELinux specific information
  * will be called by generic audit code
@@ -764,23 +760,6 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 	if (ad->selinux_audit_data->denied) {
 		audit_log_format(ab, " permissive=%u",
 				 ad->selinux_audit_data->result ? 0 : 1);
-#ifdef CONFIG_MTK_SELINUX_AEE_WARNING
-		{
-			struct nlmsghdr *nlh;
-			char *selinux_data;
-
-			if (enforcing_enabled(ad->selinux_audit_data->state)
-					&& ab) {
-				nlh = nlmsg_hdr(audit_get_skb(ab));
-				selinux_data = nlmsg_data(nlh);
-
-				if (mtk_audit_hook
-						&& nlh->nlmsg_type != AUDIT_EOE
-						&& nlh->nlmsg_type == 1400)
-					mtk_audit_hook(selinux_data);
-			}
-		}
-#endif
 	}
 }
 
@@ -824,7 +803,6 @@ noinline int slow_avc_audit(struct selinux_state *state,
 	common_lsm_audit(a, avc_audit_pre_callback, avc_audit_post_callback);
 	return 0;
 }
-#endif
 
 /**
  * avc_add_callback - Register a callback for security events.
