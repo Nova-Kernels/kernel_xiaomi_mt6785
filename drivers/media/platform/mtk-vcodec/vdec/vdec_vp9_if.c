@@ -222,12 +222,12 @@ static struct vdec_fb *vp9_rm_from_fb_use_list(struct vdec_vp9_inst
 	list_for_each_entry(node, &inst->fb_use_list, list) {
 		fb = (struct vdec_fb *)node->fb;
 		if (fb->base_y.va == addr) {
-			list_move_tail(&node->list,
-				&inst->available_fb_node_list);
-			break;
+			list_move_tail(&node->list,&inst->available_fb_node_list);
+			return fb;
 		}
 	}
-	return fb;
+
+	return NULL;
 }
 
 static void vp9_add_to_fb_free_list(struct vdec_vp9_inst *inst,
