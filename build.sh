@@ -51,6 +51,7 @@ if [[ $1 = "-b" || $1 = "--build" ]]; then
 	export USE_HOST_LEX=yes
 	mkdir -p out
 	make O=out CROSS_COMPILE=aarch64-linux-gnu- LLVM=1 $DEFCONFIG
+	exec 2> >(tee -a out/error.log >&2)
 	echo -e ""
 	echo -e ""
 	echo -e "*****************************"
