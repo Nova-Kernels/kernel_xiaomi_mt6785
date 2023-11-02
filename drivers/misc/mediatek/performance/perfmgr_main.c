@@ -39,7 +39,7 @@ struct platform_device perfmgr_device = {
 
 static int perfmgr_suspend(struct device *dev)
 {
-#if defined(CONFIG_MTK_PERFMGR_TOUCH_BOOST) && !(defined(CONFIG_MTK_FPSGO) || defined(CONFIG_MTK_FPSGO_V3))
+#ifdef CONFIG_MTK_PERFMGR_TOUCH_BOOST
 	ktch_suspend();
 #endif
 	return 0;
