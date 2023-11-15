@@ -9,6 +9,6 @@ config MTK_VIBRATOR
 
 config THUNDERQUAKE_ENGINE_GPL
 	tristate "Vibrator Intensity Controller for MTK Vibrator"
-	default n
+	default y
 	  ---help---
-	  Vibrator Intensity Controller for MTK Vibrator v1.0
+	  Vibrator Intensity Controller for MTK Vibrator v1.1

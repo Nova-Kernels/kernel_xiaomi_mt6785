@@ -1,5 +1,7 @@
 /*
- * Copyright ï¿½ 2014, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
+ * Copyright © 2014, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
+ *
+ * Copyright 2021, Driver modified by 7Soldier
  *
  * Vibration Intensity Controller for MTK Vibrator
  *
@@ -15,6 +17,14 @@
  * Please preserve this licence and driver name if you implement this
  * anywhere else.
  *
+ *
+ * Changelog:
+ *
+ * v1.1 - Adaptation to 4.14 kernels (by 7Soldier)
+ *
+ * v1.0 - Initial build
+ *
+ *
  */
 
 #include <linux/module.h>
@@ -25,15 +35,16 @@
 
 #include <vibrator.h>
 #include <vibrator_hal.h>
+
+#ifdef CONFIG_MTK_PMIC_NEW_ARCH
 #include <mt-plat/upmu_common.h>
+#endif
 
 #define MAX_VIBR 9
 #define MIN_VIBR 0
 
 #define ENGINE_VERSION  1
-#define ENGINE_VERSION_SUB 0
-
-extern unsigned short pmic_set_register_value(PMU_FLAGS_LIST_ENUM flagname, uint32_t val);
+#define ENGINE_VERSION_SUB 1
 
 static ssize_t vibr_vtg_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
@@ -50,7 +61,7 @@ static ssize_t vibr_vtg_store(struct kobject *kobj, struct kobj_attribute *attr,
 	if(val>=MIN_VIBR && val <=MAX_VIBR) {
 		pmic_set_register_value(PMIC_RG_VIBR_VOSEL, val);
 		hw->vib_vol=val;
-	}
+    }
 
 	return count;
 }
@@ -58,16 +69,6 @@ static ssize_t vibr_vtg_store(struct kobject *kobj, struct kobj_attribute *attr,
 static ssize_t thunderquake_version_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
 {
 	return sprintf(buf, "version: %u.%u\n", ENGINE_VERSION, ENGINE_VERSION_SUB);
-}
-
-static ssize_t min_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
-{
-	return sprintf(buf, "%d\n", MIN_VIBR);
-}
-
-static ssize_t max_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
-{
-	return sprintf(buf, "%d\n", MAX_VIBR);
 }
 
 static struct kobj_attribute thunderquake_version_attribute =
@@ -80,24 +81,10 @@ static struct kobj_attribute thunderquake_level_attribute =
 		0664,
 		vibr_vtg_show, vibr_vtg_store);
 
-static struct kobj_attribute thunderquake_min_attribute =
-	__ATTR(min,
-		0444,
-		min_show, NULL);
-
-
-static struct kobj_attribute thunderquake_max_attribute =
-	__ATTR(max,
-		0444,
-		max_show, NULL);
-
-
 static struct attribute *thunderquake_engine_attrs[] =
 	{
 		&thunderquake_level_attribute.attr,
 		&thunderquake_version_attribute.attr,
-		&thunderquake_max_attribute.attr,
-		&thunderquake_min_attribute.attr,
 		NULL,
 	};
 
@@ -120,7 +107,7 @@ static int vibr_level_control_init(void)
 		pr_err("%s Interface create failed!\n",
 			__FUNCTION__);
 		return -ENOMEM;
-	}
+        }
 
 	sysfs_result = sysfs_create_group(vibr_level_control_kobj,
 			&vibr_level_control_attr_group);
