@@ -204,30 +204,30 @@ static void mtk_aal_write_mask(void __iomem *address, u32 data, u32 mask)
 }
 #endif
 
-#define AALERR(fmt, arg...) pr_notice("[ERR]%s:" fmt, __func__, ##arg)
+#define AALERR(fmt, arg...) pr_debug("[ERR]%s:" fmt, __func__, ##arg)
 
 static bool debug_flow_log;
 #define AALFLOW_LOG(fmt, arg...) do { \
 	if (debug_flow_log) \
-		pr_notice("[FLOW]%s:" fmt, __func__, ##arg); \
+		pr_debug("[FLOW]%s:" fmt, __func__, ##arg); \
 	} while (0)
 
 static bool debug_api_log;
 #define AALAPI_LOG(fmt, arg...) do { \
 	if (debug_api_log) \
-		pr_notice("[API]%s:" fmt, __func__, ##arg); \
+		pr_debug("[API]%s:" fmt, __func__, ##arg); \
 	} while (0)
 
 static bool debug_write_cmdq_log;
 #define AALWC_LOG(fmt, arg...) do { \
 	if (debug_write_cmdq_log) \
-		pr_notice("[WC]%s:" fmt, __func__, ##arg); \
+		pr_debug("[WC]%s:" fmt, __func__, ##arg); \
 	} while (0)
 
 static bool debug_irq_log;
 #define AALIRQ_LOG(fmt, arg...) do { \
 	if (debug_irq_log) \
-		pr_notice("[IRQ]%s:" fmt, __func__, ##arg); \
+		pr_debug("[IRQ]%s:" fmt, __func__, ##arg); \
 	} while (0)
 
 /* config register which might have extra DRE3 aal hw */
@@ -268,21 +268,21 @@ static int disp_aal_get_cust_led(void)
 	"mediatek,lcd-backlight");
 	if (!led_node) {
 		ret = -1;
-		pr_notice("Cannot find LED node from dts\n");
+		pr_debug("Cannot find LED node from dts\n");
 	} else {
 		ret = of_property_read_u32(led_node, "led_mode", &led_mode);
 		if (!ret)
 			atomic_set(&g_led_mode, led_mode);
 		else
-			pr_notice("led dts can not get led mode data.\n");
+			pr_debug("led dts can not get led mode data.\n");
 
 		ret = of_property_read_u32_array(led_node,
 	    "pwm_config", pwm_config, ARRAY_SIZE(pwm_config));
 	}
 
 	if (ret)
-		pr_notice("get pwm cust info fail\n");
-	pr_notice("%s mode=%u\n", __func__, atomic_read(&g_led_mode));
+		pr_debug("get pwm cust info fail\n");
+	pr_debug("%s mode=%u\n", __func__, atomic_read(&g_led_mode));
 
 	return ret;
 }
@@ -362,16 +362,16 @@ static void disp_aal_notify_backlight_log(int bl_1024)
 	diff_mesc = timevaldiff(&g_aal_log_prevtime, &aal_time);
 	if (!debug_api_log)
 		return;
-	pr_notice("time diff = %lu\n", diff_mesc);
+	pr_debug("time diff = %lu\n", diff_mesc);
 
 	if (diff_mesc > LOG_INTERVAL_TH) {
 		if (g_aal_log_index == 0) {
-			pr_notice("%s: %d/1023\n", __func__, bl_1024);
+			pr_debug("%s: %d/1023\n", __func__, bl_1024);
 		} else {
 			sprintf(g_aal_log_buffer + strlen(g_aal_log_buffer),
 				"%s, %d/1023 %03lu.%03lu", __func__,
 				bl_1024, tsec, tusec);
-			pr_notice("%s\n", g_aal_log_buffer);
+			pr_debug("%s\n", g_aal_log_buffer);
 			g_aal_log_index = 0;
 		}
 	} else {
@@ -388,7 +388,7 @@ static void disp_aal_notify_backlight_log(int bl_1024)
 		}
 
 		if ((g_aal_log_index >= LOG_BUFFER_SIZE) || (bl_1024 == 0)) {
-			pr_notice("%s\n", g_aal_log_buffer);
+			pr_debug("%s\n", g_aal_log_buffer);
 			g_aal_log_index = 0;
 		}
 	}
@@ -773,33 +773,33 @@ void dump_hist(struct DISP_AAL_HIST *data)
 {
 	int i = 0;
 
-	pr_notice("maxHist:\n");
+	pr_debug("maxHist:\n");
 	for (i = 0; i < 3; i++) {
-		pr_notice("%d %d %d %d %d %d %d %d %d %d",
+		pr_debug("%d %d %d %d %d %d %d %d %d %d",
 			data->maxHist[i*10 + 0], data->maxHist[i*10 + 1],
 			data->maxHist[i*10 + 2], data->maxHist[i*10 + 3],
 			data->maxHist[i*10 + 4], data->maxHist[i*10 + 5],
 			data->maxHist[i*10 + 6], data->maxHist[i*10 + 7],
 			data->maxHist[i*10 + 9], data->maxHist[i*10 + 9]);
 	}
-	pr_notice("%d %d %d", data->maxHist[30], data->maxHist[31],
+	pr_debug("%d %d %d", data->maxHist[30], data->maxHist[31],
 			data->maxHist[32]);
-	pr_notice("yHist:\n");
+	pr_debug("yHist:\n");
 	for (i = 0; i < 3; i++) {
-		pr_notice("%d %d %d %d %d %d %d %d %d %d",
+		pr_debug("%d %d %d %d %d %d %d %d %d %d",
 			data->yHist[i*10 + 0], data->yHist[i*10 + 1],
 			data->yHist[i*10 + 2], data->yHist[i*10 + 3],
 			data->yHist[i*10 + 4], data->yHist[i*10 + 5],
 			data->yHist[i*10 + 6], data->yHist[i*10 + 7],
 			data->yHist[i*10 + 9], data->yHist[i*10 + 9]);
 	}
-	pr_notice("%d %d %d", data->yHist[30], data->yHist[31],
+	pr_debug("%d %d %d", data->yHist[30], data->yHist[31],
 			data->yHist[32]);
-	pr_notice("serviceFlags:%u, backlight: %d, colorHist: %d\n",
+	pr_debug("serviceFlags:%u, backlight: %d, colorHist: %d\n",
 			data->serviceFlags, data->backlight, data->colorHist);
-	pr_notice("requestPartial:%d, panel_type: %u\n",
+	pr_debug("requestPartial:%d, panel_type: %u\n",
 			data->requestPartial, data->panel_type);
-	pr_notice("essStrengthIndex:%d, ess_enable: %d, dre_enable: %d\n",
+	pr_debug("essStrengthIndex:%d, ess_enable: %d, dre_enable: %d\n",
 			data->essStrengthIndex, data->ess_enable,
 			data->dre_enable);
 }
@@ -942,7 +942,7 @@ static int disp_aal_write_init_regs(struct mtk_ddp_comp *comp,
 	return ret;
 }
 
-#define PRINT_INIT_REG(x1) pr_notice("[INIT]%s=0x%x\n", #x1, data->x1)
+#define PRINT_INIT_REG(x1) pr_debug("[INIT]%s=0x%x\n", #x1, data->x1)
 void dump_init_reg(struct DISP_AAL_INITREG *data)
 {
 	PRINT_INIT_REG(dre_s_lower);
@@ -1144,9 +1144,9 @@ void dump_param(const struct DISP_AAL_PARAM *param)
 {
 	int i = 0;
 
-	pr_notice("DREGainFltStatus: ");
+	pr_debug("DREGainFltStatus: ");
 	for (i = 0; i < 2; i++) {
-		pr_notice("%d %d %d %d %d %d %d %d %d %d",
+		pr_debug("%d %d %d %d %d %d %d %d %d %d",
 		param->DREGainFltStatus[i*10 + 0],
 		param->DREGainFltStatus[i*10 + 1],
 		param->DREGainFltStatus[i*10 + 2],
@@ -1158,16 +1158,16 @@ void dump_param(const struct DISP_AAL_PARAM *param)
 		param->DREGainFltStatus[i*10 + 8],
 		param->DREGainFltStatus[i*10 + 9]);
 	}
-	pr_notice("%d %d %d %d %d %d %d %d %d",
+	pr_debug("%d %d %d %d %d %d %d %d %d",
 		param->DREGainFltStatus[20], param->DREGainFltStatus[21],
 		param->DREGainFltStatus[22], param->DREGainFltStatus[23],
 		param->DREGainFltStatus[24], param->DREGainFltStatus[25],
 		param->DREGainFltStatus[26], param->DREGainFltStatus[27],
 		param->DREGainFltStatus[28]);
 
-	pr_notice("cabc_gainlmt: ");
+	pr_debug("cabc_gainlmt: ");
 	for (i = 0; i < 3; i++) {
-		pr_notice("%d %d %d %d %d %d %d %d %d %d",
+		pr_debug("%d %d %d %d %d %d %d %d %d %d",
 		param->cabc_gainlmt[i*10 + 0],
 		param->cabc_gainlmt[i*10 + 1],
 		param->cabc_gainlmt[i*10 + 2],
@@ -1179,13 +1179,13 @@ void dump_param(const struct DISP_AAL_PARAM *param)
 		param->cabc_gainlmt[i*10 + 8],
 		param->cabc_gainlmt[i*10 + 9]);
 	}
-	pr_notice("%d %d %d",
+	pr_debug("%d %d %d",
 		param->cabc_gainlmt[30], param->cabc_gainlmt[31],
 		param->cabc_gainlmt[32]);
 
-	pr_notice("cabc_fltgain_force: %d, FinalBacklight: %d",
+	pr_debug("cabc_fltgain_force: %d, FinalBacklight: %d",
 		param->cabc_fltgain_force, param->FinalBacklight);
-	pr_notice("allowPartial: %d, refreshLatency: %d",
+	pr_debug("allowPartial: %d, refreshLatency: %d",
 		param->allowPartial, param->refreshLatency);
 }
 
@@ -1202,7 +1202,7 @@ int disp_aal_set_param(struct mtk_ddp_comp *comp, struct cmdq_pkt *handle,
 	do_gettimeofday(&end);
 	time_use = (end.tv_sec-start.tv_sec) * 1000000
 		+ (end.tv_usec-start.tv_usec);
-	//pr_notice("set_param time_use is %lu us\n",time_use);
+	//pr_debug("set_param time_use is %lu us\n",time_use);
 	// tbd. to be fixd
 	if (time_use < 260) {
 		// Workaround for 120hz rotation,do not let
@@ -1228,12 +1228,12 @@ int disp_aal_set_param(struct mtk_ddp_comp *comp, struct cmdq_pkt *handle,
 }
 
 #define PRINT_AAL_REG(x1, x2, x3, x4) \
-	pr_notice("[2]0x%x=0x%x 0x%x=0x%x 0x%x=0x%x 0x%x=0x%x\n", \
+	pr_debug("[2]0x%x=0x%x 0x%x=0x%x 0x%x=0x%x 0x%x=0x%x\n", \
 		x1, readl(comp->regs + x1), x2, readl(comp->regs + x2), \
 		x3, readl(comp->regs + x3), x4, readl(comp->regs + x4))
 
 #define PRINT_AAL3_REG(x1, x2, x3, x4) \
-	pr_notice("[3]0x%x=0x%x 0x%x=0x%x 0x%x=0x%x 0x%x=0x%x\n", \
+	pr_debug("[3]0x%x=0x%x 0x%x=0x%x 0x%x=0x%x 0x%x=0x%x\n", \
 		x1, readl(dre3_va + x1), x2, readl(dre3_va + x2), \
 		x3, readl(dre3_va + x3), x4, readl(dre3_va + x4))
 bool dump_reg(struct mtk_ddp_comp *comp, bool locked)
@@ -1286,7 +1286,7 @@ int mtk_drm_ioctl_aal_set_param(struct drm_device *dev, void *data,
 	bool delay_refresh = false;
 
 	if (debug_skip_set_param) {
-		pr_notice("skip_set_param for debug\n");
+		pr_debug("skip_set_param for debug\n");
 		return ret;
 	}
 	/* Not need to protect g_aal_param, */
@@ -1496,7 +1496,7 @@ static bool disp_aal_read_dre3(struct mtk_ddp_comp *comp,
 		g_aal_dre30_hist.dre_hist[arry_offset++] = read_value;
 	}
 	if (dump_start >= 0)
-		pr_notice("[DRE3][HIST][%d-%d] %08x %08x %08x %08x %08x %08x\n",
+		pr_debug("[DRE3][HIST][%d-%d] %08x %08x %08x %08x %08x %08x\n",
 			dump_blk_x, dump_blk_y,
 			dump_table[0], dump_table[1], dump_table[2],
 			dump_table[3], dump_table[4], dump_table[5]);
@@ -1589,7 +1589,7 @@ static void disp_aal_dre3_irq_handle(struct mtk_ddp_comp *comp)
 		debug_dump_reg_irq = !dump_reg(comp, true);
 
 	if (debug_skip_dre3_irq) {
-		pr_notice("skip dre3 irq for debug\n");
+		pr_debug("skip dre3 irq for debug\n");
 		return;
 	}
 
@@ -1843,12 +1843,12 @@ static int disp_aal_wait_size(unsigned long timeout)
 	if (g_aal_get_size_available == false) {
 		ret = wait_event_interruptible(g_aal_size_wq,
 		g_aal_get_size_available == true);
-		pr_notice("size_available = 1, Waken up, ret = %d\n",
+		pr_debug("size_available = 1, Waken up, ret = %d\n",
 			ret);
 	} else {
 		/* If g_aal_get_size_available is already set, */
 		/* means AALService was delayed */
-		pr_notice("size_available = 0\n");
+		pr_debug("size_available = 0\n");
 	}
 	return ret;
 }
@@ -2340,36 +2340,36 @@ static int mtk_disp_aal_probe(struct platform_device *pdev)
 		dre3_dev_node = of_parse_phandle(
 			pdev->dev.of_node, "aal_dre3", 0);
 		if (dre3_dev_node)
-			pr_notice("found dre3 aal node, it's another hw\n");
+			pr_debug("found dre3 aal node, it's another hw\n");
 		else
 			break;
 		dre3_pdev = of_find_device_by_node(dre3_dev_node);
 		if (dre3_pdev)
-			pr_notice("found dre3 aal device, it's another hw\n");
+			pr_debug("found dre3 aal device, it's another hw\n");
 		else
 			break;
 		of_node_put(dre3_dev_node);
 		priv->dre3_hw.dev = &dre3_pdev->dev;
 		priv->dre3_hw.va = of_iomap(dre3_pdev->dev.of_node, 0);
 		if (!priv->dre3_hw.va) {
-			pr_notice("cannot found allocate dre3 va!\n");
+			pr_debug("cannot found allocate dre3 va!\n");
 			break;
 		}
 		ret = of_address_to_resource(
 			dre3_pdev->dev.of_node, 0, &dre3_res);
 		if (ret) {
-			pr_notice("cannot found allocate dre3 resource!\n");
+			pr_debug("cannot found allocate dre3 resource!\n");
 			break;
 		}
 		priv->dre3_hw.pa = dre3_res.start;
 		priv->dre3_hw.clk = of_clk_get_by_name(
 			dre3_dev_node, "DRE3_AAL0");
 		if (IS_ERR(priv->dre3_hw.clk)) {
-			pr_notice("fail @ dre3 clock. name:%s\n",
+			pr_debug("fail @ dre3 clock. name:%s\n",
 				"DRE3_AAL0");
 			break;
 		}
-		pr_notice("dre3 dev:%p va:%p pa:%pa", priv->dre3_hw.dev,
+		pr_debug("dre3 dev:%p va:%p pa:%pa", priv->dre3_hw.dev,
 			priv->dre3_hw.va, &priv->dre3_hw.pa);
 	} while (0);
 #endif
@@ -2542,77 +2542,77 @@ void disp_aal_set_dre_en(int enable)
 
 void disp_aal_debug(const char *opt)
 {
-	pr_notice("[debug]: %s\n", opt);
+	pr_debug("[debug]: %s\n", opt);
 	if (strncmp(opt, "setparam:", 9) == 0) {
 		debug_skip_set_param = strncmp(opt + 9, "skip", 4) == 0;
-		pr_notice("[debug] skip_set_param=%d\n",
+		pr_debug("[debug] skip_set_param=%d\n",
 			debug_skip_set_param);
 	} else if (strncmp(opt, "dre3irq:", 8) == 0) {
 		debug_skip_dre3_irq = strncmp(opt + 8, "skip", 4) == 0;
-		pr_notice("[debug] skip_dre3_irq=%d\n",
+		pr_debug("[debug] skip_dre3_irq=%d\n",
 			debug_skip_dre3_irq);
 	} else if (strncmp(opt, "dre3algmode:", 12) == 0) {
 		debug_bypass_alg_mode = strncmp(opt + 12, "bypass", 6) == 0;
-		pr_notice("[debug] bypass_alg_mode=%d\n",
+		pr_debug("[debug] bypass_alg_mode=%d\n",
 			debug_bypass_alg_mode);
 	} else if (strncmp(opt, "dumpregirq", 10) == 0) {
 		debug_dump_reg_irq = true;
-		pr_notice("[debug] debug_dump_reg_irq=%d\n",
+		pr_debug("[debug] debug_dump_reg_irq=%d\n",
 			debug_dump_reg_irq);
 	} else if (strncmp(opt, "dumpdre3hist:", 13) == 0) {
 		if (sscanf(opt + 13, "%d %d",
 			&dump_blk_x, &dump_blk_y) == 2)
-			pr_notice("[debug] dump_blk_x=%d dump_blk_y=%d\n",
+			pr_debug("[debug] dump_blk_x=%d dump_blk_y=%d\n",
 				dump_blk_x, dump_blk_y);
 		else
-			pr_notice("[debug] dump_blk parse fail\n");
+			pr_debug("[debug] dump_blk parse fail\n");
 	} else if (strncmp(opt, "first_br:", 9) == 0) {
 		debug_skip_first_br = strncmp(opt + 9, "skip", 4) == 0;
-		pr_notice("[debug] skip_first_br=%d\n",
+		pr_debug("[debug] skip_first_br=%d\n",
 			debug_skip_first_br);
 	} else if (strncmp(opt, "flow_log:", 9) == 0) {
 		debug_flow_log = strncmp(opt + 9, "1", 1) == 0;
-		pr_notice("[debug] debug_flow_log=%d\n",
+		pr_debug("[debug] debug_flow_log=%d\n",
 			debug_flow_log);
 	} else if (strncmp(opt, "api_log:", 8) == 0) {
 		debug_api_log = strncmp(opt + 8, "1", 1) == 0;
-		pr_notice("[debug] debug_api_log=%d\n",
+		pr_debug("[debug] debug_api_log=%d\n",
 			debug_api_log);
 	} else if (strncmp(opt, "write_cmdq_log:", 15) == 0) {
 		debug_write_cmdq_log = strncmp(opt + 15, "1", 1) == 0;
-		pr_notice("[debug] debug_write_cmdq_log=%d\n",
+		pr_debug("[debug] debug_write_cmdq_log=%d\n",
 			debug_write_cmdq_log);
 	} else if (strncmp(opt, "irq_log:", 8) == 0) {
 		debug_irq_log = strncmp(opt + 8, "1", 1) == 0;
-		pr_notice("[debug] debug_irq_log=%d\n",
+		pr_debug("[debug] debug_irq_log=%d\n",
 			debug_irq_log);
 	} else if (strncmp(opt, "dump_aal_hist:", 14) == 0) {
 		debug_dump_aal_hist = strncmp(opt + 14, "1", 1) == 0;
-		pr_notice("[debug] debug_dump_aal_hist=%d\n",
+		pr_debug("[debug] debug_dump_aal_hist=%d\n",
 			debug_dump_aal_hist);
 	} else if (strncmp(opt, "dump_input_param:", 17) == 0) {
 		debug_dump_input_param = strncmp(opt + 17, "1", 1) == 0;
-		pr_notice("[debug] debug_dump_input_param=%d\n",
+		pr_debug("[debug] debug_dump_input_param=%d\n",
 			debug_dump_input_param);
 	} else if (strncmp(opt, "set_ess_level:", 14) == 0) {
 		int debug_ess_level;
 
 		if (sscanf(opt + 14, "%d", &debug_ess_level) == 1) {
-			pr_notice("[debug] ess_level=%d\n", debug_ess_level);
+			pr_debug("[debug] ess_level=%d\n", debug_ess_level);
 			disp_aal_set_ess_level(debug_ess_level);
 		} else
-			pr_notice("[debug] set_ess_level failed\n");
+			pr_debug("[debug] set_ess_level failed\n");
 	} else if (strncmp(opt, "set_ess_en:", 11) == 0) {
 		bool debug_ess_en;
 
 		debug_ess_en = !strncmp(opt + 11, "1", 1);
-		pr_notice("[debug] debug_ess_en=%d\n", debug_ess_en);
+		pr_debug("[debug] debug_ess_en=%d\n", debug_ess_en);
 		disp_aal_set_ess_en(debug_ess_en);
 	} else if (strncmp(opt, "set_dre_en:", 11) == 0) {
 		bool debug_dre_en;
 
 		debug_dre_en = !strncmp(opt + 11, "1", 1);
-		pr_notice("[debug] debug_dre_en=%d\n", debug_dre_en);
+		pr_debug("[debug] debug_dre_en=%d\n", debug_dre_en);
 		disp_aal_set_dre_en(debug_dre_en);
 #ifdef CONFIG_MTK_DRE30_SUPPORT
 	} else if (strncmp(opt, "aal_sram_method:", 16) == 0) {
@@ -2620,35 +2620,35 @@ void disp_aal_debug(const char *opt)
 
 		aal_align_eof = !strncmp(opt + 11, "0", 1);
 		aal_sram_method = aal_align_eof ? AAL_SRAM_EOF : AAL_SRAM_SOF;
-		pr_notice("[debug] aal_sram_method=%d\n", aal_sram_method);
+		pr_debug("[debug] aal_sram_method=%d\n", aal_sram_method);
 #endif
 	} else if (strncmp(opt, "debugdump:", 10) == 0) {
-		pr_notice("[debug] skip_set_param=%d\n",
+		pr_debug("[debug] skip_set_param=%d\n",
 			debug_skip_set_param);
-		pr_notice("[debug] skip_dre3_irq=%d\n",
+		pr_debug("[debug] skip_dre3_irq=%d\n",
 			debug_skip_dre3_irq);
-		pr_notice("[debug] bypass_alg_mode=%d\n",
+		pr_debug("[debug] bypass_alg_mode=%d\n",
 			debug_bypass_alg_mode);
-		pr_notice("[debug] debug_dump_reg_irq=%d\n",
+		pr_debug("[debug] debug_dump_reg_irq=%d\n",
 			debug_dump_reg_irq);
-		pr_notice("[debug] dump_blk_x=%d dump_blk_y=%d\n",
+		pr_debug("[debug] dump_blk_x=%d dump_blk_y=%d\n",
 			dump_blk_x, dump_blk_y);
-		pr_notice("[debug] skip_first_br=%d\n",
+		pr_debug("[debug] skip_first_br=%d\n",
 			debug_skip_first_br);
-		pr_notice("[debug] debug_flow_log=%d\n",
+		pr_debug("[debug] debug_flow_log=%d\n",
 			debug_flow_log);
-		pr_notice("[debug] debug_api_log=%d\n",
+		pr_debug("[debug] debug_api_log=%d\n",
 			debug_api_log);
-		pr_notice("[debug] debug_write_cmdq_log=%d\n",
+		pr_debug("[debug] debug_write_cmdq_log=%d\n",
 			debug_write_cmdq_log);
-		pr_notice("[debug] debug_irq_log=%d\n",
+		pr_debug("[debug] debug_irq_log=%d\n",
 			debug_irq_log);
-		pr_notice("[debug] debug_dump_aal_hist=%d\n",
+		pr_debug("[debug] debug_dump_aal_hist=%d\n",
 			debug_dump_aal_hist);
-		pr_notice("[debug] debug_dump_input_param=%d\n",
+		pr_debug("[debug] debug_dump_input_param=%d\n",
 			debug_dump_input_param);
-		pr_notice("[debug] debug_ess_level=%d\n", g_aal_ess_level);
-		pr_notice("[debug] debug_ess_en=%d\n", g_aal_ess_en);
-		pr_notice("[debug] debug_dre_en=%d\n", g_aal_dre_en);
+		pr_debug("[debug] debug_ess_level=%d\n", g_aal_ess_level);
+		pr_debug("[debug] debug_ess_en=%d\n", g_aal_ess_en);
+		pr_debug("[debug] debug_dre_en=%d\n", g_aal_dre_en);
 	}
 }
