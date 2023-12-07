@@ -112,6 +112,7 @@ static ssize_t reserved_segments_show(struct f2fs_attr *a,
 {
 	return snprintf(buf, PAGE_SIZE, "%llu\n",
 		(unsigned long long)(reserved_segments(sbi)));
+}
 
 static ssize_t ovp_segments_show(struct f2fs_attr *a,
 		struct f2fs_sb_info *sbi, char *buf)
