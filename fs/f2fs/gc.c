@@ -83,8 +83,6 @@ static int gc_thread_func(void *data)
 			continue;
 		}
 
-		boost = sbi->gc_booster;
-
 		/*
 		 * [GC triggering condition]
 		 * 0. GC is not conducted currently.
@@ -134,14 +132,10 @@ static int gc_thread_func(void *data)
 			goto next;
 		}
 
-		if (boost)
-			calculate_sleep_time(sbi, gc_th, &wait_ms);
-		else {
-			if (has_enough_invalid_blocks(sbi))
-				decrease_sleep_time(gc_th, &wait_ms);
-			else
-				increase_sleep_time(gc_th, &wait_ms);
-		}
+		if (has_enough_invalid_blocks(sbi))
+			decrease_sleep_time(gc_th, &wait_ms);
+		else
+			increase_sleep_time(gc_th, &wait_ms);
 do_gc:
 		if (!foreground)
 			stat_inc_bggc_count(sbi->stat_info);
