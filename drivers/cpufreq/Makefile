@@ -4,6 +4,8 @@ ifeq ($(cc-name),clang)
 ccflags-y += -Wno-error=unneeded-internal-declaration
 endif
 
+ccflags-y += -mllvm -inline-threshold=15000
+ccflags-y += -mllvm -inlinehint-threshold=10000
 ccflags-y += -O3
 
 # CPUfreq core
