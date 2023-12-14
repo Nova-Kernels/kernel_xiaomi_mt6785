@@ -29,7 +29,7 @@
 
 #include <trace/events/vb2.h>
 
-static int debug;
+static int debug=0;
 module_param(debug, int, 0644);
 
 #define dprintk(level, fmt, arg...)					      \
