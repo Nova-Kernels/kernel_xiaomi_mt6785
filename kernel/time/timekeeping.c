@@ -1083,7 +1083,7 @@ static bool timestamp_in_interval(u64 start, u64 end, u64 ts)
 {
 	if (ts >= start && ts <= end)
 		return true;
-	if (start > end && (ts >= start || ts <= end))
+	if (before > after && (test > before || test < after))
 		return true;
 	return false;
 }
