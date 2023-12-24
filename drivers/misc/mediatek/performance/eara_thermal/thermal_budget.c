@@ -81,7 +81,7 @@
 #define EARA_THRM_LOGI(fmt, args...)				\
 	do {							\
 		if (enable_debug_log) {				\
-			pr_debug(EARA_THRM_TAG fmt, ##args);	\
+			pr_info(EARA_THRM_TAG fmt, ##args);	\
 		}						\
 	} while (0)
 
@@ -90,7 +90,7 @@
 		static int count;				\
 								\
 		if (enable_debug_log)				\
-			pr_debug(EARA_THRM_TAG fmt, ##args);	\
+			pr_err(EARA_THRM_TAG fmt, ##args);	\
 		else {						\
 			if (count > 100) {			\
 				pr_debug(EARA_THRM_TAG fmt, ##args); \
@@ -311,7 +311,7 @@ static void thrm_pb_list_clear(void)
 	struct rb_node *n;
 	struct thrm_pb_render *pos;
 
-	EARA_THRM_LOGI("list clear\n");
+	EARA_THRM_LOGD("list clear\n");
 
 	while ((n = rb_first(&render_list))) {
 		pos = rb_entry(n, struct thrm_pb_render, entry);
@@ -322,7 +322,7 @@ static void thrm_pb_list_clear(void)
 
 static void thrm_pb_list_delete(struct thrm_pb_render *obj)
 {
-	EARA_THRM_LOGI("list del %d-%llu\n", obj->pid, obj->bufid);
+	EARA_THRM_LOGD("list del %d-%llu\n", obj->pid, obj->bufid);
 
 	if (obj) {
 		rb_erase(&obj->entry, &render_list);
@@ -356,7 +356,7 @@ static struct thrm_pb_render *thrm_pb_list_get(int pid,
 	if (!thrm)
 		return NULL;
 
-	EARA_THRM_LOGI("list add %d-%llu\n", pid, bufid);
+	EARA_THRM_LOGD("list add %d-%llu\n", pid, bufid);
 
 	thrm->pid = pid;
 	thrm->bufid = bufid;
@@ -454,7 +454,7 @@ static void wq_func(struct work_struct *data)
 	}
 
 	if (RB_EMPTY_ROOT(&render_list)) {
-		EARA_THRM_LOGI("list is empty\n");
+		EARA_THRM_LOGD("list is empty\n");
 		thrm_pb_turn_record_locked(0);
 		goto exit;
 	}
@@ -530,7 +530,7 @@ static void set_major_pair_locked(int pid, unsigned long long bufid,
 					int max_time)
 {
 	if (!is_major_pair_locked(pid, bufid)) {
-		EARA_THRM_LOGI("Replace tracking thread %d-%llu -> %d-%llu\n",
+		EARA_THRM_LOGD("Replace tracking thread %d-%llu -> %d-%llu\n",
 			cur_max_pid, cur_max_bufid, pid, bufid);
 		cur_max_pid = pid;
 		cur_max_bufid = bufid;
@@ -600,7 +600,7 @@ static int cal_cpu_time(int cpu_time, int cur_cpu_cap, int cur_sys_cap,
 		return cpu_time;
 
 	if (!cur_sys_cap || !cur_cpu_cap || !cpu_time) {
-		EARA_THRM_LOGI("%s:sys_cap %d, cpu_time %d, cpu_cap %d\n",
+		EARA_THRM_LOGD("%s:sys_cap %d, cpu_time %d, cpu_cap %d\n",
 			__func__, cur_sys_cap, cpu_time, cur_cpu_cap);
 		return cpu_time;
 	}
@@ -613,14 +613,14 @@ static int cal_cpu_time(int cpu_time, int cur_cpu_cap, int cur_sys_cap,
 	}
 
 	if (!ret) {
-		EARA_THRM_LOGI("%s:cpu_cl_cap all 0\n", __func__);
+		EARA_THRM_LOGD("%s:cpu_cl_cap all 0\n", __func__);
 		return cpu_time;
 	}
 
 	sys_cap = cal_system_capacity(cpu_cl_cap, core_limit);
 	cpu_cap = __eara_arr_max(cpu_cl_cap, g_cluster_num);
 	if (!sys_cap || !cpu_cap) {
-		EARA_THRM_LOGI("%s:sys_cap %d, cpu_cap %d\n",
+		EARA_THRM_LOGD("%s:sys_cap %d, cpu_cap %d\n",
 			__func__, sys_cap, cpu_cap);
 		return cpu_time;
 	}
@@ -628,7 +628,7 @@ static int cal_cpu_time(int cpu_time, int cur_cpu_cap, int cur_sys_cap,
 	ret = ((uint64_t)cpu_time) * cur_sys_cap * cur_cpu_cap;
 	do_div(ret, ((uint64_t)sys_cap) * cpu_cap);
 
-	EARA_THRM_LOGI("%s time %d curcap %d cursys %d cap %d sys %d ret %d\n",
+	EARA_THRM_LOGD("%s time %d curcap %d cursys %d cap %d sys %d ret %d\n",
 		__func__, cpu_time, cur_cpu_cap, cur_sys_cap,
 		cpu_cap, sys_cap, (int)ret);
 
@@ -640,7 +640,7 @@ static int cal_xpu_time(int xpu_time, int xpu_freq, int new_freq)
 	uint64_t ret;
 
 	if (!new_freq || !xpu_freq || !xpu_time) {
-		EARA_THRM_LOGI("%s:new_freq %d, xpu_freq %d, xpu_time %d\n",
+		EARA_THRM_LOGD("%s:new_freq %d, xpu_freq %d, xpu_time %d\n",
 			__func__, new_freq, xpu_freq, xpu_time);
 		return xpu_time;
 	}
@@ -651,7 +651,7 @@ static int cal_xpu_time(int xpu_time, int xpu_freq, int new_freq)
 	ret = ((uint64_t)xpu_time) * xpu_freq;
 	do_div(ret, new_freq);
 
-	EARA_THRM_LOGI("%s xpu_time %d xpu_freq %d new_freq %d ret %d\n",
+	EARA_THRM_LOGD("%s xpu_time %d xpu_freq %d new_freq %d ret %d\n",
 		__func__, xpu_time, xpu_freq, new_freq, (int)ret);
 
 	return (int)ret;
@@ -772,7 +772,7 @@ static void thrm_pb_turn_record_locked(int input)
 	if (input == has_record)
 		return;
 
-	EARA_THRM_LOGI("%s, record %d\n", __func__, input);
+	EARA_THRM_LOGD("%s, record %d\n", __func__, input);
 
 	has_record = input;
 
@@ -793,7 +793,7 @@ static void thrm_pb_turn_throttling_locked(int throttling)
 	if (throttling == is_throttling)
 		return;
 
-	EARA_THRM_LOGI("%s throttle %d has_record %d is_controllable %d\n",
+	EARA_THRM_LOGD("%s throttle %d has_record %d is_controllable %d\n",
 		__func__, throttling, has_record, is_controllable);
 
 	is_throttling = throttling;
@@ -847,7 +847,7 @@ void check_AI_onoff_locked(int module)
 	}
 #endif
 
-	EARA_THRM_LOGI("VPU [%d] MDLA [%d] AI [%d]\n",
+	EARA_THRM_LOGD("VPU [%d] MDLA [%d] AI [%d]\n",
 		is_VPU_on, is_MDLA_on, is_AI_on);
 
 	AI_onoff = is_VPU_on | is_MDLA_on;
@@ -877,7 +877,7 @@ static int eara_thrm_xpufreq_notifier_cb(struct notifier_block *nb,
 			if (g_vpu_opp)
 				g_vpu_opp[pxi->id] = pxi->opp;
 			check_AI_onoff_locked(THRM_VPU);
-			EARA_THRM_LOGI("VPU [%d] %d\n", pxi->id, pxi->opp);
+			EARA_THRM_LOGD("VPU [%d] %d\n", pxi->id, pxi->opp);
 		}
 		break;
 #endif
@@ -891,7 +891,7 @@ static int eara_thrm_xpufreq_notifier_cb(struct notifier_block *nb,
 			if (g_mdla_opp)
 				g_mdla_opp[pxi->id] = pxi->opp;
 			check_AI_onoff_locked(THRM_MDLA);
-			EARA_THRM_LOGI("MDLA [%d] %d\n", pxi->id, pxi->opp);
+			EARA_THRM_LOGD("MDLA [%d] %d\n", pxi->id, pxi->opp);
 		}
 		break;
 #endif
@@ -1046,7 +1046,7 @@ static unsigned int get_idx_in_pwr_tbl(enum ppm_cluster cluster)
 	unsigned int idx = 0;
 
 	if (cluster >= g_cluster_num) {
-		EARA_THRM_LOGI("%s: Invalid input: cluster=%d\n",
+		EARA_THRM_LOGD("%s: Invalid input: cluster=%d\n",
 			__func__, cluster);
 		cluster = 0;
 	}
@@ -1068,7 +1068,7 @@ static short get_delta_pwr(enum THRM_MODULE module, unsigned int core,
 #ifdef EARA_THERMAL_VPU_SUPPORT
 	if (module == THRM_VPU && g_vpu_opp_num) {
 		if (opp >= g_vpu_opp_num - 1) {
-			EARA_THRM_LOGI("%s:Invalid module=%d core=%d opp=%d\n",
+			EARA_THRM_LOGD("%s:Invalid module=%d core=%d opp=%d\n",
 			__func__, module, core, opp);
 			return 0;
 		}
@@ -1081,7 +1081,7 @@ static short get_delta_pwr(enum THRM_MODULE module, unsigned int core,
 #ifdef EARA_THERMAL_MDLA_SUPPORT
 	if (module == THRM_MDLA && g_mdla_opp_num) {
 		if (opp >= g_mdla_opp_num - 1) {
-			EARA_THRM_LOGI("%s:Invalid module=%d core=%d opp=%d\n",
+			EARA_THRM_LOGD("%s:Invalid module=%d core=%d opp=%d\n",
 			__func__, module, core, opp);
 			return 0;
 		}
@@ -1092,7 +1092,7 @@ static short get_delta_pwr(enum THRM_MODULE module, unsigned int core,
 #endif
 
 	if (!thr_cobra_tbl) {
-		EARA_THRM_LOGI("%s: NULL cobra table\n", __func__);
+		EARA_THRM_LOGD("%s: NULL cobra table\n", __func__);
 		return 0;
 	}
 
@@ -1100,7 +1100,7 @@ static short get_delta_pwr(enum THRM_MODULE module, unsigned int core,
 
 	if (core > get_cluster_max_cpu_core(cluster)
 		|| opp > get_cluster_min_cpufreq_idx(cluster)) {
-		EARA_THRM_LOGI("%s:Invalid cl=%d core=%d opp=%d\n",
+		EARA_THRM_LOGD("%s:Invalid cl=%d core=%d opp=%d\n",
 			__func__, cluster, core, opp);
 		return 0;
 	}
@@ -1139,12 +1139,12 @@ static int get_perf(enum ppm_cluster cluster, unsigned int core,
 	int ratio = 0;
 
 	if (!thr_cobra_tbl) {
-		EARA_THRM_LOGI("%s: NULL cobra table\n", __func__);
+		EARA_THRM_LOGD("%s: NULL cobra table\n", __func__);
 		return 0;
 	}
 
 	if (core > get_cluster_max_cpu_core(cluster)) {
-		EARA_THRM_LOGI("%s:Invalid cluster=%d, core=%d\n",
+		EARA_THRM_LOGD("%s:Invalid cluster=%d, core=%d\n",
 			__func__, cluster, core);
 		return 0;
 	}
@@ -1254,7 +1254,7 @@ static void reallocate_up(int delta_power,
 			for_each_clusters(i) {
 				out_cl_cap[i] = CORE_CAP(i,
 						opp[THRM_CPU_OFFSET + i]);
-				EARA_THRM_LOGI("C%d: cap %d opp %d core %d\n",
+				EARA_THRM_LOGD("C%d: cap %d opp %d core %d\n",
 						i, out_cl_cap[i],
 						opp[THRM_CPU_OFFSET + i],
 						core_limit[i]);
@@ -1353,11 +1353,11 @@ static void reallocate_up(int delta_power,
 			}
 		}
 
-		EARA_THRM_LOGI("[+]ChoosenCl=-1! delta=%d\n", delta_power);
-		EARA_THRM_LOGI("[+]opp=V %d,M %d\n",
+		EARA_THRM_LOGD("[+]ChoosenCl=-1! delta=%d\n", delta_power);
+		EARA_THRM_LOGD("[+]opp=V %d,M %d\n",
 				opp[THRM_VPU], opp[THRM_MDLA]);
 		for_each_clusters(i)
-			EARA_THRM_LOGI("[+]C%d (opp, act, lmt)=(%d,%d,%d)\n",
+			EARA_THRM_LOGD("[+]C%d (opp, act, lmt)=(%d,%d,%d)\n",
 					i, opp[THRM_CPU_OFFSET + i],
 					active_core[i], core_limit[i]);
 		break;
@@ -1365,13 +1365,13 @@ static void reallocate_up(int delta_power,
 prepare_next_round:
 		delta_power -= ChoosenPwr;
 
-		EARA_THRM_LOGI("[+](delta/Cl/Mod/Pwr)=(%d,%d,%d,%d)\n",
+		EARA_THRM_LOGD("[+](delta/Cl/Mod/Pwr)=(%d,%d,%d,%d)\n",
 				delta_power, ChoosenCl, ChoosenModule,
 				ChoosenPwr);
-		EARA_THRM_LOGI("[+]opp=V %d,M %d\n",
+		EARA_THRM_LOGD("[+]opp=V %d,M %d\n",
 				opp[THRM_VPU], opp[THRM_MDLA]);
 		for_each_clusters(i)
-			EARA_THRM_LOGI("[+]C%d opp=%d\n",
+			EARA_THRM_LOGD("[+]C%d opp=%d\n",
 					i, opp[THRM_CPU_OFFSET + i]);
 	}
 }
@@ -1430,7 +1430,7 @@ static void reallocate_down(int delta_power,
 			for_each_clusters(i) {
 				out_cl_cap[i] = CORE_CAP(i,
 						opp[THRM_CPU_OFFSET + i]);
-				EARA_THRM_LOGI("C%d: cap %d opp %d core %d\n",
+				EARA_THRM_LOGD("C%d: cap %d opp %d core %d\n",
 						i, out_cl_cap[i],
 						opp[THRM_CPU_OFFSET + i],
 						core_limit[i]);
@@ -1506,12 +1506,12 @@ static void reallocate_down(int delta_power,
 			goto prepare_next_round_down;
 		}
 #endif
-		EARA_THRM_LOGI("No lower OPP!\n");
-		EARA_THRM_LOGI("delta/cur=(%d/%d)\n", delta_power, curr_power);
-		EARA_THRM_LOGI("opp=V %d,M %d\n",
+		EARA_THRM_LOGD("No lower OPP!\n");
+		EARA_THRM_LOGD("delta/cur=(%d/%d)\n", delta_power, curr_power);
+		EARA_THRM_LOGD("opp=V %d,M %d\n",
 				opp[THRM_VPU], opp[THRM_MDLA]);
 		for_each_clusters(i)
-			EARA_THRM_LOGI("[%d](opp, act, lmt)=(%d,%d,%d)\n",
+			EARA_THRM_LOGD("[%d](opp, act, lmt)=(%d,%d,%d)\n",
 					i, opp[THRM_CPU_OFFSET + i],
 					active_core[i], core_limit[i]);
 
@@ -1536,13 +1536,13 @@ static void reallocate_down(int delta_power,
 		if (i != g_cluster_num)
 			goto prepare_next_round_down;
 
-		EARA_THRM_LOGI("No way to lower power!\n");
-		EARA_THRM_LOGI("(delta/cur)=(%d/%d)\n",
+		EARA_THRM_LOGD("No way to lower power!\n");
+		EARA_THRM_LOGD("(delta/cur)=(%d/%d)\n",
 				delta_power, curr_power);
-		EARA_THRM_LOGI("opp=V %d,M %d\n",
+		EARA_THRM_LOGD("opp=V %d,M %d\n",
 				opp[THRM_VPU], opp[THRM_MDLA]);
 		for_each_clusters(i)
-			EARA_THRM_LOGI("[%d](opp, act, lmt)=(%d,%d,%d)\n",
+			EARA_THRM_LOGD("[%d](opp, act, lmt)=(%d,%d,%d)\n",
 					i, opp[THRM_CPU_OFFSET + i],
 					active_core[i], core_limit[i]);
 		break;
@@ -1552,12 +1552,12 @@ prepare_next_round_down:
 		curr_power -= ChoosenPwr;
 		out_st->frame_time = frame_time;
 
-		EARA_THRM_LOGI("[-](delta/Cl/Pwr/Prf)=(%d,%d,%d,%d)\n",
+		EARA_THRM_LOGD("[-](delta/Cl/Pwr/Prf)=(%d,%d,%d,%d)\n",
 				delta_power, ChoosenCl, ChoosenPwr, MinPerf);
-		EARA_THRM_LOGI("[-]opp=V %d,M %d\n",
+		EARA_THRM_LOGD("[-]opp=V %d,M %d\n",
 				opp[THRM_VPU], opp[THRM_MDLA]);
 		for_each_clusters(i)
-			EARA_THRM_LOGI("[-][%d](opp, act, lmt)=(%d,%d,%d)\n",
+			EARA_THRM_LOGD("[-][%d](opp, act, lmt)=(%d,%d,%d)\n",
 					i, opp[THRM_CPU_OFFSET + i],
 					active_core[i], core_limit[i]);
 	}
@@ -1576,7 +1576,7 @@ static int reallocate_perf_first(int remain_budget,
 
 	if (!out_cl_cap || !cl_status || !active_core
 		|| !core_limit || !opp || !out_st) {
-		EARA_THRM_LOGI("%s:%d\n", __func__, __LINE__);
+		EARA_THRM_LOGD("%s:%d\n", __func__, __LINE__);
 		return NO_CHANGE;
 	}
 
@@ -1584,11 +1584,11 @@ static int reallocate_perf_first(int remain_budget,
 	if (unlikely(!delta_power))
 		return NO_CHANGE;
 
-	EARA_THRM_LOGI("in: remain %d, curr %d, delta %d",
+	EARA_THRM_LOGD("in: remain %d, curr %d, delta %d",
 			remain_budget, curr_power, delta_power);
-	EARA_THRM_LOGI("in: vpu %d, mdla %d", opp[THRM_VPU], opp[THRM_MDLA]);
+	EARA_THRM_LOGD("in: vpu %d, mdla %d", opp[THRM_VPU], opp[THRM_MDLA]);
 	for_each_clusters(i) {
-		EARA_THRM_LOGI("in: C%d: opp %d, core %d)\n", i,
+		EARA_THRM_LOGD("in: C%d: opp %d, core %d)\n", i,
 			opp[THRM_CPU_OFFSET + i], core_limit[i]);
 	}
 
@@ -1615,17 +1615,17 @@ static int reallocate_perf_first(int remain_budget,
 
 	if (i == g_cluster_num &&
 		vpu_opp == opp[THRM_VPU] && mdla_opp == opp[THRM_MDLA]) {
-		EARA_THRM_LOGI("out: no change\n");
+		EARA_THRM_LOGD("out: no change\n");
 		return NO_CHANGE;
 	}
 
 	for_each_clusters(i) {
 		out_cl_cap[i] = CORE_CAP(i, opp[THRM_CPU_OFFSET + i]);
-		EARA_THRM_LOGI("out: C%d: cap %d, opp %d, core %d",
+		EARA_THRM_LOGD("out: C%d: cap %d, opp %d, core %d",
 			i, out_cl_cap[i], opp[THRM_CPU_OFFSET + i],
 			core_limit[i]);
 	}
-	EARA_THRM_LOGI("out: vpu %d mdla %d\n", opp[THRM_VPU], opp[THRM_MDLA]);
+	EARA_THRM_LOGD("out: vpu %d mdla %d\n", opp[THRM_VPU], opp[THRM_MDLA]);
 
 	return COBRA_SUCCESS;
 }
@@ -1655,7 +1655,7 @@ static void get_cur_status(int vpu_opp, int mdla_opp, int *out_cur_sys_cap,
 		g_mod_opp[THRM_CPU_OFFSET + i] = g_cl_status[i].freq_idx;
 		g_cl_cap[i] = CORE_CAP(i, g_cl_status[i].freq_idx);
 
-		EARA_THRM_LOGI("current: [%d] core %d, opp %d, cap %d\n", i,
+		EARA_THRM_LOGD("current: [%d] core %d, opp %d, cap %d\n", i,
 			g_active_core[i], g_mod_opp[THRM_CPU_OFFSET + i],
 			g_cl_cap[i]);
 	}
@@ -1702,11 +1702,11 @@ void eara_thrm_pb_frame_start(int pid, unsigned long long bufid,
 			get_task_struct(tsk);
 		rcu_read_unlock();
 
-		EARA_THRM_LOGI("E %s: pid %d-%s, c_time %d, cap %d\n", __func__,
+		EARA_THRM_LOGD("E %s: pid %d-%s, c_time %d, cap %d\n", __func__,
 			pid, (tsk)?tsk->comm:"NULL", cpu_time, cpu_cap);
-		EARA_THRM_LOGI(" v_time %d, v_boost %d, v_cross %d, v_bg %d\n",
+		EARA_THRM_LOGD(" v_time %d, v_boost %d, v_cross %d, v_bg %d\n",
 			vpu_time, vpu_boost, vpu_cross, vpu_bg);
-		EARA_THRM_LOGI(" m_time %d, m_boost %d, m_cross %d, m_bg %d\n",
+		EARA_THRM_LOGD(" m_time %d, m_boost %d, m_cross %d, m_bg %d\n",
 			mdla_time, mdla_boost, mdla_cross, mdla_bg);
 
 		if (tsk)
@@ -1732,7 +1732,7 @@ void eara_thrm_pb_frame_start(int pid, unsigned long long bufid,
 		vpu_cross, mdla_time, mdla_boost, mdla_cross);
 	update_AI_bg(vpu_bg, mdla_bg);
 
-	EARA_THRM_LOGI("pid %d-%llu, AI_type %d, bg %d, ts %llu\n",
+	EARA_THRM_LOGD("pid %d-%llu, AI_type %d, bg %d, ts %llu\n",
 		pid, bufid, thr->frame_info.AI_type, has_bg_AI, thr->ts);
 
 	thr->frame_info.queue_fps = queuefps;
@@ -1881,7 +1881,7 @@ void eara_thrm_pb_enqueue_end(int pid, unsigned long long bufid,
 			get_task_struct(tsk);
 		rcu_read_unlock();
 
-		EARA_THRM_LOGI("E %s: pid %d-%s, g_t %d, g_f %d, enq %llu\n",
+		EARA_THRM_LOGD("E %s: pid %d-%s, g_t %d, g_f %d, enq %llu\n",
 			__func__, pid, (tsk)?tsk->comm:"NULL",
 			gpu_time, gpu_freq, enq);
 
@@ -1958,7 +1958,7 @@ void eara_thrm_pb_enqueue_end(int pid, unsigned long long bufid,
 			&curr_cpu_power, &curr_vpu_power, &curr_mdla_power);
 	cur_gpu_freq = mt_gpufreq_get_cur_freq();
 	cur_gpu_opp = gpu_freq_to_opp(cur_gpu_freq);
-	EARA_THRM_LOGI("current: power %d, syscap %d, cap %d, gpuF %d, pb %d\n",
+	EARA_THRM_LOGD("current: power %d, syscap %d, cap %d, gpuF %d, pb %d\n",
 		curr_cpu_power, cur_sys_cap, cur_cap,
 		cur_gpu_freq, g_total_pb);
 
@@ -1967,7 +1967,7 @@ void eara_thrm_pb_enqueue_end(int pid, unsigned long long bufid,
 	end_gpu_opp = gpu_opp_cand_low(cur_gpu_opp, gpu_time, cpu_time);
 	end_gpu_opp = clamp(end_gpu_opp, 0, g_gpu_opp_num - 1);
 	if (start_gpu_opp > end_gpu_opp) {
-		EARA_THRM_LOGI("cur %d gtime %d ctime %d, start %d end %d\n",
+		EARA_THRM_LOGD("cur %d gtime %d ctime %d, start %d end %d\n",
 			cur_gpu_opp, gpu_time, cpu_time,
 			start_gpu_opp, end_gpu_opp);
 		end_gpu_opp = start_gpu_opp;
@@ -2003,7 +2003,7 @@ void eara_thrm_pb_enqueue_end(int pid, unsigned long long bufid,
 		new_gpu_time = cal_xpu_time(gpu_time, gpu_freq,
 					thr_gpu_tbl[i].gpufreq_khz);
 		if (!new_gpu_time) {
-			EARA_THRM_LOGI("gtime %d gfreq %d, [%d]gpufreq %d\n",
+			EARA_THRM_LOGD("gtime %d gfreq %d, [%d]gpufreq %d\n",
 				gpu_time, gpu_freq, i,
 				thr_gpu_tbl[i].gpufreq_khz);
 			continue;
@@ -2044,7 +2044,7 @@ void eara_thrm_pb_enqueue_end(int pid, unsigned long long bufid,
 #else
 		g_opp_ratio[i].mdla_power = 0;
 #endif
-		EARA_THRM_LOGI("[%d] Gt %d, Ft %d, R %d, vpu_p %d, m_p %d\n",
+		EARA_THRM_LOGD("[%d] Gt %d, Ft %d, R %d, vpu_p %d, m_p %d\n",
 		i, new_gpu_time, realloc_st.frame_time, g_opp_ratio[i].ratio,
 		g_opp_ratio[i].vpu_power, g_opp_ratio[i].mdla_power);
 
@@ -2109,7 +2109,7 @@ void eara_thrm_pb_enqueue_end(int pid, unsigned long long bufid,
 	}
 
 CAN_NOT_CONTROL:
-	EARA_THRM_LOGI("CAN NOT CONTROL %d\n", stable_count);
+	EARA_THRM_LOGD("CAN NOT CONTROL %d\n", stable_count);
 	thrm_pb_turn_cont_locked(0);
 
 exit:
@@ -2126,7 +2126,7 @@ void eara_thrm_pb_gblock_bypass(int pid, unsigned long long bufid, int bypass)
 	if (!is_enable || !is_throttling)
 		goto exit;
 
-	EARA_THRM_LOGI("%d-%llu (cur %d-%llu), bypass %d\n",
+	EARA_THRM_LOGD("%d-%llu (cur %d-%llu), bypass %d\n",
 			pid, bufid, cur_max_pid, cur_max_bufid, bypass);
 
 	if (!pid  || !bufid || !is_major_pair_locked(pid, bufid))
@@ -2150,7 +2150,7 @@ void eara_thrm_pb_gblock_bypass(int pid, unsigned long long bufid, int bypass)
 			thr->frame_info.bypass = 0;
 	}
 
-	EARA_THRM_LOGI("%d-%llu->bypass %d, cnt %d\n", pid, bufid,
+	EARA_THRM_LOGD("%d-%llu->bypass %d, cnt %d\n", pid, bufid,
 		thr->frame_info.bypass, thr->frame_info.bypass_cnt);
 exit:
 	mutex_unlock(&thrm_lock);
@@ -2191,7 +2191,7 @@ int mtk_eara_thermal_pb_handle(int total_pwr_budget, int max_cpu_power,
 
 	ret = is_controllable;
 
-	EARA_THRM_LOGI("%s: total %d, (%d, %d, %d, %d), ret %d, notified %d\n",
+	EARA_THRM_LOGD("%s: total %d, (%d, %d, %d, %d), ret %d, notified %d\n",
 		__func__, total_pwr_budget, max_cpu_power, max_gpu_power,
 		max_vpu_power, max_mdla_power, ret, notified_clear);
 
