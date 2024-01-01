@@ -2616,7 +2616,7 @@ static int msdc_debug_proc_show(struct seq_file *m, void *v)
 		if (id >= HOST_MAX_NUM || id < 0)
 			goto invalid_host_id;
 
-			host = mtk_msdc_host[id];
+		host = mtk_msdc_host[id];
 		if (p1 == 1) {
 			mmc_get_card(host->mmc->card);
 			msdc_set_host_mode_speed(m, host->mmc, spd_mode);
