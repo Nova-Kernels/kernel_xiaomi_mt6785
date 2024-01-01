@@ -933,7 +933,7 @@ static void __printf_back_trace(struct xfrm_state_trace *trace, char *tag)
 #endif
 }
 
-static void xfrm_state_print_back_trace(struct xfrm_state *x)
+static void __maybe_unused xfrm_state_print_back_trace(struct xfrm_state *x)
 {
 	char *logtag = "alloc";
 
@@ -948,7 +948,7 @@ static void xfrm_state_print_back_trace(struct xfrm_state *x)
 	__printf_back_trace(&x->xfrm_insert_trace, logtag);
 }
 
-static void xfrm_state_print_refcount_back_trace(struct xfrm_state *x)
+static void __maybe_unused xfrm_state_print_refcount_back_trace(struct xfrm_state *x)
 {
 #ifdef CONFIG_MTK_ENG_BUILD
 	int i, idx, size;
