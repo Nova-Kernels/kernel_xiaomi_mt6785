@@ -164,7 +164,7 @@ static inline void alarmtimer_rtc_timer_init(void) { }
  */
 static void alarmtimer_enqueue(struct alarm_base *base, struct alarm *alarm)
 {
-	static DEFINE_RATELIMIT_STATE(ratelimit, HZ - 1, 5);
+	static __maybe_unused DEFINE_RATELIMIT_STATE(ratelimit, HZ - 1, 5);
 
 	if (alarm->state & ALARMTIMER_STATE_ENQUEUED)
 		timerqueue_del(&base->timerqueue, &alarm->node);
