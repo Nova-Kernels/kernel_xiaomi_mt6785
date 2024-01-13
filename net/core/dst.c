@@ -97,10 +97,14 @@ void *dst_alloc(struct dst_ops *ops, struct net_device *dev,
 {
 	struct dst_entry *dst;
 
-	if (ops->gc &&
-	    !(flags & DST_NOCOUNT) &&
-	    dst_entries_get_fast(ops) > ops->gc_thresh)
-		ops->gc(ops);
+	if (ops->gc && dst_entries_get_fast(ops) > ops->gc_thresh) {
+		if (ops->gc(ops)) {
+			printk_ratelimited(KERN_NOTICE "Route cache is full: "
+					   "consider increasing sysctl "
+					   "net.ipv[4|6].route.max_size.\n");
+			return NULL;
+		}
+	}
 
 	dst = kmem_cache_alloc(ops->kmem_cachep, GFP_ATOMIC);
 	if (!dst)
