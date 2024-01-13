@@ -2483,6 +2483,7 @@ static void ip6_dst_gc(struct dst_ops *ops)
 out:
 	val = atomic_read(&net->ipv6.ip6_rt_gc_expire);
 	atomic_set(&net->ipv6.ip6_rt_gc_expire, val - (val >> rt_elasticity));
+	return entries > rt_max_size;
 }
 
 static int ip6_convert_metrics(struct mx6_config *mxc,
