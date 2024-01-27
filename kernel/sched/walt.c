@@ -146,7 +146,7 @@ static int __init walt_init_ops(void)
 	register_syscore_ops(&walt_syscore_ops);
 	return 0;
 }
-late_initcall(walt_init_ops);
+postcore_initcall(walt_init_ops);
 
 #ifdef CONFIG_CFS_BANDWIDTH
 void walt_inc_cfs_cumulative_runnable_avg(struct cfs_rq *cfs_rq,
