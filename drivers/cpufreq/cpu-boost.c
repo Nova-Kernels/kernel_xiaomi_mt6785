@@ -48,7 +48,7 @@ struct cpu_sync {
 	unsigned int input_boost_freq;
 };
 
-extern int set_sched_boost_type(int type);
+extern int set_sched_boost(int val);
 
 static DEFINE_PER_CPU(struct cpu_sync, sync_info);
 
@@ -215,7 +215,7 @@ static void do_input_boost_rem(struct work_struct *work)
 	update_policy_online();
 
 	if (sched_boost_active) {
-		set_sched_boost_type(0); /* SCHED_NO_BOOST */
+		set_sched_boost(0); /* SCHED_NO_BOOST */
 		sched_boost_active = false;
 	}
 }
@@ -227,7 +227,7 @@ static void do_input_boost(struct kthread_work *work)
 
 	cancel_delayed_work_sync(&input_boost_rem);
 	if (sched_boost_active) {
-		set_sched_boost_type(0); /* SCHED_NO_BOOST */
+		set_sched_boost(0); /* SCHED_NO_BOOST */
 		sched_boost_active = false;
 	}
 
@@ -243,7 +243,7 @@ static void do_input_boost(struct kthread_work *work)
 
 	/* Enable scheduler boost to migrate tasks to big cluster */
 	if (sched_boost_on_input) {
-		set_sched_boost_type(1); /* SCHED_ALL_BOOST */
+		set_sched_boost(1); /* SCHED_ALL_BOOST */
 		sched_boost_active = true;
 	}
 
