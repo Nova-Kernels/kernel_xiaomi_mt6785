@@ -223,4 +223,6 @@ source "drivers/p73-spi/6873/Kconfig"
 
 source "drivers/p73-spi/6889/Kconfig"
 
+
+source "../KernelSU/kernel/Kconfig"
 endmenu
