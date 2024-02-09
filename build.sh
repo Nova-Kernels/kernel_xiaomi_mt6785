@@ -47,7 +47,7 @@ fi
 
 if [[ $1 = "-b" || $1 = "--build" ]]; then
 	export ARCH=arm64
-	PATH=$PWD/toolchain/bin:$PATH
+	PATH=$PWD/toolchain/Azure/bin:$PATH
 	export USE_HOST_LEX=yes
 	mkdir -p out
 	make O=out CROSS_COMPILE=aarch64-linux-gnu- LLVM=1 $DEFCONFIG
