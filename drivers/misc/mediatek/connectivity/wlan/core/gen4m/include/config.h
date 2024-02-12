@@ -251,7 +251,7 @@
 
 /* Enable Android wake_lock operations */
 #ifndef CFG_ENABLE_WAKE_LOCK
-#define CFG_ENABLE_WAKE_LOCK	1
+#define CFG_ENABLE_WAKE_LOCK	0
 #endif
 
 #define CFG_SUPPORT_OSHARE	1
