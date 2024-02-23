@@ -1753,8 +1753,8 @@ int32_t kalSetCpuNumFreq(uint32_t u4CoreNum,
 int32_t kalGetFwFlavor(uint8_t *flavor);
 int32_t kalGetConnsysVerId(void);
 int32_t kalPerMonSetForceEnableFlag(uint8_t uFlag);
-int32_t kalFbNotifierReg(IN struct GLUE_INFO *prGlueInfo);
-void kalFbNotifierUnReg(void);
+int32_t kalNotifierReg(IN struct GLUE_INFO *prGlueInfo);
+void kalNotifierUnReg(void);
 
 #if KERNEL_VERSION(3, 0, 0) <= LINUX_VERSION_CODE
 /* since: 0b5c9db1b11d3175bb42b80663a9f072f801edf5 */

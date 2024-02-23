@@ -97,6 +97,10 @@
 #include <linux/module.h>
 #include <linux/debugfs.h>
 
+/* for pm */
+#include <linux/suspend.h>
+#include <linux/notifier.h>
+
 /* for uevent */
 #include <linux/miscdevice.h>   /* for misc_register, and SYNTH_MINOR */
 #include <linux/kobject.h>
@@ -149,7 +153,20 @@ u_int8_t wlan_perf_monitor_force_enable = FALSE;
 #endif
 
 static struct notifier_block wlan_fb_notifier;
-void *wlan_fb_notifier_priv_data;
+
+static int wlan_fb_notifier_callback(struct notifier_block
+				*self, unsigned long event, void *data);
+
+static int wlan_pm_notifier_callback(struct notifier_block
+				*self, unsigned long event, void *data);
+
+void *wlan_notifier_priv_data;
+static struct notifier_block wlan_fb_notifier = {
+       .notifier_call = wlan_fb_notifier_callback
+};
+static struct notifier_block wlan_pm_notifier = {
+	.notifier_call = wlan_pm_notifier_callback
+};
 
 static struct miscdevice wlan_object;
 /*******************************************************************************
@@ -8017,7 +8034,7 @@ void kalSetRpsMap(IN struct GLUE_INFO *glue, IN unsigned long value)
 int32_t kalPerMonSetForceEnableFlag(uint8_t uFlag)
 {
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)
-				       wlan_fb_notifier_priv_data;
+				       wlan_notifier_priv_data;
 
 	wlan_perf_monitor_force_enable = uFlag == 0 ? FALSE : TRUE;
 	DBGLOG(SW4, INFO,
@@ -8037,7 +8054,7 @@ static int wlan_fb_notifier_callback(struct notifier_block
 	struct fb_event *evdata = data;
 	int32_t blank = 0;
 	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)
-				       wlan_fb_notifier_priv_data;
+				       wlan_notifier_priv_data;
 
 	/* If we aren't interested in this event, skip it immediately ... */
 	if ((event != FB_EVENT_BLANK) || !prGlueInfo)
@@ -8071,26 +8088,75 @@ static int wlan_fb_notifier_callback(struct notifier_block
 	return 0;
 }
 
-int32_t kalFbNotifierReg(IN struct GLUE_INFO *prGlueInfo)
+int32_t kalNotifierReg(IN struct GLUE_INFO *prGlueInfo)
 {
 	int32_t i4Ret;
 
-	wlan_fb_notifier_priv_data = prGlueInfo;
 	wlan_fb_notifier.notifier_call = wlan_fb_notifier_callback;
+	wlan_notifier_priv_data = prGlueInfo;
 
 	i4Ret = fb_register_client(&wlan_fb_notifier);
-	if (i4Ret)
+	if (i4Ret) {
 		DBGLOG(SW4, WARN, "Register wlan_fb_notifier failed:%d\n",
 		       i4Ret);
+		return i4Ret;
+	}
 	else
 		DBGLOG(SW4, TRACE, "Register wlan_fb_notifier succeed\n");
+
+	i4Ret = register_pm_notifier(&wlan_pm_notifier);
+	if (i4Ret)
+		DBGLOG(SW4, WARN, "Register wlan_pm_notifier failed:%d\n",
+		       i4Ret);
+	else
+		DBGLOG(SW4, TRACE, "Register wlan_pm_notifier succeed\n");
+	
 	return i4Ret;
 }
 
-void kalFbNotifierUnReg(void)
+static int wlan_pm_notifier_callback(struct notifier_block
+				     *self, unsigned long event, void *data)
+{
+	struct GLUE_INFO *prGlueInfo = (struct GLUE_INFO *)
+				       wlan_notifier_priv_data;
+
+	if (kalHaltTryLock())
+		return NOTIFY_STOP;
+
+	if (kalIsHalted() || !prGlueInfo) {
+		kalHaltUnlock();
+		return NOTIFY_STOP;
+	}
+
+	switch (event) {
+	case PM_SUSPEND_PREPARE:
+	case PM_HIBERNATION_PREPARE:
+		if (prGlueInfo->fgIsInSuspendMode)
+			goto out;
+		prGlueInfo->fgIsInSuspendMode = TRUE;
+		wlanSetSuspendMode(prGlueInfo, TRUE);
+		p2pSetSuspendMode(prGlueInfo, TRUE);
+		break;
+	case PM_POST_SUSPEND:
+	case PM_POST_HIBERNATION:
+		if (!prGlueInfo->fgIsInSuspendMode)
+			goto out;
+		prGlueInfo->fgIsInSuspendMode = FALSE;
+		wlanSetSuspendMode(prGlueInfo, FALSE);
+		p2pSetSuspendMode(prGlueInfo, FALSE);
+		break;
+	}
+
+out:
+	kalHaltUnlock();
+	return NOTIFY_DONE;
+}
+
+void kalNotifierUnReg(void)
 {
 	fb_unregister_client(&wlan_fb_notifier);
-	wlan_fb_notifier_priv_data = NULL;
+	unregister_pm_notifier(&wlan_pm_notifier);
+	wlan_notifier_priv_data = NULL;
 }
 
 #if CFG_SUPPORT_DFS
