@@ -952,7 +952,7 @@ int mtk_emimpu_register_callback(
 	if (!mpucb)
 		return -ENOMEM;
 
-	mpucb->owner = __builtin_return_address(0);
+	mpucb->owner = (unsigned long)__builtin_return_address(0);
 	mpucb->debug_dump = debug_dump;
 	mpucb->handled = false;
 
