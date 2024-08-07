@@ -36,6 +36,7 @@ struct vibrator_hw {
 #endif
 #ifdef CUST_VIBR_VOL
 	int	vib_vol;
+	int vib_vol_max;
 #endif
 };
 

@@ -187,9 +187,54 @@ static ssize_t vibr_duration_store(struct device *dev,
 	return ret;
 }
 
+static ssize_t vibr_vmax_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct vibrator_hw* hw = mt_get_cust_vibrator_hw();
+
+	return sprintf(buf, "%d\n", hw->vib_vol);
+}
+
+static ssize_t vibr_vmax_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t size)
+{
+	struct vibrator_hw* hw = mt_get_cust_vibrator_hw();
+	int vmax = 0;
+	ssize_t ret;
+
+	ret = kstrtoint(buf, 10, &vmax);
+	if (ret) {
+		pr_err(VIB_TAG, "kstrtoint failed\n");
+		return ret;
+	}
+
+	if (vmax < 0 || vmax > hw->vib_vol_max) {
+		pr_err(VIB_TAG, "vmax exceeds limits\n");
+		return -EINVAL;
+	}
+
+	if (vmax != hw->vib_vol) {
+		hw->vib_vol = vmax;
+		vibr_power_set();
+	}
+
+	ret = size;
+	return ret;
+}
+
+static ssize_t vibr_vmax_max_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct vibrator_hw* hw = mt_get_cust_vibrator_hw();
+
+	return sprintf(buf, "%d\n", hw->vib_vol_max);
+}
+
 static DEVICE_ATTR(activate, 0644, vibr_activate_show, vibr_activate_store);
 static DEVICE_ATTR(state, 0644, vibr_state_show, vibr_state_store);
 static DEVICE_ATTR(duration, 0644, NULL, vibr_duration_store);
+static DEVICE_ATTR(vmax, 0644, vibr_vmax_show, vibr_vmax_store);
+static DEVICE_ATTR(vmax_max, 0444, vibr_vmax_max_show, NULL);
 
 static struct attribute *activate_attrs[] = {
 	&dev_attr_activate.attr,
@@ -206,6 +251,12 @@ static struct attribute *duration_attrs[] = {
 	NULL,
 };
 
+static struct attribute *vmax_attrs[] = {
+	&dev_attr_vmax.attr,
+	&dev_attr_vmax_max.attr,
+	NULL,
+};
+
 static struct attribute_group activate_group = {
 	.attrs = activate_attrs,
 };
@@ -218,10 +269,15 @@ static struct attribute_group duration_group = {
 	.attrs = duration_attrs,
 };
 
+static struct attribute_group vmax_group = {
+	.attrs = vmax_attrs,
+};
+
 static const struct attribute_group *vibr_group[] = {
 	&activate_group,
 	&state_group,
 	&duration_group,
+	&vmax_group,
 	NULL
 };
 

@@ -109,6 +109,7 @@ void init_cust_vibrator_dtsi(struct platform_device *pdev)
 							pvib_cust->vib_vol);
 		else
 			pvib_cust->vib_vol = 0x05;
+		pvib_cust->vib_vol_max = pvib_cust->vib_vol;
 #endif
 		VIB_DEBUG("pvib_cust = %d, %d, %d\n", pvib_cust->vib_timer,
 				pvib_cust->vib_limit, pvib_cust->vib_vol);
