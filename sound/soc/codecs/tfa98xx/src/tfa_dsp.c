@@ -831,7 +831,7 @@ enum Tfa98xx_Error tfa98xx_set_mtp(struct tfa_device *tfa, uint16_t value,
 
 	if (mtp_old == mtp_new) /* no change */ {
 		if (tfa->verbose)
-			pr_info("No change in MTP. Value not written!\n");
+			pr_debug("No change in MTP. Value not written!\n");
 		return Tfa98xx_Error_Ok;
 	}
 
@@ -2603,7 +2603,7 @@ enum Tfa98xx_Error tfa_cf_powerup(struct tfa_device *tfa)
 
 	// wait until everything is stable, in case clock has been off
 	if (tfa->verbose)
-		pr_info("Waiting for DSP system stable...\n");
+		pr_debug("Waiting for DSP system stable...\n");
 	for (tries = CFSTABLE_TRIES; tries > 0; tries--) {
 		err = tfa98xx_dsp_system_stable(tfa, &status);
 		_ASSERT(err == Tfa98xx_Error_Ok);
@@ -3249,7 +3249,7 @@ enum tfa_error tfa_dev_start(struct tfa_device *tfa, int next_profile,
 	/* PLMA5539: Gives information about current setting of powerswitch */
 	if (tfa->verbose) {
 		if (!tfa98xx_powerswitch_is_enabled(tfa))
-			pr_info("Device start without powerswitch enabled!\n");
+			pr_debug("Device start without powerswitch enabled!\n");
 	}
 
 error_exit:
@@ -3286,13 +3286,13 @@ enum tfa_error tfa_dev_stop(struct tfa_device *tfa)
 	/* we should ensure the state machine in powerdown mode here. */
 	manstate = TFA_GET_BF(tfa, MANSTATE);
 	while ((manstate >= 4) && (retry < 100)) {
-		pr_info("waitting state machine goto powerdown.  MANSTATE=%d\n",
+		pr_debug("waitting state machine goto powerdown.  MANSTATE=%d\n",
 			manstate);
 		msleep_interruptible(10);
 		manstate = TFA_GET_BF(tfa, MANSTATE);
 		retry++;
 	}
-	pr_info("exit....  MANSTATE=%d\n", manstate);
+	pr_debug("exit....  MANSTATE=%d\n", manstate);
 
 error_exit:
 	if (err != Tfa98xx_Error_Ok) {
@@ -3319,7 +3319,7 @@ int tfa_reset(struct tfa_device *tfa)
 	if (tfa->verbose) {
 		if (((tfa->tfa_family == 1) && state != TFA_STATE_RESET) ||
 		    ((tfa->tfa_family == 2) && state != TFA_STATE_POWERDOWN)) {
-			pr_info("WARNING: Device reset should be performed in POWERDOWN state\n");
+			pr_debug("WARNING: Device reset should be performed in POWERDOWN state\n");
 		}
 	}
 
@@ -3519,7 +3519,7 @@ enum Tfa98xx_Error tfa_dsp_get_calibration_impedance(struct tfa_device *tfa)
 			}
 
 			if (calibrateDone == 1)
-				pr_info("Calibration succeeded!!!\n");
+				pr_debug("Calibration succeeded!!!\n");
 			else if ((calibrateDone != 1) ||
 				(Tfa98xx_Error_Ok != error)) {
 				pr_err("Calibration failed! calibrateDone=%d  error=%d\n",
@@ -3891,7 +3891,7 @@ enum tfa_error tfa_dev_set_state(struct tfa_device *tfa, enum tfa_state state,
 
 	/* Base states */
 	/* Do not change the order of setting bits as this is important! */
-	pr_info("state=%d    is_calibration=%d\n",
+	pr_debug("state=%d    is_calibration=%d\n",
 		state, is_calibration);
 	switch (state & 0x0f) {
 	case TFA_STATE_POWERDOWN: /* PLL in powerdown, Algo up */
@@ -4212,13 +4212,13 @@ int tfa_plop_noise_interrupt(struct tfa_device *tfa, int profile, int vstep)
 		/* Detect for clock is lost! (clock is not stable) */
 		if (no_clk == 1) {
 			/* Clock is lost. Set I2CR to remove POP noise */
-			pr_info("No clock detected. Resetting the I2CR to avoid pop on 72!\n");
+			pr_debug("No clock detected. Resetting the I2CR to avoid pop on 72!\n");
 			err = tfa_dev_start(tfa, profile, vstep);
 			if (err != tfa_error_ok) {
 				pr_err("Error loading i2c registers (tfa_dev_start), err=%d\n",
 				       err);
 			} else {
-				pr_info("Setting i2c registers after I2CR succesfull\n");
+				pr_debug("Setting i2c registers after I2CR succesfull\n");
 				tfa_dev_set_state(tfa, TFA_STATE_UNMUTE, 0);
 			}
 
@@ -4233,7 +4233,7 @@ int tfa_plop_noise_interrupt(struct tfa_device *tfa, int profile, int vstep)
 			if (strstr(tfaContProfileName(tfa->cnt, tfa->dev_idx,
 						      profile),
 				   ".saam")) {
-				pr_info("Powering down from a SAAM profile, workaround PLMA4766 used!\n");
+				pr_debug("Powering down from a SAAM profile, workaround PLMA4766 used!\n");
 				TFA_SET_BF(tfa, PWDN, 1);
 				TFA_SET_BF(tfa, AMPE, 0);
 				TFA_SET_BF(tfa, SAMMODE, 0);
@@ -4260,9 +4260,9 @@ void tfa_lp_mode_interrupt(struct tfa_device *tfa)
 	if (tfa_irq_get(tfa, irq_stclp0)) {
 		lp0 = TFA_GET_BF(tfa, LP0);
 		if (lp0 > 0)
-			pr_info("lowpower mode 0 detected\n");
+			pr_debug("lowpower mode 0 detected\n");
 		else
-			pr_info("lowpower mode 0 not detected\n");
+			pr_debug("lowpower mode 0 not detected\n");
 
 		tfa_irq_set_pol(tfa, irq_stclp0, (lp0 == 0));
 
@@ -4273,9 +4273,9 @@ void tfa_lp_mode_interrupt(struct tfa_device *tfa)
 	if (tfa_irq_get(tfa, tfa9912_irq_stclpr)) {
 		lp1 = TFA_GET_BF(tfa, LP1);
 		if (lp1 > 0)
-			pr_info("lowpower mode 1 detected\n");
+			pr_debug("lowpower mode 1 detected\n");
 		else
-			pr_info("lowpower mode 1 not detected\n");
+			pr_debug("lowpower mode 1 not detected\n");
 
 		tfa_irq_set_pol(tfa, tfa9912_irq_stclpr, (lp1 == 0));
 
