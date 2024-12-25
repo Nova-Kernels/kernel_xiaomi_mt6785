@@ -6,12 +6,22 @@
 #include <linux/slab.h>
 #include <asm/setup.h>
 
+#ifdef KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+extern int susfs_spoof_cmdline_or_bootconfig(struct seq_file *m);
+#endif
+
 #ifdef CONFIG_PROC_BEGONIA_CMDLINE
 static char patched_cmdline[COMMAND_LINE_SIZE];
 #endif
 
 static int cmdline_proc_show(struct seq_file *m, void *v)
 {
+#ifdef KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+	if (!susfs_spoof_cmdline_or_bootconfig(m)) {
+		seq_putc(m, '\n');
+		return 0;
+	}
+#endif
 #ifndef CONFIG_PROC_BEGONIA_CMDLINE
 	seq_printf(m, "%s\n", saved_command_line);
 #else
