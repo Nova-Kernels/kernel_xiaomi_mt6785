@@ -339,9 +339,8 @@ int susfs_add_sus_kstat(struct st_susfs_sus_kstat* __user user_info) {
 
 	new_entry->target_ino = info.target_ino;
 	memcpy(&new_entry->info, &info, sizeof(info));
-	// only if the target is added statically needs to have flag INODE_STATE_SUS_KSTAT set here,
-	// otherwise the flag INODE_STATE_SUS_KSTAT should be set in function susfs_update_sus_kstat()
-	if (new_entry->info.is_statically && susfs_update_sus_kstat_inode(new_entry->info.target_pathname)) {
+
+	if (susfs_update_sus_kstat_inode(new_entry->info.target_pathname)) {
 		kfree(new_entry);
 		return 1;
 	}
@@ -512,9 +511,10 @@ int susfs_add_try_umount(struct st_susfs_try_umount* __user user_info) {
 }
 
 void susfs_try_umount(uid_t target_uid) {
-	struct st_susfs_try_umount_list *cursor = NULL, *temp = NULL;
+	struct st_susfs_try_umount_list *cursor = NULL;
 
-	list_for_each_entry_safe(cursor, temp, &LH_TRY_UMOUNT_PATH, list) {
+	// We should umount in reversed order
+	list_for_each_entry_reverse(cursor, &LH_TRY_UMOUNT_PATH, list) {
 		SUSFS_LOGI("umounting '%s' for uid: %d\n", cursor->info.target_pathname, target_uid);
 		if (cursor->info.mnt_mode == TRY_UMOUNT_DEFAULT) {
 			ksu_try_umount(cursor->info.target_pathname, false, 0);
@@ -532,7 +532,16 @@ void susfs_auto_add_try_umount_for_bind_mount(struct path *path) {
 	struct st_susfs_try_umount_list *cursor = NULL, *temp = NULL;
 	struct st_susfs_try_umount_list *new_list = NULL;
 	char *pathname = NULL, *dpath = NULL;
+#ifdef CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
 	bool is_magic_mount_path = false;
+#endif
+
+#ifdef CONFIG_KSU_SUSFS_SUS_KSTAT
+	if (path->dentry->d_inode->i_state & INODE_STATE_SUS_KSTAT) {
+		SUSFS_LOGI("skip adding path to try_umount list as its inode is flagged INODE_STATE_SUS_KSTAT already\n");
+		return;
+	}
+#endif
 
 	pathname = kmalloc(PAGE_SIZE, GFP_KERNEL);
 	if (!pathname) {
@@ -546,15 +555,21 @@ void susfs_auto_add_try_umount_for_bind_mount(struct path *path) {
 		goto out_free_pathname;
 	}
 
+#ifdef CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
 	if (strstr(dpath, MAGIC_MOUNT_WORKDIR)) {
 		is_magic_mount_path = true;
 	}
+#endif
 
 	list_for_each_entry_safe(cursor, temp, &LH_TRY_UMOUNT_PATH, list) {
+#ifdef CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
 		if (is_magic_mount_path && strstr(dpath, cursor->info.target_pathname)) {
-				goto out_free_pathname;
-		} else if (unlikely(!strcmp(dpath, cursor->info.target_pathname))) {
-			SUSFS_LOGE("target_pathname: '%s' is already created in LH_TRY_UMOUNT_PATH\n", dpath);
+			goto out_free_pathname;
+		}
+#endif
+		if (unlikely(!strcmp(dpath, cursor->info.target_pathname))) {
+			SUSFS_LOGE("target_pathname: '%s', ino: %lu, is already created in LH_TRY_UMOUNT_PATH\n",
+							dpath, path->dentry->d_inode->i_ino);
 			goto out_free_pathname;
 		}
 	}
@@ -565,11 +580,17 @@ void susfs_auto_add_try_umount_for_bind_mount(struct path *path) {
 		goto out_free_pathname;
 	}
 
+#ifdef CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
 	if (is_magic_mount_path) {
 		strncpy(new_list->info.target_pathname, dpath + strlen_debug_ramdisk_workdir, SUSFS_MAX_LEN_PATHNAME-1);
-	} else {
-		strncpy(new_list->info.target_pathname, dpath, SUSFS_MAX_LEN_PATHNAME-1);
+		goto out_add_to_list;
 	}
+#endif
+	strncpy(new_list->info.target_pathname, dpath, SUSFS_MAX_LEN_PATHNAME-1);
+
+#ifdef CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
+out_add_to_list:
+#endif
 
 	new_list->info.mnt_mode = TRY_UMOUNT_DETACH;
 
@@ -577,7 +598,8 @@ void susfs_auto_add_try_umount_for_bind_mount(struct path *path) {
 	spin_lock(&susfs_spin_lock);
 	list_add_tail(&new_list->list, &LH_TRY_UMOUNT_PATH);
 	spin_unlock(&susfs_spin_lock);
-	SUSFS_LOGI("target_pathname: '%s', mnt_mode: %d, is successfully added to LH_TRY_UMOUNT_PATH\n", new_list->info.target_pathname, new_list->info.mnt_mode);
+	SUSFS_LOGI("target_pathname: '%s', ino: %lu, mnt_mode: %d, is successfully added to LH_TRY_UMOUNT_PATH\n",
+					new_list->info.target_pathname, path->dentry->d_inode->i_ino, new_list->info.mnt_mode);
 out_free_pathname:
 	kfree(pathname);
 }
