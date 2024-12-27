@@ -52,8 +52,12 @@ ifeq ($(shell grep -q "struct selinux_state " $(srctree)/security/selinux/includ
 ccflags-y += -DKSU_COMPAT_HAS_SELINUX_STATE
 endif
 
-ifeq ($(shell grep -q "int path_umount" $(srctree)/fs/namespace.c; echo $$?),0)
-ccflags-y += -DKSU_UMOUNT
+ifneq ($(shell grep -q "int path_umount" $(srctree)/fs/namespace.c; echo $$?),0)
+$(error You must backport path_umount - https://github.com/tiann/KernelSU/pull/1464 )
+endif
+
+ifneq ($(shell grep -q "get_cred_rcu" $(srctree)/include/linux/cred.h; echo $$?),0)
+$(error You must backport get_cred_rcu - https://github.com/gregkh/linux/commit/97d0fb239c041f5f99655af74812c3ab75cc4346 )
 endif
 
 ## For susfs stuff ##
