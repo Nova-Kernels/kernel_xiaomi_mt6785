@@ -86,6 +86,7 @@
  *                              C O N S T A N T S
  *******************************************************************************
  */
+#define IW_AUTH_WPA_VERSION_WPA3        0x00000008
 
 /*******************************************************************************
  *                             D A T A   T Y P E S
@@ -1307,6 +1308,9 @@ int mtk_cfg80211_connect(struct wiphy *wiphy,
 	else if (sme->crypto.wpa_versions & NL80211_WPA_VERSION_2)
 		prWpaInfo->u4WpaVersion =
 			IW_AUTH_WPA_VERSION_WPA2;
+	else if (sme->crypto.wpa_versions & NL80211_WPA_VERSION_3)
+		prWpaInfo->u4WpaVersion =
+			IW_AUTH_WPA_VERSION_WPA3;
 	else
 		prWpaInfo->u4WpaVersion =
 			IW_AUTH_WPA_VERSION_DISABLED;
@@ -1494,6 +1498,21 @@ int mtk_cfg80211_connect(struct wiphy *wiphy,
 			case WLAN_AKM_SUITE_OWE:
 				eAuthMode = AUTH_MODE_WPA3_OWE;
 				u4AkmSuite = RSN_AKM_SUITE_OWE;
+				break;
+			default:
+				DBGLOG(REQ, WARN, "invalid Akm Suite (%d)\n",
+				       sme->crypto.akm_suites[0]);
+				return -EINVAL;
+			}
+		} else if (prWpaInfo->u4WpaVersion ==
+			   IW_AUTH_WPA_VERSION_WPA3) {
+			switch (sme->crypto.akm_suites[0]) {
+			case WLAN_AKM_SUITE_SAE:
+				if (sme->auth_type == NL80211_AUTHTYPE_SAE)
+					eAuthMode = AUTH_MODE_WPA3_SAE;
+				else
+					eAuthMode = AUTH_MODE_OPEN;
+				u4AkmSuite = RSN_AKM_SUITE_SAE;
 				break;
 			default:
 				DBGLOG(REQ, WARN, "invalid Akm Suite (%d)\n",
@@ -2242,6 +2261,9 @@ int mtk_cfg80211_set_rekey_data(struct wiphy *wiphy,
 
 	prGtkData->u4Proto = NL80211_WPA_VERSION_2;
 	if (prWpaInfo->u4WpaVersion ==
+		IW_AUTH_WPA_VERSION_WPA3)
+		prGtkData->u4Proto = NL80211_WPA_VERSION_3;
+	else if (prWpaInfo->u4WpaVersion ==
 	    IW_AUTH_WPA_VERSION_WPA)
 		prGtkData->u4Proto = NL80211_WPA_VERSION_1;
 
