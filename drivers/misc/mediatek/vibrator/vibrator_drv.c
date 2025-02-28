@@ -31,6 +31,7 @@
 
 #define VIB_DEVICE				"mtk_vibrator"
 #define VIB_TAG                                 "[vibrator]"
+#define VIB_MAX_LIMIT 9
 
 struct mt_vibr {
 	struct workqueue_struct *vibr_queue;
@@ -226,8 +227,9 @@ static ssize_t vibr_vmax_max_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct vibrator_hw* hw = mt_get_cust_vibrator_hw();
+	int vmax = (hw->vib_vol_max > VIB_MAX_LIMIT) ? VIB_MAX_LIMIT : hw->vib_vol_max;
 
-	return sprintf(buf, "%d\n", hw->vib_vol_max);
+	return sprintf(buf, "%d\n", vmax);
 }
 
 static DEVICE_ATTR(activate, 0644, vibr_activate_show, vibr_activate_store);
