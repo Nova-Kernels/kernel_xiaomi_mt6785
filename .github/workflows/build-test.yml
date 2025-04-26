@@ -1,0 +1,359 @@
+name: "Build kernels for test"
+
+env:
+  OUT_DIR: "${{ github.workspace }}/out"
+
+on:
+  workflow_call:
+    inputs:
+      from_ci:
+        type: boolean
+        required: false
+        default: true
+
+  workflow_dispatch:
+
+jobs:
+  Set-repos:
+    name: "🐂 Parse configs.json"
+    runs-on: ubuntu-latest
+    outputs:
+      repos: ${{ steps.generate-matrix.outputs.repos }}
+      builddate: ${{ steps.generate-builddate.outputs.builddate }}
+    steps:
+      - name: "😄 Checkout"
+        uses: actions/checkout@v3
+
+      - name: "😆 Generate Matrix"
+        id: generate-matrix
+        run: |
+          echo "repos<<EOF" >> $GITHUB_OUTPUT
+          jq -s '[.[][]]' .github/configs/*.json >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: "⏰ Set builddate"
+        id: generate-builddate
+        run: echo "builddate=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+
+  Build-Kernel:
+    name: "🐎 Build kernel"
+    runs-on: ubuntu-latest
+    needs:
+      - Set-repos
+    strategy:
+      fail-fast: false
+      matrix:
+        repos: ${{ fromJSON(needs.Set-repos.outputs.repos) }}
+    env:
+      WORKSPACE: ${{ github.workspace }}
+      builddate: "${{ needs.Set-repos.outputs.builddate }}"
+
+      KERNEL_DEVICE: ${{ matrix.repos.kernelSource.device }}
+      DEFCONFIG_NAME: ${{ matrix.repos.kernelSource.defconfig }}
+
+      withRoot: ${{ matrix.repos.withRoot }}
+      withSUSFS: ${{ matrix.repos.withSUSFS }}
+      ccache: ${{ matrix.repos.ccache }}
+      useAnykernel: ${{ matrix.repos.AnyKernel3.use }}
+      release: ${{ matrix.repos.AnyKernel3.release }}
+
+    steps:
+      - name: "🟣 Set Kernel Variables"
+        run: |
+          echo "KERNEL_NAME=${{ matrix.repos.kernelSource.name }}" >> $GITHUB_ENV
+          echo "KERNEL_REPO=${{ matrix.repos.kernelSource.repo }}" >> $GITHUB_ENV
+          echo "KERNEL_BRANCH=${{ matrix.repos.kernelSource.branch }}" >> $GITHUB_ENV
+
+          echo "toolchains=$(echo '${{ toJSON(matrix.repos.toolchains) }}' | jq -c)" >> $GITHUB_ENV
+          echo "params=$(echo '${{ toJSON(matrix.repos.params) }}' | jq -c)" >> $GITHUB_ENV
+          echo "THREAD=$(nproc --all)" >> $GITHUB_ENV
+
+      - name: "⭐ Install prerequisites"
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential bc gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi libssl-dev libfl-dev
+          sudo apt-get install -y curl git ftp lftp wget libarchive-tools ccache
+          sudo apt-get install -y zip unzip tar gzip bzip2 rar unrar
+          sudo apt-get install -y checkinstall libncursesw5-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev libffi-dev
+          wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz
+          tar -xvf Python-2.7.18.tgz
+          cd Python-2.7.18
+          ./configure
+          make -j$(nproc)
+          sudo make install
+          curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
+          sudo python2.7 get-pip.py
+          sudo update-alternatives --install /usr/bin/python python /usr/local/lib/python2.7 1
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2 || true
+          cd ..
+
+      - name: "🚄 Create cache key from `repos`"
+        if: ${{ env.ccache == 'true' }}
+        id: ccache_key
+        run: |
+          ccache -o compression=false -o cache_dir=$HOME/.ccache
+          echo "CACHE_KEY=$(echo -n '${{ toJSON(matrix.repos) }}' | base64 -w 0 | cut -c -48)" >> $GITHUB_OUTPUT
+
+      - name: "🚅 Cache ccache files"
+        if: ${{ env.ccache == 'true' }}
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ccache
+            ${{ env.OUT_DIR }}
+          key: ccache-${{ env.KERNEL_NAME }}-${{ steps.ccache_key.outputs.CACHE_KEY }}-${{ env.builddate }}
+          restore-keys: |
+            ccache-${{ env.KERNEL_NAME }}-${{ steps.ccache_key.outputs.CACHE_KEY }}-${{ env.builddate }}
+
+      - name: "⏰ Setup Anykernel3"
+        env:
+          params: "${{ toJSON(matrix.repos.AnyKernel3) }}"
+        run: |
+          ANYKERNEL_REPO=$(echo $params | jq -r ".repo")
+          ANYKERNEL_BRANCH=$(echo $params | jq -r ".branch")
+          git clone --recursive --depth=1 -j $(nproc) --branch $ANYKERNEL_BRANCH $ANYKERNEL_REPO AnyKernel3
+
+          echo "🤔 Setup Anykernel3 => ($ANYKERNEL_REPO)"
+
+      - name: "🌟 Clone kernel source => (${{ env.KERNEL_REPO }})"
+        run: |
+          git clone --recursive --depth=1 -j $(nproc) --branch $KERNEL_BRANCH $KERNEL_REPO $KERNEL_NAME
+          echo -e "\n⚠️ Kernel is at commit: $(git -C $KERNEL_NAME rev-parse HEAD)\n"
+
+          echo "🤔 Clone kernel source => ($KERNEL_REPO)"
+
+      - name: "💫 Get toolchains"
+        run: |
+          toolchains_num="$(echo $toolchains | jq 'length')"
+          echo "🤔 There is $toolchains_num defined toolchains."
+          for ((i=0;i<toolchains_num;i++)); do
+            toolchain_name=$(echo $toolchains | jq -r ".[$i].name")
+            # Github
+            toolchain_repo=$(echo $toolchains | jq -r ".[$i].repo")
+            toolchain_branch=$(echo $toolchains | jq -r ".[$i].branch")
+            # From archive
+            toolchain_url=$(echo $toolchains | jq -r ".[$i].url")
+
+            echo $toolchain_url
+            if [ -z "${toolchain_url:-}" ] || [ "$toolchain_url" = "null" ];  then
+              git clone --recursive --depth=1 -j $(nproc) --branch $toolchain_branch $toolchain_repo $toolchain_name
+              echo "🤔 Clone $toolchain_name => ($toolchain_repo)"
+            else
+              wget "$toolchain_url"
+              filename="${toolchain_url##*/}"
+              mkdir -p $toolchain_name
+              case "$filename" in
+                *.zip)
+                  unzip -d $toolchain_name "$filename"
+                  ;;
+                *.tar)
+                  tar xvf "$filename" -C $toolchain_name
+                  ;;
+                *.tar.gz)
+                  tar zxvf "$filename" -C $toolchain_name
+                  ;;
+                *.rar)
+                  unrar x "$filename" $toolchain_name
+                  ;;
+                *)
+                  echo "unknown file type: $filename"
+                  ;;
+              esac
+            fi
+
+            jq -r ".[$i].binPath[] | tostring" <<< "$toolchains" | while read -r bin_path; do
+              echo "$WORKSPACE/$toolchain_name/$bin_path" >> $GITHUB_PATH
+            done
+          done
+
+      - name: "😎 Set args"
+        id: generate-args
+        run: |
+          echo "🤔 PATH Variable: $PATH"
+
+          ARCH=$(echo $params | jq -r ".ARCH")
+          CC=$(echo $params | jq -r ".CC")
+
+          args="-j${{ env.THREAD }}"
+          if [ -n "${{ env.OUT_DIR }}" ]; then
+            mkdir -p ${{ env.OUT_DIR }} && args="$args O=${{ env.OUT_DIR }}"
+          fi
+          if [ -n "$ARCH" ]; then
+            args="$args ARCH=$ARCH"
+          fi
+          if [ -n "$CC" ]; then
+
+            if [[ "$CC" == *"/"* ]]; then
+              CC=${{ env.WORKSPACE }}/$CC
+            fi
+
+            if [ ${{ env.ccache }} = true ]; then
+              args="$args CC=\"ccache $CC\""
+            else
+              args="$args CC=$CC"
+            fi
+          fi
+          while read -r externalCommand; do
+            key=$(echo "$externalCommand" | cut -d= -f1)
+            value=$(echo "$externalCommand" | cut -d= -f2)
+            if [[ "$value" == *"/"* ]]; then
+              value="${{ env.WORKSPACE }}/$value"
+            fi
+            args="$args $key=$value"
+          done < <(jq -r '.externalCommand | to_entries[] | "\(.key)=\(.value)"' <<< "$params")
+
+          echo "🤔 $args"
+          echo "ARCH=$ARCH" >> $GITHUB_OUTPUT
+          echo "args=$args" >> $GITHUB_OUTPUT
+
+      - name: "😋 Integrate KernelSU or KernelSU-Next"
+        id: integrate-kernelsu-next
+        working-directory: ${{ env.KERNEL_NAME }}
+        env:
+          arch: ${{ steps.generate-args.outputs.ARCH }}
+        if: ${{ env.withRoot == 'rksu' || env.withRoot == 'ksun' }}
+        run: |
+          if [ -d "./KernelSU" ]; then
+            rm -rf "./KernelSU"
+          fi
+          if [ -d "./drivers/kernelsu" ]; then
+            rm -rf "./drivers/kernelsu"
+          fi
+          if [ -d "./SUSFS" ]; then
+            rm -rf "./SUSFS"
+          fi
+
+          if [[ "$withRoot" == "rksu" ]]; then
+            curl -LSs "https://raw.githubusercontent.com/rsuntk/KernelSU/main/kernel/setup.sh" | bash -s main
+          else
+            curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+            rm -rf KernelSU
+            git clone --recursive -j $(nproc) --branch next https://github.com/KernelSU-Next/KernelSU-Next KernelSU
+          fi
+
+          KERNELSU_NEXT_VERSION=$(git -C KernelSU describe --abbrev=0 --tags)
+
+          echo -e "\n💡 KernelSU Next version: $KERNELSU_NEXT_VERSION\n"
+
+          echo -e "KERNELSU_NEXT_VERSION=$KERNELSU_NEXT_VERSION" >> $GITHUB_OUTPUT
+
+          echo -e 'CONFIG_KSU=y' >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          if [[ "$withRoot" == "ksun" ]]; then
+            echo -e 'CONFIG_KSU_WITH_KPROBES=n' >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          fi
+
+          cat arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+
+          SUSFS_BRANCH=next-4.14
+
+          git clone --recursive -j $(nproc) --branch $SUSFS_BRANCH https://github.com/cvnertnc/susfs4ksu-begonia SUSFS
+
+          SUSFS_REF=$(git -C SUSFS rev-parse --short HEAD)
+          echo -e "SUSFS_REF=$SUSFS_REF" >> $GITHUB_OUTPUT
+          echo -e "SUSFS_BRANCH=$SUSFS_BRANCH" >> $GITHUB_OUTPUT
+
+          if [[ "$withRoot" == "rksu" ]]; then
+            patch -p1 < SUSFS/kernel_patches/kernels/nova/0001-fs-implement-KSU.patch
+          else
+            patch -p1 < SUSFS/kernel_patches/kernels/nova/0001-fs-implement-KSUN.patch
+          fi
+
+      - name: "🥷 Add SUSFS patches"
+        id: add-susfs-patches
+        working-directory: ${{ env.KERNEL_NAME }}
+        env:
+          arch: ${{ steps.generate-args.outputs.ARCH }}
+        if: ${{ (env.withRoot == 'rksu' || env.withRoot == 'ksun') && env.withSUSFS == 'true' }}
+        run: |
+
+          if [ -d "./SUSFS" ]; then
+            rm -rf "./SUSFS"
+          fi
+
+          SUSFS_BRANCH=next-4.14
+
+          git clone --recursive -j $(nproc) --branch $SUSFS_BRANCH https://github.com/cvnertnc/susfs4ksu-begonia SUSFS
+
+          SUSFS_REF=$(git -C SUSFS rev-parse --short HEAD)
+          echo -e "SUSFS_REF=$SUSFS_REF" >> $GITHUB_OUTPUT
+          echo -e "SUSFS_BRANCH=$SUSFS_BRANCH" >> $GITHUB_OUTPUT
+
+          cp -v SUSFS/kernel_patches/fs/* fs/
+          cp -v SUSFS/kernel_patches/include/linux/* include/linux/
+
+          if [[ "$withRoot" == "ksun" ]]; then
+              patch -d KernelSU -p1 < SUSFS/kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch
+          else
+            rm -rf KernelSU
+            git clone --recursive -j $(nproc) --branch susfs-v1.5.5 https://github.com/rsuntk/KernelSU KernelSU
+          fi
+
+          patch -p1 < SUSFS/kernel_patches/kernels/nova/50_add_susfs_in_kernel-4.14.patch
+
+          echo -e "#Susfs4ksu" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_SUS_PATH=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_SUS_MOUNT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_SUS_KSTAT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_SUS_OVERLAYFS=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_TRY_UMOUNT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_SPOOF_UNAME=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_ENABLE_LOG=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_OPEN_REDIRECT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_SUS_SU=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_KSU_DEFAULT_MOUNT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_AUTO_ADD_SUS_BIND_MOUNT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          echo -e "CONFIG_KSU_SUSFS_AUTO_ADD_TRY_UMOUNT_FOR_BIND_MOUNT=y" >> arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+
+          cat arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+
+      - name: "👍 Make defconfig"
+        working-directory: ${{ env.KERNEL_NAME }}
+        env:
+          args: ${{ steps.generate-args.outputs.args }}
+          arch: ${{ steps.generate-args.outputs.ARCH }}
+        run: |
+          echo "PATH Variable: $PATH"
+          make ${{ env.args }} ${{ env.DEFCONFIG_NAME }}
+
+      - name: "🎶 Build kernel"
+        working-directory: ${{ env.KERNEL_NAME }}
+        env:
+          args: ${{ steps.generate-args.outputs.args }}
+        run: |
+          echo "PATH Variable: $PATH"
+          make ${{ env.args }}
+
+      - name: "💙 Upload Image.gz"
+        uses: actions/upload-artifact@v4
+        env:
+          arch: ${{ steps.generate-args.outputs.ARCH }}
+        with:
+          name: Image.gz-${{ env.KERNEL_DEVICE }}-${{ steps.integrate-kernelsu-next.outputs.KERNELSU_NEXT_VERSION }}-${{ env.KERNEL_NAME }}-${{ env.builddate }}
+          path: ${{ env.OUT_DIR }}/arch/${{ env.arch }}/boot/Image.gz
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: "❤️ Pack AnyKernel3.zip"
+        if: ${{ env.useAnykernel == 'true' }}
+        env:
+          arch: ${{ steps.generate-args.outputs.ARCH }}
+          anykernel: "${{ env.WORKSPACE }}/${{ env.KERNEL_DEVICE }}-${{ steps.integrate-kernelsu-next.outputs.KERNELSU_NEXT_VERSION }}-${{ env.KERNEL_NAME }}-${{ env.builddate }}"
+        run: |
+          ls -al
+
+          if [ -e "${{ env.OUT_DIR }}/arch/${{ env.arch }}/boot/Image.gz" ]; then
+            cp -f ${{ env.OUT_DIR }}/arch/${{ env.arch }}/boot/Image.gz ./AnyKernel3/
+          fi
+
+          cd AnyKernel3/
+          zip -q -r "${{ env.anykernel }}.zip" *
+
+      - name: "💾 Upload AnyKernel3 image => (${{ env.builddate }})"
+        uses: actions/upload-artifact@v4
+        if: ${{ env.useAnykernel == 'true' }}
+        with:
+          name: "${{ env.KERNEL_DEVICE }}-${{ steps.integrate-kernelsu-next.outputs.KERNELSU_NEXT_VERSION }}-${{ env.KERNEL_NAME }}-${{ env.builddate }}"
+          path: AnyKernel3/*

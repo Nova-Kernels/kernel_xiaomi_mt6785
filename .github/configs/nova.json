@@ -50,11 +50,11 @@
     "kernelSource": {
       "device": "begonia",
       "defconfig": "begonia_user_defconfig",
-      "name": "Nova-KSU-SUSFS",
+      "name": "Nova-RKSU-SUSFS",
       "repo": "https://github.com/Nova-Kernels/kernel_xiaomi_mt6785",
       "branch": "fifteen-fixed"
     },
-    "withRoot": "ksu",
+    "withRoot": "rksu",
     "withSUSFS": true,
     "toolchains": [
       {
