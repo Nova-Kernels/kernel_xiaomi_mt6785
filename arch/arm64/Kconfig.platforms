@@ -109,7 +109,6 @@ config MTK_IGNORE_SSBS
 
 config MACH_MT6785
 	bool "MediaTek MT6785"
-	select ARM_DSU_PMU
 	select MTK_TIMER_SYSTIMER
 	select MTK_GIC_V3_EXT
 	select PINCTRL
