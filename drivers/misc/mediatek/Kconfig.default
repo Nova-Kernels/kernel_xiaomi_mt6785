@@ -7,7 +7,6 @@ config ANDROID_DEFAULT_SETTING
 	select ANDROID_BINDER_IPC
 	select ARM64_SW_TTBR0_PAN
 	select ASHMEM
-	select AUDIT
 	select BINFMT_ELF
 	select BINFMT_SCRIPT
 	select BLK_DEV_INITRD
