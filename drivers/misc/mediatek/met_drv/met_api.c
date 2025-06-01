@@ -315,13 +315,13 @@ void met_cpu_frequency(unsigned int frequency, unsigned int cpu_id)
 	trace_cpu_frequency(frequency, cpu_id);
 }
 EXPORT_SYMBOL(met_cpu_frequency);
-
+#ifdef CONFIG_TRACING
 void met_tracing_record_cmdline(struct task_struct *tsk)
 {
 	tracing_record_cmdline(tsk);
 }
 EXPORT_SYMBOL(met_tracing_record_cmdline);
-
+#endif
 void met_set_kptr_restrict(int value)
 {
 	kptr_restrict = value;

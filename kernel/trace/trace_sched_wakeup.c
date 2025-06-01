@@ -451,7 +451,9 @@ probe_wakeup_sched_switch(void *ignore, bool preempt,
 	int cpu;
 	int pc;
 
+    #ifdef CONFIG_TRACING
 	tracing_record_cmdline(prev);
+    #endif
 
 	if (unlikely(!tracer_enabled))
 		return;
@@ -546,8 +548,10 @@ probe_wakeup(void *ignore, struct task_struct *p)
 	if (likely(!tracer_enabled))
 		return;
 
+#ifdef CONFIG_TRACING
 	tracing_record_cmdline(p);
 	tracing_record_cmdline(current);
+#endif
 
 	/*
 	 * Semantic is like this:

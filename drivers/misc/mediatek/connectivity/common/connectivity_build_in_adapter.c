@@ -126,13 +126,13 @@ void connectivity_export_show_stack(struct task_struct *tsk, unsigned long *sp)
 	show_stack(tsk, sp);
 }
 EXPORT_SYMBOL(connectivity_export_show_stack);
-
+#ifdef CONFIG_TRACING
 void connectivity_export_tracing_record_cmdline(struct task_struct *tsk)
 {
 	tracing_record_cmdline(tsk);
 }
 EXPORT_SYMBOL(connectivity_export_tracing_record_cmdline);
-
+#endif
 #ifdef CPU_BOOST
 bool connectivity_export_spm_resource_req(unsigned int user,
 					  unsigned int req_mask)

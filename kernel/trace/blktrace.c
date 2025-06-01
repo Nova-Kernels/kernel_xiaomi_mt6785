@@ -262,8 +262,9 @@ static void __blk_add_trace(struct blk_trace *bt, sector_t sector, int bytes,
 	cpu = raw_smp_processor_id();
 
 	if (blk_tracer) {
+#ifdef CONFIG_TRACING
 		tracing_record_cmdline(current);
-
+#endif
 		buffer = blk_tr->trace_buffer.buffer;
 		pc = preempt_count();
 		event = trace_buffer_lock_reserve(buffer, TRACE_BLK,

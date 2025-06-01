@@ -67,11 +67,13 @@ extern int check_proc_write(int *data, const char *ubuf, size_t cnt);
 extern int check_group_proc_write(int *cgroup, int *data,
 				 const char *ubuf, size_t cnt);
 
+#ifdef CONFIG_TRACING
 extern void perfmgr_trace_count(int val, const char *fmt, ...);
 extern void perfmgr_trace_end(void);
 extern void perfmgr_trace_begin(char *name, int id, int a, int b);
 extern void perfmgr_trace_printk(char *module, char *string);
 extern void perfmgr_trace_log(char *module, const char *fmt, ...);
+#endif
 extern int perfmgr_common_userlimit_cpu_freq(unsigned int cluster_num,
 					struct ppm_limit_data *final_freq);
 

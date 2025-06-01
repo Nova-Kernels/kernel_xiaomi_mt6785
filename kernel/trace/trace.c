@@ -1369,7 +1369,9 @@ __update_max_tr(struct trace_array *tr, struct task_struct *tsk, int cpu)
 	max_data->rt_priority = tsk->rt_priority;
 
 	/* record this tasks comm */
+#ifdef CONFIG_TRACING
 	tracing_record_cmdline(tsk);
+#endif
 }
 
 /**
@@ -2152,6 +2154,7 @@ void tracing_record_taskinfo_sched_switch(struct task_struct *prev,
 }
 
 /* Helpers to record a specific task information */
+#ifdef CONFIG_TRACING
 void tracing_record_cmdline(struct task_struct *task)
 {
 	tracing_record_taskinfo(task, TRACE_RECORD_CMDLINE);
@@ -2161,7 +2164,7 @@ void tracing_record_tgid(struct task_struct *task)
 {
 	tracing_record_taskinfo(task, TRACE_RECORD_TGID);
 }
-
+#endif
 /*
  * Several functions return TRACE_TYPE_PARTIAL_LINE if the trace_seq
  * overflowed, and TRACE_TYPE_HANDLED otherwise. This helper function
