@@ -895,9 +895,10 @@ struct rq {
 	struct hrtimer hrtick_timer;
 #endif
 
-#ifdef CONFIG_SCHEDSTATS
 	/* latency stats */
 	struct sched_info rq_sched_info;
+
+#ifdef CONFIG_SCHEDSTATS
 	unsigned long long rq_cpu_time;
 	/* could above be rq->cfs_rq.exec_clock + rq->rt_rq.rt_runtime ? */
 

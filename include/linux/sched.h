@@ -303,7 +303,6 @@ enum uclamp_id {
 };
 
 struct sched_info {
-#ifdef CONFIG_SCHED_INFO
 	/* Cumulative counters: */
 
 	/* # of times we have run on this CPU: */
@@ -320,7 +319,6 @@ struct sched_info {
 	/* When were we last queued to run? */
 	unsigned long long		last_queued;
 
-#endif /* CONFIG_SCHED_INFO */
 };
 
 /*
