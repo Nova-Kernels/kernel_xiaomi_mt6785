@@ -131,7 +131,7 @@ config SCHED_HMP_PLUS
 
 config MTK_SCHED_BOOST
 	bool "mtk scheduling boost enhancement"
-	depends on SCHED_DEBUG && CPUSETS && SCHED_HMP && \
+	depends on CPUSETS && SCHED_HMP && \
 		DEFAULT_USE_ENERGY_AWARE
 	default n
 	help
