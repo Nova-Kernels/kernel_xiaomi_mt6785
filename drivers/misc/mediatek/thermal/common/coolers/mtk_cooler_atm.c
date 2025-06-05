@@ -452,6 +452,7 @@ mt_cpufreq_thermal_protect(unsigned int limited_power)
 #endif
 #endif
 
+#ifdef CONFIG_MTK_CPU_CTRL
 int __attribute__((weak))
 mtk_eara_thermal_pb_handle(int total_pwr_budget,
 			   int max_cpu_power, int max_gpu_power,
@@ -460,7 +461,7 @@ mtk_eara_thermal_pb_handle(int total_pwr_budget,
 	pr_err("E_WF: %s doesn't exist\n", __func__);
 	return 0;
 }
-
+#endif
 bool __attribute__((weak))
 mtk_get_gpu_loading(unsigned int *pLoading)
 {
@@ -1232,8 +1233,12 @@ static int EARA_handled(int total_power)
 		MAXIMUM_VPU_POWER, MAXIMUM_MDLA_POWER);
 #else
 	total_power_eara = total_power;
+#ifdef CONFIG_MTK_CPU_CTRL
 	ret = mtk_eara_thermal_pb_handle(total_power_eara,
 		MAXIMUM_CPU_POWER, MAXIMUM_GPU_POWER, -1, -1);
+#else
+    ret = 0;
+#endif
 #endif
 		return ret;
 
