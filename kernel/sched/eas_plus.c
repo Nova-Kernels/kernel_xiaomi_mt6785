@@ -1773,7 +1773,9 @@ struct task_rotate_work {
 };
 
 static DEFINE_PER_CPU(struct task_rotate_work, task_rotate_works);
+#ifdef CONFIG_MTK_CPU_CTRL
 struct task_rotate_reset_uclamp_work task_rotate_reset_uclamp_works;
+#endif
 unsigned int sysctl_sched_rotation_enable;
 bool set_uclamp;
 
@@ -1795,6 +1797,7 @@ bool is_min_capacity_cpu(int cpu)
 	return false;
 }
 
+#ifdef CONFIG_MTK_CPU_CTRL
 static void task_rotate_work_func(struct work_struct *work)
 {
 	struct task_rotate_work *wr = container_of(work,
@@ -1855,7 +1858,6 @@ void task_check_for_rotation(struct rq *src_rq)
 	int deserved_cpu = nr_cpu_ids, dst_cpu = nr_cpu_ids;
 	int i, src_cpu = cpu_of(src_rq);
 	struct rq *dst_rq;
-	struct task_rotate_work *wr = NULL;
 	int heavy_task = 0;
 	int force = 0;
 
@@ -1969,3 +1971,4 @@ void task_check_for_rotation(struct rq *src_rq)
 					false, set_uclamp);
 	}
 }
+#endif

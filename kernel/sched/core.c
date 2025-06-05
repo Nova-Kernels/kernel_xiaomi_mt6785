@@ -4459,8 +4459,10 @@ void scheduler_tick(void)
 	cal_cpu_load(cpu);
 #endif
 
+#ifdef CONFIG_MTK_CPU_CTRL
 	if (curr->sched_class == &fair_sched_class)
 		check_for_migration(rq, curr);
+#endif
 
 #ifdef CONFIG_MTK_QOS_FRAMEWORK
 	qos_prefetch_tick(cpu);
@@ -7860,7 +7862,9 @@ void __init sched_init(void)
 
 	scheduler_running = 1;
 
+#ifdef CONFIG_MTK_CPU_CTRL
 	task_rotate_work_init();
+#endif
 }
 
 #ifdef CONFIG_DEBUG_ATOMIC_SLEEP

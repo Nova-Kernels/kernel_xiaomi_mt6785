@@ -276,9 +276,11 @@ static void amms_freq_hold(void)
 		amms_freq_to_set[i].max = -1;
 	}
 
+#ifdef CONFIG_MTK_CPU_CTRL
 	if (update_userlimit_cpu_freq(CPU_KIR_AMMS,
 		cluster_num, amms_freq_to_set))
 		pr_info("%s: failed\n", __func__);
+#endif
 }
 
 static void amms_freq_release(void)
@@ -291,10 +293,11 @@ static void amms_freq_release(void)
 		amms_freq_to_set[i].min = -1;
 		amms_freq_to_set[i].max = -1;
 	}
+#ifdef CONFIG_MTK_CPU_CTRL
 	if (update_userlimit_cpu_freq(CPU_KIR_AMMS,
 		cluster_num, amms_freq_to_set))
 		pr_info("%s: failed\n", __func__);
-
+#endif
 }
 #if 0
 static int param_set_amms_bind_cpu(const char *val,

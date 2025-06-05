@@ -72,7 +72,9 @@ struct task_rotate_reset_uclamp_work {
 extern struct task_rotate_reset_uclamp_work task_rotate_reset_uclamp_works;
 extern bool set_uclamp;
 extern void task_rotate_work_init(void);
+#ifdef CONFIG_MTK_CPU_CTRL
 extern void check_for_migration(struct rq *rq, struct task_struct *p);
+#endif
 extern void task_check_for_rotation(struct rq *rq);
 extern void set_sched_rotation_enable(bool enable);
 
