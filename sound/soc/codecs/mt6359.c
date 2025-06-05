@@ -2616,7 +2616,7 @@ static int mt_mic_bias_0_event(struct snd_soc_dapm_widget *w,
 	bool vow_is_on = (IS_VOW_AMIC_BASE(priv->mux_select[MUX_MIC_TYPE_0]) ||
 			  IS_VOW_AMIC_BASE(priv->mux_select[MUX_MIC_TYPE_2]));
 
-	dev_info(priv->dev, "%s(), event 0x%x, mic_type %d\n",
+	dev_dbg(priv->dev, "%s(), event 0x%x, mic_type %d\n",
 		 __func__, event, mic_type);
 
 	switch (event) {
@@ -2670,7 +2670,7 @@ static int mt_mic_bias_1_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE_1];
 
-	dev_info(priv->dev, "%s(), event 0x%x, mic_type %d\n",
+	dev_dbg(priv->dev, "%s(), event 0x%x, mic_type %d\n",
 		 __func__, event, mic_type);
 
 	switch (event) {
@@ -2704,7 +2704,7 @@ static int mt_mic_bias_2_event(struct snd_soc_dapm_widget *w,
 	struct mt6359_priv *priv = snd_soc_component_get_drvdata(cmpnt);
 	unsigned int mic_type = priv->mux_select[MUX_MIC_TYPE_2];
 
-	dev_info(priv->dev, "%s(), event 0x%x, mic_type %d\n",
+	dev_dbg(priv->dev, "%s(), event 0x%x, mic_type %d\n",
 		 __func__, event, mic_type);
 
 	switch (event) {
@@ -3456,7 +3456,7 @@ static int mt_pga_l_event(struct snd_soc_dapm_widget *w,
 	/* if is VOW, then force 24dB */
 	if (IS_VOW_BASE(mic_type))
 		mic_gain_l = 4;
-	dev_info(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_l %d, mux_pga %d\n",
+	dev_dbg(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_l %d, mux_pga %d\n",
 		 __func__, event, mic_type, mic_gain_l, mux_pga);
 
 	switch (event) {
@@ -3520,7 +3520,7 @@ static int mt_pga_r_event(struct snd_soc_dapm_widget *w,
 	/* if is VOW, then force 24dB */
 	if (IS_VOW_BASE(mic_type))
 		mic_gain_r = 4;
-	dev_info(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_r %d, mux_pga %d\n",
+	dev_dbg(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_r %d, mux_pga %d\n",
 		 __func__, event, mic_type, mic_gain_r, mux_pga);
 
 	switch (event) {
@@ -3581,7 +3581,7 @@ static int mt_pga_3_event(struct snd_soc_dapm_widget *w,
 	/* if is VOW, then force 24dB */
 	if (IS_VOW_BASE(mic_type))
 		mic_gain_3 = 4;
-	dev_info(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_3 %d, mux_pga %d\n",
+	dev_dbg(priv->dev, "%s(), event = 0x%x, mic_type %d, mic_gain_3 %d, mux_pga %d\n",
 		 __func__, event, mic_type, mic_gain_3, mux_pga);
 
 	switch (event) {
