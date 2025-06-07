@@ -31,7 +31,7 @@ int mtk_afe_combine_sub_dai(struct mtk_base_afe *afe)
 		num_dai_drivers += dai->num_dai_drivers;
 	}
 
-	dev_info(afe->dev, "%s(), num of dai %zd\n", __func__, num_dai_drivers);
+	dev_dbg(afe->dev, "%s(), num of dai %zd\n", __func__, num_dai_drivers);
 
 	/* combine sub_dais */
 	afe->num_dai_drivers = num_dai_drivers;
@@ -227,7 +227,7 @@ int mtk_afe_pcm_new(struct snd_soc_pcm_runtime *rtd)
 							    size, size);
 	}
 
-	dev_info(afe->dev, "%s(), dai_link_name : %s, memif_id : %d, size : %zu, ret : %d\n",
+	dev_dbg(afe->dev, "%s(), dai_link_name : %s, memif_id : %d, size : %zu, ret : %d\n",
 		 __func__,
 		 rtd->dai_link->name,
 		 rtd->cpu_dai->id,
