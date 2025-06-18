@@ -22,37 +22,6 @@
 #include <linux/tracepoint.h>
 #include "mdla_pmu.h"
 
-TRACE_EVENT(mdla_polling,
-	TP_PROTO(int core,
-		u32 c[MDLA_PMU_COUNTERS]),
-	TP_ARGS(core, c),
-	TP_STRUCT__entry(
-		__field(int, core)
-		__array(u32, c, MDLA_PMU_COUNTERS)
-		),
-	TP_fast_assign(
-		__entry->core = core;
-		memcpy(__entry->c, c, MDLA_PMU_COUNTERS * sizeof(u32));
-	),
-	TP_printk(MDLA_POLL_STR1 MDLA_POLL_STR2 MDLA_POLL_STR3,
-		__entry->core,
-		__entry->c[0],
-		__entry->c[1],
-		__entry->c[2],
-		__entry->c[3],
-		__entry->c[4],
-		__entry->c[5],
-		__entry->c[6],
-		__entry->c[7],
-		__entry->c[8],
-		__entry->c[9],
-		__entry->c[10],
-		__entry->c[11],
-		__entry->c[12],
-		__entry->c[13],
-		__entry->c[14])
-);
-
 TRACE_EVENT(mdla_cmd_enter,
 	TP_PROTO(int core, int vmdla_opp, int dsp_freq,
 		int ipu_if_freq, int mdla_freq),

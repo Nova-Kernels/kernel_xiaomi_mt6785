@@ -141,7 +141,6 @@ static void mdla_profile_pmu_counter(int core_id)
 		core_id,
 		c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7],
 		c[8], c[9], c[10], c[11], c[12], c[13], c[14]);
-	trace_mdla_polling(core_id, c);
 }
 
 static void mdla_profile_register_read(int core_id)

@@ -152,35 +152,6 @@ static void mdw_sched_trace(struct mdw_apu_sc *sc,
 			sc->driver_time,
 			ret);
 	}
-
-	/* trace cmd end */
-	trace_mdw_cmd(done,
-		sc->parent->pid,
-		sc->parent->tgid,
-		sc->parent->hdr->uid,
-		sc->parent->kid,
-		sc->idx,
-		sc->parent->hdr->num_sc,
-		d->type,
-		d->name,
-		d->idx,
-		sc->hdr->pack_id,
-		h->multicore_idx,
-		sc->multi_total,
-		sc->multi_bmp,
-		sc->parent->hdr->priority,
-		sc->parent->hdr->soft_limit,
-		sc->parent->hdr->hard_limit,
-		sc->hdr->ip_time,
-		sc->hdr->suggest_time,
-		0,//sc->par_cmd->power_save,
-		sc->ctx,
-		sc->hdr->tcm_force,
-		sc->hdr->tcm_usage,
-		sc->real_tcm_usage,
-		h->boost_val,
-		h->ip_time,
-		ret);
 }
 #undef MDW_EXEC_PRINT
 
