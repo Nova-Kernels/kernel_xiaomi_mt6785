@@ -178,7 +178,9 @@ static void led_blink_setup(struct led_classdev *led_cdev,
 void led_init_core(struct led_classdev *led_cdev)
 {
 	INIT_WORK(&led_cdev->set_brightness_work, set_brightness_delayed);
+#ifdef CONFIG_DEBUG_KERNEL
 dump_stack();
+#endif
 	setup_timer(&led_cdev->blink_timer, led_timer_function,
 		    (unsigned long)led_cdev);
 }
