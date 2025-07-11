@@ -180,7 +180,9 @@ struct cmdq_client *cmdq_mbox_create(struct device *dev, int index)
 	if (IS_ERR(client->chan)) {
 		cmdq_err("channel request fail:%d, idx:%d",
 			PTR_ERR(client->chan), index);
+#ifdef CONFIG_DEBUG_KERNEL
 		dump_stack();
+#endif
 		kfree(client);
 		return NULL;
 	}
