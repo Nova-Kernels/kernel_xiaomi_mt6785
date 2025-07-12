@@ -12,8 +12,10 @@ fhci-y += fhci-mem.o fhci-tds.o fhci-sched.o
 fhci-$(CONFIG_FHCI_DEBUG) += fhci-dbg.o
 
 xhci-hcd-y := xhci.o xhci-mem.o
-xhci-hcd-y += xhci-ring.o xhci-hub.o xhci-dbg.o
-xhci-hcd-y += xhci-trace.o
+
+xhci-hcd-y += xhci-ring.o xhci-hub.o
+xhci-hcd-$(CONFIG_DEBUG_KERNEL) += xhci-dbg.o xhci-trace.o
+
 ifneq ($(CONFIG_USB_XHCI_MTK), )
 	xhci-hcd-y += xhci-mtk-sch.o
 ifneq ($(CONFIG_MTK_UAC_POWER_SAVING), )
