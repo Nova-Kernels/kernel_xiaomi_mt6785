@@ -42,7 +42,6 @@ int init_boostctrl(struct proc_dir_entry *parent)
 	eas_ctrl_init(bstctrl_root);
 	/* EAS */
 	easctrl_root = proc_mkdir("eas_ctrl", bstctrl_root);
-	uclamp_ctrl_init(easctrl_root);
 	eas_ctrl_init(easctrl_root);
 #endif
 
