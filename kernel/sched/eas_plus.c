@@ -1858,6 +1858,7 @@ void task_check_for_rotation(struct rq *src_rq)
 	int deserved_cpu = nr_cpu_ids, dst_cpu = nr_cpu_ids;
 	int i, src_cpu = cpu_of(src_rq);
 	struct rq *dst_rq;
+	struct task_rotate_work *wr = NULL;
 	int heavy_task = 0;
 	int force = 0;
 
