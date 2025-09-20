@@ -58,6 +58,9 @@ sub find_initcalls {
 		my ($function, $level) = $symbol =~
 			/^(.*)((early|rootfs|con|security|[0-9])s?)$/;
 
+		die "$0: ERROR: invalid initcall name $symbol in object $object"
+			if (!defined($function) || !defined($level));
+
 		die "$0: duplicate initcall counter value in object $object: $_"
 			if exists($initcalls->{$counter});
 
