@@ -201,6 +201,225 @@ EXPORT_SYMBOL_GPL(mtk_btag_pidlog_map_sg);
 
 static void _mtk_btag_pidlog_set_pid(struct page *p, int mode)
 {
+	if (btag_bootdev)
+		return &btag_bootdev->mictx;
+	else
+		return NULL;
+}
+
+static void mtk_btag_mictx_reset(
+	struct mtk_btag_mictx_struct *ctx,
+	__u64 window_begin)
+{
+	if (!window_begin)
+		window_begin = sched_clock();
+	ctx->window_begin = window_begin;
+
+	if (!ctx->q_depth)
+		ctx->idle_begin = ctx->window_begin;
+	else
+		ctx->idle_begin = 0;
+
+	ctx->idle_total = 0;
+	ctx->tp_min_time = ctx->tp_max_time = 0;
+	ctx->weighted_qd = 0;
+	memset(&ctx->tp, 0, sizeof(struct mtk_btag_throughput));
+	memset(&ctx->req, 0, sizeof(struct mtk_btag_req));
+}
+
+#if IS_ENABLED(CONFIG_SCHED_TUNE)
+static int mtk_btag_get_schedtune_cgrp_id(struct task_struct *t)
+{
+	struct cgroup *grp;
+
+	rcu_read_lock();
+	grp = task_cgroup(t, schedtune_cgrp_id);
+	rcu_read_unlock();
+
+	return grp->kn->id;
+}
+
+#define TOP_APP_GROUP_ID (4)
+static bool mtk_btag_is_top_task(struct task_struct *task, int mode, unsigned long page_idx)
+{
+	struct task_struct *t_tgid = NULL;
+	int cid, cid_tgid;
+
+	cid = mtk_btag_get_schedtune_cgrp_id(task);
+
+	if (cid == TOP_APP_GROUP_ID)
+		return true;
+
+	if (task->tgid && task->tgid != task->pid) {
+		rcu_read_lock();
+		t_tgid = find_task_by_vpid(task->tgid);
+		rcu_read_unlock();
+		if (t_tgid) {
+			cid_tgid =
+				mtk_btag_get_schedtune_cgrp_id(t_tgid);
+			if (cid_tgid == TOP_APP_GROUP_ID)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+static struct miscdevice earaio_obj;
+static void mtk_btag_earaio_uevt_worker(struct work_struct *work)
+{
+	struct mtk_btag_mictx_struct *ctx;
+	unsigned long flags;
+	int string_size = 10;
+	char event_string[string_size];
+	char *envp[2];
+	bool boost, restart, quit;
+	int ret;
+
+	ctx = container_of(work, struct mtk_btag_mictx_struct,
+			   uevt_work);
+
+	envp[0] = event_string;
+	envp[1] = NULL;
+
+start:
+	boost = quit = restart = false;
+	spin_lock_irqsave(&ctx->lock, flags);
+	if (ctx->uevt_state != ctx->uevt_req)
+		boost = ctx->uevt_req;
+	else
+		quit = true;
+	spin_unlock_irqrestore(&ctx->lock, flags);
+
+	if (quit)
+		return;
+
+	ret = snprintf(event_string,
+		string_size, "boost=%d", boost ? 1 : 0);
+	if (!ret)
+		return;
+
+	ret = kobject_uevent_env(
+			&earaio_obj.this_device->kobj,
+			KOBJ_CHANGE, envp);
+	if (ret) {
+		pr_info("[BLOCK_TAG] send uevt fail:%d", ret);
+	} else {
+		ctx->uevt_state = boost;
+		if (mtk_btag_mictx_data_dump) {
+			pr_info("[BLOCK_TAG] uevt %s sent",
+				event_string);
+		}
+	}
+
+	spin_lock_irqsave(&ctx->lock, flags);
+	if (ctx->uevt_state != ctx->uevt_req)
+		restart = true;
+	spin_unlock_irqrestore(&ctx->lock, flags);
+
+	if (restart)
+		goto start;
+}
+
+static bool mtk_btag_earaio_send_uevt(struct mtk_btag_mictx_struct *ctx,
+				      bool boost)
+{
+	unsigned long flags;
+
+	spin_lock_irqsave(&ctx->lock, flags);
+	ctx->uevt_req = boost;
+	queue_work(ctx->uevt_workq, &ctx->uevt_work);
+	spin_unlock_irqrestore(&ctx->lock, flags);
+
+	return true;
+}
+
+#define EARAIO_UEVT_THRESHOLD_BYTES (32 * 1024 * 1024)
+void mtk_btag_earaio_boost(bool boost)
+{
+	struct mtk_btag_mictx_struct *ctx;
+	unsigned long flags;
+	bool changed = false;
+
+	ctx = mtk_btag_mictx_get_ctx();
+	if (!ctx || !ctx->enabled || !ctx->earaio_enabled)
+		return;
+
+	/* Use earaio_obj.minor to indicate if obj is existed */
+	if (!(boost ^ ctx->boosted) || unlikely(!earaio_obj.minor))
+		return;
+
+	if (boost) {
+		if (mtk_btag_mictx_data_dump) {
+			pr_info("[BLOCK_TAG] boost-chk: size-top:%llu,%llu, fuse-top: %u,%u, boosted: %d\n",
+				ctx->req.r.size_top, ctx->req.w.size_top,
+				ctx->top_r_pages, ctx->top_w_pages,
+				ctx->boosted);
+		}
+
+		/* Establish threshold to avoid lousy uevents */
+		if ((ctx->req.r.size_top >= EARAIO_UEVT_THRESHOLD_BYTES) ||
+			(ctx->req.w.size_top >= EARAIO_UEVT_THRESHOLD_BYTES))
+			changed = mtk_btag_earaio_send_uevt(ctx, true);
+	} else {
+		changed = mtk_btag_earaio_send_uevt(ctx, false);
+	}
+
+	if (changed)
+		ctx->boosted = boost;
+
+	if (!ctx->boosted) {
+		spin_lock_irqsave(&ctx->lock, flags);
+		if ((sched_clock() - ctx->window_begin) > 1000000000) {
+			mtk_btag_mictx_reset(ctx, 0);
+			ctx->top_r_pages = ctx->top_w_pages = 0;
+		}
+		spin_unlock_irqrestore(&ctx->lock, flags);
+	}
+}
+
+static int mtk_btag_earaio_init(void)
+{
+	int ret = 0;
+
+	earaio_obj.name = "eara-io";
+	earaio_obj.minor = MISC_DYNAMIC_MINOR;
+	ret = misc_register(&earaio_obj);
+	if (ret) {
+		pr_info("[BLOCK_TAG] register earaio obj error:%d\n",
+			ret);
+		earaio_obj.minor = 0;
+		return ret;
+	}
+
+	ret = kobject_uevent(
+			&earaio_obj.this_device->kobj, KOBJ_ADD);
+	if (ret) {
+		misc_deregister(&earaio_obj);
+		pr_info("[BLOCK_TAG] add uevent fail:%d\n", ret);
+		earaio_obj.minor = 0;
+		return ret;
+	}
+
+	return ret;
+
+}
+#else
+static inline bool mtk_btag_is_top_task(struct task_struct *task, int mode, unsigned long page_idx)
+{
+	return false;
+}
+
+static inline bool mtk_btag_earaio_init(void)
+{
+	return true;
+}
+#endif
+
+static void _mtk_btag_pidlog_set_pid(struct page_pid_logger *pagelogger,
+		struct page *p, int mode, bool write)
+{
+	struct mtk_btag_mictx_struct *ctx;
 	struct page_pid_logger *ppl;
 	unsigned long idx;
 

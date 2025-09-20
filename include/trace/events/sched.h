@@ -315,10 +315,10 @@ TRACE_EVENT(sched_switch,
 		__field(	pid_t,	next_pid			)
 		__field(	int,	next_prio			)
 #if defined(CONFIG_MTK_SCHED_TRACERS) && defined(CONFIG_CGROUPS)
-		__field(int,	prev_cgrp_id)
-		__field(int,	next_cgrp_id)
-		__field(int,	prev_st_cgrp_id)
-		__field(int,	next_st_cgrp_id)
+		__field(u64,	prev_cgrp_id)
+		__field(u64,	next_cgrp_id)
+		__field(u64,	prev_st_cgrp_id)
+		__field(u64,	next_st_cgrp_id)
 #endif
 	),
 
@@ -332,15 +332,15 @@ TRACE_EVENT(sched_switch,
 		__entry->next_prio	= next->prio;
 #if defined(CONFIG_MTK_SCHED_TRACERS) && defined(CONFIG_CGROUPS)
 #if defined(CONFIG_CPUSETS)
-		__entry->prev_cgrp_id	= prev->cgroups->subsys[0]->cgroup->id;
-		__entry->next_cgrp_id	= next->cgroups->subsys[0]->cgroup->id;
+		__entry->prev_cgrp_id	= prev->cgroups->subsys[0]->cgroup->kn->id;
+		__entry->next_cgrp_id	= next->cgroups->subsys[0]->cgroup->kn->id;
 #else
 		__entry->prev_cgrp_id	= 0;
 		__entry->next_cgrp_id	= 0;
 #endif
 #if defined(CONFIG_SCHED_TUNE)
-		__entry->prev_st_cgrp_id = prev->cgroups->subsys[3]->cgroup->id;
-		__entry->next_st_cgrp_id = next->cgroups->subsys[3]->cgroup->id;
+		__entry->prev_st_cgrp_id = prev->cgroups->subsys[3]->cgroup->kn->id;
+		__entry->next_st_cgrp_id = next->cgroups->subsys[3]->cgroup->kn->id;
 #else
 		__entry->prev_st_cgrp_id = 0;
 		__entry->next_st_cgrp_id = 0;
@@ -351,7 +351,7 @@ TRACE_EVENT(sched_switch,
 #ifdef CONFIG_MTK_SCHED_TRACERS
 	TP_printk(
 #if defined(CONFIG_CGROUPS)
-	"prev_comm=%s prev_pid=%d prev_prio=%d prev_state=%s%s ==> next_comm=%s next_pid=%d next_prio=%d%s%s prev->cgrp=%d next->cgrp=%d prev->st=%d next->st=%d",
+	"prev_comm=%s prev_pid=%d prev_prio=%d prev_state=%s%s ==> next_comm=%s next_pid=%d next_prio=%d%s%s prev->cgrp=%llu next->cgrp=%llu prev->st=%llu next->st=%llu",
 #else
 	"prev_comm=%s prev_pid=%d prev_prio=%d prev_state=%s%s ==> next_comm=%s next_pid=%d next_prio=%d%s%s",
 #endif

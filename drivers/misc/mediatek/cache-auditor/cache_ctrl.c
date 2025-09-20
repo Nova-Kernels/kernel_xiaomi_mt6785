@@ -211,7 +211,7 @@ static inline int get_stune_id(struct task_struct *task)
 	rcu_read_lock();
 	grp = task_cgroup(task, subsys_id);
 	rcu_read_unlock();
-	return grp->id;
+	return grp->kn->id;
 #else
 	return 0;
 #endif
