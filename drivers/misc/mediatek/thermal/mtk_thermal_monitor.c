@@ -1888,7 +1888,7 @@ static int mtk_cooling_wrapper_get_available
 	if (ops->get_available)
 		ret = ops->get_available(cdev, available);
 	else
-	   snprintf(available, 1,"\n");
+	   snprintf(available, PAGE_SIZE, "\n");
 
 	THRML_LOG("[.get_available] cdev_type:%s available:%s\n",
 						cdev->type, available);
