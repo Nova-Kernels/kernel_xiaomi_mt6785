@@ -608,18 +608,20 @@ static int mt_i2c_do_transfer(struct mt_i2c *i2c)
 
 	i2c->trans_stop = false;
 	i2c->irq_stat = 0;
-	if ((i2c->total_len > 8 || i2c->msg_aux_len > 8))
-		if (!i2c->fifo_only)
+	if ((i2c->total_len > 8 || i2c->msg_aux_len > 8)) {
+		if (!i2c->fifo_only){
 			isDMA = true;
-		else {
+		} else {
 			dev_dbg(i2c->dev, "i2c does not support dma mode\n");
 			return -EINVAL;
 		}
+	}
 
-	if (i2c->ext_data.isEnable && i2c->ext_data.timing)
+	if (i2c->ext_data.isEnable && i2c->ext_data.timing){
 		speed_hz = i2c->ext_data.timing;
-	else
+	} else {
 		speed_hz = i2c->speed_hz;
+	}
 	if (i2c->ext_data.is_ch_offset) {
 		i2c->ch_offset = i2c->ext_data.ch_offset;
 		i2c->ch_offset_dma = i2c->ext_data.ch_offset_dma;
