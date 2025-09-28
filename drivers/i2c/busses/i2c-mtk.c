@@ -1756,8 +1756,7 @@ err_clk_set_main:
 #endif
 }
 
-
-static struct syscore_ops mtk_i2c_syscore_ops = {
+static struct syscore_ops __maybe_unused mtk_i2c_syscore_ops = {
 	.resume = mt_i2c_pll_resume,
 	.suspend = mt_i2c_pll_suspend,
 };
