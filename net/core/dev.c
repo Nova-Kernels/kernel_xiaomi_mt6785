@@ -4920,7 +4920,7 @@ int netif_receive_skb_core(struct sk_buff *skb)
 	int ret;
 
 	rcu_read_lock();
-	ret = __netif_receive_skb_core(skb, false);
+	ret = __netif_receive_skb_one_core(skb, false);
 	rcu_read_unlock();
 
 	return ret;
@@ -5136,33 +5136,17 @@ static int netif_receive_skb_internal(struct sk_buff *skb)
 
 static void netif_receive_skb_list_internal(struct list_head *head)
 {
-	struct bpf_prog *xdp_prog = NULL;
 	struct sk_buff *skb, *next;
 	struct list_head sublist;
 
 	INIT_LIST_HEAD(&sublist);
 	list_for_each_entry_safe(skb, next, head, list) {
-		net_timestamp_check(netdev_tstamp_prequeue, skb);
+		net_timestamp_check(READ_ONCE(netdev_tstamp_prequeue), skb);
 		skb_list_del_init(skb);
 		if (!skb_defer_rx_timestamp(skb))
 			list_add_tail(&skb->list, &sublist);
 	}
 	list_splice_init(&sublist, head);
-
-	if (static_key_false(&generic_xdp_needed)) {
-		preempt_disable();
-		rcu_read_lock();
-		list_for_each_entry_safe(skb, next, head, list) {
-			xdp_prog = rcu_dereference(skb->dev->xdp_prog);
-			skb_list_del_init(skb);
-			if (do_xdp_generic(xdp_prog, skb) == XDP_PASS)
-				list_add_tail(&skb->list, &sublist);
-		}
-		rcu_read_unlock();
-		preempt_enable();
-		/* Put passed packets back on main list */
-		list_splice_init(&sublist, head);
-	}
 
 	rcu_read_lock();
 #ifdef CONFIG_RPS

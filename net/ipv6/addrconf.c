@@ -161,6 +161,12 @@ static int ipv6_generate_stable_address(struct in6_addr *addr,
  */
 static struct hlist_head inet6_addr_lst[IN6_ADDR_HSIZE];
 static DEFINE_SPINLOCK(addrconf_hash_lock);
+struct fib6_info *calc_lft_vzw(struct inet6_ifaddr *ifp_vzw,
+			       u32 *min_lft_vzw);
+static void calc_next_vzw(struct inet6_ifaddr *ifp_vzw,
+			  struct fib6_info *rt_vzw,
+			  unsigned long *next_vzw, unsigned long age_vzw,
+			  bool is_expires_vzw, u32 min_lft_vzw);
 
 static void addrconf_verify(void);
 static void addrconf_verify_rtnl(void);
@@ -2768,11 +2774,9 @@ void addrconf_prefix_rcv(struct net_device *dev, u8 *opt, int len, bool sllao)
 				flags |= RTF_EXPIRES;
 				expires = jiffies_to_clock_t(rt_expires);
 			}
-			if (dev->ip6_ptr->cnf.accept_ra_prefix_route) {
-				addrconf_prefix_route(&pinfo->prefix,
+			addrconf_prefix_route(&pinfo->prefix,
 						      pinfo->prefix_len,
 						      dev, expires, flags, GFP_ATOMIC);
-			}
 		}
 		fib6_info_release(rt);
 	}
@@ -4499,40 +4503,42 @@ static void inet6_send_rs_vzw(struct inet6_ifaddr *ifp)
 	}
 }
 
-struct rt6_info *calc_lft_vzw(struct inet6_ifaddr *ifp,
-			      u32 *minimum_lft)
+struct fib6_info *calc_lft_vzw(struct inet6_ifaddr *ifp_vzw, u32 *min_lft_vzw)
 {
-	struct rt6_info *rt;
+	struct fib6_info *rt_vzw;
 	u32 route_lft;
 
-	rt = rt6_get_dflt_router_expires(ifp->idev->dev);
-	if (rt && (rt->rt6i_flags & RTF_EXPIRES)) {
-		route_lft = (rt->dst.expires - ifp->tstamp) / HZ;
-		*minimum_lft = min(ifp->prefered_lft, route_lft);
-		pr_info("[mtk_net]RA: min_lft %lld\n",
-			(u64)(*minimum_lft));
+	rt_vzw = rt6_get_dflt_router_expires(ifp_vzw->idev->dev);
+	if (rt_vzw && (rt_vzw->fib6_flags & RTF_EXPIRES)) {
+		route_lft = (rt_vzw->expires - ifp_vzw->tstamp) / HZ;
+		*min_lft_vzw = min(ifp_vzw->prefered_lft, route_lft);
+		pr_info("[mtk_net]RA: min_lft %lld\n", (u64)(*min_lft_vzw));
 	} else {
-		*minimum_lft = ifp->prefered_lft;
+		*min_lft_vzw = ifp_vzw->prefered_lft;
 	}
-	return rt;
+	return rt_vzw;
 }
 
-static void calc_next_vzw(struct inet6_ifaddr *ifp, struct rt6_info *rt,
-			  unsigned long *next, unsigned long age,
-			  int is_expires, u32 minimum_lft)
+static void calc_next_vzw(struct inet6_ifaddr *ifp_vzw,
+			  struct fib6_info *rt_vzw,
+			  unsigned long *next_vzw, unsigned long age_vzw,
+			  bool is_expires_vzw, u32 min_lft_vzw)
 {
-	if (strncmp(ifp->idev->dev->name, "ccmni", 2) == 0) {
-		if (is_expires || (rt && (rt->rt6i_flags & RTF_EXPIRES))) {
-			if (!(ifp->idev->if_flags & IF_RS_VZW_SENT) &&
-			    age >= (minimum_lft * 3 / 4))
-				inet6_send_rs_vzw(ifp);
-			pr_info("[mtk_net][IPv6] min_lft %lld, age %lld, is_expires %d\n",
-				(u64)minimum_lft, (u64)age, is_expires);
-			if (!(ifp->idev->if_flags & IF_RS_VZW_SENT) &&
-			    time_before(ifp->tstamp +
-			    ((minimum_lft * 3 / 4) * HZ), *next))
-				*next = ifp->tstamp +
-					((minimum_lft * 3 / 4) * HZ);
+	if (strncmp(ifp_vzw->idev->dev->name, "ccmni", 2) == 0) {
+		if (is_expires_vzw ||
+		    (rt_vzw && (rt_vzw->fib6_flags & RTF_EXPIRES))) {
+			if (!(ifp_vzw->idev->if_flags & IF_RS_VZW_SENT) &&
+			    (age_vzw >= (min_lft_vzw * 3 / 4)))
+				inet6_send_rs_vzw(ifp_vzw);
+
+			pr_info("[mtk_net][IPv6] min_lft=%lld, age=%lld, is_expires=%d\n",
+				(u64)min_lft_vzw, (u64)age_vzw, is_expires_vzw);
+
+			if (!(ifp_vzw->idev->if_flags & IF_RS_VZW_SENT) &&
+			    time_before(ifp_vzw->tstamp +
+			    ((min_lft_vzw * 3 / 4) * HZ), *next_vzw))
+				*next_vzw = ifp_vzw->tstamp +
+				       ((min_lft_vzw * 3 / 4) * HZ);
 		}
 	}
 }
@@ -4560,7 +4566,7 @@ restart:
 		hlist_for_each_entry_rcu_bh(ifp, &inet6_addr_lst[i], addr_lst) {
 			unsigned long age;
 			u32 min_lft;
-			struct rt6_info *rt = NULL;
+			struct fib6_info *rt = NULL;
 
 			if (sysctl_optr == MTK_IPV6_VZW_ALL ||
 			    sysctl_optr == MTK_IPV6_EX_RS_INTERVAL)
