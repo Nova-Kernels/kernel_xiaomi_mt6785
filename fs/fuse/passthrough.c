@@ -12,6 +12,37 @@ struct fuse_aio_req {
 	struct kiocb *iocb_fuse;
 };
 
+static inline void kiocb_clone(struct kiocb *kiocb, struct kiocb *kiocb_src,
+					struct file *filp)
+{
+	*kiocb = (struct kiocb){
+		.ki_filp = filp,
+		.ki_flags = kiocb_src->ki_flags,
+		.ki_hint = kiocb_src->ki_hint,
+		.ki_pos = kiocb_src->ki_pos,
+	};
+}
+
+static void fuse_file_accessed(struct file *dst_file, struct file *src_file)
+{
+	struct inode *dst_inode;
+	struct inode *src_inode;
+
+	if (dst_file->f_flags & O_NOATIME)
+		return;
+
+	dst_inode = file_inode(dst_file);
+	src_inode = file_inode(src_file);
+
+	if ((!timespec64_equal(&dst_inode->i_mtime, &src_inode->i_mtime) ||
+	     !timespec64_equal(&dst_inode->i_ctime, &src_inode->i_ctime))) {
+		dst_inode->i_mtime = src_inode->i_mtime;
+		dst_inode->i_ctime = src_inode->i_ctime;
+	}
+
+	touch_atime(&dst_file->f_path);
+}
+
 static void fuse_copyattr(struct file *dst_file, struct file *src_file)
 {
 	struct inode *dst = file_inode(dst_file);
