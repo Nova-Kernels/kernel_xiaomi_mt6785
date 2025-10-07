@@ -27,7 +27,7 @@
 #include <linux/of.h>
 #include <linux/version.h>
 
-#if (KERNEL_VERSION(4, 17, 0) > LINUX_VERSION_CODE)
+#if (KERNEL_VERSION(4, 14, 0) > LINUX_VERSION_CODE)
 typedef int vm_fault_t;
 #endif
 
