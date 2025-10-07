@@ -94,6 +94,11 @@ static struct perf_event_attr pmu_e8_event_attr = {
 static unsigned long long stall_val[4];
 static int stall_val_dbg;
 
+int ppm_perf_event_read_local(struct perf_event *ev, u64 *value)
+{
+	return perf_event_read_local(ev, value, NULL, NULL);
+}
+
 static unsigned int ppm_cpi_get_cpu_cycle_count(int cpu)
 {
 #if 1
@@ -116,7 +121,7 @@ static unsigned int ppm_cpi_get_cpu_cycle_count(int cpu)
 	unsigned int diff = 0;
 
 	if (event && event->state == PERF_EVENT_STATE_ACTIVE) {
-		perf_event_read_local(event, &new);
+		ppm_perf_event_read_local(event, &new);
 		if (new > old)
 			diff = (unsigned int)(new - old);
 
@@ -138,7 +143,7 @@ static unsigned int ppm_cpi_get_inst_count(int cpu)
 	unsigned int diff = 0;
 
 	if (event && event->state == PERF_EVENT_STATE_ACTIVE) {
-		perf_event_read_local(event, &new);
+		ppm_perf_event_read_local(event, &new);
 		if (new > old)
 			diff = (unsigned int)(new - old);
 
@@ -159,7 +164,7 @@ static unsigned long long ppm_cpi_get_pmu_e1_count(int cpu)
 	unsigned long long diff = 0;
 
 	if (event && event->state == PERF_EVENT_STATE_ACTIVE) {
-		perf_event_read_local(event, &new);
+		ppm_perf_event_read_local(event, &new);
 		if (new > old)
 			diff = new - old;
 
@@ -180,7 +185,7 @@ static unsigned long long ppm_cpi_get_pmu_e7_count(int cpu)
 	unsigned long long diff = 0;
 
 	if (event && event->state == PERF_EVENT_STATE_ACTIVE) {
-		perf_event_read_local(event, &new);
+		ppm_perf_event_read_local(event, &new);
 		if (new > old)
 			diff = new - old;
 
@@ -201,7 +206,7 @@ static unsigned long long ppm_cpi_get_pmu_e8_count(int cpu)
 	unsigned long long diff = 0;
 
 	if (event && event->state == PERF_EVENT_STATE_ACTIVE) {
-		perf_event_read_local(event, &new);
+		ppm_perf_event_read_local(event, &new);
 		if (new > old)
 			diff = new - old;
 
@@ -287,7 +292,7 @@ static void ppm_cpi_pmu_enable_locked(int cpu, int enable)
 #endif
 		if (i_event) {
 			perf_event_enable(i_event);
-			perf_event_read_local(i_event,
+			ppm_perf_event_read_local(i_event,
 					      &per_cpu(inst_count, cpu));
 		}
 		if (p1_event)
