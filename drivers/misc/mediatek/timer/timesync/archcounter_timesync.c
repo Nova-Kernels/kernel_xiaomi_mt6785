@@ -134,7 +134,7 @@ uint64_t archcounter_timesync_to_boot(uint64_t hwclock)
 	spin_lock(&moving_average_lock);
 
 	local_irq_save(flags);
-	base_time = ktime_get_boot_ns();
+	base_time = ktime_get_boottime_ns();
 	archcounter_time = arch_counter_to_ns(arch_counter_get_cntvct());
 	local_irq_restore(flags);
 
@@ -178,7 +178,7 @@ static void timesync_test_work_func(struct work_struct *work)
 
 
 	local_irq_save(flags);
-	base_time = ktime_get_boot_ns();
+	base_time = ktime_get_boottime_ns();
 	archcounter_time = arch_counter_to_ns(arch_counter_get_cntvct());
 	local_irq_restore(flags);
 
