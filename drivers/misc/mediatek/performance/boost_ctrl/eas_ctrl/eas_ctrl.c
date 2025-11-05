@@ -34,10 +34,7 @@
 #include <linux/trace_events.h>
 #endif
 
-#if defined(CONFIG_MTK_PLAT_MT6885_EMULATION) || defined(CONFIG_MACH_MT6893) \
-	|| defined(CONFIG_MACH_MT6833)
 #define CONFIG_CPUFREQ_HAVE_GOVERNOR_PER_POLICY
-#endif
 
 /* boost value */
 static struct mutex boost_eas;
