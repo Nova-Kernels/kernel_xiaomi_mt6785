@@ -185,4 +185,9 @@ typedef void (*gpufreq_input_boost_notify)(unsigned int);
 extern void mt_gpufreq_input_boost_notify_registerCB(
 		gpufreq_input_boost_notify pCB);
 
+/**
+ * GED_SKI_SUPPORT
+ */
+extern int mt_gpufreq_get_immed_gpu_temp(void);
+
 #endif /* ___MT_GPUFREQ_PLAT_H___ */
