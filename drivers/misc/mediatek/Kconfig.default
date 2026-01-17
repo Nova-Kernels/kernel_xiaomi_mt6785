@@ -239,6 +239,7 @@ config ANDROID_DEFAULT_SETTING
 	select TCP_CONG_ADVANCED
 	select TCP_CONG_BIC
 	select TIMERFD
+	select TRACE_GPU_MEM
 	select TTY
 	select TUN
 	select UHID
