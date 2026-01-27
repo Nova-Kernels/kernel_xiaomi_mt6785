@@ -485,7 +485,7 @@ static struct xdp_buff *dev_map_run_prog(struct net_device *dev,
 		break;
 	default:
 		bpf_warn_invalid_xdp_action(act);
-		fallthrough;
+		/* fallthrough */
 	case XDP_ABORTED:
 		trace_xdp_exception(dev, xdp_prog, act);
 		break;
