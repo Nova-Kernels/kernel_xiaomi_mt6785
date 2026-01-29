@@ -4755,10 +4755,8 @@ another_round:
 	if (skb->protocol == cpu_to_be16(ETH_P_8021Q) ||
 	    skb->protocol == cpu_to_be16(ETH_P_8021AD)) {
 		skb = skb_vlan_untag(skb);
-		if (unlikely(!skb)){
-			printk(KERN_ERR "ADDLOG %s:%d  ret:%d",__func__,__LINE__,ret);
+		if (unlikely(!skb))
 			goto out;
-                }
 	}
 
 	if (skb_skip_tc_classify(skb))
@@ -4790,12 +4788,9 @@ skip_taps:
 			goto another_round;
 		if (!skb)
 			goto out;
-                }
 
-		if (nf_ingress(skb, &pt_prev, &ret, orig_dev) < 0){
-                  	printk(KERN_ERR "ADDLOG %s:%d ret:%d",__func__,__LINE__,ret);
+		if (nf_ingress(skb, &pt_prev, &ret, orig_dev) < 0)
 			goto out;
-                }
 	}
 #endif
 	skb_reset_tc(skb);
@@ -4810,10 +4805,8 @@ skip_classify:
 		}
 		if (vlan_do_receive(&skb))
 			goto another_round;
-		else if (unlikely(!skb)){
-                  	printk(KERN_ERR "ADDLOG %s:%d dev:%s state:%lu  , dropped:%d",__func__,__LINE__,ret);
-                  	goto out;
-                }
+		else if (unlikely(!skb))
+			goto out;
 	}
 
 	rx_handler = rcu_dereference(skb->dev->rx_handler);
