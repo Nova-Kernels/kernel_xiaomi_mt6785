@@ -1052,13 +1052,9 @@ static int map_lookup_elem(union bpf_attr *attr)
 	value_size = bpf_map_value_size(map);
 
 	err = -ENOMEM;
-	if (value_size <= sizeof(value_onstack)) {
-		value = value_onstack;
-	} else {
-		value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
-		if (!value)
-			goto free_key;
-	}
+	value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
+	if (!value)
+		goto free_key;
 
 	err = bpf_map_copy_value(map, key, value, attr->flags);
 	if (err)
@@ -1071,11 +1067,9 @@ static int map_lookup_elem(union bpf_attr *attr)
 	err = 0;
 
 free_value:
-	if (value != value_onstack)
-		kfree(value);
+	kfree(value);
 free_key:
-	if (key != key_onstack)
-		kfree(key);
+	kfree(key);
 err_put:
 	fdput(f);
 	return err;
@@ -1091,8 +1085,6 @@ static int map_update_elem(union bpf_attr *attr)
 	int ufd = attr->map_fd;
 	struct bpf_map *map;
 	void *key, *value;
-	u8 key_onstack[SZ_16] __aligned(sizeof(long));
-	u8 value_onstack[SZ_64] __aligned(sizeof(long));
 	u32 value_size;
 	struct fd f;
 	int err;
@@ -1130,14 +1122,10 @@ static int map_update_elem(union bpf_attr *attr)
 	else
 		value_size = map->value_size;
 
-	if (value_size <= sizeof(value_onstack)) {
-		value = value_onstack;
-	} else {
-		err = -ENOMEM;
-		value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
-		if (!value)
-			goto free_key;
-	}
+	err = -ENOMEM;
+	value = kmalloc(value_size, GFP_USER | __GFP_NOWARN);
+	if (!value)
+		goto free_key;
 
 	err = -EFAULT;
 	if (copy_from_user(value, uvalue, value_size) != 0)
@@ -1146,11 +1134,9 @@ static int map_update_elem(union bpf_attr *attr)
 	err = bpf_map_update_value(map, f, key, value, attr->flags);
 
 free_value:
-	if (value != value_onstack)
-		kfree(value);
+	kfree(value);
 free_key:
-	if (key != key_onstack)
-		kfree(key);
+	kfree(key);
 err_put:
 	bpf_map_write_active_dec(map);
 	fdput(f);
