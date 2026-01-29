@@ -365,9 +365,9 @@ __sdfat_msg(struct super_block *sb, const char *lv, int st, const char *fmt, ...
 #define sdfat_log_msg(sb, lv, fmt, args...)          \
 	__sdfat_msg(sb, lv, 1, fmt, ## args)
 extern void sdfat_log_version(void);
-extern void sdfat_time_fat2unix(struct sdfat_sb_info *sbi, struct timespec *ts,
+extern void sdfat_time_fat2unix(struct sdfat_sb_info *sbi, struct timespec64 *ts,
 				DATE_TIME_T *tp);
-extern void sdfat_time_unix2fat(struct sdfat_sb_info *sbi, struct timespec *ts,
+extern void sdfat_time_unix2fat(struct sdfat_sb_info *sbi, struct timespec64 *ts,
 				DATE_TIME_T *tp);
 extern TIMESTAMP_T *tm_now(struct sdfat_sb_info *sbi, TIMESTAMP_T *tm);
 

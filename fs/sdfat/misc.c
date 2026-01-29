@@ -179,7 +179,7 @@ static time_t accum_days_in_year[] = {
 };
 
 /* Convert a FAT time/date pair to a UNIX date (seconds since 1 1 70). */
-void sdfat_time_fat2unix(struct sdfat_sb_info *sbi, struct timespec *ts,
+void sdfat_time_fat2unix(struct sdfat_sb_info *sbi, struct timespec64 *ts,
 		DATE_TIME_T *tp)
 {
 	time_t year = tp->Year;
@@ -202,7 +202,7 @@ void sdfat_time_fat2unix(struct sdfat_sb_info *sbi, struct timespec *ts,
 }
 
 /* Convert linear UNIX date to a FAT time/date pair. */
-void sdfat_time_unix2fat(struct sdfat_sb_info *sbi, struct timespec *ts,
+void sdfat_time_unix2fat(struct sdfat_sb_info *sbi, struct timespec64 *ts,
 		DATE_TIME_T *tp)
 {
 	time_t second = ts->tv_sec;
@@ -266,7 +266,7 @@ void sdfat_time_unix2fat(struct sdfat_sb_info *sbi, struct timespec *ts,
 
 TIMESTAMP_T *tm_now(struct sdfat_sb_info *sbi, TIMESTAMP_T *tp)
 {
-	struct timespec ts = CURRENT_TIME_SEC;
+	struct timespec64 ts;
 	DATE_TIME_T dt;
 
 	sdfat_time_unix2fat(sbi, &ts, &dt);
