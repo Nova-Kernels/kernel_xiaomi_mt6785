@@ -2614,6 +2614,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 {
 	struct tcp_sock *tp = tcp_sk(sk);
 	struct inet_connection_sock *icsk = inet_csk(sk);
+	struct net *net = sock_net(sk);
 	int val;
 	int err = 0;
 
@@ -2812,11 +2813,11 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
 
 	case TCP_LINGER2:
 		if (val < 0)
-			WRITE_ONCE(tp->linger2, -1);
-		else if (val > TCP_FIN_TIMEOUT_MAX / HZ)
-			WRITE_ONCE(tp->linger2, TCP_FIN_TIMEOUT_MAX);
+			tp->linger2 = -1;
+		else if (val > net->ipv4.sysctl_tcp_fin_timeout / HZ)
+			tp->linger2 = 0;
 		else
-			WRITE_ONCE(tp->linger2, val * HZ);
+			tp->linger2 = val * HZ;
 		break;
 
 	case TCP_DEFER_ACCEPT:
