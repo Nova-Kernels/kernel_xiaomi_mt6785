@@ -245,7 +245,8 @@ static inline int ccci_ccif_hif_set_wakeup_src(unsigned char hif_id, int value)
 		if (ccif_rx_ch & AP_MD_CCB_WAKEUP)
 			mtk_ccci_ccb_info_peek();
 #endif
-		return atomic_set(&md_ctrl->wakeup_src, value);
+		atomic_set(&md_ctrl->wakeup_src, value);
+		return 0;
 	} else
 		return -1;
 }
