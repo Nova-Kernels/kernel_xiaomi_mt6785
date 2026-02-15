@@ -208,6 +208,6 @@ void sspm_ipi_lock_spm_scenario(int start, int id, int opt, const char *name)
 		atomic_dec(&ipi_lock_cnt);
 
 	/* FTRACE tag */
-	trace_sspm_ipi(start, id, opt);
+	//trace_sspm_ipi(start, id, opt);
 }
 
