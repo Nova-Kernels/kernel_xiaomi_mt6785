@@ -31,7 +31,6 @@
 
 #include <linux/types.h>
 #include <linux/security.h>
-#include <linux/selinux.h>
 #include <linux/xattr.h>
 #include "llite_internal.h"
 
@@ -87,9 +86,6 @@ ll_initxattrs(struct inode *inode, const struct xattr *xattr_array,
 int
 ll_init_security(struct dentry *dentry, struct inode *inode, struct inode *dir)
 {
-	if (!selinux_is_enabled())
-		return 0;
-
 	return security_inode_init_security(inode, dir, NULL,
 					    &ll_initxattrs, dentry);
 }

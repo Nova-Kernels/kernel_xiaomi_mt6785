@@ -34,7 +34,6 @@
 #include <linux/sched.h>
 #include <linux/mm.h>
 #include <linux/xattr.h>
-#include <linux/selinux.h>
 
 #define DEBUG_SUBSYSTEM S_LLITE
 
@@ -126,7 +125,7 @@ ll_xattr_set_common(const struct xattr_handler *handler,
 		return 0;
 
 	/* LU-549:  Disable security.selinux when selinux is disabled */
-	if (handler->flags == XATTR_SECURITY_T && !selinux_is_enabled() &&
+	if (handler->flags == XATTR_SECURITY_T &&
 	    strcmp(name, "selinux") == 0)
 		return -EOPNOTSUPP;
 
@@ -388,7 +387,7 @@ static int ll_xattr_get_common(const struct xattr_handler *handler,
 		return -ENODATA;
 
 	/* LU-549:  Disable security.selinux when selinux is disabled */
-	if (handler->flags == XATTR_SECURITY_T && !selinux_is_enabled() &&
+	if (handler->flags == XATTR_SECURITY_T &&
 	    !strcmp(name, "selinux"))
 		return -EOPNOTSUPP;
 
