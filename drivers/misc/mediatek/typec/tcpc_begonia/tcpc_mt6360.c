@@ -1390,35 +1390,7 @@ static int mt6360_is_vconn_fault(struct tcpc_device *tcpc, bool *fault)
 
 static int mt6360_set_vconn(struct tcpc_device *tcpc, int en)
 {
-	int ret;
-	bool fault = false;
-
-	MT6360_INFO("%s %d\n", __func__, en);
-	/*
-	 * Set Vconn OVP RVP
-	 * Otherwise vconn present fail will be triggered
-	 */
-	if (en) {
-		mt6360_i2c_set_bit(tcpc, MT6360_REG_VCONN_CTRL2,
-				   MT6360_VCONN_OVP_CC_EN);
-		mt6360_i2c_set_bit(tcpc, MT6360_REG_VCONN_CTRL3,
-				   MT6360_VCONN_RVP_EN);
-		usleep_range(20, 50);
-		ret = mt6360_is_vconn_fault(tcpc, &fault);
-		if (ret >= 0 && fault) {
-			MT6360_INFO("%s Vconn fault\n", __func__);
-			return -EINVAL;
-		}
-	}
-	ret = (en ? mt6360_i2c_set_bit : mt6360_i2c_clr_bit)
-		(tcpc, TCPC_V10_REG_POWER_CTRL, TCPC_V10_REG_POWER_CTRL_VCONN);
-	if (!en) {
-		mt6360_i2c_clr_bit(tcpc, MT6360_REG_VCONN_CTRL2,
-				   MT6360_VCONN_OVP_CC_EN);
-		mt6360_i2c_clr_bit(tcpc, MT6360_REG_VCONN_CTRL3,
-				   MT6360_VCONN_RVP_EN);
-	}
-	return ret;
+	return 0;
 }
 
 #ifdef CONFIG_TCPC_LOW_POWER_MODE

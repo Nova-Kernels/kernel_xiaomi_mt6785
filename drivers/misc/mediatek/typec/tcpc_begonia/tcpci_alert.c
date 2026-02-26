@@ -493,6 +493,12 @@ static inline int tcpci_report_usb_port_attached(struct tcpc_device *tcpc)
 		tcpc->dual_role_mode = DUAL_ROLE_PROP_MODE_DFP;
 		tcpc->dual_role_vconn = DUAL_ROLE_PROP_VCONN_SUPPLY_YES;
 		break;
+	case TYPEC_ATTACHED_DEBUG:
+		tcpc->dual_role_pr = DUAL_ROLE_PROP_PR_SRC;
+		tcpc->dual_role_dr = DUAL_ROLE_PROP_DR_HOST;
+		tcpc->dual_role_mode = DUAL_ROLE_PROP_MODE_DFP;
+		tcpc->dual_role_vconn = DUAL_ROLE_PROP_VCONN_SUPPLY_NO;
+		break;
 	default:
 		break;
 	}

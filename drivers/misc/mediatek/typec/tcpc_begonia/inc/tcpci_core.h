@@ -281,7 +281,7 @@ struct tcpc_ops {
  *	after suupect_counter > this threshold (0 = always check)
  */
 
-#define TCPC_LEGACY_CABLE_SUSPECT_THD	1
+#define TCPC_LEGACY_CABLE_SUSPECT_THD	9999
 
 /*
  * Try another s/w workaround after retry_counter more than this value

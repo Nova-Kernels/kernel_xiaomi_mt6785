@@ -149,6 +149,7 @@ int ssusb_set_vbus(struct otg_switch_mtk *otg_sx, int is_on)
 	if (is_on) {
 		#ifdef CONFIG_MTK_CHARGER
 		charger_dev_enable_otg(ssusb->chg_dev, true);
+		charger_dev_set_boost_current_limit(ssusb->chg_dev, 1500000);
 		#endif
 		ret = regulator_enable(vbus);
 		if (ret) {

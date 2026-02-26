@@ -90,11 +90,13 @@ static int otg_tcp_notifier_call(struct notifier_block *nb,
 				noti->typec_state.new_state);
 
 		if (noti->typec_state.old_state == TYPEC_UNATTACHED &&
-			noti->typec_state.new_state == TYPEC_ATTACHED_SRC) {
+			(noti->typec_state.new_state == TYPEC_ATTACHED_SRC ||
+			 noti->typec_state.new_state == TYPEC_ATTACHED_DEBUG)) {
 			pr_info("%s OTG Plug in\n", __func__);
 			tcpc_otg_enable();
 		} else if ((noti->typec_state.old_state == TYPEC_ATTACHED_SRC ||
-			noti->typec_state.old_state == TYPEC_ATTACHED_SNK) &&
+			noti->typec_state.old_state == TYPEC_ATTACHED_SNK ||
+			noti->typec_state.old_state == TYPEC_ATTACHED_DEBUG) &&
 			noti->typec_state.new_state == TYPEC_UNATTACHED) {
 			if (otg_on) {
 				pr_info("%s OTG Plug out\n", __func__);
@@ -113,7 +115,8 @@ static int otg_tcp_notifier_call(struct notifier_block *nb,
 				usb3_switch_ctrl_sel(CC1_SIDE);
 			else
 				usb3_switch_ctrl_sel(CC2_SIDE);
-		} else if (noti->typec_state.new_state == TYPEC_ATTACHED_SRC) {
+		} else if (noti->typec_state.new_state == TYPEC_ATTACHED_SRC ||
+			   noti->typec_state.new_state == TYPEC_ATTACHED_DEBUG) {
 			usb3_switch_dps_en(false);
 			if (noti->typec_state.polarity == 0)
 				usb3_switch_ctrl_sel(CC2_SIDE);

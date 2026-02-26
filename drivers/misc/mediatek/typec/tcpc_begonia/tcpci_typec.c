@@ -1321,6 +1321,7 @@ static inline bool typec_debug_acc_attached_entry(struct tcpc_device *tcpc_dev)
 	TYPEC_NEW_STATE(typec_debugaccessory);
 	TYPEC_DBG("[Debug] CC1&2 Both Rd\r\n");
 	tcpc_dev->typec_attach_new = TYPEC_ATTACHED_DEBUG;
+	tcpci_source_vbus(tcpc_dev, TCP_VBUS_CTRL_TYPEC, TCPC_VBUS_SOURCE_5V, 1500);
 	return true;
 }
 
