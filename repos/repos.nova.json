@@ -8,6 +8,8 @@
       "repo": "https://github.com/Nova-Kernels/priv_kernel_xiaomi_mt6785",
       "branch": "main"
     },
+    "withKernelSU": false,
+    "withSUSFS": false,
     "toolchains": [
       {
         "repo": "https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r547379",

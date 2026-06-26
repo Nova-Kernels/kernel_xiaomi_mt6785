@@ -53,6 +53,8 @@ jobs:
       KERNEL_DEVICE: ${{ matrix.repos.kernelSource.device }}
       DEFCONFIG_NAME: ${{ matrix.repos.kernelSource.defconfig }}
 
+      withKernelSU: ${{ matrix.repos.withKernelSU }}
+      withSUSFS: ${{ matrix.repos.withSUSFS }}
       ccache: ${{ matrix.repos.ccache }}
       useAnykernel: ${{ matrix.repos.AnyKernel3.use }}
       release: ${{ matrix.repos.AnyKernel3.release }}
@@ -214,6 +216,47 @@ jobs:
           echo "ARCH=$ARCH" >> $GITHUB_OUTPUT
           echo "args=$args" >> $GITHUB_OUTPUT
 
+      - name: "😋 Integrate KernelSU"
+        id: integrate-kernelsu
+        working-directory: ${{ env.KERNEL_NAME }}
+        env:
+          arch: ${{ steps.generate-args.outputs.ARCH }}
+        if: ${{ env.withKernelSU == 'true' }}
+        run: |
+          if [ -d "./KernelSU" ]; then
+            rm -rf "./KernelSU"
+          fi
+          if [ -d "./KernelSU-Next" ]; then
+            rm -rf "./KernelSU-Next"
+          fi
+          if [ -d "./drivers/kernelsu" ]; then
+            rm -rf "./drivers/kernelsu"
+          fi
+
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+
+          rm -rf KernelSU
+
+          if [ "$withSUSFS" = "true" ]; then
+            git clone --recursive -j $(nproc) --branch legacy-susfs-v2 https://github.com/sidex15/KernelSU-Next KernelSU
+          else
+            git clone --recursive -j $(nproc) --branch legacy https://github.com/KernelSU-Next/KernelSU-Next KernelSU
+          fi
+
+          KERNELSU_VERSION=$(git -C KernelSU describe --abbrev=0 --tags)
+
+          echo -e "\n💡 KernelSU version: $KERNELSU_VERSION\n"
+
+          echo -e "KERNELSU_VERSION=$KERNELSU_VERSION" >> $GITHUB_OUTPUT
+
+          sed -i 's/# CONFIG_KSU is not set/CONFIG_KSU=y/' arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          sed -i 's/# CONFIG_KSU_MANUAL_HOOK is not set/CONFIG_KSU_MANUAL_HOOK=y/' arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          if [ "$withSUSFS" = "true" ]; then
+            sed -i 's/# CONFIG_KSU_SUSFS is not set/CONFIG_KSU_SUSFS=y/' arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+          fi
+
+          cat arch/${{ env.arch }}/configs/${{ env.DEFCONFIG_NAME }}
+
       - name: "👍 Make defconfig"
         working-directory: ${{ env.KERNEL_NAME }}
         env:
@@ -235,7 +278,7 @@ jobs:
         if: ${{ env.useAnykernel == 'true' }}
         env:
           arch: ${{ steps.generate-args.outputs.ARCH }}
-          anykernel: "${{ env.WORKSPACE }}/${{ env.KERNEL_DEVICE }}-${{ env.KERNEL_NAME }}-${{ env.builddate }}"
+          anykernel: "${{ env.WORKSPACE }}/${{ env.KERNEL_DEVICE }}-${{ env.KERNEL_NAME }}_${{ env.builddate }}${{ env.withKernelSU == 'true' && format('_KernelSU_{0}', steps.integrate-kernelsu.outputs.KERNELSU_VERSION) || '' }}"
         run: |
           ls -al
 
@@ -250,5 +293,5 @@ jobs:
         uses: actions/upload-artifact@v7
         if: ${{ env.useAnykernel == 'true' }}
         with:
-          name: "${{ env.KERNEL_DEVICE }}-${{ env.KERNEL_NAME }}-${{ env.builddate }}"
+          name: "${{ env.KERNEL_DEVICE }}-${{ env.KERNEL_NAME }}_${{ env.builddate }}${{ env.withKernelSU == 'true' && format('_KernelSU_{0}', steps.integrate-kernelsu.outputs.KERNELSU_VERSION) || '' }}"
           path: AnyKernel3/*
