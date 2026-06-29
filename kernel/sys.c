@@ -1205,13 +1205,6 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
 
 	down_read(&uts_sem);
 	memcpy(&tmp, utsname(), sizeof(tmp));
-    for (i = 0; i < ARRAY_SIZE(fake_comm); i++) {
-		if (!strncmp(comm, fake_comm[i].name, fake_comm[i].len)) {
-			strscpy(tmp.release, "5.10.253",
-				sizeof(tmp.release));
-			break;
-		}
-	}
 
 	up_read(&uts_sem);
 	if (copy_to_user(name, &tmp, sizeof(tmp)))
