@@ -426,8 +426,16 @@ extern struct page *__read_swap_cache_async(swp_entry_t, gfp_t,
 extern struct page *swapin_readahead(swp_entry_t, gfp_t,
 			struct vm_area_struct *vma, unsigned long addr);
 
+#ifdef CONFIG_SWAP_ENABLE_READAHEAD
 extern struct page *swap_readahead_detect(struct vm_fault *vmf,
 					  struct vma_swap_readahead *swap_ra);
+#else
+static inline struct page *swap_readahead_detect(struct vm_fault *vmf,
+					struct vma_swap_readahead *swap_ra)
+{
+	return NULL;
+}
+#endif
 extern struct page *do_swap_page_readahead(swp_entry_t fentry, gfp_t gfp_mask,
 					   struct vm_fault *vmf,
 					   struct vma_swap_readahead *swap_ra);
