@@ -8397,6 +8397,12 @@ SELECT_TASK_RQ_FAIR(struct task_struct *p, int prev_cpu, int sd_flag,
 
 		if (hmp_cpu >= 0 && (hmp_cpu < nr_cpu_ids))
 			return LB_FORK | hmp_cpu;
+	} else if (energy_aware() && p->mm && (sd_flag & SD_BALANCE_FORK)) {
+		/* EAS fork balance: same idea, via eas_fork_balance(). */
+		int eas_cpu = eas_fork_balance(p, prev_cpu);
+
+		if (eas_cpu >= 0 && eas_cpu < nr_cpu_ids)
+			return LB_FORK | eas_cpu;
 	}
 
 	rcu_read_lock();

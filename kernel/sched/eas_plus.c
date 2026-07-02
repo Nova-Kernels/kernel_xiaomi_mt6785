@@ -219,6 +219,26 @@ int select_max_spare_capacity(struct task_struct *p, int target)
 		return task_cpu(p);
 }
 
+/* EAS equivalent of the old HMP fork-balance heuristic. */
+static int eas_fork_balance(struct task_struct *p, int prev_cpu)
+{
+	struct hmp_domain *domain;
+	struct cpumask *tsk_cpus_allow = &p->cpus_allowed;
+	int i;
+
+	for_each_hmp_domain_B_first(domain) {
+		for_each_cpu(i, &domain->possible_cpus) {
+			if (!cpu_online(i) || cpu_isolated(i) ||
+					!cpumask_test_cpu(i, tsk_cpus_allow))
+				continue;
+			if (idle_cpu(i))
+				return i;
+		}
+	}
+
+	return select_max_spare_capacity(p, prev_cpu);
+}
+
 /*
  * @p: the task want to be located at.
  *

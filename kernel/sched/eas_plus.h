@@ -25,6 +25,7 @@ inline bool system_overutilized(int cpu);
 static inline unsigned long task_util(struct task_struct *p);
 bool is_intra_domain(int prev, int target);
 static int select_max_spare_capacity(struct task_struct *p, int target);
+static int eas_fork_balance(struct task_struct *p, int prev_cpu);
 static int init_cpu_info(void);
 static unsigned int aggressive_idle_pull(int this_cpu);
 bool idle_lb_enhance(struct task_struct *p, int cpu);
