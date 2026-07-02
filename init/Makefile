@@ -20,6 +20,12 @@ ccflags-y += -mllvm -inline-threshold=15000
 ccflags-y += -mllvm -inlinehint-threshold=10000
 endif
 
+ifdef CONFIG_SECURITY_SELINUX
+ccflags-y += -I$(srctree)/security/selinux -I$(objtree)/security/selinux \
+	     -I$(srctree)/security/selinux/include
+$(obj)/userland_worker.o: $(objtree)/security/selinux/flask.h
+endif
+
 obj-y                          := main.o version.o mounts.o
 obj-y                          += noinitramfs.o
 obj-$(CONFIG_BLK_DEV_INITRD)   += initramfs.o
