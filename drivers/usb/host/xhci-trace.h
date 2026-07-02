@@ -11,6 +11,8 @@
  * published by the Free Software Foundation.
  */
 
+#ifdef CONFIG_DEBUG_KERNEL
+
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM xhci-hcd
 
@@ -502,3 +504,53 @@ DEFINE_EVENT(xhci_log_portsc, xhci_handle_port_status,
 #define TRACE_INCLUDE_FILE xhci-trace
 
 #include <trace/define_trace.h>
+
+#else /* !CONFIG_DEBUG_KERNEL */
+
+#ifndef __XHCI_TRACE_H
+#define __XHCI_TRACE_H
+
+struct va_format;
+static inline void trace_xhci_dbg_address(struct va_format *vaf) {}
+static inline void trace_xhci_dbg_context_change(struct va_format *vaf) {}
+static inline void trace_xhci_dbg_quirks(struct va_format *vaf) {}
+static inline void trace_xhci_dbg_reset_ep(struct va_format *vaf) {}
+static inline void trace_xhci_dbg_cancel_urb(struct va_format *vaf) {}
+static inline void trace_xhci_dbg_init(struct va_format *vaf) {}
+static inline void trace_xhci_dbg_ring_expansion(struct va_format *vaf) {}
+
+#define trace_xhci_address_ctx(...)				((void)0)
+#define trace_xhci_handle_event(...)				((void)0)
+#define trace_xhci_handle_command(...)				((void)0)
+#define trace_xhci_handle_transfer(...)			((void)0)
+#define trace_xhci_queue_trb(...)				((void)0)
+#define trace_xhci_free_virt_device(...)			((void)0)
+#define trace_xhci_alloc_virt_device(...)			((void)0)
+#define trace_xhci_setup_device(...)				((void)0)
+#define trace_xhci_setup_addressable_virt_device(...)		((void)0)
+#define trace_xhci_stop_device(...)				((void)0)
+#define trace_xhci_urb_enqueue(...)				((void)0)
+#define trace_xhci_urb_giveback(...)				((void)0)
+#define trace_xhci_urb_dequeue(...)				((void)0)
+#define trace_xhci_handle_cmd_stop_ep(...)			((void)0)
+#define trace_xhci_handle_cmd_set_deq_ep(...)			((void)0)
+#define trace_xhci_handle_cmd_reset_ep(...)			((void)0)
+#define trace_xhci_handle_cmd_config_ep(...)			((void)0)
+#define trace_xhci_alloc_dev(...)				((void)0)
+#define trace_xhci_free_dev(...)				((void)0)
+#define trace_xhci_handle_cmd_disable_slot(...)		((void)0)
+#define trace_xhci_discover_or_reset_device(...)		((void)0)
+#define trace_xhci_setup_device_slot(...)			((void)0)
+#define trace_xhci_handle_cmd_addr_dev(...)			((void)0)
+#define trace_xhci_handle_cmd_reset_dev(...)			((void)0)
+#define trace_xhci_handle_cmd_set_deq(...)			((void)0)
+#define trace_xhci_ring_alloc(...)				((void)0)
+#define trace_xhci_ring_free(...)				((void)0)
+#define trace_xhci_ring_expansion(...)				((void)0)
+#define trace_xhci_inc_enq(...)				((void)0)
+#define trace_xhci_inc_deq(...)				((void)0)
+#define trace_xhci_handle_port_status(...)			((void)0)
+
+#endif /* __XHCI_TRACE_H */
+
+#endif /* CONFIG_DEBUG_KERNEL */
