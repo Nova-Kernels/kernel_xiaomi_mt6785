@@ -1263,6 +1263,13 @@ PHONY += $(vmlinux-dirs)
 $(vmlinux-dirs): prepare scripts
 	$(Q)$(MAKE) $(build)=$@ need-builtin=1
 
+ifdef CONFIG_SECURITY_SELINUX
+$(vmlinux-dirs): security/selinux/flask.h
+
+security/selinux/flask.h: scripts
+	$(Q)$(MAKE) $(build)=security/selinux security/selinux/flask.h
+endif
+
 define filechk_kernel.release
 	echo "$(KERNELVERSION)$$($(CONFIG_SHELL) $(srctree)/scripts/setlocalversion $(srctree))"
 endef
