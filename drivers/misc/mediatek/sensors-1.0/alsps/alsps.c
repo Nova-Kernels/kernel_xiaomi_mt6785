@@ -33,7 +33,7 @@ int als_data_report_t(int value, int status, int64_t time_stamp)
 	struct alsps_context *cxt = NULL;
 	struct sensor_event event;
 
-	pr_notice("[ALS]%s! %d, %d\n", __func__, value, status);
+	pr_debug("[ALS]%s! %d, %d\n", __func__, value, status);
 
 	memset(&event, 0, sizeof(struct sensor_event));
 
