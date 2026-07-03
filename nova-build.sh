@@ -60,7 +60,7 @@ build_kernel() {
         STRIP=llvm-strip \
         LD=ld.lld \
         CROSS_COMPILE=aarch64-linux-gnu- \
-        CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+        CROSS_COMPILE_COMPAT=arm-linux-gnueabi-
 
     KERNEL_IMG="$OUT_DIR/arch/arm64/boot/Image.gz-dtb"
 
