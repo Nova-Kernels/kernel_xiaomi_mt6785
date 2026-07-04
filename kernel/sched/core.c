@@ -5648,7 +5648,21 @@ recheck:
 	}
 
 	if (attr->sched_flags &
-		~(SCHED_FLAG_RESET_ON_FORK | SCHED_FLAG_RECLAIM))
+		~(SCHED_FLAG_RESET_ON_FORK | SCHED_FLAG_RECLAIM |
+		  SCHED_FLAG_UTIL_CLAMP_MIN | SCHED_FLAG_UTIL_CLAMP_MAX))
+		return -EINVAL;
+
+	if (user && (attr->sched_flags &
+			(SCHED_FLAG_UTIL_CLAMP_MIN | SCHED_FLAG_UTIL_CLAMP_MAX)) &&
+			!capable(CAP_SYS_NICE) && !check_same_owner(p))
+		return -EPERM;
+
+	if ((attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) &&
+			attr->sched_util_min > 1024)
+		return -EINVAL;
+
+	if ((attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MAX) &&
+			attr->sched_util_max > 1024)
 		return -EINVAL;
 
 	/*
@@ -5716,6 +5730,23 @@ recheck:
 
 	if (user) {
 		retval = security_task_setscheduler(p);
+		if (retval)
+			return retval;
+	}
+
+	/*
+	 * All other validation above has passed, so it's now safe to apply
+	 * util_min/util_max. These have their own locking (uclamp_mutex)
+	 * and must not be applied while holding the rq lock taken below.
+	 */
+	if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) {
+		retval = set_task_util_min(p->pid, attr->sched_util_min);
+		if (retval)
+			return retval;
+	}
+
+	if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MAX) {
+		retval = set_task_util_max(p->pid, attr->sched_util_max);
 		if (retval)
 			return retval;
 	}
@@ -6278,6 +6309,11 @@ SYSCALL_DEFINE4(sched_getattr, pid_t, pid, struct sched_attr __user *, uattr,
 		attr.sched_priority = p->rt_priority;
 	else
 		attr.sched_nice = task_nice(p);
+
+#ifdef CONFIG_UCLAMP_TASK
+	attr.sched_util_min = p->uclamp[UCLAMP_MIN].value;
+	attr.sched_util_max = p->uclamp[UCLAMP_MAX].value;
+#endif
 
 	rcu_read_unlock();
 
