@@ -17,7 +17,10 @@
 #include <linux/sysfs.h>
 #include <linux/slab.h>
 #include <linux/err.h>
+#include <linux/kernel.h>
 #include <linux/cpufreq.h>
+#include <linux/sched.h>
+#include <linux/arch_topology.h>
 #include <cpu_ctrl.h>
 #include <sched_ctl.h>
 
@@ -33,8 +36,6 @@ __ATTR(_name, 0644, show_##_name, store_##_name)
 static struct cpufreq_frequency_table* cpuftbl[2];
 
 static struct ppm_limit_data *current_cpu_freq;
-
-extern int set_sched_boost(unsigned int val);
 
 DEFINE_MUTEX(cpufreq_mtk_mutex);
 
@@ -61,37 +62,69 @@ EXPORT_SYMBOL_GPL(cpufreq_mtk_set_table);
 
 int is_freq_valid(int cluster, int freq) {
     struct cpufreq_frequency_table *pos;
-    int ret;
 
-    /* 
+    /*
      * Allow -1 frequency as that is
      * used to remove the limit.
      */
     if (freq == -1)
-        goto out;
+        return 1;
 
     cpufreq_for_each_valid_entry(pos, cpuftbl[cluster]) {
         if (pos->frequency == freq)
-            goto out;
+            return 1;
     }
 
-    ret = 1;
+    return 0;
+}
 
-out:
-    return ret;
+/*
+ * Scale a cluster's min-freq request into uclamp (0..SCHED_CAPACITY_SCALE)
+ * space using that cluster's own capacity/max freq, as the energy model does.
+ */
+static unsigned int cluster_uclamp_floor(int cluster)
+{
+    unsigned int cpu, cap, max_freq;
+
+    if (current_cpu_freq[cluster].min <= 0)
+        return 0;
+
+    cpu = (cluster == BIG) ? topology.big_cpu_start : topology.ltl_cpu_start;
+    cap = topology_get_cpu_scale(NULL, cpu);
+    max_freq = topology_get_max_cpu_freq(NULL, cpu);
+
+    if (!cap || !max_freq)
+        return 0;
+
+    return mult_frac(cap, current_cpu_freq[cluster].min, max_freq);
+}
+
+/*
+ * Raise the uclamp_min floor to the strongest active min-freq request so EAS
+ * keeps satisfying it. A max-freq ceiling (thermal/battery) must not raise it.
+ */
+static void update_cpu_freq_boost(void)
+{
+    int i;
+    unsigned int floor = 0;
+
+    for (i = 0; i < CLUSTER_NUM; i++) {
+        unsigned int req_floor = cluster_uclamp_floor(i);
+
+        if (req_floor > floor)
+            floor = req_floor;
+    }
+
+    if (floor > SCHED_CAPACITY_SCALE)
+        floor = SCHED_CAPACITY_SCALE;
+
+    sched_set_uclamp_min_floor(floor);
 }
 
 /* Updates CPU frequency for chosen cluster */
 void update_cpu_freq(int cluster)
 {
-
-#ifdef CONFIG_MTK_SCHED_BOOST
-    int sched_boost_type = (current_cpu_freq[cluster].min > 0 || current_cpu_freq[cluster].max > 0)
-                            ? SCHED_ALL_BOOST : SCHED_NO_BOOST;
-
-    set_sched_boost(sched_boost_type);
-#endif
-
+    update_cpu_freq_boost();
     update_userlimit_cpu_freq(CPU_KIR_PERF, CLUSTER_NUM, current_cpu_freq);
 }
 

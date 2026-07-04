@@ -1646,6 +1646,30 @@ done:
 	return result;
 }
 
+/*
+ * Set the system-wide default uclamp_min floor. Biases OPP selection and task
+ * placement upward instead of force-migrating tasks. Pass 0 to clear.
+ */
+int sched_set_uclamp_min_floor(unsigned int value)
+{
+	if (value > SCHED_CAPACITY_SCALE)
+		return -EINVAL;
+
+	mutex_lock(&uclamp_mutex);
+
+	value = find_fit_capacity(value);
+	if (value != sysctl_sched_uclamp_util_min) {
+		sysctl_sched_uclamp_util_min = value;
+		uclamp_group_get(NULL, NULL, &uclamp_default[UCLAMP_MIN],
+				  UCLAMP_MIN, value);
+	}
+
+	mutex_unlock(&uclamp_mutex);
+
+	return 0;
+}
+EXPORT_SYMBOL(sched_set_uclamp_min_floor);
+
 #if defined(CONFIG_UCLAMP_TASK_GROUP) && !defined(CONFIG_SCHED_TUNE)
 /*
  * free_uclamp_sched_group: release utilization clamp references of a TG

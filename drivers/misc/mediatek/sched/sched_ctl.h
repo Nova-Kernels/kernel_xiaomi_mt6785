@@ -36,6 +36,12 @@ extern int schedtune_task_boost(struct task_struct *tsk);
 #define schedtune_task_boost(tsk) 0
 #endif
 
+#ifdef CONFIG_UCLAMP_TASK
+extern int sched_set_uclamp_min_floor(unsigned int value);
+#else
+#define sched_set_uclamp_min_floor(value) 0
+#endif
+
 extern unsigned int hmp_cpu_is_slowest(int cpu);
 extern unsigned int hmp_cpu_is_fastest(int cpu);
 extern bool is_intra_domain(int prev, int target);
