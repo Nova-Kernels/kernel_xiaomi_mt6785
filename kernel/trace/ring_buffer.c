@@ -4351,7 +4351,6 @@ void ring_buffer_reset_cpu(struct ring_buffer *buffer, int cpu)
 	/* prevent another thread from changing buffer sizes */
 	mutex_lock(&buffer->mutex);
 
-	mutex_lock(&buffer->mutex);
 	atomic_inc(&buffer->resize_disabled);
 	atomic_inc(&cpu_buffer->record_disabled);
 
