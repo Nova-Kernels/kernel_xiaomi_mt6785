@@ -4564,6 +4564,8 @@ unsigned long long task_sched_runtime(struct task_struct *p)
 	return ns;
 }
 
+extern int update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity);
+
 /*
  * This function gets called by the timer code, with HZ frequency.
  * We call it with interrupts disabled.
@@ -4583,6 +4585,7 @@ void scheduler_tick(void)
 	walt_update_task_ravg(rq->curr, rq, TASK_UPDATE,
 			walt_ktime_clock(), 0);
 	update_rq_clock(rq);
+	update_thermal_load_avg(rq_clock_task(rq), rq, cpu_thermal_pressure(cpu));
 	curr->sched_class->task_tick(rq, curr, 0);
 	cpu_load_update_active(rq);
 	calc_global_load_tick(rq);

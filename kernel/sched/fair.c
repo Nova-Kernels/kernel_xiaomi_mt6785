@@ -3587,6 +3587,47 @@ int update_rt_rq_load_avg(u64 now, int cpu, struct rt_rq *rt_rq, int running)
 }
 
 /*
+ * Thermal pressure is tracked as a PELT-weighted average of recent
+ * throttle-driven capacity loss, so a brief throttle blip doesn't cause
+ * an instant swing in perceived cpu_capacity the way a raw instantaneous
+ * ceiling read would. util_avg is meaningless here (nothing "runs"
+ * thermal pressure), only load_avg matters, so this bypasses
+ * ___update_load_avg() directly instead of going through it with
+ * cfs_rq=NULL/rt_rq=NULL: that combination is reserved for per-se
+ * blocked-load tracking and container_of()s sa back to a sched_entity
+ * for tracing, which would be bogus for an rq-embedded sched_avg.
+ */
+int update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity)
+{
+	struct sched_avg *sa = &rq->avg_thermal;
+	u64 delta;
+
+	delta = now - sa->last_update_time;
+	if ((s64)delta < 0) {
+		sa->last_update_time = now;
+		return 0;
+	}
+
+	delta >>= 10;
+	if (!delta)
+		return 0;
+
+	sa->last_update_time += delta << 10;
+
+	if (!accumulate_sum(delta, sa, capacity, 0, NULL))
+		return 0;
+
+	sa->load_avg = div_u64(sa->load_sum, LOAD_AVG_MAX - 1024 + sa->period_contrib);
+
+	return 1;
+}
+
+static inline u64 thermal_load_avg(struct rq *rq)
+{
+	return READ_ONCE(rq->avg_thermal.load_avg);
+}
+
+/*
  * Optional action to be done while updating the load average
  */
 #define UPDATE_TG	0x1
@@ -3945,6 +3986,16 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq, bool update_freq)
 }
 
 int update_rt_rq_load_avg(u64 now, int cpu, struct rt_rq *rt_rq, int running)
+{
+	return 0;
+}
+
+int update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity)
+{
+	return 0;
+}
+
+static inline u64 thermal_load_avg(struct rq *rq)
 {
 	return 0;
 }
@@ -9636,6 +9687,7 @@ static void update_blocked_averages(int cpu)
 			update_load_avg(se, UPDATE_TG);
 	}
 	update_rt_rq_load_avg(rq_clock_pelt(rq), cpu, &rq->rt, 0);
+	update_thermal_load_avg(rq_clock_task(rq), rq, cpu_thermal_pressure(cpu));
 #ifdef CONFIG_NO_HZ_COMMON
 	rq->last_blocked_load_update_tick = jiffies;
 #endif
@@ -9699,6 +9751,7 @@ static inline void update_blocked_averages(int cpu)
 	update_rq_clock(rq);
 	update_cfs_rq_load_avg(cfs_rq_clock_pelt(cfs_rq), cfs_rq, true);
 	update_rt_rq_load_avg(rq_clock_pelt(rq), cpu, &rq->rt, 0);
+	update_thermal_load_avg(rq_clock_task(rq), rq, cpu_thermal_pressure(cpu));
 #ifdef CONFIG_NO_HZ_COMMON
 	rq->last_blocked_load_update_tick = jiffies;
 #endif
@@ -9882,6 +9935,19 @@ skip_unlock: __attribute__ ((unused));
 	capacity *= scale_rt_capacity(cpu);
 	capacity >>= SCHED_CAPACITY_SHIFT;
 
+	/*
+	 * scale_rt_capacity() above only sees the legacy rq->rt_avg decay,
+	 * not the current PPM/thermal ceiling. Layer the PELT-smoothed
+	 * thermal signal on top so a recently-throttled core reads as less
+	 * capable for a while after the throttle lifts too, instead of
+	 * snapping straight back to full capacity. Guard against underflow
+	 * explicitly since this is an unsigned subtraction.
+	 */
+	if (capacity > thermal_load_avg(cpu_rq(cpu)))
+		capacity -= thermal_load_avg(cpu_rq(cpu));
+	else
+		capacity = 1;
+
 	if (!capacity)
 		capacity = 1;
 
@@ -9902,6 +9968,12 @@ int update_cpu_capacity_cpumask(struct cpumask *cpus)
 		capacity >>= SCHED_CAPACITY_SHIFT;
 		capacity *= scale_rt_capacity(cpu);
 		capacity >>= SCHED_CAPACITY_SHIFT;
+
+		/* guard against underflow, this is an unsigned subtraction */
+		if (capacity > thermal_load_avg(cpu_rq(cpu)))
+			capacity -= thermal_load_avg(cpu_rq(cpu));
+		else
+			capacity = 1;
 
 		if (!capacity)
 			capacity = 1;

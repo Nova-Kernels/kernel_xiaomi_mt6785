@@ -800,6 +800,11 @@ struct rq {
 	struct rt_rq rt;
 	struct dl_rq dl;
 
+#ifdef CONFIG_SMP
+	/* PELT-decayed record of recent throttle-driven capacity loss */
+	struct sched_avg avg_thermal;
+#endif
+
 #ifdef CONFIG_FAIR_GROUP_SCHED
 	/* list of leaf cfs_rq on this cpu: */
 	struct list_head leaf_cfs_rq_list;
@@ -1980,6 +1985,24 @@ unsigned long arch_scale_cpu_capacity(struct sched_domain *sd, int cpu)
 	return SCHED_CAPACITY_SCALE;
 }
 #endif
+
+/*
+ * This fork has one aggregated PPM/thermal ceiling (mt_policy->max) rather
+ * than mainline's dedicated arch_scale_thermal_pressure() backend, so derive
+ * the capacity delta from the max-freq-capacity ratio instead. Clamped
+ * defensively: max_freq_capacity is only ever supposed to be <= max, but
+ * this feeds an unsigned subtraction downstream and a transient overshoot
+ * here must not become a wraparound there.
+ */
+static inline unsigned long cpu_thermal_pressure(int cpu)
+{
+	unsigned long max_freq_cap = arch_scale_max_freq_capacity(NULL, cpu);
+
+	if (unlikely(max_freq_cap >= SCHED_CAPACITY_SCALE))
+		return 0;
+
+	return SCHED_CAPACITY_SCALE - max_freq_cap;
+}
 
 #ifdef CONFIG_SMP
 static inline unsigned long capacity_of(int cpu)
