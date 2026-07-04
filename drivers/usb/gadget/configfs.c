@@ -1750,6 +1750,7 @@ static void do_usb_state_monitor_work(struct work_struct *work)
 {
 	struct gadget_info *gi = dev_get_drvdata(android_device);
 	struct usb_composite_dev *cdev = &gi->cdev;
+	static char *last_usb_state;
 	char *usb_state = "NO-DEV";
 	unsigned long flags;
 
@@ -1762,7 +1763,10 @@ static void do_usb_state_monitor_work(struct work_struct *work)
 		usb_state = "DISCONNECTED";
 	spin_unlock_irqrestore(&cdev->lock, flags);
 
-	pr_info("usb_state<%s>\n", usb_state);
+	if (usb_state != last_usb_state) {
+		pr_info("usb_state<%s>\n", usb_state);
+		last_usb_state = usb_state;
+	}
 	schedule_delayed_work(&usb_state_monitor_dw,
 			msecs_to_jiffies(USB_STATE_MONITOR_DELAY));
 }
