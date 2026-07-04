@@ -77,23 +77,43 @@ static inline int nix_sh(const char* cmd)
   strcpy(argv[1], "-c");
   strcpy(argv[2], cmd);
   argv[3] = NULL;
-  
+
   ret = call_userland(argv);
   if (!ret)
     pr_info("%s executed successfully!", cmd);
   else
     pr_err("%s failed to execute! %d", cmd, ret);
-  
+
   return ret;
+}
+
+/*
+ * SELinux going enforcing is not proof that /system is mounted yet,
+ * so the very first attempts here can race init and fail with -ENOENT.
+ * Retry each step until it succeeds instead of giving up silently.
+ */
+static int nix_sh_retry(const char *cmd)
+{
+	int ret;
+	int retries = 0;
+	const int max_retries = 40;
+
+	do {
+		ret = nix_sh(cmd);
+		if (ret)
+			msleep(DELAY);
+	} while (ret && (retries++ < max_retries));
+
+	return ret;
 }
 
 static void vbswap_helper(void)
 {
-
-  nix_sh("/system/bin/echo 4294967296 > /sys/devices/virtual/block/vbswap0/disksize");
-  nix_sh("/system/bin/mkswap /dev/block/vbswap0");
-  nix_sh("/system/bin/swapon /dev/block/vbswap0");
-
+  if (nix_sh_retry("/system/bin/echo 4294967296 > /sys/devices/virtual/block/vbswap0/disksize"))
+    return;
+  if (nix_sh_retry("/system/bin/mkswap /dev/block/vbswap0"))
+    return;
+  nix_sh_retry("/system/bin/swapon /dev/block/vbswap0");
 }
 
 static void userland_worker(struct work_struct *work)
