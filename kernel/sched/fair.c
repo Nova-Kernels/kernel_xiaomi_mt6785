@@ -11957,20 +11957,6 @@ static inline bool nohz_kick_needed(struct rq *rq, bool only_update)
 	if (time_before(now, nohz.next_balance))
 		return false;
 
-#if !defined(CONFIG_MTK_LOAD_BALANCE_ENHANCEMENT) && defined(CONFIG_HMP)
-	/* for more than two clusters,
-	 * we still need wakup nohz CPUs and force balancing
-	 *
-	 * Bail out if there are no nohz CPUs in our
-	 * HMP domain, since we will move tasks between
-	 * domains through wakeup and force balancing
-	 * as necessary based upon task load.
-	 */
-	if (sched_feat(SCHED_HMP) && cpumask_first_and(nohz.idle_cpus_mask,
-				&(hmp_cpu_domain(cpu))->cpus) >= nr_cpu_ids)
-		return false;
-#endif
-
 	if (rq->nr_running >= 2 &&
 	    (!energy_aware() || cpu_overutilized(cpu)))
 		return true;
