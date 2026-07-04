@@ -821,6 +821,8 @@ struct rq {
 	unsigned int clock_update_flags;
 	u64 clock;
 	u64 clock_task;
+	u64 clock_pelt;
+	unsigned long lost_idle_time;
 
 	atomic_t nr_iowait;
 
