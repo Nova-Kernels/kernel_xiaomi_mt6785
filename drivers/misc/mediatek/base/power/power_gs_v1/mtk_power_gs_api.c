@@ -14,6 +14,7 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
+#include <linux/mm.h>
 #include <linux/slab.h>
 #include <linux/debugfs.h>
 #include <linux/proc_fs.h>
@@ -92,13 +93,27 @@ static void __iomem *_golden_io_phys_to_virt(unsigned int addr)
 			iounmap(_g.io_base);
 
 		_g.phy_base = base;
-		_g.io_base =
-			ioremap_nocache(_g.phy_base, REMAP_SIZE_MASK+1);
 
-		if (!_g.io_base)
-			pr_err("warning: ioremap_nocache(0x%x, 0x%x)\n",
-					base, REMAP_SIZE_MASK+1);
+		/* Golden-setting tables may carry stale addresses that
+		 * now fall inside System RAM on this device; ioremap()
+		 * would WARN_ON() and refuse, so skip it up front.
+		 */
+		if (pfn_valid(__phys_to_pfn(base))) {
+			pr_warn("power_gs: 0x%x is System RAM, not remapping\n",
+					base);
+			_g.io_base = NULL;
+		} else {
+			_g.io_base =
+				ioremap_nocache(_g.phy_base, REMAP_SIZE_MASK+1);
+
+			if (!_g.io_base)
+				pr_err("warning: ioremap_nocache(0x%x, 0x%x)\n",
+						base, REMAP_SIZE_MASK+1);
+		}
 	}
+
+	if (!_g.io_base)
+		return NULL;
 
 	return (_g.io_base + offset);
 }
@@ -267,7 +282,9 @@ void _golden_write_reg(unsigned int addr, unsigned int mask,
 #endif
 	} else {
 		io_addr = _golden_io_phys_to_virt(addr);
-		writel((ioread32(io_addr) & ~mask) | (reg_val & mask), io_addr);
+		if (io_addr)
+			writel((ioread32(io_addr) & ~mask) | (reg_val & mask),
+					io_addr);
 	}
 }
 
@@ -317,13 +334,25 @@ unsigned int mt_power_gs_base_remap_init(char *scenario, char *pmic_name,
 
 			if (!_is_exist_in_phys_to_virt_table(base)) {
 				table[br.table_pos].pa = base;
-				table[br.table_pos].va =
-					ioremap_nocache(base,
-							REMAP_SIZE_MASK + 1);
 
-				if (!table[br.table_pos].va)
-					pr_err("ioremap_nocache(0x%x, 0x%x)\n",
-						base, REMAP_SIZE_MASK + 1);
+				/* Some golden-setting table entries carry
+				 * stale addresses that now land in System
+				 * RAM on this device; ioremap() would
+				 * WARN_ON() and refuse, so skip it up front.
+				 */
+				if (pfn_valid(__phys_to_pfn(base))) {
+					pr_warn("power_gs: 0x%x is System RAM, not remapping\n",
+						base);
+					table[br.table_pos].va = NULL;
+				} else {
+					table[br.table_pos].va =
+						ioremap_nocache(base,
+								REMAP_SIZE_MASK + 1);
+
+					if (!table[br.table_pos].va)
+						pr_err("ioremap_nocache(0x%x, 0x%x)\n",
+							base, REMAP_SIZE_MASK + 1);
+				}
 
 				if (br.table_pos < br.table_size)
 					br.table_pos++;
