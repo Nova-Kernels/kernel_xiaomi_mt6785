@@ -15,6 +15,7 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/random.h>
+#include <linux/timekeeping.h>
 #include <asm/setup.h>
 #include <mtk_spm_internal.h>
 #include <mtk_power_gs_api.h>
@@ -461,10 +462,18 @@ unsigned int __spm_output_wake_reason(
 
 long int spm_get_current_time_ms(void)
 {
-	struct timeval t;
+	struct timespec64 t;
 
-	do_gettimeofday(&t);
-	return ((t.tv_sec & 0xFFF) * 1000000 + t.tv_usec) / 1000;
+	/*
+	 * This is called from the SPM sleep-entry path after
+	 * timekeeping_suspend() has already run, so wall-clock reads
+	 * (do_gettimeofday()/ktime_get_real_ts64()) trip
+	 * WARN_ON(timekeeping_suspended) on every suspend. This is only a
+	 * relative debug timestamp, so use the raw monotonic clock, which
+	 * has no such restriction.
+	 */
+	ktime_get_raw_ts64(&t);
+	return ((t.tv_sec & 0xFFF) * 1000000 + t.tv_nsec / 1000) / 1000;
 }
 
 void spm_set_dummy_read_addr(int debug)
