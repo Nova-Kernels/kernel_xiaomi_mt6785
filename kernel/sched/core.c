@@ -1652,12 +1652,32 @@ done:
  */
 int sched_set_uclamp_min_floor(unsigned int value)
 {
+	static unsigned int saved_min;
+	static bool floor_active;
+
 	if (value > SCHED_CAPACITY_SCALE)
 		return -EINVAL;
 
 	mutex_lock(&uclamp_mutex);
 
 	value = find_fit_capacity(value);
+
+	/* Treat the request as a floor over the userspace baseline, not an
+	 * absolute set: remember the baseline on the first raise and restore
+	 * it on release so we never clobber a configured sched_uclamp_util_min.
+	 */
+	if (value) {
+		if (!floor_active) {
+			saved_min = sysctl_sched_uclamp_util_min;
+			floor_active = true;
+		}
+		if (value < saved_min)
+			value = saved_min;
+	} else if (floor_active) {
+		value = saved_min;
+		floor_active = false;
+	}
+
 	if (value != sysctl_sched_uclamp_util_min) {
 		sysctl_sched_uclamp_util_min = value;
 		uclamp_group_get(NULL, NULL, &uclamp_default[UCLAMP_MIN],
