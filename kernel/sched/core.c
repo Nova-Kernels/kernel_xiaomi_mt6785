@@ -3821,9 +3821,7 @@ static inline void init_schedstats(void) {}
  */
 int sched_fork(unsigned long clone_flags, struct task_struct *p)
 {
-	unsigned long flags;
 	bool reset;
-	int cpu = get_cpu();
 
 	__sched_fork(clone_flags, p);
 	/*
@@ -3864,7 +3862,6 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
 	}
 
 	if (dl_prio(p->prio)) {
-		put_cpu();
 		return -EAGAIN;
 	} else if (rt_prio(p->prio)) {
 		p->sched_class = &rt_sched_class;
@@ -3888,23 +3885,6 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
 
 	uclamp_fork(p, reset);
 
-	/*
-	 * The child is not yet in the pid-hash so no cgroup attach races,
-	 * and the cgroup is pinned to this child due to cgroup_fork()
-	 * is ran before sched_fork().
-	 *
-	 * Silence PROVE_RCU.
-	 */
-	raw_spin_lock_irqsave(&p->pi_lock, flags);
-	/*
-	 * We're setting the CPU for the first time, we don't migrate,
-	 * so use __set_task_cpu().
-	 */
-	__set_task_cpu(p, cpu);
-	if (p->sched_class->task_fork)
-		p->sched_class->task_fork(p);
-	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
-
 #ifdef CONFIG_SCHED_INFO
 	if (likely(sched_info_on()))
 		memset(&p->sched_info, 0, sizeof(p->sched_info));
@@ -3918,8 +3898,30 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
 	RB_CLEAR_NODE(&p->pushable_dl_tasks);
 #endif
 
-	put_cpu();
 	return 0;
+}
+
+/*
+ * task_group(p) isn't the final, pinned value until cgroup_post_fork()
+ * has run cpu_cgroup_fork() -> sched_change_group(); until then p carries
+ * whatever dup_task_struct() copied from the parent, which can be freed
+ * if the parent gets moved to another cgroup first. So __set_task_cpu()
+ * and task_fork() - both of which read task_group(p) - have to wait until
+ * here, called from copy_process() right after cgroup_post_fork().
+ */
+void sched_post_fork(struct task_struct *p)
+{
+	unsigned long flags;
+
+	raw_spin_lock_irqsave(&p->pi_lock, flags);
+	/*
+	 * We're setting the CPU for the first time, we don't migrate,
+	 * so use __set_task_cpu().
+	 */
+	__set_task_cpu(p, smp_processor_id());
+	if (p->sched_class->task_fork)
+		p->sched_class->task_fork(p);
+	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
 }
 
 unsigned long to_ratio(u64 period, u64 runtime)
