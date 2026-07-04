@@ -3697,11 +3697,21 @@ static void attach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *s
  */
 static void detach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *se)
 {
+	/*
+	 * cfs_rq and se decay on independent, not necessarily aligned PELT
+	 * windows, so se->avg.*_sum isn't exactly proportional to what
+	 * cfs_rq's own divider would predict for it. Subtracting it
+	 * straight (as load_avg/util_avg do above) lets *_sum drift out of
+	 * sync with *_avg over repeated attach/detach cycles (cgroup
+	 * migration, group scheduling). Resync *_sum from the already
+	 * up-to-date *_avg instead of subtracting se's version.
+	 */
+	u32 divider = LOAD_AVG_MAX - 1024 + cfs_rq->avg.period_contrib;
 
 	sub_positive(&cfs_rq->avg.load_avg, se->avg.load_avg);
-	sub_positive(&cfs_rq->avg.load_sum, se->avg.load_sum);
+	cfs_rq->avg.load_sum = cfs_rq->avg.load_avg * divider;
 	sub_positive(&cfs_rq->avg.util_avg, se->avg.util_avg);
-	sub_positive(&cfs_rq->avg.util_sum, se->avg.util_sum);
+	cfs_rq->avg.util_sum = cfs_rq->avg.util_avg * divider;
 	set_tg_cfs_propagate(cfs_rq);
 
 	cfs_rq_util_change(cfs_rq);
