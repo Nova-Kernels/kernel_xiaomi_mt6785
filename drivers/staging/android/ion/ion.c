@@ -1083,9 +1083,32 @@ struct ion_client *ion_client_create(struct ion_device *dev,
 	rb_insert_color(&client->node, &dev->clients);
 
 #if IS_ENABLED(CONFIG_DEBUG_FS)
-	client->debug_root = debugfs_create_file(client->display_name, 0664,
-						 dev->clients_debug_root,
-						 client, &debug_client_fops);
+	/*
+	 * A just-freed client of the same name can leave its debugfs
+	 * dentry torn down asynchronously, so the reused serial may
+	 * still collide here. Bump the serial and retry a few times
+	 * before giving up.
+	 */
+	{
+		int retries = 0;
+
+		while (!(client->debug_root = debugfs_create_file(
+					client->display_name, 0664,
+					dev->clients_debug_root,
+					client, &debug_client_fops))) {
+			char *retry_name;
+
+			if (++retries >= 8)
+				break;
+			client->display_serial++;
+			retry_name = kasprintf(GFP_KERNEL, "%s-%d", name,
+					       client->display_serial);
+			if (!retry_name)
+				break;
+			kfree(client->display_name);
+			client->display_name = retry_name;
+		}
+	}
 	if (!client->debug_root) {
 		char buf[256], *path;
 
