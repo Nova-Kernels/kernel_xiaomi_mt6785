@@ -976,6 +976,19 @@ void _mt_cpufreq_dvfs_request_wrapper(struct mt_cpu_dvfs *p, int new_opp_idx,
 				}
 
 				cpufreq_para_unlock(para_flags);
+
+				/*
+				 * PPM (thermal/battery/etc) just moved this
+				 * cluster's ceiling directly on mt_policy->max,
+				 * bypassing cpufreq_update_policy(). Refresh the
+				 * generic max_freq_scale so the scheduler's
+				 * capacity math (update_cpu_capacity()) actually
+				 * sees the reduced ceiling instead of whatever
+				 * was live at driver init.
+				 */
+				arch_set_max_freq_scale(pp->mt_policy->cpus,
+					pp->mt_policy->max);
+
 				/* new_opp_idx == current idx */
 				if (!ignore_ppm)
 					_mt_cpufreq_set(pp->mt_policy, pp,
