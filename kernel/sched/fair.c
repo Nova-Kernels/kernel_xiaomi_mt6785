@@ -838,6 +838,9 @@ void post_init_entity_util_avg(struct sched_entity *se)
 		sa->util_sum = sa->util_avg * LOAD_AVG_MAX;
 	}
 
+	sa->runnable_avg = cpu_scale;
+	sa->runnable_sum = sa->runnable_avg * LOAD_AVG_MAX;
+
 	if (entity_is_task(se)) {
 		struct task_struct *p = task_of(se);
 		if (p->sched_class != &fair_sched_class) {
@@ -3023,7 +3026,8 @@ u64 rq_clock_pelt(struct rq *rq)
  */
 static __always_inline u32
 accumulate_sum(u64 delta, struct sched_avg *sa,
-	       unsigned long weight, int running, struct cfs_rq *cfs_rq)
+	       unsigned long weight, unsigned long runnable, int running,
+	       struct cfs_rq *cfs_rq)
 {
 	u32 contrib = (u32)delta; /* p == 0 -> delta < 1024 */
 	u64 periods;
@@ -3037,6 +3041,7 @@ accumulate_sum(u64 delta, struct sched_avg *sa,
 	if (periods) {
 		sa->load_sum = decay_load(sa->load_sum, periods);
 		sa->loadwop_sum = decay_load(sa->loadwop_sum, periods);
+		sa->runnable_sum = decay_load(sa->runnable_sum, periods);
 		if (cfs_rq) {
 			cfs_rq->runnable_load_sum =
 				decay_load(cfs_rq->runnable_load_sum, periods);
@@ -3064,6 +3069,8 @@ accumulate_sum(u64 delta, struct sched_avg *sa,
 		if (cfs_rq)
 			cfs_rq->runnable_load_sum += weight * contrib;
 	}
+	if (runnable)
+		sa->runnable_sum += runnable * contrib << SCHED_CAPACITY_SHIFT;
 	if (running)
 		sa->util_sum += contrib << SCHED_CAPACITY_SHIFT;
 
@@ -3100,8 +3107,8 @@ accumulate_sum(u64 delta, struct sched_avg *sa,
  */
 static __always_inline int
 ___update_load_avg(u64 now, int cpu, struct sched_avg *sa,
-		  unsigned long weight, int running, struct cfs_rq *cfs_rq,
-		  struct rt_rq *rt_rq)
+		  unsigned long weight, unsigned long runnable, int running,
+		  struct cfs_rq *cfs_rq, struct rt_rq *rt_rq)
 {
 	u64 delta;
 
@@ -3144,7 +3151,7 @@ ___update_load_avg(u64 now, int cpu, struct sched_avg *sa,
 	 * Step 1: accumulate *_sum since last_update_time. If we haven't
 	 * crossed period boundaries, finish.
 	 */
-	if (!accumulate_sum(delta, sa, weight, running, cfs_rq))
+	if (!accumulate_sum(delta, sa, weight, runnable, running, cfs_rq))
 		return 0;
 
 	/*
@@ -3153,6 +3160,7 @@ ___update_load_avg(u64 now, int cpu, struct sched_avg *sa,
 	sa->load_avg = div_u64(sa->load_sum, LOAD_AVG_MAX - 1024 + sa->period_contrib);
 	sa->loadwop_avg = div_u64(sa->loadwop_sum,
 			LOAD_AVG_MAX - 1024 + sa->period_contrib);
+	sa->runnable_avg = div_u64(sa->runnable_sum, LOAD_AVG_MAX - 1024 + sa->period_contrib);
 	if (cfs_rq) {
 		cfs_rq->runnable_load_avg =
 			div_u64(cfs_rq->runnable_load_sum, LOAD_AVG_MAX - 1024 + sa->period_contrib);
@@ -3205,14 +3213,17 @@ static inline void cfs_se_util_change(struct sched_avg *avg)
 static int
 __update_load_avg_blocked_se(u64 now, int cpu, struct sched_entity *se)
 {
-	return ___update_load_avg(now, cpu, &se->avg, 0, 0, NULL, NULL);
+	return ___update_load_avg(now, cpu, &se->avg, 0, 0, 0, NULL, NULL);
 }
 
 static int
 __update_load_avg_se(u64 now, int cpu, struct cfs_rq *cfs_rq, struct sched_entity *se)
 {
+	se_update_runnable(se);
+
 	if (___update_load_avg(now, cpu, &se->avg,
 			       se->on_rq * scale_load_down(se->load.weight),
+			       se->on_rq * se_runnable(se),
 			       cfs_rq->curr == se, NULL, NULL)) {
 		cfs_se_util_change(&se->avg);
 		trace_uclamp_util_se(entity_is_task(se),
@@ -3254,6 +3265,7 @@ __update_load_avg_cfs_rq(u64 now, int cpu, struct cfs_rq *cfs_rq)
 
 	ret = ___update_load_avg(now, cpu, &cfs_rq->avg,
 		scale_load_down(cfs_rq->load.weight),
+		cfs_rq->h_nr_running,
 		cfs_rq->curr != NULL, cfs_rq, NULL);
 
 	trace_uclamp_util_cfs(is_root_rq, cpu, cfs_rq);
@@ -3383,6 +3395,26 @@ update_tg_cfs_util(struct cfs_rq *cfs_rq, struct sched_entity *se)
 	cfs_rq->avg.util_sum = cfs_rq->avg.util_avg * LOAD_AVG_MAX;
 }
 
+/* Take into account change of runnable avg of a child task group */
+static inline void
+update_tg_cfs_runnable(struct cfs_rq *cfs_rq, struct sched_entity *se)
+{
+	struct cfs_rq *gcfs_rq = group_cfs_rq(se);
+	long delta = gcfs_rq->avg.runnable_avg - se->avg.runnable_avg;
+
+	/* Nothing to update */
+	if (!delta)
+		return;
+
+	/* Set new sched_entity's runnable */
+	se->avg.runnable_avg = gcfs_rq->avg.runnable_avg;
+	se->avg.runnable_sum = se->avg.runnable_avg * LOAD_AVG_MAX;
+
+	/* Update parent cfs_rq runnable */
+	add_positive(&cfs_rq->avg.runnable_avg, delta);
+	cfs_rq->avg.runnable_sum = cfs_rq->avg.runnable_avg * LOAD_AVG_MAX;
+}
+
 /* Take into account change of load of a child task group */
 static inline void
 update_tg_cfs_load(struct cfs_rq *cfs_rq, struct sched_entity *se)
@@ -3478,6 +3510,7 @@ static inline int propagate_entity_load_avg(struct sched_entity *se)
 	set_tg_cfs_propagate(cfs_rq);
 
 	update_tg_cfs_util(cfs_rq, se);
+	update_tg_cfs_runnable(cfs_rq, se);
 	update_tg_cfs_load(cfs_rq, se);
 
 	trace_sched_load_cfs_rq(cfs_rq);
@@ -3602,7 +3635,7 @@ int update_rt_rq_load_avg(u64 now, int cpu, struct rt_rq *rt_rq, int running)
 {
 	int ret;
 
-	ret = ___update_load_avg(now, cpu, &rt_rq->avg, running, running, NULL, rt_rq);
+	ret = ___update_load_avg(now, cpu, &rt_rq->avg, running, running, running, NULL, rt_rq);
 
 	return ret;
 }
@@ -3635,7 +3668,7 @@ int update_thermal_load_avg(u64 now, struct rq *rq, u64 capacity)
 
 	sa->last_update_time += delta << 10;
 
-	if (!accumulate_sum(delta, sa, capacity, 0, NULL))
+	if (!accumulate_sum(delta, sa, capacity, 0, 0, NULL))
 		return 0;
 
 	sa->load_avg = div_u64(sa->load_sum, LOAD_AVG_MAX - 1024 + sa->period_contrib);
@@ -3699,6 +3732,8 @@ static void attach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *s
 	se->avg.last_update_time = cfs_rq->avg.last_update_time;
 	cfs_rq->avg.load_avg += se->avg.load_avg;
 	cfs_rq->avg.load_sum += se->avg.load_sum;
+	cfs_rq->avg.runnable_avg += se->avg.runnable_avg;
+	cfs_rq->avg.runnable_sum += se->avg.runnable_sum;
 	cfs_rq->avg.util_avg += se->avg.util_avg;
 	cfs_rq->avg.util_sum += se->avg.util_sum;
 	set_tg_cfs_propagate(cfs_rq);
@@ -3731,6 +3766,8 @@ static void detach_entity_load_avg(struct cfs_rq *cfs_rq, struct sched_entity *s
 
 	sub_positive(&cfs_rq->avg.load_avg, se->avg.load_avg);
 	cfs_rq->avg.load_sum = cfs_rq->avg.load_avg * divider;
+	sub_positive(&cfs_rq->avg.runnable_avg, se->avg.runnable_avg);
+	cfs_rq->avg.runnable_sum = cfs_rq->avg.runnable_avg * divider;
 	sub_positive(&cfs_rq->avg.util_avg, se->avg.util_avg);
 	cfs_rq->avg.util_sum = cfs_rq->avg.util_avg * divider;
 	set_tg_cfs_propagate(cfs_rq);
