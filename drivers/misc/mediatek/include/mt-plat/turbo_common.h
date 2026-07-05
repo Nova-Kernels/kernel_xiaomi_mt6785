@@ -28,7 +28,7 @@ extern bool do_task_turbo(struct task_struct *p);
 extern int get_turbo_feats(void);
 extern void cgroup_set_turbo_task(struct task_struct *p);
 extern void sys_set_turbo_task(struct task_struct *p);
-void rwsem_list_add(struct task_struct *p,
+void rwsem_list_add(struct rw_semaphore *sem, struct task_struct *p,
 		    struct list_head *entry,
 		    struct list_head *head);
 void rwsem_start_turbo_inherit(struct rw_semaphore *sem);

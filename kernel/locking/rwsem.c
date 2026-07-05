@@ -1008,7 +1008,7 @@ queue:
 		adjustment += RWSEM_FLAG_WAITERS;
 	}
 #ifdef CONFIG_MTK_TASK_TURBO
-	rwsem_list_add(waiter.task, &waiter.list, &sem->wait_list);
+	rwsem_list_add(sem, waiter.task, &waiter.list, &sem->wait_list);
 #else
 	list_add_tail(&waiter.list, &sem->wait_list);
 #endif
@@ -1125,7 +1125,7 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
 	wstate = list_empty(&sem->wait_list) ? WRITER_FIRST : WRITER_NOT_FIRST;
 
 #ifdef CONFIG_MTK_TASK_TURBO
-	rwsem_list_add(waiter.task, &waiter.list, &sem->wait_list);
+	rwsem_list_add(sem, waiter.task, &waiter.list, &sem->wait_list);
 #else
 	list_add_tail(&waiter.list, &sem->wait_list);
 #endif

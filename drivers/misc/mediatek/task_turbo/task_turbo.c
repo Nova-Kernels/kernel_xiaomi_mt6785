@@ -527,6 +527,7 @@ void binder_stop_turbo_inherit(struct task_struct *p)
 	trace_turbo_inherit_end(p);
 }
 
+/* Mirrors kernel/locking/rwsem.c - keep struct rwsem_waiter in sync */
 enum rwsem_waiter_type {
 	RWSEM_WAITING_FOR_WRITE,
 	RWSEM_WAITING_FOR_READ
@@ -536,29 +537,38 @@ struct rwsem_waiter {
 	struct list_head list;
 	struct task_struct *task;
 	enum rwsem_waiter_type type;
+	unsigned long timeout;
+	unsigned long last_rowner;
 };
 
-#define RWSEM_ANONYMOUSLY_OWNED	(1UL << 0)
-#define RWSEM_READER_OWNED	((struct task_struct *)RWSEM_ANONYMOUSLY_OWNED)
+#define RWSEM_READER_OWNED	(1UL << 0)
+#define RWSEM_RD_NONSPINNABLE	(1UL << 1)
+#define RWSEM_WR_NONSPINNABLE	(1UL << 2)
+#define RWSEM_NONSPINNABLE	(RWSEM_RD_NONSPINNABLE | RWSEM_WR_NONSPINNABLE)
+#define RWSEM_OWNER_FLAGS_MASK	(RWSEM_READER_OWNED | RWSEM_NONSPINNABLE)
+#define RWSEM_FLAG_HANDOFF	(1UL << 2)
 
-static inline bool rwsem_owner_is_writer(struct task_struct *owner)
+static inline bool rwsem_owner_is_writer(struct task_struct *owner,
+					 unsigned long flags)
 {
-	return owner && owner != RWSEM_READER_OWNED;
+	return owner && !(flags & RWSEM_READER_OWNED);
 }
 
 void rwsem_start_turbo_inherit(struct rw_semaphore *sem)
 {
 	bool should_inherit;
-	struct task_struct *owner;
+	unsigned long raw_owner = atomic_long_read(&sem->owner);
+	unsigned long flags = raw_owner & RWSEM_OWNER_FLAGS_MASK;
+	struct task_struct *owner =
+		(struct task_struct *)(raw_owner & ~RWSEM_OWNER_FLAGS_MASK);
 	struct task_struct *cur = current;
 
 	if (!sub_feat_enable(SUB_FEAT_LOCK))
 		return;
 
-	owner = READ_ONCE(sem->owner);
 	should_inherit = should_set_inherit_turbo(cur);
 	if (should_inherit) {
-		if (rwsem_owner_is_writer(owner) &&
+		if (rwsem_owner_is_writer(owner, flags) &&
 				!is_turbo_task(owner) &&
 				!sem->turbo_owner) {
 			start_turbo_inherit(owner,
@@ -583,12 +593,22 @@ void rwsem_stop_turbo_inherit(struct rw_semaphore *sem)
 	raw_spin_unlock_irqrestore(&sem->wait_lock, flags);
 }
 
-void rwsem_list_add(struct task_struct *task,
+void rwsem_list_add(struct rw_semaphore *sem, struct task_struct *task,
 		    struct list_head *entry,
 		    struct list_head *head)
 {
 
 	if (!sub_feat_enable(SUB_FEAT_LOCK)) {
+		list_add_tail(entry, head);
+		return;
+	}
+
+	/*
+	 * A writer that has waited long enough to request handoff must not
+	 * get bumped back by turbo reordering - fairness wins over
+	 * throughput here, otherwise handoff and turbo can fight forever.
+	 */
+	if (atomic_long_read(&sem->count) & RWSEM_FLAG_HANDOFF) {
 		list_add_tail(entry, head);
 		return;
 	}
