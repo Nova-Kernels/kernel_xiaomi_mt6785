@@ -90,6 +90,28 @@ ATOMIC_LONG_ADD_SUB_OP(sub, _release)
 #define atomic_long_cmpxchg(l, old, new) \
 	(ATOMIC_LONG_PFX(_cmpxchg)((ATOMIC_LONG_PFX(_t) *)(l), (old), (new)))
 
+#if BITS_PER_LONG == 64
+static inline bool atomic_long_try_cmpxchg(atomic_long_t *l, long *old, long new)
+{
+	return atomic64_try_cmpxchg((atomic64_t *)l, (s64 *)old, new);
+}
+
+static inline bool atomic_long_try_cmpxchg_acquire(atomic_long_t *l, long *old, long new)
+{
+	return atomic64_try_cmpxchg_acquire((atomic64_t *)l, (s64 *)old, new);
+}
+#else
+static inline bool atomic_long_try_cmpxchg(atomic_long_t *l, long *old, long new)
+{
+	return atomic_try_cmpxchg((atomic_t *)l, (int *)old, new);
+}
+
+static inline bool atomic_long_try_cmpxchg_acquire(atomic_long_t *l, long *old, long new)
+{
+	return atomic_try_cmpxchg_acquire((atomic_t *)l, (int *)old, new);
+}
+#endif
+
 #define atomic_long_xchg_relaxed(v, new) \
 	(ATOMIC_LONG_PFX(_xchg_relaxed)((ATOMIC_LONG_PFX(_t) *)(v), (new)))
 #define atomic_long_xchg_acquire(v, new) \
