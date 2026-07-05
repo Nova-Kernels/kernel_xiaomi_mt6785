@@ -1294,10 +1294,11 @@ config BUILD_ARM64_APPENDED_KERNEL_IMAGE_NAME
 
 config BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES
 	string "Default dtb names"
-	depends on BUILD_ARM64_APPENDED_DTB_IMAGE
 	help
-	  Space separated list of names of dtbs to append when
-	  building a concatenated Image.gz-dtb.
+	  Space separated list of names of the base (non-overlay) dtbs.
+	  Also used as the base dtb for dtbo merge/validation and for
+	  building mtk.dtb, independent of whether it gets appended to
+	  a concatenated Image.gz-dtb.
 
 config BUILD_ARM64_DTB_OVERLAY_IMAGE_NAMES
 	string "Default dtb overlay names"

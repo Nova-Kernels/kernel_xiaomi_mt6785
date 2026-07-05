@@ -62,7 +62,7 @@ build_kernel() {
         CROSS_COMPILE=aarch64-linux-gnu- \
         CROSS_COMPILE_COMPAT=arm-linux-gnueabi-
 
-    KERNEL_IMG="$OUT_DIR/arch/arm64/boot/Image.gz-dtb"
+    KERNEL_IMG="$OUT_DIR/arch/arm64/boot/Image.gz"
 
     if [[ ! -f "$KERNEL_IMG" ]]; then
         echo "Kernel image not found!"
@@ -86,6 +86,7 @@ build_kernel() {
         git clone --depth=1 https://github.com/Wahid7852/Anykernel "$AK3_DIR"
     fi
 
+    rm -f "$AK3_DIR"/Image* "$AK3_DIR"/zImage*
     cp "$KERNEL_IMG" "$AK3_DIR/"
 
     rm -rf "$OUT_DIR/arch/arm64/boot"
