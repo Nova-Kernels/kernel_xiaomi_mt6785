@@ -413,7 +413,7 @@ static inline unsigned int hmp_domain_min_load(struct hmp_domain *hmpd,
 		struct cfs_rq *cfs_rq = &cpu_rq(cpu)->cfs;
 
 		/* don't use the divisor in the loop, just at the end */
-		contrib = cfs_rq->runnable_load_avg * scale_load_down(1024);
+		contrib = cfs_rq->avg.load_avg * scale_load_down(1024);
 		if (contrib < min_runnable_load) {
 			min_runnable_load = contrib;
 			min_cpu_runnable_temp = cpu;

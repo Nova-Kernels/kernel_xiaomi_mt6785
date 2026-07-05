@@ -364,8 +364,8 @@ void print_cfs_rq_at_AEE(struct seq_file *m, int cpu, struct cfs_rq *cfs_rq)
 #ifdef CONFIG_SMP
 	SEQ_printf_at_AEE(m, "  .%-30s: %lu\n", "load_avg",
 			cfs_rq->avg.load_avg);
-	SEQ_printf_at_AEE(m, "  .%-30s: %lu\n", "runnable_load_avg",
-			cfs_rq->runnable_load_avg);
+	SEQ_printf_at_AEE(m, "  .%-30s: %lu\n", "runnable_avg",
+			cfs_rq->avg.runnable_avg);
 	SEQ_printf_at_AEE(m, "  .%-30s: %lu\n", "util_avg",
 			cfs_rq->avg.util_avg);
 	SEQ_printf_at_AEE(m, "  .%-30s: %ld\n", "removed_load_avg",
