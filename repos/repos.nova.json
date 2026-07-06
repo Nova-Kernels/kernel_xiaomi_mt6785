@@ -1,0 +1,48 @@
+[
+  {
+    "kernelName": "NoVa",
+    "kernelSource": {
+      "device": "begonia",
+      "defconfig": "begonia_user_defconfig",
+      "name": "NoVa-kernel",
+      "repo": "https://github.com/Nova-Kernels/priv_kernel_xiaomi_mt6785",
+      "branch": "main"
+    },
+    "toolchains": [
+      {
+        "repo": "https://gitlab.com/crdroidandroid/android_prebuilts_clang_host_linux-x86_clang-r547379",
+        "branch": "15.0",
+        "name": "clang-crDroid",
+        "binPath": ["./bin"]
+      }
+    ],
+    "ccache": true,
+    "params": {
+      "ARCH": "arm64",
+      "CC": "clang-crDroid/bin/clang",
+      "externalCommand": {
+        "CROSS_COMPILE": "clang-crDroid/bin/aarch64-linux-gnu-",
+        "CROSS_COMPILE_ARM32": "clang-crDroid/bin/arm-linux-gnueabi-",
+        "LD": "clang-crDroid/bin/ld.lld",
+        "LLVM": "1",
+        "LLVM_IAS": "1",
+        "AR": "clang-crDroid/bin/llvm-ar",
+        "NM": "clang-crDroid/bin/llvm-nm",
+        "OBJCOPY": "clang-crDroid/bin/llvm-objcopy",
+        "OBJDUMP": "clang-crDroid/bin/llvm-objdump",
+        "READELF": "clang-crDroid/bin/llvm-readelf",
+        "OBJSIZE": "clang-crDroid/bin/llvm-size",
+        "STRIP": "clang-crDroid/bin/llvm-strip",
+        "LDGOLD": "clang-crDroid/bin/aarch64-linux-gnu-ld.gold",
+        "LLVM_AR": "clang-crDroid/bin/llvm-ar",
+        "LLVM_DIS": "clang-crDroid/bin/llvm-dis"
+      }
+    },
+    "AnyKernel3": {
+      "use": true,
+      "release": true,
+      "repo": "https://github.com/cvnertnc/AnyKernel3/",
+      "branch": "begonia"
+    }
+  }
+]
