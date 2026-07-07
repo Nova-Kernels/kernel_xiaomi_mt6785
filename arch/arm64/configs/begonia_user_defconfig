@@ -4697,6 +4697,14 @@ CONFIG_BEGONIA_NFC=y
 # CONFIG_CEZANNE_NFC is not set
 
 #
+# KernelSU - SUSFS
+#
+# CONFIG_KSU is not set
+# CONFIG_KSU_SUSFS is not set
+# CONFIG_KSU_MANUAL_HOOK is not set
+# CONFIG_KSU_SUSFS_SUS_MEMFD is not set
+
+#
 # Firmware Drivers
 #
 CONFIG_ARM_PSCI_FW=y
