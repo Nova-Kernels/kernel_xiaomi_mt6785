@@ -6,17 +6,36 @@ SECONDS=0
 
 KERNEL_PATH="$PWD"
 OUT_DIR="$KERNEL_PATH/out"
+KSU_OUT_DIR="$KERNEL_PATH/out-ksu"
 AK3_DIR="$KERNEL_PATH/Anykernel"
 DEFCONFIG="${2:-begonia_user_defconfig}"
 CLANG_DIR="$KERNEL_PATH/clang"
-KSUN_DIR="$KERNEL_PATH/.ksun-src"
+CCACHE_DIR="$KERNEL_PATH/.ccache"
+
+KSU_BEFORE_FILES=()
 
 export LC_ALL=C
-export USE_CCACHE=1
 export ARCH=arm64
 export KBUILD_BUILD_USER="Wahid7852"
 export KBUILD_BUILD_HOST="NoVA"
 export USE_HOST_LEX=yes
+
+CC_CMD="clang"
+if command -v ccache &>/dev/null; then
+    export CCACHE_DIR
+    ccache -M 20G &>/dev/null
+    CC_CMD="ccache clang"
+else
+    echo "==> ccache not found, builds will not be cached (sudo pacman -S ccache to enable)"
+fi
+
+force_rm() {
+    local tries=5
+    while ! rm -rf "$@" 2>/dev/null; do
+        ((--tries)) || { rm -rf "$@"; return; }
+        sleep 0.5
+    done
+}
 
 download_clang() {
     if [[ ! -d "$CLANG_DIR/bin" ]]; then
@@ -37,51 +56,35 @@ regen_defconfig() {
     cp "$OUT_DIR/defconfig" "arch/arm64/configs/$DEFCONFIG"
 }
 
-setup_ksun_worktree() {
-    git fetch origin ksun
+integrate_kernelsu() {
+    echo "==> Integrating KernelSU-Next + SUSFS..."
 
-    if [[ ! -d "$KSUN_DIR" ]]; then
-        echo "==> Setting up ksun worktree..."
-        git worktree add -B ksun "$KSUN_DIR" origin/ksun
-    else
-        echo "==> Resetting ksun worktree to origin/ksun..."
-        (
-            cd "$KSUN_DIR"
-            git checkout -- .
-            git clean -fd
-            git checkout ksun
-            git reset --hard origin/ksun
-        )
+    force_rm ./KernelSU ./KernelSU-Next ./drivers/kernelsu
+
+    curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+    force_rm KernelSU
+
+    git clone --recursive -j"$(nproc --all)" --branch legacy-susfs-v2 https://github.com/sidex15/KernelSU-Next KernelSU
+
+    sed -i 's/# CONFIG_KSU is not set/CONFIG_KSU=y/' "arch/arm64/configs/$DEFCONFIG"
+    sed -i 's/# CONFIG_KSU_MANUAL_HOOK is not set/CONFIG_KSU_MANUAL_HOOK=y/' "arch/arm64/configs/$DEFCONFIG"
+    sed -i 's/# CONFIG_KSU_SUSFS is not set/CONFIG_KSU_SUSFS=y/' "arch/arm64/configs/$DEFCONFIG"
+}
+
+cleanup_kernelsu() {
+    echo "==> Reverting KernelSU-Next integration..."
+    force_rm ./KernelSU ./KernelSU-Next ./drivers/kernelsu
+
+    local touched
+    mapfile -t touched < <(comm -13 <(printf '%s\n' "${KSU_BEFORE_FILES[@]}" | sort) <(git diff --name-only | sort))
+    if [[ ${#touched[@]} -gt 0 ]]; then
+        git checkout -- "${touched[@]}"
     fi
 }
 
-integrate_kernelsu() {
-    local src_dir="$1"
-    local defconfig="$2"
-
-    echo "==> Integrating KernelSU-Next + SUSFS..."
-
-    (
-        cd "$src_dir"
-
-        rm -rf ./KernelSU ./KernelSU-Next ./drivers/kernelsu
-
-        curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-        rm -rf KernelSU
-
-        git clone --recursive -j"$(nproc --all)" --branch legacy-susfs-v2 https://github.com/sidex15/KernelSU-Next KernelSU
-
-        sed -i 's/# CONFIG_KSU is not set/CONFIG_KSU=y/' "arch/arm64/configs/$defconfig"
-        sed -i 's/# CONFIG_KSU_MANUAL_HOOK is not set/CONFIG_KSU_MANUAL_HOOK=y/' "arch/arm64/configs/$defconfig"
-        sed -i 's/# CONFIG_KSU_SUSFS is not set/CONFIG_KSU_SUSFS=y/' "arch/arm64/configs/$defconfig"
-    )
-}
-
 _compile_and_package() {
-    local src_dir="$1"
-    local out_dir="$2"
-    local defconfig="$3"
-    local revision="$4"
+    local out_dir="$1"
+    local revision="$2"
 
     download_clang
 
@@ -90,13 +93,13 @@ _compile_and_package() {
     mkdir -p "$out_dir"
     rm -f "$out_dir/error.log"
 
-    make -C "$src_dir" O="$out_dir" ARCH=arm64 "$defconfig"
+    make O="$out_dir" ARCH=arm64 "$DEFCONFIG"
 
     (
         exec 2> >(tee -a "$out_dir/error.log" >&2)
-        make -C "$src_dir" -j"$(nproc --all)" \
+        make -j"$(nproc --all)" \
             O="$out_dir" \
-            CC=clang \
+            CC="$CC_CMD" \
             LLVM=1 \
             LLVM_IAS=1 \
             AR=llvm-ar \
@@ -116,7 +119,7 @@ _compile_and_package() {
         exit 1
     fi
 
-    SUBREV="4.14.$(grep 'SUBLEVEL =' "$src_dir/Makefile" | awk '{print $3}')"
+    SUBREV="4.14.$(grep 'SUBLEVEL =' Makefile | awk '{print $3}')"
     ZIPBASE="${revision}-${SUBREV}"
     ZIPNAME="${ZIPBASE}.zip"
 
@@ -146,14 +149,16 @@ _compile_and_package() {
 }
 
 build_kernel() {
-    _compile_and_package "$KERNEL_PATH" "$OUT_DIR" "$DEFCONFIG" "NoVA"
+    git checkout -- "arch/arm64/configs/$DEFCONFIG"
+    _compile_and_package "$OUT_DIR" "NoVA"
 }
 
 build_ksu() {
-    setup_ksun_worktree
-    integrate_kernelsu "$KSUN_DIR" "$DEFCONFIG"
+    mapfile -t KSU_BEFORE_FILES < <(git diff --name-only)
+    trap cleanup_kernelsu EXIT
 
-    _compile_and_package "$KSUN_DIR" "$KSUN_DIR/out" "$DEFCONFIG" "NoVA-KSU"
+    integrate_kernelsu
+    _compile_and_package "$KSU_OUT_DIR" "NoVA-KSU"
 }
 
 case "${1:-}" in
@@ -178,7 +183,7 @@ case "${1:-}" in
         echo "Usage: $0 [option] [defconfig]"
         echo
         echo "  -b, --build       Build normal kernel"
-        echo "  -k, --build-ksu   Build KernelSU + SUSFS kernel (from ksun branch)"
+        echo "  -k, --build-ksu   Build KernelSU + SUSFS kernel"
         echo "  -a, --build-all   Build both normal and KernelSU kernels"
         echo "  -r, --regen       Regenerate defconfig"
         exit 1
