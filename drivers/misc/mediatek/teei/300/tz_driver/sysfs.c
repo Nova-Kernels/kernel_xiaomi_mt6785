@@ -149,7 +149,7 @@ static void str_to_uuid(struct TEEC_UUID *uuid, const char *buf)
 
 static inline void uuid_to_str(struct TEEC_UUID *uuid, char *buf)
 {
-	snprintf(buf, UUID_STRING_LENGTH,
+	snprintf(buf, UUID_STRING_LENGTH + 1,
 			"%08x%04x%04x%02x%02x%02x%02x%02x%02x%02x%02x",
 			uuid->timeLow, uuid->timeMid,
 			uuid->timeHiAndVersion,
@@ -449,7 +449,7 @@ static ssize_t list_ut_drv_show(struct device *cd,
 				struct device_attribute *attr, char *buf)
 {
 	struct ut_drv_entry *entry;
-	char uuid_str[UUID_STRING_LENGTH] = {0};
+	char uuid_str[UUID_STRING_LENGTH + 1] = {0};
 	char *s = buf;
 
 	list_for_each_entry(entry, &ut_drv_list, list) {
