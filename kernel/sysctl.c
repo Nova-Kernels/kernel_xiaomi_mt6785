@@ -143,7 +143,7 @@ extern int direct_vm_swappiness;
 static int two_hundred = 200;
 #endif /* CONFIG_OPLUS_MM_HACKS */
 static int one_thousand = 1000;
-#ifdef CONFIG_INCREASE_MAXIMUM_SWAPPINESS
+#if defined(CONFIG_INCREASE_MAXIMUM_SWAPPINESS) && !defined(CONFIG_OPLUS_MM_HACKS)
 static int max_swappiness = 200;
 #endif
 #ifdef CONFIG_PRINTK
