@@ -86,8 +86,10 @@
 
 #define DISPPR_HWOP(string, args...)
 
-#ifndef CONFIG_MTK_AEE_FEATURE
+#ifndef aee_kernel_warning_api
 # define aee_kernel_warning_api(...)
+#endif
+#ifndef aee_kernel_exception
 # define aee_kernel_exception(...)
 #endif
 

@@ -268,6 +268,7 @@ void aee_oops_free(struct aee_oops *oops);
 #define AEE_API_CALL_INTERVAL   (120 * HZ)
 #define AEE_API_CALL_BURST      2
 
+#undef aee_kernel_exception
 #define aee_kernel_exception(module, msg...)		\
 ({							\
 	static DEFINE_RATELIMIT_STATE(__func__##_rs,	\
@@ -299,6 +300,7 @@ void aee_oops_free(struct aee_oops *oops);
 			db_opt, module, msg);				\
 })
 
+#undef aee_kernel_warning_api
 #define aee_kernel_warning_api(file, line, db_opt, module, msg...)	\
 ({									\
 	static DEFINE_RATELIMIT_STATE(__func__##_rs,			\
