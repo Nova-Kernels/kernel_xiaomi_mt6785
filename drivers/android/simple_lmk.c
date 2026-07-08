@@ -30,6 +30,10 @@ static unsigned short slmk_timeout __read_mostly = CONFIG_ANDROID_SIMPLE_LMK_TIM
 module_param(slmk_timeout, short, 0644);
 #define RECLAIM_EXPIRES msecs_to_jiffies(slmk_timeout)
 
+/* vmpressure level (0-100) that triggers a reclaim; higher = keep more apps cached */
+static unsigned short slmk_vmpressure_thresh __read_mostly = 97;
+module_param(slmk_vmpressure_thresh, short, 0644);
+
 struct victim_info {
 	struct task_struct *tsk;
 	struct mm_struct *mm;
@@ -468,7 +472,7 @@ void simple_lmk_mm_freed(struct mm_struct *mm)
 static int simple_lmk_vmpressure_cb(struct notifier_block *nb,
 				    unsigned long pressure, void *data)
 {
-	if (pressure >= 95) {
+	if (pressure >= slmk_vmpressure_thresh) {
 		atomic_set(&needs_reclaim, 1);
 		smp_mb__after_atomic();
 		if (waitqueue_active(&oom_waitq))
