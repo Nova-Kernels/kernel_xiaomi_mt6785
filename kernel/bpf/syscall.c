@@ -1152,7 +1152,6 @@ static int map_delete_elem(union bpf_attr *attr)
 	struct bpf_map *map;
 	struct fd f;
 	void *key;
-	u8 key_onstack[SZ_16] __aligned(sizeof(long));
 	int err;
 
 	if (CHECK_ATTR(BPF_MAP_DELETE_ELEM))
