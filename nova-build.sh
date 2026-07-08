@@ -177,15 +177,15 @@ build_ksu() {
 
 case "${1:-}" in
     -b|--build)
-        rm -f ./*.zip
+        rm -f ./NoVA-[0-9]*.zip
         build_kernel
         ;;
     -k|--build-ksu)
-        rm -f ./*.zip
+        rm -f ./NoVA-KSU-*.zip
         build_ksu
         ;;
     -a|--build-all)
-        rm -f ./*.zip
+        rm -f ./NoVA-[0-9]*.zip ./NoVA-KSU-*.zip
         build_kernel
         build_ksu
         ;;
