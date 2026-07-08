@@ -12,8 +12,6 @@ DEFCONFIG="begonia_user_defconfig"
 KSU_DEFCONFIG="${DEFCONFIG%_defconfig}_ksu_defconfig"
 CLANG_DIR="$KERNEL_PATH/clang"
 CCACHE_DIR="$KERNEL_PATH/.ccache"
-KSU_MANIFEST="$KERNEL_PATH/.ksu-manifest"
-KSU_BEFORE_FILES=()
 
 export LC_ALL=C
 export ARCH=arm64
@@ -32,13 +30,7 @@ else
     echo "==> ccache not found, builds will not be cached (sudo pacman -S ccache to enable)"
 fi
 
-force_rm() {
-    local tries=5
-    while ! rm -rf "$@" 2>/dev/null; do
-        ((--tries)) || { rm -rf "$@"; return; }
-        sleep 0.5
-    done
-}
+git submodule update --init --recursive KernelSU
 
 download_clang() {
     if [[ ! -d "$CLANG_DIR/bin" ]]; then
@@ -58,36 +50,6 @@ regen_defconfig() {
     local defconfig="${1:-$DEFCONFIG}"
     make O="$OUT_DIR" ARCH=arm64 "$defconfig" savedefconfig
     cp "$OUT_DIR/defconfig" "arch/arm64/configs/$defconfig"
-}
-
-# returns 1 if already integrated (no-op)
-integrate_kernelsu() {
-    if [[ -d ./KernelSU ]]; then
-        return 1
-    fi
-
-    echo "==> Integrating KernelSU-Next + SUSFS (one-time)..."
-
-    mapfile -t KSU_BEFORE_FILES < <(git diff --name-only)
-
-    curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-    force_rm KernelSU
-
-    git clone --recursive -j"$(nproc --all)" --branch legacy-susfs-v2 https://github.com/sidex15/KernelSU-Next KernelSU
-}
-
-remove_ksu() {
-    echo "==> Removing KernelSU-Next integration..."
-    force_rm ./KernelSU ./KernelSU-Next ./drivers/kernelsu
-
-    if [[ -f "$KSU_MANIFEST" ]]; then
-        local touched
-        mapfile -t touched < "$KSU_MANIFEST"
-        if [[ ${#touched[@]} -gt 0 ]]; then
-            git checkout -- "${touched[@]}"
-        fi
-        rm -f "$KSU_MANIFEST"
-    fi
 }
 
 _compile_and_package() {
@@ -162,17 +124,10 @@ build_kernel() {
 }
 
 build_ksu() {
-    local fresh=false
-    integrate_kernelsu && fresh=true
-
     _compile_and_package "$KSU_OUT_DIR" "$KSU_DEFCONFIG" "NoVA-KSU"
 
     # KernelSU-Next's Kbuild touches the normal defconfig too, revert that
     git checkout -- "arch/arm64/configs/$DEFCONFIG"
-
-    if $fresh; then
-        comm -13 <(printf '%s\n' "${KSU_BEFORE_FILES[@]}" | sort) <(git diff --name-only | sort) > "$KSU_MANIFEST"
-    fi
 }
 
 case "${1:-}" in
@@ -189,9 +144,6 @@ case "${1:-}" in
         build_kernel
         build_ksu
         ;;
-    -x|--remove-ksu)
-        remove_ksu
-        ;;
     -r|--regen)
         regen_defconfig "${2:-}"
         ;;
@@ -202,7 +154,6 @@ case "${1:-}" in
         echo "  -b, --build       Build normal kernel"
         echo "  -k, --build-ksu   Build KernelSU + SUSFS kernel"
         echo "  -a, --build-all   Build both normal and KernelSU kernels"
-        echo "  -x, --remove-ksu  Remove the KernelSU-Next integration"
         echo "  -r, --regen       Regenerate defconfig"
         exit 1
         ;;

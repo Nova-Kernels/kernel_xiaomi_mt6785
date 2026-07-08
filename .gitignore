@@ -129,5 +129,3 @@ out-ksu/
 *.zip
 Anykernel/
 clang*
-/KernelSU/
-/KernelSU-Next/
