@@ -117,7 +117,6 @@ config ANDROID_DEFAULT_SETTING
 	select MMU
 	select MODULES
 	select MODULE_UNLOAD
-	select MODVERSIONS
 	select MTK_AMMS
 	select MULTIUSER
 	select NAMESPACES
