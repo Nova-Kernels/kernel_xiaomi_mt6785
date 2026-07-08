@@ -1215,6 +1215,13 @@ SYSCALL_DEFINE1(newuname, struct new_utsname __user *, name)
 
 	down_read(&uts_sem);
 	memcpy(&tmp, utsname(), sizeof(tmp));
+	for (i = 0; i < ARRAY_SIZE(fake_comm); i++) {
+		if (!strncmp(comm, fake_comm[i].name, fake_comm[i].len)) {
+			strscpy(tmp.release, "5.10.253",
+				sizeof(tmp.release));
+			break;
+		}
+	}
 #ifdef CONFIG_KSU_SUSFS_SPOOF_UNAME
 	susfs_spoof_uname(&tmp);
 #endif
