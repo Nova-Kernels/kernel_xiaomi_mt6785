@@ -45,6 +45,7 @@
 #include <linux/jiffies.h>
 #include <linux/workqueue.h>
 #include <linux/io.h>
+#include <linux/sched.h>
 
 #include "internal.h"
 
@@ -146,6 +147,10 @@ static bool pstore_cannot_wait(enum kmsg_dump_reason reason)
 {
 	/* In NMI path, pstore shouldn't block regardless of reason. */
 	if (in_nmi())
+		return true;
+
+	/* Never block on the idle task: it must remain runnable at all times */
+	if (is_idle_task(current))
 		return true;
 
 	switch (reason) {
