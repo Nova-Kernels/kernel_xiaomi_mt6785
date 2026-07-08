@@ -19,6 +19,7 @@
 #include <linux/of.h>
 #include <linux/of_irq.h>
 #include <linux/printk.h>
+#include <linux/ratelimit.h>
 #include <linux/memblock.h>
 #include <mt-plat/sync_write.h>
 #include <mt-plat/mtk_io.h>
@@ -99,6 +100,7 @@ static void clear_violation(void)
 
 static void check_violation(void)
 {
+	static DEFINE_RATELIMIT_STATE(violation_rs, HZ, 10);
 	unsigned int mpus, mput, mput_2nd;
 	unsigned int master_id, domain_id;
 	unsigned int port_id, axi_id;
@@ -110,6 +112,18 @@ static void check_violation(void)
 	mpus = readl(IOMEM(EMI_MPUS));
 	mput = readl(IOMEM(EMI_MPUT));
 	mput_2nd = readl(IOMEM(EMI_MPUT_2ND));
+
+	/*
+	 * A zeroed MPUS means a concurrent violation already claimed and
+	 * cleared the status register before this handler invocation got to
+	 * read it -- there's nothing to decode, so skip the phantom report
+	 * instead of printing a bogus "region 0" violation for it.
+	 */
+	if (!mpus) {
+		clear_violation();
+		return;
+	}
+
 	vio_addr = ((((unsigned long long)(mput_2nd & 0xF)) << 32) + mput +
 		DRAM_OFFSET);
 
@@ -123,28 +137,31 @@ static void check_violation(void)
 	axi_id = (master_id >> 3) & 0x1FFF;
 	master_name = id2name(axi_id, port_id);
 
-	pr_info("[MPU] EMI MPU violation\n");
-	pr_info("[MPU] MPUS: %x, MPUT: %x, MPUT_2ND: %x.\n",
-		mpus, mput, mput_2nd);
-	pr_info("[MPU] current process is \"%s \" (pid: %i)\n",
-		current->comm, current->pid);
-	pr_info("[MPU] corrupted address is 0x%llx, in region %d\n",
-		vio_addr, region);
-	pr_info("[MPU] master ID: 0x%x, AXI ID: 0x%x, port ID: 0x%x\n",
-		master_id, axi_id, port_id);
-	pr_info("[MPU] violation master is %s, from domain 0x%x\n",
-		master_name, domain_id);
+	if (__ratelimit(&violation_rs)) {
+		pr_info("[MPU] EMI MPU violation\n");
+		pr_info("[MPU] MPUS: %x, MPUT: %x, MPUT_2ND: %x.\n",
+			mpus, mput, mput_2nd);
+		pr_info("[MPU] current process is \"%s \" (pid: %i)\n",
+			current->comm, current->pid);
+		pr_info("[MPU] corrupted address is 0x%llx, in region %d\n",
+			vio_addr, region);
+		pr_info("[MPU] master ID: 0x%x, AXI ID: 0x%x, port ID: 0x%x\n",
+			master_id, axi_id, port_id);
+		pr_info("[MPU] violation master is %s, from domain 0x%x\n",
+			master_name, domain_id);
 
-	if (wr_vio == 1)
-		pr_info("[MPU] write violation\n");
-	else if (wr_vio == 2)
-		pr_info("[MPU] read violation\n");
-	else
-		pr_info("[MPU] strange write/read violation (%d)\n", wr_vio);
-	if (wr_oo_vio == 1)
-		pr_info("[MPU] write out-of-range violation\n");
-	else if (wr_oo_vio == 2)
-		pr_info("[MPU] read out-of-range violation\n");
+		if (wr_vio == 1)
+			pr_info("[MPU] write violation\n");
+		else if (wr_vio == 2)
+			pr_info("[MPU] read violation\n");
+		else
+			pr_info("[MPU] strange write/read violation (%d)\n",
+				wr_vio);
+		if (wr_oo_vio == 1)
+			pr_info("[MPU] write out-of-range violation\n");
+		else if (wr_oo_vio == 2)
+			pr_info("[MPU] read out-of-range violation\n");
+	}
 
 #ifdef MPU_BYPASS
 	if (bypass_violation(mpus, &init_flag)) {
