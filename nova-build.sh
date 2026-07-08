@@ -25,6 +25,8 @@ CC_CMD="clang"
 if command -v ccache &>/dev/null; then
     export CCACHE_DIR
     ccache -M 20G &>/dev/null
+    ccache -o base_dir="$KERNEL_PATH" &>/dev/null
+    ccache -o sloppiness=file_macro,include_file_mtime,include_file_ctime &>/dev/null
     CC_CMD="ccache clang"
 else
     echo "==> ccache not found, builds will not be cached (sudo pacman -S ccache to enable)"
