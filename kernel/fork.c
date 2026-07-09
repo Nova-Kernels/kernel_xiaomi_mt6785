@@ -13,6 +13,7 @@
 
 #include <linux/anon_inodes.h>
 #include <linux/slab.h>
+#include <linux/string.h>
 #include <linux/sched/autogroup.h>
 #include <linux/sched/mm.h>
 #include <linux/sched/coredump.h>
@@ -2304,6 +2305,14 @@ long _do_fork(unsigned long clone_flags,
 		struct pid *pid;
 
 		cpufreq_task_times_alloc(p);
+
+#if IS_ENABLED(CONFIG_KPROFILES_MTK_BOOST)
+		if (!strcmp(current->comm, "zygote") ||
+		    !strcmp(current->comm, "zygote64")) {
+			extern void kp_boost_on_fork(void);
+			kp_boost_on_fork();
+		}
+#endif
 
 		trace_sched_process_fork(current, p);
 

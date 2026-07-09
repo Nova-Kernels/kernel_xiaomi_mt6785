@@ -85,4 +85,17 @@ config KP_VERBOSE_DEBUG
 	  Say Y here if you are testing Kprofiles or trying to
 	  debug and indentify problems.
 
+config KPROFILES_MTK_BOOST
+	bool "MediaTek touch/launch/gaming boost glue for Kprofiles"
+	depends on MTK_GPU_SUPPORT
+	default y
+	help
+	  Wires Kprofiles into this tree's MediaTek perfmgr CPU frequency
+	  kicker API and GED's GPU floor/game-hint API: a driver-independent
+	  touch-boost input handler, a zygote-fork app-launch boost, and a
+	  persistent GPU floor + game hint while in Performance mode.
+
+	  Kept separate from the core driver so main.c stays close to
+	  upstream Kprofiles for future syncing.
+
 endif # if KPROFILES

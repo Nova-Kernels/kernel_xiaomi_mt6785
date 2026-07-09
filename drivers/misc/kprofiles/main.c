@@ -37,6 +37,11 @@
 #include "version.h"
 #include <linux/notifier.h>
 
+#ifdef CONFIG_KPROFILES_MTK_BOOST
+void kp_mtk_boost_init(void);
+void kp_mtk_boost_exit(void);
+#endif
+
 #ifdef CONFIG_AUTO_KPROFILES_MSM_DRM
 #define KP_EVENT_BLANK MSM_DRM_EVENT_BLANK
 #define KP_BLANK_POWERDOWN MSM_DRM_BLANK_POWERDOWN
@@ -360,6 +365,8 @@ static inline ssize_t kp_mode_store(struct kobject *kobj,
 		return ret;
 	}
 
+	kp_trigger_mode_change_event();
+
 	return count;
 }
 
@@ -405,12 +412,19 @@ static int __init kp_init(void)
 		" loaded successfully. For further details, visit https://github.com/dakkshesh07/Kprofiles/blob/main/README.md\n");
 	kp_info("Copyright (C) 2021-2023 Dakkshesh <dakkshesh5@gmail.com>.\n");
 
+#ifdef CONFIG_KPROFILES_MTK_BOOST
+	kp_mtk_boost_init();
+#endif
+
 	return ret;
 }
 module_init(kp_init);
 
 static void __exit kp_exit(void)
 {
+#ifdef CONFIG_KPROFILES_MTK_BOOST
+	kp_mtk_boost_exit();
+#endif
 	kp_unregister_display_notifier();
 	sysfs_remove_group(kp_kobj, &kp_attr_group);
 	kobject_put(kp_kobj);
