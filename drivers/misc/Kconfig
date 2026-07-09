@@ -4,6 +4,8 @@
 
 menu "Misc devices"
 
+source "drivers/misc/kprofiles/Kconfig"
+
 config SENSORS_LIS3LV02D
 	tristate
 	depends on INPUT
