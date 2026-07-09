@@ -492,6 +492,7 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp)
 {
 	static atomic_t init_done = ATOMIC_INIT(0);
 	struct task_struct *thread;
+	struct sysinfo i;
 
 	if (!atomic_cmpxchg(&init_done, 0, 1)) {
 		thread = kthread_run(simple_lmk_reaper_thread, NULL,
@@ -501,6 +502,19 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp)
 				     "simple_lmkd");
 		BUG_ON(IS_ERR(thread));
 		BUG_ON(vmpressure_notifier_register(&vmpressure_notif));
+	}
+
+	/*
+	 * begonia ships in 4/6/8GB RAM variants. Keep the tree's own
+	 * conservative default (fewer kills) for the common 6/8GB SKUs;
+	 * only the memory-constrained 4GB variant gets extra headroom,
+	 * and even then nowhere near as aggressive as upstream vendor
+	 * kernels tend to default to.
+	 */
+	si_meminfo(&i);
+	if (i.totalram << (PAGE_SHIFT - 10) <= 4096ull * 1024) {
+		slmk_minfree = 115;
+		slmk_timeout = 100;
 	}
 
 	return 0;
