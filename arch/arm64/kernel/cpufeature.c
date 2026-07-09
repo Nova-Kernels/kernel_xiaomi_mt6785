@@ -327,12 +327,57 @@ static const struct arm64_ftr_bits ftr_raz[] = {
 	ARM64_FTR_END,
 };
 
-#define ARM64_FTR_REG(id, table) {		\
-	.sys_id = id,				\
-	.reg = 	&(struct arm64_ftr_reg){	\
-		.name = #id,			\
-		.ftr_bits = &((table)[0]),	\
-	}}
+/*
+ * Named storage. LTO can put these into .rodata since
+ * they're only reached via bsearch(), which then
+ * write-faults on the first post-mark_rodata_ro() hotplug re-online.
+ */
+#define ARM64_FTR_REG_STORAGE(id, table)			\
+static struct arm64_ftr_reg arm64_ftr_reg_##id = {		\
+	.name = #id,						\
+	.ftr_bits = &((table)[0]),				\
+}
+
+#define ARM64_FTR_REG(id, table) \
+	{ .sys_id = id, .reg = &arm64_ftr_reg_##id }
+
+ARM64_FTR_REG_STORAGE(SYS_ID_PFR0_EL1, ftr_id_pfr0);
+ARM64_FTR_REG_STORAGE(SYS_ID_PFR1_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_DFR0_EL1, ftr_id_dfr0);
+ARM64_FTR_REG_STORAGE(SYS_ID_MMFR0_EL1, ftr_id_mmfr0);
+ARM64_FTR_REG_STORAGE(SYS_ID_MMFR1_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_MMFR2_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_MMFR3_EL1, ftr_generic_32bits);
+
+ARM64_FTR_REG_STORAGE(SYS_ID_ISAR0_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_ISAR1_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_ISAR2_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_ISAR3_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_ISAR4_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_ID_ISAR5_EL1, ftr_id_isar5);
+ARM64_FTR_REG_STORAGE(SYS_ID_MMFR4_EL1, ftr_id_mmfr4);
+
+ARM64_FTR_REG_STORAGE(SYS_MVFR0_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_MVFR1_EL1, ftr_generic_32bits);
+ARM64_FTR_REG_STORAGE(SYS_MVFR2_EL1, ftr_mvfr2);
+
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64PFR0_EL1, ftr_id_aa64pfr0);
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64PFR1_EL1, ftr_id_aa64pfr1);
+
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64DFR0_EL1, ftr_id_aa64dfr0);
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64DFR1_EL1, ftr_raz);
+
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64ISAR0_EL1, ftr_id_aa64isar0);
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64ISAR1_EL1, ftr_id_aa64isar1);
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64ISAR2_EL1, ftr_id_aa64isar2);
+
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64MMFR0_EL1, ftr_id_aa64mmfr0);
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64MMFR1_EL1, ftr_id_aa64mmfr1);
+ARM64_FTR_REG_STORAGE(SYS_ID_AA64MMFR2_EL1, ftr_id_aa64mmfr2);
+
+ARM64_FTR_REG_STORAGE(SYS_DCZID_EL0, ftr_dczid);
+
+ARM64_FTR_REG_STORAGE(SYS_CNTFRQ_EL0, ftr_single32);
 
 static const struct __ftr_reg_entry {
 	u32			sys_id;
@@ -499,7 +544,13 @@ static void __init init_cpu_ftr_reg(u32 sys_reg, u64 new)
 
 	val &= valid_mask;
 
-	reg->sys_val = val;
+	/*
+	 * Without this, a CPU hotplug re-online after mark_rodata_ro()
+	 * has run (i.e. any time after boot, since cold boot's own secondary
+	 * bringup always completes first) crashes with a write-to-read-only-memory
+	 * fault right here.
+	 */
+	WRITE_ONCE(reg->sys_val, val);
 	reg->strict_mask = strict_mask;
 	reg->user_mask = user_mask;
 }
@@ -557,14 +608,15 @@ static void update_cpu_ftr_reg(struct arm64_ftr_reg *reg, u64 new)
 	const struct arm64_ftr_bits *ftrp;
 
 	for (ftrp = reg->ftr_bits; ftrp->width; ftrp++) {
-		s64 ftr_cur = arm64_ftr_value(ftrp, reg->sys_val);
+		s64 ftr_cur = arm64_ftr_value(ftrp, READ_ONCE(reg->sys_val));
 		s64 ftr_new = arm64_ftr_value(ftrp, new);
 
 		if (ftr_cur == ftr_new)
 			continue;
 		/* Find a safe value */
 		ftr_new = arm64_ftr_safe_value(ftrp, ftr_new, ftr_cur);
-		reg->sys_val = arm64_ftr_set_value(ftrp, reg->sys_val, ftr_new);
+		WRITE_ONCE(reg->sys_val,
+			  arm64_ftr_set_value(ftrp, READ_ONCE(reg->sys_val), ftr_new));
 	}
 
 }
@@ -714,7 +766,7 @@ u64 read_sanitised_ftr_reg(u32 id)
 
 	/* We shouldn't get a request for an unsupported register */
 	BUG_ON(!regp);
-	return regp->sys_val;
+	return READ_ONCE(regp->sys_val);
 }
 
 #define read_sysreg_case(r)	\

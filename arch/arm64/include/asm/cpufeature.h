@@ -410,7 +410,7 @@ static inline u64 arm64_ftr_mask(const struct arm64_ftr_bits *ftrp)
 
 static inline u64 arm64_ftr_reg_user_value(const struct arm64_ftr_reg *reg)
 {
-	return (reg->user_val | (reg->sys_val & reg->user_mask));
+	return (reg->user_val | (READ_ONCE(reg->sys_val) & reg->user_mask));
 }
 
 static inline int __attribute_const__

@@ -68,7 +68,7 @@ has_mismatched_cache_type(const struct arm64_cpu_capabilities *entry,
 
 	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
 	return (read_cpuid_cachetype() & mask) !=
-	       (arm64_ftr_reg_ctrel0.sys_val & mask);
+	       (READ_ONCE(arm64_ftr_reg_ctrel0.sys_val) & mask);
 }
 
 static void
