@@ -2174,6 +2174,8 @@ static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct shmem_inode_info *info = SHMEM_I(file_inode(file));
 
+	if ((info->seals & F_SEAL_EXEC) && (vma->vm_flags & VM_EXEC))
+		return -EACCES;
 
 	if (info->seals & F_SEAL_FUTURE_WRITE) {
 		/*
@@ -2763,7 +2765,8 @@ continue_resched:
 		     F_SEAL_SHRINK | \
 		     F_SEAL_GROW | \
 		     F_SEAL_WRITE | \
-		     F_SEAL_FUTURE_WRITE)
+		     F_SEAL_FUTURE_WRITE | \
+		     F_SEAL_EXEC)
 
 int shmem_add_seals(struct file *file, unsigned int seals)
 {
@@ -3700,7 +3703,8 @@ static int shmem_show_options(struct seq_file *seq, struct dentry *root)
 #define MFD_NAME_PREFIX_LEN (sizeof(MFD_NAME_PREFIX) - 1)
 #define MFD_NAME_MAX_LEN (NAME_MAX - MFD_NAME_PREFIX_LEN)
 
-#define MFD_ALL_FLAGS (MFD_CLOEXEC | MFD_ALLOW_SEALING | MFD_HUGETLB)
+#define MFD_ALL_FLAGS (MFD_CLOEXEC | MFD_ALLOW_SEALING | MFD_HUGETLB | \
+		       MFD_NOEXEC_SEAL | MFD_EXEC)
 
 SYSCALL_DEFINE2(memfd_create,
 		const char __user *, uname,
@@ -3712,12 +3716,15 @@ SYSCALL_DEFINE2(memfd_create,
 	char *name;
 	long len;
 
+	if ((flags & MFD_EXEC) && (flags & MFD_NOEXEC_SEAL))
+		return -EINVAL;
+
 	if (!(flags & MFD_HUGETLB)) {
 		if (flags & ~(unsigned int)MFD_ALL_FLAGS)
 			return -EINVAL;
 	} else {
 		/* Sealing not supported in hugetlbfs (MFD_HUGETLB) */
-		if (flags & MFD_ALLOW_SEALING)
+		if (flags & (MFD_ALLOW_SEALING | MFD_NOEXEC_SEAL))
 			return -EINVAL;
 		/* Allow huge page size encoding in flags. */
 		if (flags & ~(unsigned int)(MFD_ALL_FLAGS |
@@ -3777,13 +3784,21 @@ SYSCALL_DEFINE2(memfd_create,
 	file->f_mode |= FMODE_LSEEK | FMODE_PREAD | FMODE_PWRITE;
 	file->f_flags |= O_RDWR | O_LARGEFILE;
 
-	if (flags & MFD_ALLOW_SEALING) {
+	if (flags & (MFD_ALLOW_SEALING | MFD_NOEXEC_SEAL)) {
 		/*
 		 * flags check at beginning of function ensures
 		 * this is not a hugetlbfs (MFD_HUGETLB) file.
 		 */
 		info = SHMEM_I(file_inode(file));
 		info->seals &= ~F_SEAL_SEAL;
+	}
+
+	if (flags & MFD_NOEXEC_SEAL) {
+		struct inode *inode = file_inode(file);
+
+		inode->i_mode &= ~0111;
+		info = SHMEM_I(inode);
+		info->seals |= F_SEAL_EXEC;
 	}
 
 	fd_install(fd, file);
