@@ -84,8 +84,8 @@ static FORCE_INLINE void LZ4HC_Insert(LZ4HC_CCtx_internal *hc4,
 		U32 const h = LZ4HC_hashPtr(base + idx);
 		size_t delta = idx - hashTable[h];
 
-		if (delta > MAX_DISTANCE)
-			delta = MAX_DISTANCE;
+		if (delta > LZ4_DISTANCE_MAX)
+			delta = LZ4_DISTANCE_MAX;
 
 		DELTANEXTU16(idx) = (U16)delta;
 
@@ -293,7 +293,7 @@ static FORCE_INLINE int LZ4HC_encodeSequence(
 		*token = (BYTE)(length<<ML_BITS);
 
 	/* Copy Literals */
-	LZ4_wildCopy(*op, *anchor, (*op) + length);
+	LZ4_wildCopy8(*op, *anchor, (*op) + length);
 	*op += length;
 
 	/* Encode Offset */
@@ -602,7 +602,7 @@ static int LZ4_compress_HC_extStateHC(
 			srcSize, maxDstSize, compressionLevel, limitedOutput);
 	else
 		return LZ4HC_compress_generic(ctx, src, dst,
-			srcSize, maxDstSize, compressionLevel, noLimit);
+			srcSize, maxDstSize, compressionLevel, notLimited);
 }
 
 int LZ4_compress_HC(const char *src, char *dst, int srcSize,
@@ -726,7 +726,7 @@ int LZ4_compress_HC_continue(
 			source, dest, inputSize, maxOutputSize, limitedOutput);
 	else
 		return LZ4_compressHC_continue_generic(LZ4_streamHCPtr,
-			source, dest, inputSize, maxOutputSize, noLimit);
+			source, dest, inputSize, maxOutputSize, notLimited);
 }
 EXPORT_SYMBOL(LZ4_compress_HC_continue);
 
