@@ -368,12 +368,19 @@ HOST_LFS_CFLAGS := $(shell getconf LFS_CFLAGS 2>/dev/null)
 HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
 HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
-ifneq ($(LLVM),)
-HOSTCC	= clang
-HOSTCXX	= clang++
+# Auto-wrap the compiler with ccache when available. Disable with CCACHE=0.
+ifeq ($(CCACHE),0)
+CCACHE_PREFIX :=
 else
-HOSTCC	= gcc
-HOSTCXX	= g++
+CCACHE_PREFIX := $(if $(shell command -v ccache 2>/dev/null),ccache,)
+endif
+
+ifneq ($(LLVM),)
+HOSTCC	= $(strip $(CCACHE_PREFIX) clang)
+HOSTCXX	= $(strip $(CCACHE_PREFIX) clang++)
+else
+HOSTCC	= $(strip $(CCACHE_PREFIX) gcc)
+HOSTCXX	= $(strip $(CCACHE_PREFIX) g++)
 endif
 HOSTCFLAGS   := -Wall -Wmissing-prototypes -Wstrict-prototypes -O3 \
 		-fomit-frame-pointer -std=gnu89 \
@@ -385,7 +392,7 @@ HOST_LOADLIBES := $(HOST_LFS_LIBS)
 # Make variables (CC, etc...)
 CPP		= $(CC) -E
 ifneq ($(LLVM),)
-CC		= clang
+CC		= $(strip $(CCACHE_PREFIX) clang)
 LD		= ld.lld
 AR		= llvm-ar
 NM		= llvm-nm
@@ -394,7 +401,7 @@ OBJDUMP		= llvm-objdump
 READELF		= llvm-readelf
 STRIP		= llvm-strip
 else
-CC		= $(CROSS_COMPILE)gcc
+CC		= $(strip $(CCACHE_PREFIX) $(CROSS_COMPILE)gcc)
 LD		= $(CROSS_COMPILE)ld
 LDGOLD		= $(CROSS_COMPILE)ld.gold
 AR		= $(CROSS_COMPILE)ar
