@@ -208,7 +208,7 @@ EXPORT_SYMBOL(kp_set_mode);
 int kp_active_mode(void)
 {
 #ifdef CONFIG_AUTO_KPROFILES
-	if (!screen_on && auto_kp)
+	if (!screen_on && auto_kp && kp_mode != 0)
 		return 1;
 #endif
 

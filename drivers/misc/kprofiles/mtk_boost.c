@@ -94,8 +94,8 @@ static unsigned int kp_thermal_headroom_pct(void)
 }
 
 /* touch / app-launch transient boost durations by kp_active_mode() (0-3) */
-static const unsigned int kp_touch_boost_ms[4]  = { 350, 150, 250, 350 };
-static const unsigned int kp_launch_boost_ms[4] = { 200,   0, 100, 200 };
+static const unsigned int kp_touch_boost_ms[4]  = {   0, 150, 250, 350 };
+static const unsigned int kp_launch_boost_ms[4] = {   0,   0, 100, 200 };
 
 static int kp_cluster_num;
 static unsigned int kp_cluster_max_freq[8];	/* kHz, indexed by cluster id */
@@ -316,7 +316,12 @@ static void kp_battery_poll_fn(struct work_struct *work)
 	int cap = kp_battery_capacity();
 
 	if (cap >= 0) {
-		if (!kp_battery_low && cap <= KP_BATTERY_LOW_PCT) {
+		/* mode 0 (disabled) must never be touched, and Performance
+		 * is deliberately exempt from the low-battery downgrade too
+		 * - the point of Performance is to ignore battery cost.
+		 */
+		if (!kp_battery_low && cap <= KP_BATTERY_LOW_PCT &&
+		    kp_active_mode() != 0 && kp_active_mode() != 3) {
 			/* snapshot whatever was active before forcing Battery,
 			 * same "restore what it was, don't track live changes
 			 * during the override" contract as the mode this
