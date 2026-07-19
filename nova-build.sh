@@ -93,9 +93,16 @@ _compile_and_package() {
     )
 
     KERNEL_IMG="$out_dir/arch/arm64/boot/Image.gz"
+    KERNEL_DTB="$out_dir/arch/arm64/boot/dts/mediatek/begonia.dtb"
+    KERNEL_DTB_IN="$out_dir/arch/arm64/boot/dts/mediatek/begoniain.dtb"
 
     if [[ ! -f "$KERNEL_IMG" ]]; then
         echo "Kernel image not found!"
+        exit 1
+    fi
+
+    if [[ ! -f "$KERNEL_DTB" || ! -f "$KERNEL_DTB_IN" ]]; then
+        echo "Kernel dtb not found!"
         exit 1
     fi
 
@@ -113,10 +120,10 @@ _compile_and_package() {
         git clone --depth=1 https://github.com/Wahid7852/Anykernel "$AK3_DIR"
     fi
 
-    rm -f "$AK3_DIR"/Image* "$AK3_DIR"/zImage*
+    rm -f "$AK3_DIR"/Image* "$AK3_DIR"/zImage* "$AK3_DIR/dtb" "$AK3_DIR/begonia.dtb" "$AK3_DIR/begoniain.dtb"
     cp "$KERNEL_IMG" "$AK3_DIR/"
-
-    rm -rf "$out_dir/arch/arm64/boot"
+    cp "$KERNEL_DTB" "$AK3_DIR/begonia.dtb"
+    cp "$KERNEL_DTB_IN" "$AK3_DIR/begoniain.dtb"
 
     (
         cd "$AK3_DIR"
