@@ -12,6 +12,9 @@
  GNU General Public License for more details.
  */
 
+/dts-v1/;
+
+#include "mt6785.dts"
 #include "mediatek/begonia-mt6785.dtsi"
 
 / {
