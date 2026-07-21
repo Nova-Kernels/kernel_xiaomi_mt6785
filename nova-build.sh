@@ -93,14 +93,15 @@ _compile_and_package() {
     )
 
     KERNEL_IMG="$out_dir/arch/arm64/boot/Image.gz"
-    KERNEL_DTB="$out_dir/arch/arm64/boot/dts/mediatek/mt6785.dtb"
+    KERNEL_DTB="$out_dir/arch/arm64/boot/dts/mediatek/begonia.dtb"
+    KERNEL_DTB_IN="$out_dir/arch/arm64/boot/dts/mediatek/begoniain.dtb"
 
     if [[ ! -f "$KERNEL_IMG" ]]; then
         echo "Kernel image not found!"
         exit 1
     fi
 
-    if [[ ! -f "$KERNEL_DTB" ]]; then
+    if [[ ! -f "$KERNEL_DTB" || ! -f "$KERNEL_DTB_IN" ]]; then
         echo "Kernel dtb not found!"
         exit 1
     fi
@@ -121,10 +122,8 @@ _compile_and_package() {
 
     rm -f "$AK3_DIR"/Image* "$AK3_DIR"/zImage* "$AK3_DIR/dtb" "$AK3_DIR/begonia.dtb" "$AK3_DIR/begoniain.dtb"
     cp "$KERNEL_IMG" "$AK3_DIR/"
-    # begonia/begoniain share one base SoC dtb; board diffs live in the dtbo
-    # overlay (built separately by the device tree), not in this appended dtb.
     cp "$KERNEL_DTB" "$AK3_DIR/begonia.dtb"
-    cp "$KERNEL_DTB" "$AK3_DIR/begoniain.dtb"
+    cp "$KERNEL_DTB_IN" "$AK3_DIR/begoniain.dtb"
 
     (
         cd "$AK3_DIR"

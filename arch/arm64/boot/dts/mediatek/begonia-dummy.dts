@@ -1,0 +1,16 @@
+/*
+ * Empty placeholder DTBO.
+ *
+ * begonia/begoniain ship complete standalone dtbs (see "arm64: dts:
+ * mediatek: Merge base SoC DTB into begonia"), so there's no real
+ * overlay content to package. The dtbo partition still needs a
+ * validly-formed (MTK cert-signed) image though, and mkdtboimg
+ * refuses to build a zero-entry table. Keep this no-op fragment
+ * around purely so drvgen has one real entry to package.
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+};
