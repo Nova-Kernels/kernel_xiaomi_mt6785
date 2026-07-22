@@ -1983,7 +1983,7 @@ size_t cmdq_core_get_cpr_cnt(void)
 EXPORT_SYMBOL(cmdq_core_get_cpr_cnt);
 
 int cmdqCoreAllocWriteAddress(u32 count, dma_addr_t *paStart,
-	enum CMDQ_CLT_ENUM clt)
+	enum CMDQ_CLT_ENUM clt, void *fp)
 {
 	unsigned long flags;
 	struct WriteAddrStruct *pWriteAddr = NULL;
@@ -2017,6 +2017,7 @@ int cmdqCoreAllocWriteAddress(u32 count, dma_addr_t *paStart,
 		pWriteAddr->va = cmdq_core_alloc_hw_buffer_clt(cmdq_dev_get(),
 			count * sizeof(u32), &(pWriteAddr->pa), GFP_KERNEL,
 			clt, &pWriteAddr->pool);
+		pWriteAddr->fp = fp;
 		if (current)
 			pWriteAddr->user = current->pid;
 
@@ -2244,6 +2245,50 @@ int cmdqCoreFreeWriteAddress(dma_addr_t paStart, enum CMDQ_CLT_ENUM clt)
 	return 0;
 }
 EXPORT_SYMBOL(cmdqCoreFreeWriteAddress);
+
+int cmdqCoreFreeWriteAddressByNode(void *fp, enum CMDQ_CLT_ENUM clt)
+{
+	struct WriteAddrStruct *write_addr, *tmp;
+	struct list_head free_list;
+	unsigned long flags;
+	u32 pid = 0;
+
+	INIT_LIST_HEAD(&free_list);
+
+	/* search for the entry */
+	spin_lock_irqsave(&cmdq_write_addr_lock, flags);
+
+	list_for_each_entry_safe(write_addr, tmp, &cmdq_ctx.writeAddrList,
+		list_node) {
+		if (write_addr->fp != fp)
+			continue;
+
+		list_del(&write_addr->list_node);
+		list_add_tail(&write_addr->list_node, &free_list);
+	}
+	spin_unlock_irqrestore(&cmdq_write_addr_lock, flags);
+
+	while (!list_empty(&free_list)) {
+		write_addr = list_first_entry(&free_list, typeof(*write_addr),
+			list_node);
+		if (pid != write_addr->user) {
+			pid = write_addr->user;
+			CMDQ_LOG("free write buf by node:%p clt:%d pid:%u\n",
+				fp, clt, pid);
+		}
+
+		cmdq_core_free_hw_buffer_clt(cmdq_dev_get(),
+			sizeof(u32) * write_addr->count,
+			write_addr->va, write_addr->pa, clt, write_addr->pool);
+		list_del(&write_addr->list_node);
+		memset(write_addr, 0xda, sizeof(struct WriteAddrStruct));
+		kfree(write_addr);
+		atomic_dec(&cmdq_ctx.write_addr_cnt);
+	}
+
+	return 0;
+}
+EXPORT_SYMBOL(cmdqCoreFreeWriteAddressByNode);
 
 void cmdq_core_init_dts_data(void)
 {

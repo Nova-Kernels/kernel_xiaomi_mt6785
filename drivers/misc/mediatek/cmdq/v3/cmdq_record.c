@@ -1707,7 +1707,7 @@ s32 cmdq_op_write_from_reg_ex(struct cmdqRecStruct *handle,
 
 s32 cmdq_alloc_write_addr(u32 count, dma_addr_t *paStart, u32 clt, void *fp)
 {
-	return cmdqCoreAllocWriteAddress(count, paStart, clt);
+	return cmdqCoreAllocWriteAddress(count, paStart, clt, fp);
 }
 
 s32 cmdq_free_write_addr(dma_addr_t paStart, u32 clt)
@@ -1717,7 +1717,7 @@ s32 cmdq_free_write_addr(dma_addr_t paStart, u32 clt)
 
 s32 cmdq_free_write_addr_by_node(u32 clt, void *fp)
 {
-	return 0;
+	return cmdqCoreFreeWriteAddressByNode(fp, clt);
 }
 
 /* Allocate 32-bit register backup slot */
@@ -1731,7 +1731,8 @@ s32 cmdq_alloc_mem(cmdqBackupSlotHandle *p_h_backup_slot, u32 slotCount)
 	if (p_h_backup_slot == NULL)
 		return -EINVAL;
 
-	status = cmdqCoreAllocWriteAddress(slotCount, &paStart, CMDQ_CLT_DISP);
+	status = cmdqCoreAllocWriteAddress(slotCount, &paStart, CMDQ_CLT_DISP,
+		NULL);
 	*p_h_backup_slot = paStart;
 
 	return status;
@@ -2375,7 +2376,7 @@ s32 cmdq_op_profile_marker(struct cmdqRecStruct *handle, const char *tag)
 			!handle->profileMarker.hSlot) {
 			status = cmdqCoreAllocWriteAddress(
 				CMDQ_MAX_PROFILE_MARKER_IN_TASK,
-				&allocatedStartPA, CMDQ_CLT_DISP);
+				&allocatedStartPA, CMDQ_CLT_DISP, NULL);
 			if (status < 0) {
 				CMDQ_ERR(
 					"[REC][PROF_MARKER]allocate failed, status:%d\n",
