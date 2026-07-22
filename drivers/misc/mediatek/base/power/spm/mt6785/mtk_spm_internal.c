@@ -532,8 +532,13 @@ static void lsr_record(const struct wake_status *wakesta, unsigned int spm_26M_o
 		subsys_sleep = (wakesta->debug_flag & SUBSYS_SLEEP_MASK) == SUBSYS_SLEEP_MASK ? 1 : 0;
 
 		if (!conn_sleep || !modem_sleep || !subsys_sleep) {
+			struct timespec64 ts64;
+
 			index_tail = m;
-			getnstimeofday(&lsr_buff[m].key_time);
+			/* avoid WARN_ON(timekeeping_suspended), see spm_get_current_time_ms() */
+			ktime_get_raw_ts64(&ts64);
+			lsr_buff[m].key_time.tv_sec = ts64.tv_sec;
+			lsr_buff[m].key_time.tv_nsec = ts64.tv_nsec;
 			sprintf(lsr_buff[m++].msg, "%u, %s, %s, %s, req_sta = 0x%x 0x%x 0x%x 0x%x 0x%x, %u", wakesta->timer_out,
 					conn_sleep ? "connectivity sleep" : "connectivity not sleep",
 					modem_sleep ? "modem sleep" : "modem not sleep",
@@ -615,7 +620,13 @@ static void lwr_record(char *buf)
 		return;
 
 	lwr_index_tail = m;
-	getnstimeofday(&lwr_buff[m].key_time);
+	{
+		struct timespec64 ts64;
+
+		ktime_get_raw_ts64(&ts64);
+		lwr_buff[m].key_time.tv_sec = ts64.tv_sec;
+		lwr_buff[m].key_time.tv_nsec = ts64.tv_nsec;
+	}
 	sprintf(lwr_buff[m++].msg, "%s", buf);
 
 	if (m >= MAX_LWR_RECORDS)
