@@ -953,7 +953,7 @@ s32 cmdq_driver_ioctl_alloc_write_address(void *fp, unsigned long param)
 	}
 
 	status = cmdqCoreAllocWriteAddress(addrReq.count, &paStart,
-		CMDQ_CLT_MDP);
+		CMDQ_CLT_MDP, fp);
 	if (status != 0) {
 		CMDQ_ERR("%s alloc write address failed\n", __func__);
 		return status;
