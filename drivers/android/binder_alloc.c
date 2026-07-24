@@ -1343,11 +1343,3 @@ int binder_alloc_copy_from_buffer(struct binder_alloc *alloc,
 					   dest, bytes);
 }
 
-<<<<<<< HEAD
-void binder_alloc_shrinker_exit(void)
-{
-	unregister_shrinker(&binder_shrinker);
-	list_lru_destroy(&binder_alloc_lru);
-}
-=======
->>>>>>> d9caaa1eb2ba (binder: Checkout to `android13-5.10-lts`)
