@@ -1,0 +1,22 @@
+/* SPDX-License-Identifier: GPL-2.0 */
+#undef TRACE_SYSTEM
+#define TRACE_SYSTEM signal
+
+#if !defined(_TRACE_HOOK_SIGNAL_H) || defined(TRACE_HEADER_MULTI_READ)
+#define _TRACE_HOOK_SIGNAL_H
+
+#include <linux/tracepoint.h>
+#include <trace/hooks/vendor_hooks.h>
+
+/*
+ * Now, we can define the vendor hooks.
+ */
+DECLARE_RESTRICTED_HOOK(android_vh_do_send_sig_info,
+	TP_PROTO(int sig, struct task_struct *killer, struct task_struct *dst),
+	TP_ARGS(sig, killer, dst)
+);
+
+#endif /* _TRACE_HOOK_SIGNAL_H */
+
+/* This part must be outside protection */
+#include <trace/define_trace.h>
