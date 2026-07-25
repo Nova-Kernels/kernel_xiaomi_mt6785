@@ -1899,6 +1899,64 @@ int set_task_util_max_pct(pid_t pid, unsigned int pct)
 	return set_task_util_max(pid, util_max);
 }
 EXPORT_SYMBOL(set_task_util_max_pct);
+
+/**
+ * set_task_util_clamp: atomically update both bounds of a task's uclamp
+ * window in a single request.
+ *
+ */
+int set_task_util_clamp(pid_t pid, bool set_min, unsigned int util_min,
+			 bool set_max, unsigned int util_max)
+{
+	struct task_struct *p;
+	unsigned int new_min, new_max;
+	int ret = 0;
+
+	if (!opp_capacity_tbl_ready)
+		init_opp_capacity_tbl();
+
+	if (set_min)
+		util_min = find_fit_capacity(util_min);
+	if (set_max)
+		util_max = find_fit_capacity(util_max);
+
+	mutex_lock(&uclamp_mutex);
+	rcu_read_lock();
+	p = find_process_by_pid(pid);
+
+	if (!p) {
+		ret = -ESRCH;
+		goto out;
+	}
+
+	new_min = set_min ? util_min : p->uclamp[UCLAMP_MIN].value;
+	new_max = set_max ? util_max : p->uclamp[UCLAMP_MAX].value;
+
+	if (new_min > new_max || new_max > SCHED_CAPACITY_SCALE) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	if (set_min) {
+		p->uclamp[UCLAMP_MIN].user_defined = true;
+		uclamp_group_get(p, NULL, &p->uclamp[UCLAMP_MIN],
+				UCLAMP_MIN, new_min);
+	}
+
+	if (set_max) {
+		p->uclamp[UCLAMP_MAX].user_defined = true;
+		uclamp_group_get(p, NULL, &p->uclamp[UCLAMP_MAX],
+				UCLAMP_MAX, new_max);
+	}
+
+out:
+	rcu_read_unlock();
+	mutex_unlock(&uclamp_mutex);
+
+	return ret;
+}
+EXPORT_SYMBOL(set_task_util_clamp);
+
 /**
  * init_uclamp: initialize data structures required for utilization clamping
  */
@@ -5741,13 +5799,17 @@ recheck:
 	 * util_min/util_max. These have their own locking (uclamp_mutex)
 	 * and must not be applied while holding the rq lock taken below.
 	 */
-	if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) {
+	if ((attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) &&
+	    (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MAX)) {
+		retval = set_task_util_clamp(p->pid, true, attr->sched_util_min,
+					      true, attr->sched_util_max);
+		if (retval)
+			return retval;
+	} else if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MIN) {
 		retval = set_task_util_min(p->pid, attr->sched_util_min);
 		if (retval)
 			return retval;
-	}
-
-	if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MAX) {
+	} else if (attr->sched_flags & SCHED_FLAG_UTIL_CLAMP_MAX) {
 		retval = set_task_util_max(p->pid, attr->sched_util_max);
 		if (retval)
 			return retval;
