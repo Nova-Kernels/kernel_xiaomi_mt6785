@@ -5707,9 +5707,7 @@ recheck:
 			return -EINVAL;
 	}
 
-	if (attr->sched_flags &
-		~(SCHED_FLAG_RESET_ON_FORK | SCHED_FLAG_RECLAIM |
-		  SCHED_FLAG_UTIL_CLAMP_MIN | SCHED_FLAG_UTIL_CLAMP_MAX))
+	if (attr->sched_flags & ~SCHED_FLAG_ALL)
 		return -EINVAL;
 
 	if (user && (attr->sched_flags &
@@ -6194,6 +6192,20 @@ SYSCALL_DEFINE2(sched_setparam, pid_t, pid, struct sched_param __user *, param)
 	return do_sched_setscheduler(pid, SETPARAM_POLICY, param);
 }
 
+/*
+ * Fill in the parts of @attr the caller asked to keep (SCHED_FLAG_KEEP_PARAMS)
+ * from @p's current state, mirroring what sched_getattr() reports.
+ */
+static void get_params(struct task_struct *p, struct sched_attr *attr)
+{
+	if (task_has_dl_policy(p))
+		__getparam_dl(p, attr);
+	else if (task_has_rt_policy(p))
+		attr->sched_priority = p->rt_priority;
+	else
+		attr->sched_nice = task_nice(p);
+}
+
 /**
  * sys_sched_setattr - same as above, but with extended sched_attr
  * @pid: the pid in question.
@@ -6216,12 +6228,17 @@ SYSCALL_DEFINE3(sched_setattr, pid_t, pid, struct sched_attr __user *, uattr,
 
 	if ((int)attr.sched_policy < 0)
 		return -EINVAL;
+	if (attr.sched_flags & SCHED_FLAG_KEEP_POLICY)
+		attr.sched_policy = SETPARAM_POLICY;
 
 	rcu_read_lock();
 	retval = -ESRCH;
 	p = find_process_by_pid(pid);
-	if (p != NULL)
+	if (p != NULL) {
+		if (attr.sched_flags & SCHED_FLAG_KEEP_PARAMS)
+			get_params(p, &attr);
 		retval = sched_setattr(p, &attr);
+	}
 	rcu_read_unlock();
 
 	return retval;
