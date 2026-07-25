@@ -53,3 +53,4 @@ obj-$(CONFIG_PI433)		+= pi433/
 ifneq ($(subst ",,$(CONFIG_MTK_SENSOR_ARCHITECTURE)),2.0)
 obj-$(CONFIG_NANOHUB)		+= nanohub/
 endif
+obj-$(CONFIG_BINDER_PRIO)	+= binder_prio/
