@@ -4194,7 +4194,7 @@ static void finish_task_switch_dead(struct task_struct *prev)
 
 	if (atomic_dec_and_test(&prev->stack_refcount)) {
 		prev->async_free.free_stack = true;
-	} else if (atomic_dec_and_test(&prev->usage)) {
+	} else if (refcount_dec_and_test(&prev->usage)) {
 		prev->async_free.free_stack = false;
 	} else {
 		atomic_set(&prev->async_free.running, 0);
