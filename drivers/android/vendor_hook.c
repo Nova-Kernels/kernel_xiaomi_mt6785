@@ -8,7 +8,6 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/hooks/vendor_hooks.h>
-#include <trace/hooks/syscall_check.h>
 #include <linux/tracepoint.h>
 #include <trace/hooks/binder.h>
 #include <trace/hooks/signal.h>
