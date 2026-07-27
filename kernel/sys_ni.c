@@ -237,6 +237,10 @@ cond_syscall(sys_fanotify_init);
 cond_syscall(sys_fanotify_mark);
 cond_syscall(compat_sys_fanotify_mark);
 
+/* kernel/fork.c */
+/* __ARCH_WANT_SYS_CLONE3 */
+cond_syscall(sys_clone3);
+
 /* open by handle */
 cond_syscall(sys_name_to_handle_at);
 cond_syscall(sys_open_by_handle_at);
