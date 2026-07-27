@@ -4714,6 +4714,13 @@ CONFIG_BEGONIA_NFC=y
 # CONFIG_BOMB_NFC is not set
 # CONFIG_CEZANNE_NFC is not set
 
+# KernelSU
+# CONFIG_KSU is not set
+# CONFIG_KSU_SUSFS is not set
+# CONFIG_KSU_SUSFS_SUS_MAP is not set
+# CONFIG_KSU_SUSFS_SUS_MOUNT is not set
+# CONFIG_KSU_SUSFS_TRY_UMOUNT is not set
+
 #
 # Firmware Drivers
 #
