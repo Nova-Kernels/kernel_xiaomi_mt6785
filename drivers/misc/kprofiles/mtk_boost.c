@@ -94,11 +94,12 @@ static unsigned int kp_thermal_headroom_pct(void)
 }
 
 /* touch / app-launch transient boost durations by kp_active_mode() (0-3) */
-static const unsigned int kp_touch_boost_ms[4]  = {   0, 150, 250, 350 };
+static const unsigned int kp_touch_boost_ms[4]  = {   0,   0, 250, 350 };
 static const unsigned int kp_launch_boost_ms[4] = {   0,   0, 100, 200 };
 
 static int kp_cluster_num;
 static unsigned int kp_cluster_max_freq[8];	/* kHz, indexed by cluster id */
+static bool kp_battery_ceiling_active;		/* gates boost floors below */
 static struct delayed_work kp_cpu_boost_release_work;
 static struct delayed_work kp_gpu_boost_release_work;
 
@@ -165,7 +166,8 @@ static void kp_cpu_boost_release_fn(struct work_struct *work)
 
 static void kp_cpu_boost_kick(unsigned int duration_ms)
 {
-	if (!duration_ms || kp_cluster_num <= 0 || !kp_thermal_headroom_pct())
+	if (!duration_ms || kp_cluster_num <= 0 || !kp_thermal_headroom_pct() ||
+	    kp_battery_ceiling_active)
 		return;
 
 	kp_cpu_userlimit_max(CPU_KIR_KPROFILES_BOOST);
@@ -182,7 +184,7 @@ static void kp_gpu_boost_release_fn(struct work_struct *work)
 
 static void kp_gpu_boost_kick(unsigned int duration_ms)
 {
-	if (!duration_ms || !kp_thermal_headroom_pct())
+	if (!duration_ms || !kp_thermal_headroom_pct() || kp_battery_ceiling_active)
 		return;
 
 	mtk_custom_boost_gpu_freq(0);	/* 0 == highest frequency */
@@ -466,8 +468,6 @@ static void kp_gaming_set_wanted(bool wanted)
  * safe to apply immediately and unconditionally.
  */
 #define KP_BATTERY_CPU_CEILING_PCT 50
-
-static bool kp_battery_ceiling_active;
 
 static void kp_battery_ceiling_set(bool on)
 {
