@@ -12,6 +12,7 @@ DEFCONFIG="begonia_user_defconfig"
 KSU_DEFCONFIG="${DEFCONFIG%_defconfig}_ksu_defconfig"
 CLANG_DIR="$KERNEL_PATH/clang"
 CCACHE_DIR="$KERNEL_PATH/.ccache"
+MKDTBOIMG="$KERNEL_PATH/.tools/mkdtboimg.py"
 
 export LC_ALL=C
 export ARCH=arm64
@@ -47,6 +48,23 @@ download_clang() {
         mkdir -p "$CLANG_DIR"
         tar -xf aosp-clang.tar.gz -C "$CLANG_DIR"
         rm -f aosp-clang.tar.gz
+    fi
+}
+
+download_mkdtboimg() {
+    if [[ ! -f "$MKDTBOIMG" ]]; then
+        echo "==> Downloading mkdtboimg..."
+
+        mkdir -p "$(dirname "$MKDTBOIMG")"
+        wget -q -O - \
+        "https://android.googlesource.com/platform/system/libufdt/+/refs/heads/main/utils/src/mkdtboimg.py?format=TEXT" \
+        | base64 -d > "$MKDTBOIMG"
+
+        if [[ ! -s "$MKDTBOIMG" ]]; then
+            rm -f "$MKDTBOIMG"
+            echo "Failed to download mkdtboimg!"
+            exit 1
+        fi
     fi
 }
 
@@ -92,17 +110,25 @@ _compile_and_package() {
             CROSS_COMPILE_COMPAT=arm-linux-gnueabi-
     )
 
+    DTS_DIR="$out_dir/arch/arm64/boot/dts/mediatek"
     KERNEL_IMG="$out_dir/arch/arm64/boot/Image.gz"
-    KERNEL_DTB="$out_dir/arch/arm64/boot/dts/mediatek/begonia.dtb"
-    KERNEL_DTB_IN="$out_dir/arch/arm64/boot/dts/mediatek/begoniain.dtb"
+    KERNEL_DTB="$DTS_DIR/mt6785.dtb"
 
     if [[ ! -f "$KERNEL_IMG" ]]; then
         echo "Kernel image not found!"
         exit 1
     fi
 
-    if [[ ! -f "$KERNEL_DTB" || ! -f "$KERNEL_DTB_IN" ]]; then
+    if [[ ! -f "$KERNEL_DTB" ]]; then
         echo "Kernel dtb not found!"
+        exit 1
+    fi
+
+    # begonia.dtbo etc, packed into dtbo.img below
+    mapfile -t KERNEL_DTBOS < <(find "$DTS_DIR" -maxdepth 1 -name '*.dtbo' | sort)
+
+    if [[ ${#KERNEL_DTBOS[@]} -eq 0 ]]; then
+        echo "Kernel dtbo not found!"
         exit 1
     fi
 
@@ -120,10 +146,14 @@ _compile_and_package() {
         git clone --depth=1 https://github.com/Wahid7852/Anykernel "$AK3_DIR"
     fi
 
-    rm -f "$AK3_DIR"/Image* "$AK3_DIR"/zImage* "$AK3_DIR/dtb" "$AK3_DIR/begonia.dtb" "$AK3_DIR/begoniain.dtb"
+    download_mkdtboimg
+
+    rm -f "$AK3_DIR"/Image* "$AK3_DIR"/zImage* "$AK3_DIR"/*.dtb "$AK3_DIR"/*.dtbo \
+          "$AK3_DIR/dtb" "$AK3_DIR/dtb.img" "$AK3_DIR/dtbo" "$AK3_DIR/dtbo.img"
     cp "$KERNEL_IMG" "$AK3_DIR/"
-    cp "$KERNEL_DTB" "$AK3_DIR/begonia.dtb"
-    cp "$KERNEL_DTB_IN" "$AK3_DIR/begoniain.dtb"
+    cp "$KERNEL_DTB" "$AK3_DIR/dtb"
+
+    python3 "$MKDTBOIMG" create "$AK3_DIR/dtbo.img" --page_size=2048 "${KERNEL_DTBOS[@]}"
 
     (
         cd "$AK3_DIR"
