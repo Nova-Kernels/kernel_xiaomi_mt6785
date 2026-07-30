@@ -133,7 +133,8 @@ _compile_and_package() {
     fi
 
     SUBREV="4.14.$(grep 'SUBLEVEL =' Makefile | awk '{print $3}')"
-    ZIPBASE="${revision}-${SUBREV}"
+    DATETIME="$(date +%Y%m%d-%H%M)"
+    ZIPBASE="${revision}-${SUBREV}-${DATETIME}"
     ZIPNAME="${ZIPBASE}.zip"
 
     i=1
