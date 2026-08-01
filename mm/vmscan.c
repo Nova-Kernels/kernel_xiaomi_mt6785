@@ -57,6 +57,7 @@
 #include <linux/swapops.h>
 #include <linux/balloon_compaction.h>
 #include <linux/rtmm.h>
+#include <linux/simple_lmk.h>
 
 #include "internal.h"
 
@@ -2869,6 +2870,14 @@ static bool shrink_node(pg_data_t *pgdat, struct scan_control *sc)
 		vmpressure(sc->gfp_mask, sc->target_mem_cgroup, true,
 			   sc->nr_scanned - nr_scanned,
 			   sc->nr_reclaimed - nr_reclaimed, sc->order);
+
+		/*
+		 * Reclaim is struggling once priority has dropped past the
+		 * halfway mark; let Simple LMK know so it can step in instead
+		 * of waiting on a vmpressure percentage that lags behind.
+		 */
+		if (global_reclaim(sc) && sc->priority < DEF_PRIORITY / 2)
+			simple_lmk_reclaim_needed();
 
 		if (sc->nr_reclaimed - nr_reclaimed)
 			reclaimable = true;

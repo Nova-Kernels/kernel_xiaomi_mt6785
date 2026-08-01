@@ -14,7 +14,6 @@
 #include <linux/ratelimit.h>
 #include <linux/sched/mm.h>
 #include <linux/sort.h>
-#include <linux/vmpressure.h>
 #include <uapi/linux/sched/types.h>
 
 /* The minimum number of pages to free per reclaim */
@@ -29,10 +28,6 @@ module_param(slmk_minfree, short, 0644);
 static unsigned short slmk_timeout __read_mostly = CONFIG_ANDROID_SIMPLE_LMK_TIMEOUT_MSEC;
 module_param(slmk_timeout, short, 0644);
 #define RECLAIM_EXPIRES msecs_to_jiffies(slmk_timeout)
-
-/* vmpressure level (0-100) that triggers a reclaim; higher = keep more apps cached */
-static unsigned short slmk_vmpressure_thresh __read_mostly = 97;
-module_param(slmk_vmpressure_thresh, short, 0644);
 
 struct victim_info {
 	struct task_struct *tsk;
@@ -469,23 +464,21 @@ void simple_lmk_mm_freed(struct mm_struct *mm)
 	read_unlock(&mm_free_lock);
 }
 
-static int simple_lmk_vmpressure_cb(struct notifier_block *nb,
-				    unsigned long pressure, void *data)
+/*
+ * Called from shrink_node() once direct/kswapd reclaim has dropped priority
+ * past the halfway mark, i.e. reclaim is struggling. This is a better proxy
+ * for user-perceivable memory pressure than the old vmpressure percentage,
+ * since it reflects the reclaimer's own assessment of how hard it had to
+ * work rather than a coarse scanned/reclaimed ratio.
+ */
+void simple_lmk_reclaim_needed(void)
 {
-	if (pressure >= slmk_vmpressure_thresh) {
-		atomic_set(&needs_reclaim, 1);
-		smp_mb__after_atomic();
-		if (waitqueue_active(&oom_waitq))
-			wake_up(&oom_waitq);
-	}
-
-	return NOTIFY_OK;
+	atomic_set(&needs_reclaim, 1);
+	smp_mb__after_atomic();
+	if (waitqueue_active(&oom_waitq))
+		wake_up(&oom_waitq);
 }
-
-static struct notifier_block vmpressure_notif = {
-	.notifier_call = simple_lmk_vmpressure_cb,
-	.priority = INT_MAX
-};
+EXPORT_SYMBOL_GPL(simple_lmk_reclaim_needed);
 
 /* Initialize Simple LMK when lmkd in Android writes to the minfree parameter */
 static int simple_lmk_init_set(const char *val, const struct kernel_param *kp)
@@ -501,7 +494,6 @@ static int simple_lmk_init_set(const char *val, const struct kernel_param *kp)
 		thread = kthread_run(simple_lmk_reclaim_thread, NULL,
 				     "simple_lmkd");
 		BUG_ON(IS_ERR(thread));
-		BUG_ON(vmpressure_notifier_register(&vmpressure_notif));
 	}
 
 	/*
