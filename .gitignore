@@ -126,6 +126,6 @@ kernel/configs/android-*.cfg
 
 out*/
 *.zip
-Anykernel/
+AnyKernel3/
 clang*
 .tools/

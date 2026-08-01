@@ -7,7 +7,7 @@ SECONDS=0
 KERNEL_PATH="$PWD"
 OUT_DIR="$KERNEL_PATH/out"
 KSU_OUT_DIR="$KERNEL_PATH/out-ksu"
-AK3_DIR="$KERNEL_PATH/Anykernel"
+AK3_DIR="$KERNEL_PATH/AnyKernel3"
 DEFCONFIG="begonia_user_defconfig"
 KSU_DEFCONFIG="${DEFCONFIG%_defconfig}_ksu_defconfig"
 CLANG_DIR="$KERNEL_PATH/clang"
@@ -144,7 +144,7 @@ _compile_and_package() {
     done
 
     if [[ ! -d "$AK3_DIR" ]]; then
-        git clone --depth=1 https://github.com/Wahid7852/Anykernel "$AK3_DIR"
+        git clone --depth=1 https://github.com/Wahid7852/AnyKernel3 "$AK3_DIR"
     fi
 
     download_mkdtboimg
