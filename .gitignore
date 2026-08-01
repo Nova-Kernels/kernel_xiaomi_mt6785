@@ -124,8 +124,7 @@ all.config
 # fetched Android config fragments
 kernel/configs/android-*.cfg
 
-out/
-out-ksu/
+out*/
 *.zip
 Anykernel/
 clang*
