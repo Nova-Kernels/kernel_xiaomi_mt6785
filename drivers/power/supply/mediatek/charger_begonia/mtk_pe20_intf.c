@@ -598,7 +598,7 @@ int mtk_pe20_start_algorithm(struct charger_manager *pinfo)
 
 	if (!pe20->is_connect) {
 		ret = -EIO;
-		chr_info("%s: stop, PE+20 is not connected\n",
+		chr_debug("%s: stop, PE+20 is not connected\n",
 			__func__);
 		__pm_relax(&pe20->suspend_lock);
 		mutex_unlock(&pe20->access_lock);

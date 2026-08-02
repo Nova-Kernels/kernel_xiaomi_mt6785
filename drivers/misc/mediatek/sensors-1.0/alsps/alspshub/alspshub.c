@@ -911,7 +911,7 @@ static void cabc_backlight_value_notification_work(struct work_struct *work)
 		cfg_data[2] = 0;
 		cfg_data[3] = 0;
 
-		pr_info("cabc_backlight_value_notification_work [%d, %d, %d, %d]\n",
+		pr_debug("cabc_backlight_value_notification_work [%d, %d, %d, %d]\n",
 			cfg_data[0], cfg_data[1], cfg_data[2], cfg_data[3]);
 
 		sensor_cfg_to_hub(ID_LIGHT,

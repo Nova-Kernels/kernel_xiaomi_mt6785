@@ -2074,7 +2074,7 @@ static void cabc_backlight_value_notification_work(struct work_struct *work)
 		backlightness_config_data[1] = device->cabc_backlight_value;
 		backlightness_config_data[2] = 0;
 		backlightness_config_data[3] = 0;
-		pr_info("cabc_backlight_value_notification_work [%d, %d, %d, %d]\n",
+		pr_debug("cabc_backlight_value_notification_work [%d, %d, %d, %d]\n",
 			backlightness_config_data[0], backlightness_config_data[1],backlightness_config_data[2], backlightness_config_data[3]);
 
 		length = sizeof(backlightness_config_data);

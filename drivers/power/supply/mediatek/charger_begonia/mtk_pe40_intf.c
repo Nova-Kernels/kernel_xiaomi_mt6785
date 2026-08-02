@@ -482,7 +482,7 @@ int mtk_pe40_get_ibus(struct charger_manager *pinfo, u32 *ibus)
 		}
 		*ibus = chg1_ibus + chg2_ibus;
 
-		chr_err("[%s] chg2_watt:%d ibat2:%d ibat1:%d ibat:%d ibus1:%d ibus2:%d ibus:%d\n",
+		chr_debug("[%s] chg2_watt:%d ibat2:%d ibat1:%d ibat:%d ibus1:%d ibus2:%d ibus:%d\n",
 			__func__, chg2_watt, chg2_ibat, chg1_ibat, ibat * 100,
 			chg1_ibus, chg2_ibus, *ibus);
 	} else {
@@ -504,7 +504,7 @@ bool mtk_pe40_is_ready(struct charger_manager *pinfo)
 
 	ret = mtk_pe40_get_ibus(pinfo, &ibus);
 
-	chr_err("pe40_ready:%d hv:%d thermal:%d,%d tmp:%d,%d,%d pps:%d en:%d ibus:%d %d\n",
+	chr_debug("pe40_ready:%d hv:%d thermal:%d,%d tmp:%d,%d,%d pps:%d en:%d ibus:%d %d\n",
 		pinfo->enable_pe_4,
 		pinfo->enable_hv_charging,
 		pdata->thermal_charging_current_limit,

@@ -482,7 +482,7 @@ int mtk_pe_start_algorithm(struct charger_manager *pinfo)
 	/* TA is not connected */
 	if (!pe->is_connect) {
 		ret = -EIO;
-		chr_info("%s: stop, PE+ is not connected\n", __func__);
+		chr_debug("%s: stop, PE+ is not connected\n", __func__);
 		goto _out;
 	}
 

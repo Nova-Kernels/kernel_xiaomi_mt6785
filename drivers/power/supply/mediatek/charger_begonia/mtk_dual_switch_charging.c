@@ -821,7 +821,7 @@ static void dual_swchg_turn_on_charging(struct charger_manager *info)
 		}
 	}
 
-	chr_err("chg1:%d chg2:%d chg2_chip_en:%d\n", chg1_enable, chg2_enable,
+	chr_debug("chg1:%d chg2:%d chg2_chip_en:%d\n", chg1_enable, chg2_enable,
 		chg2_chip_enabled);
 }
 
@@ -932,7 +932,7 @@ static int mtk_dual_switch_chr_cc(struct charger_manager *info)
 
 	charger_dev_is_enabled(info->chg2_dev, &chg2_en);
 
-	chr_err("safety_check state:%d en:%d thermal:%d",
+	chr_debug("safety_check state:%d en:%d thermal:%d",
 		swchgalg->state,
 		chg2_en,
 		pdata->thermal_charging_current_limit);
