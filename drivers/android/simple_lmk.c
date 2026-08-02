@@ -471,14 +471,27 @@ void simple_lmk_mm_freed(struct mm_struct *mm)
  * since it reflects the reclaimer's own assessment of how hard it had to
  * work rather than a coarse scanned/reclaimed ratio.
  */
+static atomic_long_t nr_priority_triggers = ATOMIC_LONG_INIT(0);
+
 void simple_lmk_reclaim_needed(void)
 {
+	atomic_long_inc(&nr_priority_triggers);
 	atomic_set(&needs_reclaim, 1);
 	smp_mb__after_atomic();
 	if (waitqueue_active(&oom_waitq))
 		wake_up(&oom_waitq);
 }
 EXPORT_SYMBOL_GPL(simple_lmk_reclaim_needed);
+
+static int nr_priority_triggers_get(char *buf, const struct kernel_param *kp)
+{
+	return sprintf(buf, "%ld\n", atomic_long_read(&nr_priority_triggers));
+}
+
+static const struct kernel_param_ops nr_priority_triggers_ops = {
+	.get = nr_priority_triggers_get,
+};
+module_param_cb(nr_priority_triggers, &nr_priority_triggers_ops, NULL, 0444);
 
 /* Initialize Simple LMK when lmkd in Android writes to the minfree parameter */
 static int simple_lmk_init_set(const char *val, const struct kernel_param *kp)
