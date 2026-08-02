@@ -6234,12 +6234,16 @@ SYSCALL_DEFINE3(sched_setattr, pid_t, pid, struct sched_attr __user *, uattr,
 	rcu_read_lock();
 	retval = -ESRCH;
 	p = find_process_by_pid(pid);
+	if (p != NULL)
+		get_task_struct(p);
+	rcu_read_unlock();
+
 	if (p != NULL) {
 		if (attr.sched_flags & SCHED_FLAG_KEEP_PARAMS)
 			get_params(p, &attr);
 		retval = sched_setattr(p, &attr);
+		put_task_struct(p);
 	}
-	rcu_read_unlock();
 
 	return retval;
 }
