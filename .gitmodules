@@ -1,4 +1,4 @@
 [submodule "KernelSU"]
 	path = KernelSU
 	url = https://github.com/sidex15/KernelSU-Next
-	branch = legacy-susfs-v2
+	branch = n3x7g3n-kernel
