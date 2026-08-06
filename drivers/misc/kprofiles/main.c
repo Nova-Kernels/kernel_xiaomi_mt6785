@@ -420,7 +420,19 @@ static int __init kp_init(void)
 
 	return ret;
 }
+
+/*
+ * kp_mtk_boost_init() calls into the MediaTek perfmgr CPU-freq kicker API,
+ * whose per-cluster state is only set up by init_perfmgr() at device_initcall
+ * level. drivers/misc/Makefile links kprofiles/ ahead of mediatek/, so at the
+ * same initcall level kprofiles always wins the tie and calls in while
+ * perfmgr_clusters is still 0. Run a level later when built in.
+ */
+#ifdef MODULE
 module_init(kp_init);
+#else
+late_initcall(kp_init);
+#endif
 
 static void __exit kp_exit(void)
 {
