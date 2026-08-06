@@ -228,7 +228,13 @@ int update_userlimit_cpu_freq(int kicker, int num_cluster
 			retval = perfmgr_common_userlimit_cpu_freq(perfmgr_clusters, final_freq);
 	}
 ret_update:
-	if (final_freq)
+	/*
+	 * clstr_num is 0 until init_perfmgr() runs, and kcalloc(0, ...) hands
+	 * back ZERO_SIZE_PTR rather than NULL, so a plain "if (final_freq)"
+	 * lets an early caller reach final_freq[-1] and fault at 0x8 while
+	 * boost_freq is still held, wedging every later frequency request.
+	 */
+	if (!ZERO_OR_NULL_PTR(final_freq) && clstr_num > 0)
 		update_isolation_cpu_locked(CPU_ISO_KIR_CPU_CTRL,
 			(final_freq[clstr_num-1].min != -1) ? 0 : -1,
 			num_cpu - 1);
