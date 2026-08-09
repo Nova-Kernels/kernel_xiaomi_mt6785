@@ -229,6 +229,18 @@ int kp_active_mode(void)
 EXPORT_SYMBOL(kp_active_mode);
 
 /**
+ * kp_stored_mode - Get the configured profile mode (0-3)
+ *
+ * Unlike kp_active_mode(), ignores the screen-off and rollback overrides.
+ * Use this to gate or snapshot a mode change, not kp_active_mode().
+ */
+int kp_stored_mode(void)
+{
+	return kp_mode;
+}
+EXPORT_SYMBOL(kp_stored_mode);
+
+/**
  * kp_trigger_mode_change_event - Trigger a mode change event
  *
  * This function triggers a mode change event by calling the blocking notifier

@@ -22,6 +22,7 @@
 
 /* Kprofiles core API (drivers/misc/kprofiles/main.c) */
 extern int kp_active_mode(void);
+extern int kp_stored_mode(void);
 extern void kp_set_mode(unsigned int level);
 extern int kp_notifier_register_client(struct notifier_block *nb);
 extern int kp_notifier_unregister_client(struct notifier_block *nb);
@@ -321,15 +322,15 @@ static void kp_battery_poll_fn(struct work_struct *work)
 		/* mode 0 (disabled) must never be touched, and Performance
 		 * is deliberately exempt from the low-battery downgrade too
 		 * - the point of Performance is to ignore battery cost.
+		 *
+		 * Gate and snapshot on the stored mode: kp_active_mode()
+		 * reports 1 with the screen off, which would let the gate
+		 * through whatever the user configured and then save 1 as
+		 * the mode to restore.
 		 */
 		if (!kp_battery_low && cap <= KP_BATTERY_LOW_PCT &&
-		    kp_active_mode() != 0 && kp_active_mode() != 3) {
-			/* snapshot whatever was active before forcing Battery,
-			 * same "restore what it was, don't track live changes
-			 * during the override" contract as the mode this
-			 * itself forces (kp_set_mode(1)) uses for screen-off.
-			 */
-			kp_battery_saved_mode = kp_active_mode();
+		    kp_stored_mode() != 0 && kp_stored_mode() != 3) {
+			kp_battery_saved_mode = kp_stored_mode();
 			kp_battery_low = true;
 			kp_set_mode(1);
 		} else if (kp_battery_low && cap >= KP_BATTERY_RECOVER_PCT) {
