@@ -38,6 +38,7 @@
 
 #define RAMOOPS_KERNMSG_HDR "===="
 #define MIN_MEM_SIZE 4096UL
+#define PMSG_DEBUG_SIZE (128 * 1024UL)
 #ifdef __aarch64__
 #ifdef memcpy
 #undef memcpy
@@ -975,6 +976,17 @@ static void ramoops_register_dummy(void)
 		return;
 
 	pr_info("using module parameters\n");
+
+	/* Debugging: LK passes a 64K pmsg, a few seconds of logcat at most.
+	 * The reserved region has room left over, so widen it from the spare
+	 * rather than shrinking the console. Console is counted twice: probe
+	 * allocates bprz at console_size as well, and at least one dump record
+	 * has to survive or a panic goes unrecorded.
+	 */
+	if (ramoops_pmsg_size < PMSG_DEBUG_SIZE &&
+	    ramoops_console_size * 2 + ramoops_ftrace_size + PMSG_DEBUG_SIZE +
+	    record_size <= mem_size)
+		ramoops_pmsg_size = PMSG_DEBUG_SIZE;
 
 	dummy_data = kzalloc(sizeof(*dummy_data), GFP_KERNEL);
 	if (!dummy_data) {
