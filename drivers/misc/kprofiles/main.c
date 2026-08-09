@@ -78,7 +78,8 @@ static unsigned int kp_mode = CONFIG_KP_DEFAULT_MODE;
 static struct kobject *kp_kobj;
 
 DEFINE_MUTEX(kp_set_mode_rb_lock);
-DEFINE_SPINLOCK(kp_set_mode_lock);
+/* Mutex: the notifier chain takes an rwsem and its listeners sleep. */
+DEFINE_MUTEX(kp_set_mode_lock);
 
 #ifdef CONFIG_KP_VERBOSE_DEBUG
 #define kp_dbg(fmt, ...) pr_info(fmt, ##__VA_ARGS__)
@@ -167,16 +168,16 @@ void kp_set_mode(unsigned int level)
 		return;
 	}
 
-	spin_lock(&kp_set_mode_lock);
+	mutex_lock(&kp_set_mode_lock);
 	ret = __kp_set_mode(level);
 	if (ret) {
 		kp_err("Invalid mode requested, skipping mode change.\n");
-		spin_unlock(&kp_set_mode_lock);
+		mutex_unlock(&kp_set_mode_lock);
 		return;
 	}
 
 	kp_trigger_mode_change_event();
-	spin_unlock(&kp_set_mode_lock);
+	mutex_unlock(&kp_set_mode_lock);
 }
 EXPORT_SYMBOL(kp_set_mode);
 
@@ -421,13 +422,6 @@ static int __init kp_init(void)
 	return ret;
 }
 
-/*
- * kp_mtk_boost_init() calls into the MediaTek perfmgr CPU-freq kicker API,
- * whose per-cluster state is only set up by init_perfmgr() at device_initcall
- * level. drivers/misc/Makefile links kprofiles/ ahead of mediatek/, so at the
- * same initcall level kprofiles always wins the tie and calls in while
- * perfmgr_clusters is still 0. Run a level later when built in.
- */
 #ifdef MODULE
 module_init(kp_init);
 #else
