@@ -156,6 +156,14 @@ _compile_and_package() {
 
     python3 "$MKDTBOIMG" create "$AK3_DIR/dtbo.img" --page_size=2048 "${KERNEL_DTBOS[@]}"
 
+    # mkdtboimg.py doesn't pad the image to the page boundary itself; the
+    # bootloader expects a page-aligned dtbo.img, so pad it here.
+    DTBO_SIZE=$(stat -c%s "$AK3_DIR/dtbo.img")
+    DTBO_REM=$((DTBO_SIZE % 2048))
+    if [[ $DTBO_REM -ne 0 ]]; then
+        truncate -s "+$((2048 - DTBO_REM))" "$AK3_DIR/dtbo.img"
+    fi
+
     (
         cd "$AK3_DIR"
         git checkout master &>/dev/null || true
