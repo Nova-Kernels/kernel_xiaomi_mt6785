@@ -666,8 +666,8 @@ static int kbase_debug_copy_prepare(struct kbase_jd_atom *katom)
 		case KBASE_MEM_TYPE_IMPORTED_USER_BUF:
 		{
 			struct kbase_mem_phy_alloc *alloc = reg->gpu_alloc;
-			unsigned long nr_pages =
-				alloc->imported.user_buf.nr_pages;
+			const unsigned long nr_pages = alloc->imported.user_buf.nr_pages;
+			const unsigned long start = alloc->imported.user_buf.address;
 
 			if (alloc->imported.user_buf.mm != current->mm) {
 				ret = -EINVAL;
@@ -679,11 +679,9 @@ static int kbase_debug_copy_prepare(struct kbase_jd_atom *katom)
 				ret = -ENOMEM;
 				goto out_unlock;
 			}
-
-			ret = get_user_pages_fast(
-					alloc->imported.user_buf.address,
-					nr_pages, 0,
-					buffers[i].extres_pages);
+			kbase_gpu_vm_unlock(katom->kctx);
+			ret = get_user_pages_fast(start, nr_pages, 0, buffers[i].extres_pages);
+			kbase_gpu_vm_lock(katom->kctx);
 			if (ret != nr_pages) {
 				/* Adjust number of pages, so that we only
 				 * attempt to release pages in the array that we
@@ -1495,10 +1493,11 @@ static void kbase_ext_res_process(struct kbase_jd_atom *katom, bool map)
 			if (!kbase_sticky_resource_acquire(katom->kctx,
 					gpu_addr))
 				goto failed_loop;
-		} else
+		} else {
 			if (!kbase_sticky_resource_release_force(katom->kctx, NULL,
 					gpu_addr))
 				failed = true;
+		}
 	}
 
 	/*
