@@ -2910,55 +2910,50 @@ static long FDVT_ioctl(struct file *pFile,
 					goto EXIT;
 				}
 
-				log_dbg("FDVT_CLEAR_IRQ:Type(%d),Status(0x%08X),IrqStatus(0x%08X)\n",
-					ClearIrq.Type, ClearIrq.Status,
-					FDVTInfo.IrqInfo.Status[ClearIrq.Type]);
-	spin_lock_irqsave(&
-	(FDVTInfo.SpinLockIrq
-	[ClearIrq.Type]),
-	flags);
-				FDVTInfo.IrqInfo.Status[ClearIrq.Type] &=
-				(~ClearIrq.Status);
-	spin_unlock_irqrestore(&
-	(FDVTInfo.SpinLockIrq
-	[ClearIrq.Type]),
-	flags);
-			} else {
-				log_err("FDVT_CLEAR_IRQ copy_from_user failed\n");
-				Ret = -EFAULT;
-			}
-			break;
+			log_dbg("FDVT_CLEAR_IRQ:Type(%d),Status(0x%08X),IrqStatus(0x%08X)\n",
+				ClearIrq.Type, ClearIrq.Status,
+				FDVTInfo.IrqInfo.Status[ClearIrq.Type]);
+			spin_lock_irqsave(
+				&(FDVTInfo.SpinLockIrq[ClearIrq.Type]),	flags);
+			FDVTInfo.IrqInfo.Status[ClearIrq.Type] &= (~ClearIrq.Status);
+			spin_unlock_irqrestore(
+				&(FDVTInfo.SpinLockIrq[ClearIrq.Type]), flags);
+		} else {
+			log_err("FDVT_CLEAR_IRQ copy_from_user failed\n");
+			Ret = -EFAULT;
+		}
+		break;
 		}
 	case FDVT_ENQNUE_NUM:
-		{
-			/* enqueNum */
-if (copy_from_user(&enqueNum,
-	(void *)Param,
-	sizeof(int)) == 0) {
-	if (FDVT_REQUEST_STATE_EMPTY ==
-		g_FDVT_ReqRing.FDVTReq_Struct
-		[g_FDVT_ReqRing.WriteIdx].State) {
-		spin_lock_irqsave(&
-		(FDVTInfo.SpinLockIrq
-		[FDVT_IRQ_TYPE_INT_FDVT_ST]),
-		flags);
-		g_FDVT_ReqRing.FDVTReq_Struct
-		[g_FDVT_ReqRing.WriteIdx].processID =
-		pUserInfo->Pid;
-		g_FDVT_ReqRing.FDVTReq_Struct
-		[g_FDVT_ReqRing.WriteIdx].enqueReqNum =
-		enqueNum;
-		spin_unlock_irqrestore(&
-		(FDVTInfo.SpinLockIrq[FDVT_IRQ_TYPE_INT_FDVT_ST]),
-		flags);
-		if (enqueNum >
-			_SUPPORT_MAX_FDVT_FRAME_REQUEST_) {
-			log_err(
-			"FDVT Enque Num is bigger than enqueNum:%d\n",
-			enqueNum);
-		}
-		log_dbg("FDVT_ENQNUE_NUM:%d\n",
-		enqueNum);
+	{
+	/* enqueNum */
+	if (copy_from_user(&enqueNum,
+			   (void *)Param,
+			   sizeof(int)) == 0) {
+		if (FDVT_REQUEST_STATE_EMPTY ==
+			g_FDVT_ReqRing.FDVTReq_Struct
+			[g_FDVT_ReqRing.WriteIdx].State) {
+			if (enqueNum > _SUPPORT_MAX_FDVT_FRAME_REQUEST_) {
+				log_err(
+				"FDVT Enque Num is bigger than enqueNum:%d\n",
+				enqueNum);
+				Ret = -EFAULT;
+				break;
+			}
+			spin_lock_irqsave(
+				&(FDVTInfo.SpinLockIrq
+				[FDVT_IRQ_TYPE_INT_FDVT_ST]),
+				flags);
+			g_FDVT_ReqRing.FDVTReq_Struct
+			[g_FDVT_ReqRing.WriteIdx].processID = pUserInfo->Pid;
+			g_FDVT_ReqRing.FDVTReq_Struct
+			[g_FDVT_ReqRing.WriteIdx].enqueReqNum =	enqueNum;
+			spin_unlock_irqrestore(
+				&(FDVTInfo.SpinLockIrq
+				[FDVT_IRQ_TYPE_INT_FDVT_ST]),
+				flags);
+			log_dbg("FDVT_ENQNUE_NUM:%d\n",
+				enqueNum);
 		} else {
 			log_err(
 			"WFME Enque request state is not empty:%d, writeIdx:%d, readIdx:%d\n",
