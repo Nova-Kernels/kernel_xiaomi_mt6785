@@ -2101,6 +2101,11 @@ static int ISP_WaitIrq(struct ISP_WAIT_IRQ_STRUCT *WaitIrq)
 	time_getrequest.tv_usec = (unsigned int)usec;
 	time_getrequest.tv_sec = (unsigned int)sec;
 
+	if (idx >= 32 || idx < 0) {
+		LOG_NOTICE("WaitIrq: idx error(%d)", idx);
+		return -EFAULT;
+	}
+
 	if (WaitIrq->Type >= ISP_IRQ_TYPE_AMOUNT ||
 	    WaitIrq->Type < 0) {
 		LOG_DBG("WaitIrq: type error(%d)", WaitIrq->Type);
