@@ -95,11 +95,7 @@ static int *cpu_id;
 
 static void walt_mode(int enable)
 {
-#ifdef CONFIG_SCHED_WALT
-	sched_walt_enable(LT_WALT_POWERHAL, enable);
-#else
 	pr_debug("walt not be configured\n");
-#endif
 }
 
 void ext_launch_start(void)
