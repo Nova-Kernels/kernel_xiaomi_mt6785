@@ -179,6 +179,7 @@ build_kernel() {
 }
 
 build_ksu() {
+    patch -d KernelSU -p1 < "$KERNEL_PATH/ksun.patch"
     _compile_and_package "$KSU_OUT_DIR" "$KSU_DEFCONFIG" "NoVA-KSU"
 
     # KernelSU-Next's Kbuild touches the normal defconfig too, revert that
