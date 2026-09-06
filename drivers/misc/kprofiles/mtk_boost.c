@@ -47,6 +47,16 @@ extern void ged_kpi_set_game_hint(int mode);
 extern int update_eas_uclamp_min(int kicker, int cgroup_idx, int value);
 extern int update_prefer_idle_value(int kicker, int cgroup_idx, int value);
 
+/* MediaTek PMIC low-battery protection level, 0 = none / 1 / 2. Owned by
+ * drivers/misc/mediatek/pmic/mt6358/v1/pmic_throttling_dlpt.c; both it and
+ * this file are built in (=y) so a plain extern links. When non-zero the
+ * PMIC + PPM power-budget path is already clamping the CPU, so kprofiles
+ * must not push frequency *floors* into the same PPM arbiter - its cobra
+ * solver resolves a floor-vs-budget conflict by hotplugging a big core,
+ * which on this tree stalls in the TEEI cpu-hotplug notifier.
+ */
+extern int g_low_battery_level;
+
 /*
  * update_userlimit_cpu_freq()'s .min/.max are raw kHz values passed
  * almost directly to cpufreq_update_policy(), which clamps them to
@@ -168,7 +178,7 @@ static void kp_cpu_boost_release_fn(struct work_struct *work)
 static void kp_cpu_boost_kick(unsigned int duration_ms)
 {
 	if (!duration_ms || kp_cluster_num <= 0 || !kp_thermal_headroom_pct() ||
-	    kp_battery_ceiling_active)
+	    kp_battery_ceiling_active || g_low_battery_level)
 		return;
 
 	kp_cpu_userlimit_max(CPU_KIR_KPROFILES_BOOST);
@@ -185,7 +195,8 @@ static void kp_gpu_boost_release_fn(struct work_struct *work)
 
 static void kp_gpu_boost_kick(unsigned int duration_ms)
 {
-	if (!duration_ms || !kp_thermal_headroom_pct() || kp_battery_ceiling_active)
+	if (!duration_ms || !kp_thermal_headroom_pct() || kp_battery_ceiling_active ||
+	    g_low_battery_level)
 		return;
 
 	mtk_custom_boost_gpu_freq(0);	/* 0 == highest frequency */
@@ -298,6 +309,20 @@ static bool kp_battery_low;
 static unsigned int kp_battery_saved_mode;
 static struct delayed_work kp_battery_poll_work;
 
+static void kp_battery_ceiling_set(bool on);
+
+/* Re-evaluate the 50% CPU ceiling. Apply it for a real capacity-driven
+ * low-battery condition (kp_battery_low) or a user-selected Battery
+ * profile - never for the transient mode 1 that AUTO_KPROFILES reports on
+ * every screen-off, which otherwise toggled a PPM userlimit on each
+ * blank/unblank and handed the cobra solver a reason to hotplug a big
+ * core.
+ */
+static void kp_battery_ceiling_update(void)
+{
+	kp_battery_ceiling_set(kp_battery_low || kp_stored_mode() == 1);
+}
+
 static int kp_battery_capacity(void)
 {
 	struct power_supply *psy;
@@ -337,6 +362,8 @@ static void kp_battery_poll_fn(struct work_struct *work)
 			kp_battery_low = false;
 			kp_set_mode(kp_battery_saved_mode);
 		}
+
+		kp_battery_ceiling_update();
 	}
 
 	mod_delayed_work(system_freezable_wq, &kp_battery_poll_work,
@@ -374,7 +401,6 @@ static void kp_cpu_userlimit_level(int kicker, unsigned int pct)
 static unsigned int kp_sched_latency_orig;
 static unsigned int kp_sched_min_gran_orig;
 static unsigned int kp_sched_wakeup_gran_orig;
-static unsigned int kp_sched_migration_cost_orig;
 static bool kp_sched_tuned;
 
 /* top-app uclamp_min floor while gaming boost is active, 0-100 scale */
@@ -389,21 +415,20 @@ static void kp_sched_tune_set(bool tighten)
 		kp_sched_latency_orig = sysctl_sched_latency;
 		kp_sched_min_gran_orig = sysctl_sched_min_granularity;
 		kp_sched_wakeup_gran_orig = sysctl_sched_wakeup_granularity;
-		kp_sched_migration_cost_orig = sysctl_sched_migration_cost;
 
-		/* tighter preemption/migration response for foreground game
-		 * thread latency; halved, not zeroed, to avoid excess
-		 * context-switch/migration overhead offsetting the gain.
+		/* tighter preemption granularity for foreground game thread
+		 * latency; halved, not zeroed. sched_migration_cost is left
+		 * alone on purpose - lowering it makes tasks bounce between
+		 * CPUs, which spikes big-core current draw and trips the
+		 * PMIC low-battery protection early on a worn cell.
 		 */
 		sysctl_sched_latency = kp_sched_latency_orig / 2;
 		sysctl_sched_min_granularity = kp_sched_min_gran_orig / 2;
 		sysctl_sched_wakeup_granularity = kp_sched_wakeup_gran_orig / 2;
-		sysctl_sched_migration_cost = kp_sched_migration_cost_orig / 2;
 	} else {
 		sysctl_sched_latency = kp_sched_latency_orig;
 		sysctl_sched_min_granularity = kp_sched_min_gran_orig;
 		sysctl_sched_wakeup_granularity = kp_sched_wakeup_gran_orig;
-		sysctl_sched_migration_cost = kp_sched_migration_cost_orig;
 	}
 
 	/* EAS task-placement awareness for top-app: guaranteed minimum
@@ -436,7 +461,11 @@ static void kp_gaming_thermal_fn(struct work_struct *work)
 	if (!kp_gaming_wanted)
 		return;
 
-	kp_gaming_apply_pct(kp_thermal_headroom_pct());
+	/* Drop the CPU/GPU floor entirely while PMIC low-battery protection
+	 * is engaged - a floor fights the power budget in the PPM arbiter.
+	 * The 1.5 s poll ramps it back once the battery recovers.
+	 */
+	kp_gaming_apply_pct(g_low_battery_level ? 0 : kp_thermal_headroom_pct());
 
 	mod_delayed_work(system_freezable_wq, &kp_gaming_thermal_work,
 			  msecs_to_jiffies(KP_THERMAL_POLL_MS));
@@ -450,7 +479,8 @@ static void kp_gaming_set_wanted(bool wanted)
 	kp_gaming_wanted = wanted;
 
 	if (wanted) {
-		kp_gaming_apply_pct(kp_thermal_headroom_pct());
+		kp_gaming_apply_pct(g_low_battery_level ? 0 :
+				    kp_thermal_headroom_pct());
 		mod_delayed_work(system_freezable_wq, &kp_gaming_thermal_work,
 				  msecs_to_jiffies(KP_THERMAL_POLL_MS));
 	} else {
@@ -504,7 +534,7 @@ static int kp_boost_notifier_cb(struct notifier_block *self,
 		return NOTIFY_DONE;
 
 	kp_gaming_set_wanted(mode == 3);
-	kp_battery_ceiling_set(mode == 1);
+	kp_battery_ceiling_update();
 
 	return NOTIFY_OK;
 }
@@ -562,7 +592,7 @@ void kp_mtk_boost_init(void)
 	 * active at boot
 	 */
 	kp_gaming_set_wanted(kp_active_mode() == 3);
-	kp_battery_ceiling_set(kp_active_mode() == 1);
+	kp_battery_ceiling_update();
 
 	mod_delayed_work(system_freezable_wq, &kp_battery_poll_work, 0);
 
