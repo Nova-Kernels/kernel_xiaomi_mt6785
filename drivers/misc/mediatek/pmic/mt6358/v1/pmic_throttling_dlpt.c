@@ -22,6 +22,7 @@
 #include <linux/of_fdt.h>
 #include <linux/iio/consumer.h>
 #include <linux/interrupt.h>
+#include <linux/jiffies.h>
 #include <linux/mfd/mt6358/core.h>
 
 #include <mt-plat/upmu_common.h>
@@ -128,10 +129,21 @@ void register_low_battery_notify(
 	pr_info("[%s] prio_val=%d\n", __func__, prio_val);
 }
 
+/* Battery voltage near ~30% SoC on a worn cell oscillates across
+ * POWER_INT1_VOLT under load. Each crossing re-runs every low-battery
+ * consumer (PPM power budget -> big-cluster hotplug -> TEEI secure-core
+ * switch which blocks on pm_sema), so a 2 Hz flap stalls the whole
+ * system. Debounce de-escalation and same-level re-triggers; always let
+ * escalation to a more severe level through immediately.
+ */
+#define LOW_BAT_DEBOUNCE_MS 30000
+
 void exec_low_battery_callback(unsigned int thd)
 {
 	int i = 0;
 	enum LOW_BATTERY_LEVEL_TAG low_battery_level = 0;
+	static unsigned long last_change;
+	static bool debounce_armed;
 
 	if (g_low_battery_stop == 1) {
 		pr_info("[%s] g_low_battery_stop=%d\n"
@@ -143,6 +155,18 @@ void exec_low_battery_callback(unsigned int thd)
 			low_battery_level = LOW_BATTERY_LEVEL_1;
 		else if (thd == POWER_INT2_VOLT)
 			low_battery_level = LOW_BATTERY_LEVEL_2;
+
+		if (low_battery_level <= g_low_battery_level && debounce_armed &&
+		    time_before(jiffies, last_change +
+				msecs_to_jiffies(LOW_BAT_DEBOUNCE_MS))) {
+			pr_info("[%s] debounced: req lvl %d, hold lvl %d\n"
+				, __func__, low_battery_level
+				, g_low_battery_level);
+			return;
+		}
+
+		last_change = jiffies;
+		debounce_armed = true;
 		g_low_battery_level = low_battery_level;
 		for (i = 0; i < ARRAY_SIZE(lbcb_tb); i++) {
 			if (lbcb_tb[i].lbcb != NULL)
