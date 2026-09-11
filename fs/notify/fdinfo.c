@@ -102,8 +102,8 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 	inode = igrab(mark->connector->inode);
 	if (inode) {
 #ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
-		if (likely(susfs_is_current_proc_umounted()) &&
-				unlikely(inode->i_state & BIT_SUS_KSTAT)) {
+		if (susfs_is_current_proc_umounted() &&
+				unlikely(test_bit(AS_FLAGS_SUS_KSTAT, &inode->i_mapping->flags))) {
 			struct path path;
 			char *pathname = kmalloc(PAGE_SIZE, GFP_KERNEL);
 			char *dpath;
@@ -111,7 +111,8 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 				goto out_seq_printf;
 			}
 			dpath = d_path(&file->f_path, pathname, PAGE_SIZE);
-			if (!dpath) {
+			/* d_path() returns ERR_PTR on failure, not NULL. */
+			if (IS_ERR(dpath)) {
 				goto out_free_pathname;
 			}
 			if (kern_path(dpath, 0, &path)) {

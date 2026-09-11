@@ -935,13 +935,18 @@ static ssize_t mem_rw(struct file *file, char __user *buf,
 		vma = find_vma(mm, addr);
 		if (vma && vma->vm_file) {
 			struct inode *inode = file_inode(vma->vm_file);
-			if (unlikely(inode->i_state & BIT_SUS_MAPS) && susfs_is_current_proc_umounted()) {
+			if (inode->i_mapping &&
+				unlikely(test_bit(AS_FLAGS_SUS_MAP, &inode->i_mapping->flags) &&
+				susfs_is_current_proc_umounted_app()))
+			{
 				if (write) {
 					copied = -EFAULT;
 				} else {
 					copied = -EIO;
 				}
-				break;
+				*ppos = addr;
+				mmput(mm);
+				goto free;
 			}
 		}
 #endif
@@ -2325,10 +2330,14 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
 			if (!vma->vm_file)
 				continue;
 #ifdef CONFIG_KSU_SUSFS_SUS_MAP
-			if (unlikely(file_inode(vma->vm_file)->i_state & BIT_SUS_MAPS) &&
-				susfs_is_current_proc_umounted())
 			{
-				continue;
+				struct inode *inode = file_inode(vma->vm_file);
+				if (inode->i_mapping &&
+					unlikely(test_bit(AS_FLAGS_SUS_MAP, &inode->i_mapping->flags) &&
+					susfs_is_current_proc_umounted_app()))
+				{
+					continue;
+				}
 			}
 #endif
 			if (++pos <= ctx->pos)

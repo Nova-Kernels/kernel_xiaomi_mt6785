@@ -1,4 +1,4 @@
 [submodule "KernelSU"]
 	path = KernelSU
-	url = https://github.com/sidex15/KernelSU-Next
-	branch = n3x7g3n-kernel
+	url = https://github.com/Yuvi-cpu-dotcom/ReSukiSU-A57-SUSFS21
+	branch = a57-susfs21

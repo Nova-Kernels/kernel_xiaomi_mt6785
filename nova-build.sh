@@ -179,7 +179,7 @@ build_kernel() {
 }
 
 build_ksu() {
-    _compile_and_package "$KSU_OUT_DIR" "$KSU_DEFCONFIG" "NoVA-KSU"
+    _compile_and_package "$KSU_OUT_DIR" "$KSU_DEFCONFIG" "NoVA-Resukisu"
 
     # KernelSU-Next's Kbuild touches the normal defconfig too, revert that
     git checkout -- "arch/arm64/configs/$DEFCONFIG"
@@ -191,11 +191,11 @@ case "${1:-}" in
         build_kernel
         ;;
     -k|--build-ksu)
-        rm -f ./NoVA-KSU-*.zip
+        rm -f ./NoVA-Resukisu-*.zip
         build_ksu
         ;;
     -a|--build-all)
-        rm -f ./NoVA-[0-9]*.zip ./NoVA-KSU-*.zip
+        rm -f ./NoVA-[0-9]*.zip ./NoVA-Resukisu-*.zip
         build_kernel
         build_ksu
         ;;
