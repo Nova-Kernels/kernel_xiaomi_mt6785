@@ -12,6 +12,10 @@ ifeq ($(wildcard $(srctree)/include/linux/ptr_ring.h),)
 ccflags-y += -I$(kbuild-dir)/compat/ptr_ring/include
 endif
 
+ifeq ($(wildcard $(srctree)/include/linux/skb_array.h),)
+ccflags-y += -I$(kbuild-dir)/compat/skb_array/include
+endif
+
 ifeq ($(wildcard $(srctree)/include/linux/siphash.h),)
 ccflags-y += -I$(kbuild-dir)/compat/siphash/include
 wireguard-y += compat/siphash/siphash.o
@@ -30,7 +34,7 @@ ifeq ($(wildcard $(srctree)/arch/x86/include/asm/fpu/api.h)$(CONFIG_X86),y)
 ccflags-y += -I$(kbuild-dir)/compat/fpu-x86/include
 endif
 
-ifeq ($(wildcard $(srctree)/arch/$(SRCARCH)/include/asm/simd.h)$(shell grep -s -F "generic-y += simd.h" "$(srctree)/arch/$(SRCARCH)/Kbuild" "$(srctree)/arch/$(SRCARCH)/Makefile"),)
+ifeq ($(wildcard $(srctree)/arch/$(SRCARCH)/include/asm/simd.h)$(shell grep -s -F "generic-y += simd.h" "$(srctree)/arch/$(SRCARCH)/Makefile" "$(srctree)/arch/$(SRCARCH)/Makefile"),)
 ccflags-y += -I$(kbuild-dir)/compat/simd-asm/include
 endif
 
@@ -63,6 +67,10 @@ ccflags-y += -I$(kbuild-dir)/compat/neon-arm/include
 endif
 ifeq ($(wildcard $(srctree)/arch/arm64/include/asm/neon.h)$(CONFIG_ARM64),y)
 ccflags-y += -I$(kbuild-dir)/compat/neon-arm/include
+endif
+
+ifeq ($(wildcard $(srctree)/include/net/dst_metadata.h),)
+ccflags-y += -I$(kbuild-dir)/compat/dstmetadata/include
 endif
 
 ifeq ($(CONFIG_X86_64),y)

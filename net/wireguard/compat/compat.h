@@ -16,15 +16,10 @@
 #define ISRHEL7
 #elif RHEL_MAJOR == 8
 #define ISRHEL8
-#if RHEL_MINOR >= 4
-#define ISCENTOS8S
-#endif
 #endif
 #endif
 #ifdef UTS_UBUNTU_RELEASE_ABI
-#if LINUX_VERSION_CODE == KERNEL_VERSION(3, 13, 11)
-#define ISUBUNTU1404
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 5, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0)
 #define ISUBUNTU1604
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 16, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
 #define ISUBUNTU1804
@@ -219,7 +214,7 @@ static inline void skb_scrub_packet(struct sk_buff *skb, bool xnet)
 #define skb_scrub_packet(a, b) skb_scrub_packet(a)
 #endif
 
-#if ((LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 63) || defined(ISUBUNTU1404)) && !defined(ISRHEL7)
+#if ((LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 63)) && !defined(ISRHEL7)
 #include <linux/random.h>
 static inline u32 __compat_prandom_u32_max(u32 ep_ro)
 {
@@ -268,7 +263,7 @@ static inline u32 __compat_prandom_u32_max(u32 ep_ro)
 #endif
 #endif
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 3) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 35) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 24) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0) && !defined(ISUBUNTU1404)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 33) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 10, 60) && !defined(ISRHEL7))
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 3) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 17, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 35) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 24) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 33) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)) || (LINUX_VERSION_CODE < KERNEL_VERSION(3, 10, 60) && !defined(ISRHEL7))
 static inline void memzero_explicit(void *s, size_t count)
 {
 	memset(s, 0, count);
@@ -281,7 +276,7 @@ static const struct in6_addr __compat_in6addr_any = IN6ADDR_ANY_INIT;
 #define in6addr_any __compat_in6addr_any
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 320))
 #include <linux/completion.h>
 #include <linux/random.h>
 #include <linux/errno.h>
@@ -295,7 +290,7 @@ static inline void rng_initialized_callback(struct random_ready_callback *cb)
 }
 static inline int wait_for_random_bytes(void)
 {
-	bool rng_is_initialized = false;
+	static bool rng_is_initialized = false;
 	int ret;
 	if (unlikely(!rng_is_initialized)) {
 		struct rng_initializer rng = {
@@ -325,7 +320,59 @@ static inline int wait_for_random_bytes(void)
 }
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 19, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 285)) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 320)) && !defined(ISRHEL8)
+#include <linux/random.h>
+#include <linux/slab.h>
+struct rng_is_initialized_callback {
+	struct random_ready_callback cb;
+	atomic_t *rng_state;
+};
+static inline void rng_is_initialized_callback(struct random_ready_callback *cb)
+{
+	struct rng_is_initialized_callback *rdy = container_of(cb, struct rng_is_initialized_callback, cb);
+	atomic_set(rdy->rng_state, 2);
+	kfree(rdy);
+}
+static inline bool rng_is_initialized(void)
+{
+	static atomic_t rng_state = ATOMIC_INIT(0);
+
+	if (atomic_read(&rng_state) == 2)
+		return true;
+
+	if (atomic_cmpxchg(&rng_state, 0, 1) == 0) {
+		int ret;
+		struct rng_is_initialized_callback *rdy = kmalloc(sizeof(*rdy), GFP_ATOMIC);
+		if (!rdy) {
+			atomic_set(&rng_state, 0);
+			return false;
+		}
+		rdy->cb.owner = THIS_MODULE;
+		rdy->cb.func = rng_is_initialized_callback;
+		rdy->rng_state = &rng_state;
+		ret = add_random_ready_callback(&rdy->cb);
+		if (ret)
+			kfree(rdy);
+		if (ret == -EALREADY) {
+			atomic_set(&rng_state, 2);
+			return true;
+		} else if (ret)
+			atomic_set(&rng_state, 0);
+		return false;
+	}
+	return false;
+}
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+/* This is a disaster. Without this API, we really have no way of
+ * knowing if it's initialized. We just return that it has and hope
+ * for the best... */
+static inline bool rng_is_initialized(void)
+{
+	return true;
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 13, 0) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 320))
 static inline int get_random_bytes_wait(void *buf, int nbytes)
 {
 	int ret = wait_for_random_bytes();
@@ -450,7 +497,7 @@ static inline void *__compat_kvzalloc(size_t size, gfp_t flags)
 #define kvzalloc __compat_kvzalloc
 #endif
 
-#if ((LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 41)) && !defined(ISUBUNTU1404)
+#if ((LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)) || LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 41))
 #include <linux/vmalloc.h>
 #include <linux/mm.h>
 static inline void __compat_kvfree(const void *addr)
@@ -461,6 +508,28 @@ static inline void __compat_kvfree(const void *addr)
 		kfree(addr);
 }
 #define kvfree __compat_kvfree
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0)
+#include <linux/vmalloc.h>
+#include <linux/mm.h>
+static inline void *__compat_kvmalloc_array(size_t n, size_t size, gfp_t flags)
+{
+	if (n != 0 && SIZE_MAX / n < size)
+		return NULL;
+	return kvmalloc(n * size, flags);
+}
+#define kvmalloc_array __compat_kvmalloc_array
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
+#include <linux/vmalloc.h>
+#include <linux/mm.h>
+static inline void *__compat_kvcalloc(size_t n, size_t size, gfp_t flags)
+{
+        return kvmalloc_array(n, size, flags | __GFP_ZERO);
+}
+#define kvcalloc __compat_kvcalloc
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 9)
@@ -652,6 +721,23 @@ static inline void *skb_put_data(struct sk_buff *skb, const void *data, unsigned
 #endif
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 17, 0) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 285)) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0) || LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 320))
+static inline void le32_to_cpu_array(u32 *buf, unsigned int words)
+{
+	while (words--) {
+		__le32_to_cpus(buf);
+		buf++;
+	}
+}
+static inline void cpu_to_le32_array(u32 *buf, unsigned int words)
+{
+	while (words--) {
+		__cpu_to_le32s(buf);
+		buf++;
+	}
+}
+#endif
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
 #include <crypto/algapi.h>
 static inline void crypto_xor_cpy(u8 *dst, const u8 *src1, const u8 *src2,
@@ -688,14 +774,17 @@ static inline void crypto_xor_cpy(u8 *dst, const u8 *src1, const u8 *src2,
 #define hlist_add_behind(a, b) hlist_add_after(b, a)
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0) && !defined(ISCENTOS8S)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 0, 0) && !defined(ISRHEL8)
 #define totalram_pages() totalram_pages
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 18, 0)
+#include <linux/time64.h>
+#ifndef __kernel_timespec
 struct __kernel_timespec {
 	int64_t tv_sec, tv_nsec;
 };
+#endif
 #elif LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0)
 #include <linux/time64.h>
 #ifdef __kernel_timespec
@@ -762,10 +851,16 @@ static inline void skb_mark_not_on_list(struct sk_buff *skb)
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) && !defined(ISRHEL8)
+#include <net/netlink.h>
+#ifndef NLA_POLICY_EXACT_LEN
 #define NLA_POLICY_EXACT_LEN(_len) { .type = NLA_UNSPEC, .len = _len }
 #endif
+#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 2, 0) && !defined(ISRHEL8)
+#include <net/netlink.h>
+#ifndef NLA_POLICY_MIN_LEN
 #define NLA_POLICY_MIN_LEN(_len) { .type = NLA_UNSPEC, .len = _len }
+#endif
 #define COMPAT_CANNOT_INDIVIDUAL_NETLINK_OPS_POLICY
 #endif
 
@@ -780,7 +875,7 @@ static inline void skb_mark_not_on_list(struct sk_buff *skb)
 #endif
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 5, 0) && !defined(ISRHEL8)
 #define genl_dumpit_info(cb) ({ \
 	struct { struct nlattr **attrs; } *a = (void *)((u8 *)cb->args + offsetofend(struct dump_ctx, next_allowedip)); \
 	BUILD_BUG_ON(sizeof(cb->args) < offsetofend(struct dump_ctx, next_allowedip) + sizeof(*a)); \
@@ -800,12 +895,14 @@ static inline void skb_mark_not_on_list(struct sk_buff *skb)
 #endif
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 5, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 200) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 20, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 249)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 285)) || (LINUX_VERSION_CODE < KERNEL_VERSION(4, 10, 0) && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 9, 320))
 #define blake2s_init zinc_blake2s_init
 #define blake2s_init_key zinc_blake2s_init_key
-#define wg_blake2s_update wg_zinc_blake2s_update
-#define wg_blake2s_final wg_zinc_blake2s_final
-#define wg_blake2s_hmac wg_zinc_blake2s_hmac
+#define blake2s_update zinc_blake2s_update
+#define blake2s_final zinc_blake2s_final
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 5, 0)
+#define blake2s_hmac zinc_blake2s_hmac
 #define chacha20 zinc_chacha20
 #define hchacha20 zinc_hchacha20
 #define chacha20poly1305_encrypt zinc_chacha20poly1305_encrypt
@@ -1027,6 +1124,37 @@ static const struct header_ops ip_tunnel_header_ops = { .parse_protocol = ip_tun
 #endif
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 16, 0)
+#include <net/dst_cache.h>
+struct dst_cache_pcpu {
+	unsigned long refresh_ts;
+	struct dst_entry *dst;
+	u32 cookie;
+	union {
+		struct in_addr in_saddr;
+		struct in6_addr in6_saddr;
+	};
+};
+#define COMPAT_HAS_DEFINED_DST_CACHE_PCPU
+static inline void dst_cache_reset_now(struct dst_cache *dst_cache)
+{
+	int i;
+
+	if (!dst_cache->cache)
+		return;
+
+	dst_cache->reset_ts = jiffies;
+	for_each_possible_cpu(i) {
+		struct dst_cache_pcpu *idst = per_cpu_ptr(dst_cache->cache, i);
+		struct dst_entry *dst = idst->dst;
+
+		idst->cookie = 0;
+		idst->dst = NULL;
+		dst_release(dst);
+	}
+}
+#endif
+
 #if defined(ISUBUNTU1604) || defined(ISRHEL7)
 #include <linux/siphash.h>
 #ifndef _WG_LINUX_SIPHASH_H
@@ -1058,7 +1186,7 @@ static const struct header_ops ip_tunnel_header_ops = { .parse_protocol = ip_tun
 #undef __read_mostly
 #define __read_mostly
 #endif
-#if (defined(RAP_PLUGIN) || defined(CONFIG_CFI_CLANG)) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
+#if (defined(CONFIG_PAX) || defined(CONFIG_CFI_CLANG)) && LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
 #include <linux/timer.h>
 #define wg_expired_retransmit_handshake(a) wg_expired_retransmit_handshake(unsigned long timer)
 #define wg_expired_send_keepalive(a) wg_expired_send_keepalive(unsigned long timer)
